@@ -1,4 +1,4 @@
-# Hack computer assembler
+# Hack computer assembler - NAND2Tetrix P1 - 2017
 import sys
 import pdb
 

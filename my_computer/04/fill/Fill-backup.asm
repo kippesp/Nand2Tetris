@@ -17,61 +17,62 @@
 
 // Was going to rewrite to this....
 //
-// START:
+// INIT:
+//      R0 <-- 0        // 8 white pixels
+// FILL_SCREEN:
+//      R1 <-- 8192-1  // 16K screen
+// LOOP:
+//      SCREEN[R1] <-- R0
+//      R1 <-- R1 - 1
+//      Is R1 >= 0?
+//          yes:
+//              jmp LOOP
+// CHECK_KEYBOARD:
 //      Is keyboard pressed?
 //          yes:
-//              R0 <-- all black
-//              goto FILL_SCREEN
+//              R0 <-- 16384    // 16 black pixels
 //          no:
-//              R0 <-- all white
-// FILL_SCREEN:
-//      R1 <-- base_screen_address
-// DO_FILL:
-//      MEM[R1] <-- R0
-//      Is R1 > last_screen_word (16384 + 256*512/16 - 1)
-//          no:
-//              R1 <-- R1 + 1
-//              goto DO_FILL
-//          yes:
-//              goto START
+//              R0 <-- 0        // 16 white pixels
+//      jmp FILL_SCREEN
 
-(START)
-    @KBD
+(LOOP)
+    @KBD    // read keyboard
     D=M
-    @SET_WHITE
-    D;JEQ   // jmp if no key is pressed
-    D=-1    // black
+    @WHITE
+    D;JEQ   // no keypress? set to white color
+    D=-1
     @R0
     M=D
-    @FILL_SCREEN
-    0;JMP   // start the fill
-(SET_WHITE)
+    @DOFILL
+    0;JMP
+(WHITE)
+    @0
+    D=A
     @R0
-    M=0
-(FILL_SCREEN)
+    M=D
+(DOFILL)
     @SCREEN
     D=A
     @R1
-    M=D     // base address of screen for first write
-(DO_FILL)
-    @R0
-    D=M     // D==color
+    M=D     // set screen base address
+(FILOOP)
+    @R0     // load color
+    D=M
     @R1
-    A=M     // load screen address from R1 into A
-    M=D     // update 16 pixels in screen
+    A=M     // load screen address
+    M=D     // update screen pixels
 
     @R1
-    D=M     // update screen address
-    D=D+1   // to next address
+    D=M
+    D=D+1   // increment screen address
     @R1
     M=D
-
-    @24575  // Last screen address
+    @24575  // last screen location
     D=A
     @R1
     D=D-M
-    @DO_FILL
+    @FILOOP
     D;JGE   // continue if not done
 
-    @START
+    @LOOP
     0;JMP   // restart program

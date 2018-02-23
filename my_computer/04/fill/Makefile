@@ -1,10 +1,10 @@
-all: Fill-F.hack FillAutomatic-F.out
+all: Fill.hack FillAutomatic.out
 
-Fill-F.hack:
-	n2tas Fill-F.asm
+Fill.hack: Fill.asm
+	n2tas Fill.asm
 
-FillAutomatic-F.out:
-	n2tce FillAutomatic-F.tst
+FillAutomatic.out: FillAutomatic.tst Fill.asm
+	n2tce FillAutomatic.tst
 
 clean:
-	rm -f Fill-F.hack FillAutomatic-F.out
+	rm -f Fill.hack FillAutomatic.out
