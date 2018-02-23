@@ -272,6 +272,8 @@ public:
     {
       outfile << "// " << lineNumber << ": push " << segment << " " << index << endl;
 
+      // TODO: Clean up repetition
+
       if (segment == "constant")
       {
         outfile << "@" << index << endl;
@@ -279,6 +281,83 @@ public:
         outfile << "@SP" << endl;
         outfile << "M=D" << endl;
         outfile << "M=M+1" << endl;
+      }
+      else if (segment == "local")
+      {
+        // D <-- [Local] + index
+        outfile << "@" << "LCL" << endl;
+        outfile << "D=M" << endl;
+        outfile << "@" << index << endl;
+        outfile << "D=D+A" << endl;
+        outfile << "A=D" << endl;
+
+        // push D onto stack
+        outfile << "@" << "SP" << endl;
+        outfile << "M=D" << endl;
+        outfile << "A=M+1" << endl;
+        outfile << "M=A" << endl;
+      }
+      else if (segment == "that")
+      {
+        // D <-- [that] + index
+        outfile << "@" << "THAT" << endl;
+        outfile << "D=M" << endl;
+        outfile << "@" << index << endl;
+        outfile << "D=D+A" << endl;
+        outfile << "A=D" << endl;
+
+        // push D onto stack
+        outfile << "@" << "SP" << endl;
+        outfile << "M=D" << endl;
+        outfile << "A=M+1" << endl;
+        outfile << "M=A" << endl;
+      }
+      else if (segment == "this")
+      {
+        // D <-- [this] + index
+        outfile << "@" << "THIS" << endl;
+        outfile << "D=M" << endl;
+        outfile << "@" << index << endl;
+        outfile << "D=D+A" << endl;
+        outfile << "A=D" << endl;
+
+        // push D onto stack
+        outfile << "@" << "SP" << endl;
+        outfile << "M=D" << endl;
+        outfile << "A=M+1" << endl;
+        outfile << "M=A" << endl;
+      }
+      else if (segment == "argument")
+      {
+        // D <-- [argument] + index
+        outfile << "@" << "ARG" << endl;
+        outfile << "D=M" << endl;
+        outfile << "@" << index << endl;
+        outfile << "D=D+A" << endl;
+        outfile << "A=D" << endl;
+
+        // push D onto stack
+        outfile << "@" << "SP" << endl;
+        outfile << "M=D" << endl;
+        outfile << "A=M+1" << endl;
+        outfile << "M=A" << endl;
+      }
+      else if (segment == "temp")
+      {
+        assert(index <= 8);
+
+        outfile << "@" << "R" << 5 + index << endl;
+        outfile << "D=M" << endl;
+
+        // push D onto stack
+        outfile << "@" << "SP" << endl;
+        outfile << "M=D" << endl;
+        outfile << "A=M+1" << endl;
+        outfile << "M=A" << endl;
+      }
+      else
+      {
+        assert(0);
       }
     }
     else if (command == C_POP)
@@ -320,7 +399,7 @@ public:
       if (segment != "temp")
       {
         outfile << "@" << index << endl;
-        outfile << "D=D+A" << endl;         // D = [LCL + index]
+        outfile << "D=D+A" << endl;
       }
 
       // Temporarily put destination address at SP
