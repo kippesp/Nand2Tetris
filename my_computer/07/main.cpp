@@ -5,19 +5,13 @@
 #include <cassert>
 #include <list>
 
-// push constant N
-// pop
-// add
-// sub
-// neg
-// eq
-// gt
-// lt
-// and
-// or
-// not
+// TODO: Helper for writer.  Add metrics.
+
+// R13-R15 GP registers
 
 using namespace std;
+
+const int STATIC_SEGMENT_BASE = 16;
 
 typedef enum {
   C_NONE,
@@ -218,6 +212,7 @@ public:
 /* CodeWriter - Translates VM commands into Hack assembly code. */
 class CodeWriter {
   ofstream outfile;
+  unsigned int branch_number = 0;
 
 public:
 
@@ -237,30 +232,155 @@ public:
   // See section 7.2.3 - Memory Access Commands
   void writeArithmetic(int lineNumber, string command)
   {
-    // add - binary
-    if (command == "add")
+    outfile << "// " << lineNumber << ": " << command << endl;
+
+    // add/sub - binary
+    if ((command == "add") || (command == "sub"))
     {
-      outfile << "// " << lineNumber << ": add" << endl;
       outfile << "@SP" << endl;
       outfile << "M=M-1" << endl;
+      outfile << "A=M" << endl;
       outfile << "D=M" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << ((command == "add") ? "M=D+M" : "M=M-D") << endl;
+    }
+
+    // eq - binary
+    else if (command == "eq")
+    {
+      branch_number++;
+
+      // output true(-1) if equal
+      // output false(0) if not equal
+      // TODO: Optimize like with add/sub
+      outfile << "@SP" << endl;
       outfile << "M=M-1" << endl;
-      outfile << "D=D+M" << endl;
+      outfile << "A=M" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@SP" << endl;
+      outfile << "M=M-1" << endl;
+      outfile << "A=M" << endl;
+      outfile << "D=M-D" << endl;
+
+      outfile << "@EQ_" << branch_number << endl;
+      outfile << "D;JEQ" << endl;
+      outfile << "D=0" << endl;
+      outfile << "@EXIT_EQ_" << branch_number << endl;
+      outfile << "0;JMP" << endl;
+      outfile << "(EQ_" << branch_number << ")" << endl;
+      outfile << "D=-1" << endl;
+      outfile << "(EXIT_EQ_" << branch_number << ")" << endl;
+
+      outfile << "@SP" << endl;
+      outfile << "A=M" << endl;
       outfile << "M=D" << endl;
+      outfile << "@SP" << endl;
       outfile << "M=M+1" << endl;
     }
 
-    // add - binary
-    if (command == "sub")
+    // lt - binary
+    else if (command == "lt")
     {
-      outfile << "// " << lineNumber << ": sub" << endl;
+      branch_number++;
+
+      // output true(-1) if [SP-2] < [SP-1]
+      //        false(0) otherwise
+      // TODO: Optimize like with add/sub
       outfile << "@SP" << endl;
       outfile << "M=M-1" << endl;
-      outfile << "D=M" << endl;
+      outfile << "A=M" << endl;
+      outfile << "D=M" << endl; // [SP-1]
+      outfile << "@SP" << endl;
       outfile << "M=M-1" << endl;
-      outfile << "D=D-M" << endl;
+      outfile << "A=M" << endl;
+      outfile << "D=M-D" << endl; // [SP-2] - [SP-1]
+
+      outfile << "@LT_" << branch_number << endl;
+      outfile << "D;JLT" << endl;
+      outfile << "D=0" << endl;
+      outfile << "@EXIT_LT_" << branch_number << endl;
+      outfile << "0;JMP" << endl;
+      outfile << "(LT_" << branch_number << ")" << endl;
+      outfile << "D=-1" << endl;
+      outfile << "(EXIT_LT_" << branch_number << ")" << endl;
+
+      outfile << "@SP" << endl;
+      outfile << "A=M" << endl;
       outfile << "M=D" << endl;
+      outfile << "@SP" << endl;
       outfile << "M=M+1" << endl;
+    }
+
+    // gt - binary
+    else if (command == "gt")
+    {
+      branch_number++;
+
+      // output true(-1) if [SP-2] > [SP-1]
+      //        false(0) otherwise
+      // TODO: Optimize like with add/sub
+      outfile << "@SP" << endl;
+      outfile << "M=M-1" << endl;
+      outfile << "A=M" << endl;
+      outfile << "D=M" << endl; // [SP-1]
+      outfile << "@SP" << endl;
+      outfile << "M=M-1" << endl;
+      outfile << "A=M" << endl;
+      outfile << "D=M-D" << endl; // [SP-2] - [SP-1]
+
+#ifdef TODO
+      outfile << "@SP" << endl;
+      outfile << "M=M-1" << endl;
+      outfile << "A=M" << endl;
+      outfile << "D=M" << endl; // [SP-1]
+      outfile << "A=A-1" << endl;
+      outfile << "D=M-D" << endl; // [SP-2] - [SP-1]
+#endif
+
+      outfile << "@GT_" << branch_number << endl;
+      outfile << "D;JGT" << endl;
+      outfile << "D=0" << endl;
+      outfile << "@EXIT_GT_" << branch_number << endl;
+      outfile << "0;JMP" << endl;
+      outfile << "(GT_" << branch_number << ")" << endl;
+      outfile << "D=-1" << endl;
+      outfile << "(EXIT_GT_" << branch_number << ")" << endl;
+
+      outfile << "@SP" << endl;
+      outfile << "A=M" << endl;
+      outfile << "M=D" << endl;
+      outfile << "@SP" << endl;
+      outfile << "M=M+1" << endl;
+
+#ifdef TODO
+      outfile << "@SP" << endl;
+      outfile << "A=M-1" << endl;
+      outfile << "M=D" << endl;
+#endif
+    }
+
+    else if ((command == "neg") || (command == "not"))
+    {
+      outfile << "@SP" << endl;
+      outfile << "A=M-1" << endl;
+      outfile << "D=M" << endl;
+      outfile << ((command == "neg") ? "M=-D" : "M=!D") << endl;
+    }
+
+    else if ((command == "and") || (command == "or"))
+    {
+      outfile << "@SP" << endl;
+      outfile << "M=M-1" << endl;
+      outfile << "A=M" << endl;
+      outfile << "D=M" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << ((command == "and") ? "M=D&M" : "M=D|M") << endl;
+    }
+
+    else
+    {
+      cerr << command << endl;
+      assert(0);
     }
   }
 
@@ -274,73 +394,51 @@ public:
 
       // TODO: Clean up repetition
 
-      if (segment == "constant")
+      if ((segment == "local") || (segment == "argument") ||
+          (segment == "this") || (segment == "that"))
+      {
+        // D <-- *segment_base + index
+        if (segment == "local")
+        {
+          outfile << "@" << "LCL" << endl;
+        }
+        else if (segment == "argument")
+        {
+          outfile << "@" << "ARG" << endl;
+        }
+        else if (segment == "this")
+        {
+          outfile << "@" << "THIS" << endl;
+        }
+        else if (segment == "that")
+        {
+          outfile << "@" << "THAT" << endl;
+        }
+
+        outfile << "D=M" << endl;
+        outfile << "@" << index << endl;
+        outfile << "D=D+A" << endl;
+        outfile << "A=D" << endl;
+        outfile << "D=M" << endl;
+
+        // push D onto stack
+        outfile << "@SP" << endl;
+        outfile << "A=M" << endl;
+        outfile << "M=D" << endl;
+        outfile << "@SP" << endl;
+        outfile << "M=M+1" << endl;
+      }
+      else if (segment == "constant")
       {
         outfile << "@" << index << endl;
         outfile << "D=A" << endl;
+
+        // push D onto stack
         outfile << "@SP" << endl;
+        outfile << "A=M" << endl;
         outfile << "M=D" << endl;
+        outfile << "@SP" << endl;
         outfile << "M=M+1" << endl;
-      }
-      else if (segment == "local")
-      {
-        // D <-- [Local] + index
-        outfile << "@" << "LCL" << endl;
-        outfile << "D=M" << endl;
-        outfile << "@" << index << endl;
-        outfile << "D=D+A" << endl;
-        outfile << "A=D" << endl;
-
-        // push D onto stack
-        outfile << "@" << "SP" << endl;
-        outfile << "M=D" << endl;
-        outfile << "A=M+1" << endl;
-        outfile << "M=A" << endl;
-      }
-      else if (segment == "that")
-      {
-        // D <-- [that] + index
-        outfile << "@" << "THAT" << endl;
-        outfile << "D=M" << endl;
-        outfile << "@" << index << endl;
-        outfile << "D=D+A" << endl;
-        outfile << "A=D" << endl;
-
-        // push D onto stack
-        outfile << "@" << "SP" << endl;
-        outfile << "M=D" << endl;
-        outfile << "A=M+1" << endl;
-        outfile << "M=A" << endl;
-      }
-      else if (segment == "this")
-      {
-        // D <-- [this] + index
-        outfile << "@" << "THIS" << endl;
-        outfile << "D=M" << endl;
-        outfile << "@" << index << endl;
-        outfile << "D=D+A" << endl;
-        outfile << "A=D" << endl;
-
-        // push D onto stack
-        outfile << "@" << "SP" << endl;
-        outfile << "M=D" << endl;
-        outfile << "A=M+1" << endl;
-        outfile << "M=A" << endl;
-      }
-      else if (segment == "argument")
-      {
-        // D <-- [argument] + index
-        outfile << "@" << "ARG" << endl;
-        outfile << "D=M" << endl;
-        outfile << "@" << index << endl;
-        outfile << "D=D+A" << endl;
-        outfile << "A=D" << endl;
-
-        // push D onto stack
-        outfile << "@" << "SP" << endl;
-        outfile << "M=D" << endl;
-        outfile << "A=M+1" << endl;
-        outfile << "M=A" << endl;
       }
       else if (segment == "temp")
       {
@@ -350,10 +448,43 @@ public:
         outfile << "D=M" << endl;
 
         // push D onto stack
-        outfile << "@" << "SP" << endl;
+        outfile << "@SP" << endl;
+        outfile << "A=M" << endl;
         outfile << "M=D" << endl;
-        outfile << "A=M+1" << endl;
-        outfile << "M=A" << endl;
+        outfile << "@SP" << endl;
+        outfile << "M=M+1" << endl;
+      }
+      else if (segment == "static")
+      {
+        // Directly compute the absolute address
+        int staticAddress = STATIC_SEGMENT_BASE + index;
+
+        outfile << "@" << staticAddress << endl;
+        outfile << "D=M" << endl;
+
+        // push D onto stack
+        outfile << "@SP" << endl;
+        outfile << "A=M" << endl;
+        outfile << "M=D" << endl;
+        outfile << "@SP" << endl;
+        outfile << "M=M+1" << endl;
+      }
+      else if (segment == "pointer")
+      {
+        assert(index <= 2);
+
+        string selectedRegister = (index == 0) ? "@THIS" : "@THAT";
+
+        outfile << selectedRegister << endl;
+
+        outfile << "D=M" << endl;
+
+        // push D onto stack
+        outfile << "@SP" << endl;
+        outfile << "A=M" << endl;
+        outfile << "M=D" << endl;
+        outfile << "@SP" << endl;
+        outfile << "M=M+1" << endl;
       }
       else
       {
@@ -364,56 +495,91 @@ public:
     {
       outfile << "// " << lineNumber << ": pop " << segment << " " << index << endl;
 
-      // Compute destination address, [SEGMENT + index]
-      if (segment == "local")
+      if ((segment == "local") || (segment == "argument") ||
+          (segment == "this") || (segment == "that"))
       {
-        outfile << "@" << "LCL" << endl;
+        // D <-- *segment_base + index
+        if (segment == "local")
+        {
+          outfile << "@" << "LCL" << endl;
+        }
+        else if (segment == "argument")
+        {
+          outfile << "@" << "ARG" << endl;
+        }
+        else if (segment == "this")
+        {
+          outfile << "@" << "THIS" << endl;
+        }
+        else if (segment == "that")
+        {
+          outfile << "@" << "THAT" << endl;
+        }
+
+        outfile << "A=M" << endl;
+        outfile << "D=A" << endl;
+        outfile << "@" << index << endl;
+        outfile << "D=D+A" << endl;
+
+        // Spill *segment_base + index to R13
+        outfile << "@" << "R13" << endl;
+        outfile << "M=D" << endl;
+
+        // update stack
+        outfile << "@SP" << endl;
+        outfile << "M=M-1" << endl;
+        outfile << "A=M" << endl;
+        outfile << "D=M" << endl;
+
+        // Store in *segment_base + index
+        outfile << "@" << "R13" << endl;
+        outfile << "A=M" << endl;
+        outfile << "M=D" << endl;
       }
-      else if (segment == "argument")
-      {
-        outfile << "@" << "ARG" << endl;
-      }
-      else if (segment == "that")
-      {
-        outfile << "@" << "THAT" << endl;
-      }
-      else if (segment == "this")
-      {
-        outfile << "@" << "THIS" << endl;
-      }
+
       // See section 7.3.1 - Standard VM Mapping on the Hack Platform, Part 1
       else if (segment == "temp")
       {
         assert(index <= 8);
 
+        outfile << "@SP" << endl;
+        outfile << "M=M-1" << endl;
+        outfile << "A=M" << endl;
+        outfile << "D=M" << endl;
         outfile << "@" << "R" << 5 + index << endl;
+        outfile << "M=D" << endl;
+      }
+      else if (segment == "static")
+      {
+        // Directly compute the absolute address
+        int staticAddress = STATIC_SEGMENT_BASE + index;
+
+        outfile << "@SP" << endl;
+        outfile << "A=M-1" << endl;
+        outfile << "D=M" << endl;
+        outfile << "@" << staticAddress << endl;
+        outfile << "M=D" << endl;
+        outfile << "@SP" << endl;
+        outfile << "M=M-1" << endl;
+      }
+      else if (segment == "pointer")
+      {
+        assert(index <= 2);
+
+        string selectedRegister = (index == 0) ? "@THIS" : "@THAT";
+
+        outfile << "@SP" << endl;
+        outfile << "M=M-1" << endl;
+        outfile << "A=M" << endl;
+        outfile << "D=M" << endl;
+        outfile << selectedRegister << endl;
+        outfile << "M=D" << endl;
       }
       else
       {
+        cerr << "pop " << segment << index;
         assert(0);
       }
-
-      outfile << "D=M" << endl;
-
-      // The TEMP segment is defined as R5 - R12
-      if (segment != "temp")
-      {
-        outfile << "@" << index << endl;
-        outfile << "D=D+A" << endl;
-      }
-
-      // Temporarily put destination address at SP
-      outfile << "@" << "SP" << endl;
-      outfile << "M=D" << endl;
-
-      // Decrement SP and load value to store from SP+1
-      outfile << "@SP" << endl;
-      outfile << "M=M-1" << endl;
-      outfile << "D=M" << endl;
-
-      // Store value to destination address
-      outfile << "A=M+1" << endl;
-      outfile << "M=D" << endl;
     }
   }
 
