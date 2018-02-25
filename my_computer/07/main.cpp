@@ -1,11 +1,18 @@
-#include <iostream>
-#include <fstream>
-#include <cstring>
-#include <cstdlib>
 #include <cassert>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
+#include <iostream>
 #include <list>
+#include <sys/stat.h>
 
-// TODO: Helper for writer.  Add metrics.
+#ifdef CPP17_LATER
+# include <filesystem>
+#else
+# include <dirent.h>
+#endif
+
+// TODO: Add metrics.
 
 // R13-R15 GP registers
 
@@ -227,7 +234,10 @@ public:
     }
   }
 
-  void setFileName(string filename) {}
+  ~CodeWriter()
+  {
+    outfile.close();
+  }
 
   // See section 7.2.3 - Memory Access Commands
   void writeArithmetic(int lineNumber, string command)
@@ -319,6 +329,7 @@ public:
       // output true(-1) if [SP-2] > [SP-1]
       //        false(0) otherwise
       // TODO: Optimize like with add/sub
+      // TODO: Should be able to achieve 11 lines
       outfile << "@SP" << endl;
       outfile << "M=M-1" << endl;
       outfile << "A=M" << endl;
@@ -582,17 +593,172 @@ public:
       }
     }
   }
+};
 
-/*
-  void Close() {}
-*/
+class VMTranslator
+{
+  list<string> fileNameStemList;  // list .vm files with ".vm" dropped
+
+  public:
+
+  // VMTranslator - Populates `fileNameStemList` with one or more files
+  // to be parsed and converted.
+  VMTranslator(string argv)
+  {
+    struct stat argStat;
+    bool isFile = false;
+
+    // Determine if specified argument is a directory of filename
+
+    int rvalue = stat(argv.c_str(), &argStat);
+
+    if (rvalue == 0)
+    {
+      if (argStat.st_mode & S_IFDIR)
+      {
+        // isFile = false;
+      }
+      else if (argStat.st_mode & S_IFREG)
+      {
+        isFile = true;
+      }
+      else
+      {
+        cerr << "Not a file or directory." << endl;
+        exit(-1);
+      }
+    }
+    else
+    {
+      cerr << "File or directory not found." << endl;
+      exit(-1);
+    }
+
+    if (isFile)
+    {
+      string filenameStem = argv.substr(0, argv.length() - 3);
+
+      if ((argv.length() <= 3) || (argv.substr(argv.length() - 3) != ".vm"))
+      {
+        cerr << "Input filename required to end with .vm extension." << endl;
+        exit(-1);
+      }
+
+      fileNameStemList.push_back(filenameStem);
+    }
+    else
+    {
+#ifdef CPP17_LATER
+      namespace fs = std::filesystem;
+
+      std::string path = "path_to_directory";
+      for (auto & p : fs::directory_iterator(path))
+        std::cout << p << std::endl;
+#endif
+      DIR* dir = opendir(argv.c_str());
+
+      if (dir == NULL)
+      {
+        cerr << "Unable to read files in directory." << endl;
+        exit(-1);
+      }
+
+      while(true)
+      {
+        struct dirent* dirEntry;
+       
+        dirEntry = readdir(dir);
+
+        if (dirEntry == NULL)
+        {
+          if (errno != 0)
+          {
+            cerr << "Unhandled error while reading directory." << endl;
+            exit(-1);
+          }
+
+          break;
+        }
+
+        if (dirEntry->d_namlen <= 3)
+          continue;
+
+        string fileEntry(dirEntry->d_name);
+
+        if (fileEntry.substr(fileEntry.length() - 3) != ".vm")
+          continue;
+
+        rvalue = stat(dirEntry->d_name, &argStat);
+        bool isFile = false;
+
+        if (rvalue == 0)
+        {
+          if (argStat.st_mode & S_IFDIR)
+          {
+            cerr << "Directory contains an unsupported directory name." << endl;
+            exit(-1);
+          }
+          else if (argStat.st_mode & S_IFREG)
+          {
+            isFile = true;
+          }
+          else
+          {
+            cerr << "Not a file or directory." << endl;
+            exit(-1);
+          }
+        }
+        else
+        {
+          cerr << "Directory contains an unsupported file." << endl;
+          exit(-1);
+        }
+
+        if (!isFile)
+        {
+          cerr << "Directory contains an unsupported filetype." << endl;
+          exit(-1);
+        }
+
+        // They entry dirEntry->d_name is now considered okay
+
+        string filenameStem = fileEntry.substr(0, fileEntry.length() - 3);
+        fileNameStemList.push_back(argv + "/" + filenameStem);
+      }
+    }
+  }
+
+  void process()
+  {
+    for (auto filenameStem : fileNameStemList)
+    {
+      Parser parser(filenameStem + ".vm");
+      CodeWriter writer(filenameStem + ".asm");
+
+      while (parser.hasMoreCommands())
+      {
+        parser.advance();
+        auto cmdType = parser.commandType();
+
+        if (cmdType == C_ARITHMETIC)
+        {
+          writer.writeArithmetic(parser.lineNumber(), parser.arg1());
+        }
+        else if ((cmdType == C_PUSH) || (cmdType == C_POP))
+        {
+          writer.writePushPop(parser.lineNumber(), parser.commandType(),
+              parser.arg1(), parser.args());
+        }
+      }
+    }
+  }
 };
 
 int main(int argc, char** argv)
 {
   if (argc != 2)
   {
-    cout << "USAGE: vmt FILENAME.vm" << endl;
+    cout << "USAGE: vmt [-h] FILENAME.vm | DIRECTORY" << endl;
     return 1;
   }
 
@@ -600,54 +766,17 @@ int main(int argc, char** argv)
   {
     cout << "USAGE:\n\n"
               << "    vmt FILENAME.vm\n\n"
+              << "    vmt DIRECTORY\n\n"
               << "DESCRIPTION\n\n"
               << "    Parses the VM commands found in FILENAME.vm into the corresponding Hack\n"
-                 "    assembly code file, FILENAME.hack" << endl;
+              << "    assembly code file, FILENAME.hack.  When provided the argument DIRECTORY,\n"
+              << "    all .vm files will be processed as if called individually.\n" << endl;
     return 0;
   }
 
-  string infilename = argv[1];
-  string filenameStem = infilename.substr(0, infilename.length() - 3);
+  VMTranslator vmTranslator(argv[1]);
 
-  if (infilename.substr(infilename.length() - 3) != ".vm")
-  {
-    cerr << "Input filename required to end with .vm extension." << endl;
-    return -1;
-  }
-
-  Parser parser(argv[1]);
-  CodeWriter writer(filenameStem + ".asm");
-
-  while (parser.hasMoreCommands())
-  {
-    parser.advance();
-    auto cmdType = parser.commandType();
-
-    if (cmdType == C_ARITHMETIC)
-    {
-      writer.writeArithmetic(parser.lineNumber(), parser.arg1());
-    }
-    else if ((cmdType == C_PUSH) || (cmdType == C_POP))
-    {
-      writer.writePushPop(parser.lineNumber(), parser.commandType(),
-          parser.arg1(), parser.args());
-    }
-
-    /*
-    cout << parser.lineNumber() << " :";
-    cout << cmdType << " ";
-    cout << parser.arg1() << " ";
-
-    if ((cmdType == C_PUSH) || (cmdType == C_POP) ||
-        (cmdType == C_FUNCTION) || (cmdType == C_CALL))
-    {
-      cout << parser.args();
-    }
-
-    cout << endl;
-    */
-
-  }
+  vmTranslator.process();
 
   return 0;
 }
