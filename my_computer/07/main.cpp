@@ -48,9 +48,10 @@ class Parser {
 public:
 
   // Open the input file and get ready to parse it
-  Parser(string filename) : commandLineNumber(0)
+  Parser(string filenameStem) : commandLineNumber(0)
   {
     ifstream infile;
+    string filename = filenameStem + ".vm";
 
     infile.open(filename, ios::in);
 
@@ -220,19 +221,37 @@ public:
 /* CodeWriter - Translates VM commands into Hack assembly code. */
 class CodeWriter {
   ofstream outfile;
-  unsigned int branch_number = 0;
+  unsigned int branchNumber = 0;
+  const string filenameStem;
+  const string filename;
+
+  string createBranchTag(int counter)
+  {
+     auto i = filenameStem.rfind('/', filenameStem.length());
+     string tag;
+
+     if (i != string::npos)
+     {
+       tag = filenameStem.substr(i+1, filenameStem.length() - i);
+     }
+
+    return to_string(counter) + "$" + tag;
+  }
 
 public:
 
-  CodeWriter(string outfilename) 
+  CodeWriter(string filenameStem) : filenameStem(filenameStem),
+                                    filename(filenameStem + ".asm")
   {
-    outfile.open(outfilename, ofstream::out);
+    outfile.open(filename, ofstream::out);
 
     if (!outfile.is_open())
     {
-      cerr << "Failed to open output file, " << outfilename << endl;
+      cerr << "Failed to open output file, " << filename << endl;
       exit(-2);
     }
+
+    outfile << "// File: " << filename << endl;
   }
 
   ~CodeWriter()
@@ -268,7 +287,7 @@ public:
     // eq - binary
     else if (command == "eq")
     {
-      branch_number++;
+      branchNumber++;
 
       // output true(-1) if equal
       // output false(0) if not equal
@@ -282,14 +301,14 @@ public:
       outfile << "A=M" << endl;
       outfile << "D=M-D" << endl;
 
-      outfile << "@EQ_" << branch_number << endl;
+      outfile << "@EQ_" << createBranchTag(branchNumber) << endl;
       outfile << "D;JEQ" << endl;
       outfile << "D=0" << endl;
-      outfile << "@JOIN_EQ_" << branch_number << endl;
+      outfile << "@JOIN_EQ_" << createBranchTag(branchNumber) << endl;
       outfile << "0;JMP" << endl;
-      outfile << "(EQ_" << branch_number << ")" << endl;
+      outfile << "(EQ_" << createBranchTag(branchNumber) << ")" << endl;
       outfile << "D=-1" << endl;
-      outfile << "(JOIN_EQ_" << branch_number << ")" << endl;
+      outfile << "(JOIN_EQ_" << createBranchTag(branchNumber) << ")" << endl;
 
       outfile << "@SP" << endl;
       outfile << "A=M" << endl;
@@ -301,7 +320,7 @@ public:
     // lt - binary
     else if (command == "lt")
     {
-      branch_number++;
+      branchNumber++;
 
       // output true(-1) if [SP-2] < [SP-1]
       //        false(0) otherwise
@@ -315,14 +334,14 @@ public:
       outfile << "A=M" << endl;
       outfile << "D=M-D" << endl; // [SP-2] - [SP-1]
 
-      outfile << "@LT_" << branch_number << endl;
+      outfile << "@LT_" << createBranchTag(branchNumber) << endl;
       outfile << "D;JLT" << endl;
       outfile << "D=0" << endl;
-      outfile << "@JOIN_LT_" << branch_number << endl;
+      outfile << "@JOIN_LT_" << createBranchTag(branchNumber) << endl;
       outfile << "0;JMP" << endl;
-      outfile << "(LT_" << branch_number << ")" << endl;
+      outfile << "(LT_" << createBranchTag(branchNumber) << ")" << endl;
       outfile << "D=-1" << endl;
-      outfile << "(JOIN_LT_" << branch_number << ")" << endl;
+      outfile << "(JOIN_LT_" << createBranchTag(branchNumber) << ")" << endl;
 
       outfile << "@SP" << endl;
       outfile << "A=M" << endl;
@@ -334,7 +353,7 @@ public:
     // gt - binary
     else if (command == "gt")
     {
-      branch_number++;
+      branchNumber++;
 
       // output true(-1) if [SP-2] > [SP-1]
       //        false(0) otherwise
@@ -358,14 +377,14 @@ public:
       outfile << "D=M-D" << endl; // [SP-2] - [SP-1]
 #endif
 
-      outfile << "@GT_" << branch_number << endl;
+      outfile << "@GT_" << createBranchTag(branchNumber) << endl;
       outfile << "D;JGT" << endl;
       outfile << "D=0" << endl;
-      outfile << "@JOIN_GT_" << branch_number << endl;
+      outfile << "@JOIN_GT_" << createBranchTag(branchNumber) << endl;
       outfile << "0;JMP" << endl;
-      outfile << "(GT_" << branch_number << ")" << endl;
+      outfile << "(GT_" << createBranchTag(branchNumber) << ")" << endl;
       outfile << "D=-1" << endl;
-      outfile << "(JOIN_GT_" << branch_number << ")" << endl;
+      outfile << "(JOIN_GT_" << createBranchTag(branchNumber) << ")" << endl;
 
       outfile << "@SP" << endl;
       outfile << "A=M" << endl;
@@ -728,8 +747,8 @@ class VMTranslator
   {
     for (auto filenameStem : fileNameStemList)
     {
-      Parser parser(filenameStem + ".vm");
-      CodeWriter writer(filenameStem + ".asm");
+      Parser parser(filenameStem);
+      CodeWriter writer(filenameStem);
 
       while (parser.hasMoreCommands())
       {
