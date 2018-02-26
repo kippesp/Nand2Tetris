@@ -703,7 +703,9 @@ class VMTranslator
         if (fileEntry.substr(fileEntry.length() - 3) != ".vm")
           continue;
 
-        rvalue = stat(dirEntry->d_name, &argStat);
+        string filePath = argv + "/" + dirEntry->d_name;
+
+        rvalue = stat(filePath.c_str(), &argStat);
         bool isFile = false;
 
         if (rvalue == 0)
@@ -726,6 +728,7 @@ class VMTranslator
         else
         {
           cerr << "Directory contains an unsupported file." << endl;
+          cerr << strerror(errno) << endl;
           exit(-1);
         }
 
