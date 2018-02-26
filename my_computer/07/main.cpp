@@ -246,14 +246,23 @@ public:
     outfile << "// " << lineNumber << ": " << command << endl;
 
     // add/sub - binary
-    if ((command == "add") || (command == "sub"))
+    if ((command == "add") || (command == "sub") ||
+        (command == "and") || (command == "or"))
     {
+      string operation;
+
       outfile << "@SP" << endl;
       outfile << "M=M-1" << endl;
       outfile << "A=M" << endl;
       outfile << "D=M" << endl;
       outfile << "A=A-1" << endl;
-      outfile << ((command == "add") ? "M=D+M" : "M=M-D") << endl;
+
+      if      (command == "add") operation = "M=D+M";
+      else if (command == "sub") operation = "M=M-D";
+      else if (command == "and") operation = "M=D&M";
+      else if (command == "or" ) operation = "M=D|M";
+
+      outfile << operation << endl;
     }
 
     // eq - binary
@@ -276,11 +285,11 @@ public:
       outfile << "@EQ_" << branch_number << endl;
       outfile << "D;JEQ" << endl;
       outfile << "D=0" << endl;
-      outfile << "@EXIT_EQ_" << branch_number << endl;
+      outfile << "@JOIN_EQ_" << branch_number << endl;
       outfile << "0;JMP" << endl;
       outfile << "(EQ_" << branch_number << ")" << endl;
       outfile << "D=-1" << endl;
-      outfile << "(EXIT_EQ_" << branch_number << ")" << endl;
+      outfile << "(JOIN_EQ_" << branch_number << ")" << endl;
 
       outfile << "@SP" << endl;
       outfile << "A=M" << endl;
@@ -309,11 +318,11 @@ public:
       outfile << "@LT_" << branch_number << endl;
       outfile << "D;JLT" << endl;
       outfile << "D=0" << endl;
-      outfile << "@EXIT_LT_" << branch_number << endl;
+      outfile << "@JOIN_LT_" << branch_number << endl;
       outfile << "0;JMP" << endl;
       outfile << "(LT_" << branch_number << ")" << endl;
       outfile << "D=-1" << endl;
-      outfile << "(EXIT_LT_" << branch_number << ")" << endl;
+      outfile << "(JOIN_LT_" << branch_number << ")" << endl;
 
       outfile << "@SP" << endl;
       outfile << "A=M" << endl;
@@ -352,11 +361,11 @@ public:
       outfile << "@GT_" << branch_number << endl;
       outfile << "D;JGT" << endl;
       outfile << "D=0" << endl;
-      outfile << "@EXIT_GT_" << branch_number << endl;
+      outfile << "@JOIN_GT_" << branch_number << endl;
       outfile << "0;JMP" << endl;
       outfile << "(GT_" << branch_number << ")" << endl;
       outfile << "D=-1" << endl;
-      outfile << "(EXIT_GT_" << branch_number << ")" << endl;
+      outfile << "(JOIN_GT_" << branch_number << ")" << endl;
 
       outfile << "@SP" << endl;
       outfile << "A=M" << endl;
@@ -379,16 +388,6 @@ public:
       outfile << ((command == "neg") ? "M=-D" : "M=!D") << endl;
     }
 
-    else if ((command == "and") || (command == "or"))
-    {
-      outfile << "@SP" << endl;
-      outfile << "M=M-1" << endl;
-      outfile << "A=M" << endl;
-      outfile << "D=M" << endl;
-      outfile << "A=A-1" << endl;
-      outfile << ((command == "and") ? "M=D&M" : "M=D|M") << endl;
-    }
-
     else
     {
       cerr << command << endl;
@@ -403,8 +402,6 @@ public:
     if (command == C_PUSH)
     {
       outfile << "// " << lineNumber << ": push " << segment << " " << index << endl;
-
-      // TODO: Clean up repetition
 
       if ((segment == "local") || (segment == "argument") ||
           (segment == "this") || (segment == "that"))
@@ -563,16 +560,14 @@ public:
       }
       else if (segment == "static")
       {
-        // Directly compute the absolute address
         int staticAddress = STATIC_SEGMENT_BASE + index;
 
         outfile << "@SP" << endl;
-        outfile << "A=M-1" << endl;
+        outfile << "M=M-1" << endl;
+        outfile << "A=M" << endl;
         outfile << "D=M" << endl;
         outfile << "@" << staticAddress << endl;
         outfile << "M=D" << endl;
-        outfile << "@SP" << endl;
-        outfile << "M=M-1" << endl;
       }
       else if (segment == "pointer")
       {
