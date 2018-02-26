@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -680,7 +681,7 @@ class VMTranslator
           break;
         }
 
-        if (dirEntry->d_namlen <= 3)
+        if (strlen(dirEntry->d_name) <= 3)
           continue;
 
         string fileEntry(dirEntry->d_name);
