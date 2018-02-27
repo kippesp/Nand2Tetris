@@ -284,119 +284,39 @@ public:
       outfile << operation << endl;
     }
 
-    // eq - binary
-    else if (command == "eq")
+    // eq/gt/lt - binary
+    // output true(-1) if condition true
+    // output false(0) if not
+    else if ((command == "eq") || (command == "lt") || (command == "gt"))
     {
       branchNumber++;
 
-      // output true(-1) if equal
-      // output false(0) if not equal
-      // TODO: Optimize like with add/sub
-      outfile << "@SP" << endl;
-      outfile << "M=M-1" << endl;
-      outfile << "A=M" << endl;
-      outfile << "D=M" << endl;
-      outfile << "@SP" << endl;
-      outfile << "M=M-1" << endl;
-      outfile << "A=M" << endl;
-      outfile << "D=M-D" << endl;
+      outfile << "@SP" << endl;   // SP' = SP
+      outfile << "M=M-1" << endl; // SP  = SP'-1
+      outfile << "A=M" << endl;   // A   = SP'-1    = SP-2
+      outfile << "D=M" << endl;   // D   = *[SP'-1] = *[SP'-2]
+      outfile << "A=A-1" << endl; // A   = SP'-2
+      outfile << "D=M-D" << endl; // D   = *[SP'-2] - *[SP'-1]
 
-      outfile << "@EQ_" << createBranchTag(branchNumber) << endl;
-      outfile << "D;JEQ" << endl;
+      outfile << "@CMP_" << createBranchTag(branchNumber) << endl;
+
+      if (command == "eq")
+        outfile << "D;JEQ" << endl;
+      else if (command == "lt")
+        outfile << "D;JLT" << endl;
+      else
+        outfile << "D;JGT" << endl;
+
       outfile << "D=0" << endl;
-      outfile << "@JOIN_EQ_" << createBranchTag(branchNumber) << endl;
+      outfile << "@JOIN_CMP_" << createBranchTag(branchNumber) << endl;
       outfile << "0;JMP" << endl;
-      outfile << "(EQ_" << createBranchTag(branchNumber) << ")" << endl;
+      outfile << "(CMP_" << createBranchTag(branchNumber) << ")" << endl;
       outfile << "D=-1" << endl;
-      outfile << "(JOIN_EQ_" << createBranchTag(branchNumber) << ")" << endl;
+      outfile << "(JOIN_CMP_" << createBranchTag(branchNumber) << ")" << endl;
 
       outfile << "@SP" << endl;
-      outfile << "A=M" << endl;
-      outfile << "M=D" << endl;
-      outfile << "@SP" << endl;
-      outfile << "M=M+1" << endl;
-    }
-
-    // lt - binary
-    else if (command == "lt")
-    {
-      branchNumber++;
-
-      // output true(-1) if [SP-2] < [SP-1]
-      //        false(0) otherwise
-      // TODO: Optimize like with add/sub
-      outfile << "@SP" << endl;
-      outfile << "M=M-1" << endl;
-      outfile << "A=M" << endl;
-      outfile << "D=M" << endl; // [SP-1]
-      outfile << "@SP" << endl;
-      outfile << "M=M-1" << endl;
-      outfile << "A=M" << endl;
-      outfile << "D=M-D" << endl; // [SP-2] - [SP-1]
-
-      outfile << "@LT_" << createBranchTag(branchNumber) << endl;
-      outfile << "D;JLT" << endl;
-      outfile << "D=0" << endl;
-      outfile << "@JOIN_LT_" << createBranchTag(branchNumber) << endl;
-      outfile << "0;JMP" << endl;
-      outfile << "(LT_" << createBranchTag(branchNumber) << ")" << endl;
-      outfile << "D=-1" << endl;
-      outfile << "(JOIN_LT_" << createBranchTag(branchNumber) << ")" << endl;
-
-      outfile << "@SP" << endl;
-      outfile << "A=M" << endl;
-      outfile << "M=D" << endl;
-      outfile << "@SP" << endl;
-      outfile << "M=M+1" << endl;
-    }
-
-    // gt - binary
-    else if (command == "gt")
-    {
-      branchNumber++;
-
-      // output true(-1) if [SP-2] > [SP-1]
-      //        false(0) otherwise
-      // TODO: Optimize like with add/sub
-      // TODO: Should be able to achieve 11 lines
-      outfile << "@SP" << endl;
-      outfile << "M=M-1" << endl;
-      outfile << "A=M" << endl;
-      outfile << "D=M" << endl; // [SP-1]
-      outfile << "@SP" << endl;
-      outfile << "M=M-1" << endl;
-      outfile << "A=M" << endl;
-      outfile << "D=M-D" << endl; // [SP-2] - [SP-1]
-
-#ifdef TODO
-      outfile << "@SP" << endl;
-      outfile << "M=M-1" << endl;
-      outfile << "A=M" << endl;
-      outfile << "D=M" << endl; // [SP-1]
-      outfile << "A=A-1" << endl;
-      outfile << "D=M-D" << endl; // [SP-2] - [SP-1]
-#endif
-
-      outfile << "@GT_" << createBranchTag(branchNumber) << endl;
-      outfile << "D;JGT" << endl;
-      outfile << "D=0" << endl;
-      outfile << "@JOIN_GT_" << createBranchTag(branchNumber) << endl;
-      outfile << "0;JMP" << endl;
-      outfile << "(GT_" << createBranchTag(branchNumber) << ")" << endl;
-      outfile << "D=-1" << endl;
-      outfile << "(JOIN_GT_" << createBranchTag(branchNumber) << ")" << endl;
-
-      outfile << "@SP" << endl;
-      outfile << "A=M" << endl;
-      outfile << "M=D" << endl;
-      outfile << "@SP" << endl;
-      outfile << "M=M+1" << endl;
-
-#ifdef TODO
-      outfile << "@SP" << endl;
-      outfile << "A=M-1" << endl;
-      outfile << "M=D" << endl;
-#endif
+      outfile << "A=M-1" << endl; // A = SP-1 = SP'-1-1 = SP'-2
+      outfile << "M=D" << endl;   // *[SP'-2] = D
     }
 
     else if ((command == "neg") || (command == "not"))
