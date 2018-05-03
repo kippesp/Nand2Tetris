@@ -28,7 +28,7 @@ typedef enum {
   C_POP,
   C_LABEL,
   C_GOTO,
-  C_IF,
+  C_IF_GOTO,
   C_FUNCTION,
   C_RETURN,
   C_CALL
@@ -224,9 +224,11 @@ class CodeWriter {
   unsigned int branchNumber = 0;
   const string filenameStem;
   const string filename;
+  string currentFunction = "";
 
   string createBranchTag(int counter)
   {
+     // TODO: Set as "functionName$label"
      auto i = filenameStem.rfind('/', filenameStem.length());
      string tag;
 
@@ -528,6 +530,32 @@ public:
       }
     }
   }
+
+  // pop top-most element from stack
+  // if != zero, goto label
+  // otherwise continue with next command
+  void writeIfGoto(int lineNumber, Command_t command,
+      string label)
+  {
+    if (command == C_IF_GOTO)
+    {
+      outfile << "// " << lineNumber << ": if-goto " << " " << label << endl;
+
+      outfile << "@SP" << endl;
+      outfile << "M=M-1" << endl;
+      outfile << "A=M" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@" << createBranchTag(label) << endl;
+      outfile << "D;JNE" << endl;
+    }
+
+
+
+  }
+
+
+
+
 };
 
 class VMTranslator
@@ -685,6 +713,11 @@ class VMTranslator
         else if ((cmdType == C_PUSH) || (cmdType == C_POP))
         {
           writer.writePushPop(parser.lineNumber(), parser.commandType(),
+              parser.arg1(), parser.args());
+        }
+        else if ((cmdType == C_IF_GOTO))
+        {
+          writer.writeIfGoto(parser.lineNumber(), parser.commandType(),
               parser.arg1(), parser.args());
         }
       }
