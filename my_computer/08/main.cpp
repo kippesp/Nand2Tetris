@@ -224,8 +224,9 @@ class CodeWriter {
   unsigned int branchNumber = 0;
   const string filenameStem;
   const string filename;
-  string currentFunction = "";
+  string currentFunction = "anonymous";
 
+  // TODO: add and call to "createLabel"
   string createBranchTag(int counter)
   {
      // TODO: Set as "functionName$label"
@@ -548,12 +549,42 @@ public:
       outfile << "@" << createBranchTag(label) << endl;
       outfile << "D;JNE" << endl;
     }
-
-
-
+    else
+    {
+      assert(0);
+    }
   }
 
+  void writeLabel(int lineNumber, Command_t command,
+      string label)
+  {
+    if (command == C_LABEL)
+    {
+      outfile << "// " << lineNumber << ": label " << " " << label << endl;
 
+      outfile << "@" << createBranchTag(label) << endl;
+    }
+    else
+    {
+      assert(0);
+    }
+  }
+
+  void writeGoto(int lineNumber, Command_t command,
+      string label)
+  {
+    if (command == C_GOTO)
+    {
+      outfile << "// " << lineNumber << ": goto " << " " << label << endl;
+
+      outfile << "@" << createBranchTag(label) << endl;
+      outfile << "0;JMP" << endl;
+    }
+    else
+    {
+      assert(0);
+    }
+  }
 
 
 };
@@ -718,7 +749,17 @@ class VMTranslator
         else if ((cmdType == C_IF_GOTO))
         {
           writer.writeIfGoto(parser.lineNumber(), parser.commandType(),
-              parser.arg1(), parser.args());
+              parser.arg1()));
+        }
+        else if ((cmdType == C_LABEL))
+        {
+          writer.writeLabel(parser.lineNumber(), parser.commandType(),
+              parser.arg1()));
+        }
+        else if ((cmdType == C_GOTO))
+        {
+          writer.writeGoto(parser.lineNumber(), parser.commandType(),
+              parser.arg1()));
         }
       }
     }

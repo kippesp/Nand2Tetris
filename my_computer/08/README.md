@@ -28,7 +28,7 @@ Handles parsing of .vm file.
 
 #### Added support
 
-Parse LABEL, GOTO, IF, FUNCTION, RETURN, and CALL command types.
+Parse LABEL, GOTO, IF_GOTO, FUNCTION, RETURN, and CALL command types.
 
 ### CodeWriter Module
 
