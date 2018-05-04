@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <list>
+#include <set>
 #include <sys/stat.h>
 
 #ifdef CPP17_LATER
@@ -12,6 +13,21 @@
 #else
 # include <dirent.h>
 #endif
+
+
+#ifndef NDEBUG
+# define ASSERT(condition, message) \
+    do { \
+        if (! (condition)) { \
+            std::cerr << "Assertion `" #condition "` failed in " << __FILE__ \
+                      << " line " << __LINE__ << ": " << message << std::endl; \
+            std::terminate(); \
+        } \
+    } while (false)
+#else
+# define ASSERT(condition, message) do { } while (false)
+#endif
+
 
 // TODO: Add metrics.
 
@@ -78,10 +94,14 @@ public:
       if (start == string::npos)
         continue;
 
-      line = line.substr(start, string::npos);
+      line = line.substr(start, line.length() - 1);
 
       // ignore line if first two characters are '//'
       if (line.substr(0, 2) == "//")
+        continue;
+
+      // ignore empty lines
+      if (line.substr(0, 1) == "")
         continue;
 
       allLinesInFile.push_back(line);
@@ -107,6 +127,7 @@ public:
     auto currentLine = allLinesInFile.front();
     commandLineNumber = allLineNumbers.front();
 
+    // TODO: make smarter - don't transform labels of function names
     transform(currentLine.begin(), currentLine.end(), currentLine.begin(),
         ::tolower);
 
@@ -141,19 +162,21 @@ public:
   {
     string command = commandAndArguments.front();
   
-    if (command == "push") return C_PUSH;
-    if (command == "pop")  return C_POP;
-    if (command == "eq")   return C_ARITHMETIC;
-    if (command == "lt")   return C_ARITHMETIC;
-    if (command == "gt")   return C_ARITHMETIC;
-    if (command == "add")  return C_ARITHMETIC;
-    if (command == "sub")  return C_ARITHMETIC;
-    if (command == "neg")  return C_ARITHMETIC;
-    if (command == "and")  return C_ARITHMETIC;
-    if (command == "or")   return C_ARITHMETIC;
-    if (command == "not")  return C_ARITHMETIC;
+    if (command == "push")    return C_PUSH;
+    if (command == "pop")     return C_POP;
+    if (command == "eq")      return C_ARITHMETIC;
+    if (command == "lt")      return C_ARITHMETIC;
+    if (command == "gt")      return C_ARITHMETIC;
+    if (command == "add")     return C_ARITHMETIC;
+    if (command == "sub")     return C_ARITHMETIC;
+    if (command == "neg")     return C_ARITHMETIC;
+    if (command == "and")     return C_ARITHMETIC;
+    if (command == "or")      return C_ARITHMETIC;
+    if (command == "not")     return C_ARITHMETIC;
+    if (command == "label")   return C_LABEL;
+    if (command == "if-goto") return C_IF_GOTO;
 
-    assert("Unsupported command");
+    ASSERT(0, string("Unsupported command: ") + command);
 
     return C_NONE;
   }
@@ -177,6 +200,16 @@ public:
     }
 
     itr++;
+
+    if ((cmdType == C_LABEL) || (cmdType == C_IF_GOTO) || (cmdType == C_GOTO))
+    {
+      string label = *itr;
+
+      // Make all labels upper case
+      transform(label.begin(), label.end(), label.begin(), ::toupper);
+
+      return label;
+    }
 
     if ((cmdType == C_PUSH) || (cmdType == C_POP))
     {
@@ -225,11 +258,34 @@ class CodeWriter {
   const string filenameStem;
   const string filename;
   string currentFunction = "anonymous";
+  set<string> fileLabels;
+
+  string getLabel(string label)
+  {
+      string newLabel = string(currentFunction) + "$" + label;
+
+      return newLabel;
+  }
+
+  string newLabel(string label)
+  {
+      string newLabel = getLabel(label);
+
+      if (fileLabels.find(newLabel) != fileLabels.end())
+      {
+          cerr << "Duplicate label: " << newLabel << endl;
+          exit(-1);
+      }
+
+      fileLabels.insert(newLabel);
+
+      return newLabel;
+  }
 
   // TODO: add and call to "createLabel"
   string createBranchTag(int counter)
   {
-     // TODO: Set as "functionName$label"
+     // TODO: Set as "functionName$label_ctr"
      auto i = filenameStem.rfind('/', filenameStem.length());
      string tag;
 
@@ -546,7 +602,7 @@ public:
       outfile << "M=M-1" << endl;
       outfile << "A=M" << endl;
       outfile << "D=M" << endl;
-      outfile << "@" << createBranchTag(label) << endl;
+      outfile << "@" << getLabel(label) << endl;
       outfile << "D;JNE" << endl;
     }
     else
@@ -562,7 +618,7 @@ public:
     {
       outfile << "// " << lineNumber << ": label " << " " << label << endl;
 
-      outfile << "@" << createBranchTag(label) << endl;
+      outfile << "@" << newLabel(label) << endl;
     }
     else
     {
@@ -577,7 +633,7 @@ public:
     {
       outfile << "// " << lineNumber << ": goto " << " " << label << endl;
 
-      outfile << "@" << createBranchTag(label) << endl;
+      outfile << "@" << getLabel(label) << endl;
       outfile << "0;JMP" << endl;
     }
     else
@@ -746,20 +802,20 @@ class VMTranslator
           writer.writePushPop(parser.lineNumber(), parser.commandType(),
               parser.arg1(), parser.args());
         }
-        else if ((cmdType == C_IF_GOTO))
+        else if (cmdType == C_IF_GOTO)
         {
           writer.writeIfGoto(parser.lineNumber(), parser.commandType(),
-              parser.arg1()));
+              parser.arg1());
         }
-        else if ((cmdType == C_LABEL))
+        else if (cmdType == C_LABEL)
         {
           writer.writeLabel(parser.lineNumber(), parser.commandType(),
-              parser.arg1()));
+              parser.arg1());
         }
-        else if ((cmdType == C_GOTO))
+        else if (cmdType == C_GOTO)
         {
           writer.writeGoto(parser.lineNumber(), parser.commandType(),
-              parser.arg1()));
+              parser.arg1());
         }
       }
     }
