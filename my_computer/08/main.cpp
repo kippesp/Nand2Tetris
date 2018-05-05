@@ -618,7 +618,7 @@ public:
     {
       outfile << "// " << lineNumber << ": label " << " " << label << endl;
 
-      outfile << "@" << newLabel(label) << endl;
+      outfile << "(" << newLabel(label) << ")" << endl;
     }
     else
     {
