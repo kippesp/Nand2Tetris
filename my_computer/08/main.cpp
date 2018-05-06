@@ -175,6 +175,7 @@ public:
     if (command == "not")     return C_ARITHMETIC;
     if (command == "label")   return C_LABEL;
     if (command == "if-goto") return C_IF_GOTO;
+    if (command == "goto")    return C_GOTO;
 
     ASSERT(0, string("Unsupported command: ") + command);
 
