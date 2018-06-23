@@ -127,9 +127,11 @@ public:
     auto currentLine = allLinesInFile.front();
     commandLineNumber = allLineNumbers.front();
 
+#ifdef NONO
     // TODO: make smarter - don't transform labels of function names
     transform(currentLine.begin(), currentLine.end(), currentLine.begin(),
         ::tolower);
+#endif
 
     // Process and tokenize the line into the
     commandAndArguments.clear();
@@ -162,20 +164,21 @@ public:
   {
     string command = commandAndArguments.front();
   
-    if (command == "push")    return C_PUSH;
-    if (command == "pop")     return C_POP;
-    if (command == "eq")      return C_ARITHMETIC;
-    if (command == "lt")      return C_ARITHMETIC;
-    if (command == "gt")      return C_ARITHMETIC;
-    if (command == "add")     return C_ARITHMETIC;
-    if (command == "sub")     return C_ARITHMETIC;
-    if (command == "neg")     return C_ARITHMETIC;
-    if (command == "and")     return C_ARITHMETIC;
-    if (command == "or")      return C_ARITHMETIC;
-    if (command == "not")     return C_ARITHMETIC;
-    if (command == "label")   return C_LABEL;
-    if (command == "if-goto") return C_IF_GOTO;
-    if (command == "goto")    return C_GOTO;
+    if (command == "push")     return C_PUSH;
+    if (command == "pop")      return C_POP;
+    if (command == "eq")       return C_ARITHMETIC;
+    if (command == "lt")       return C_ARITHMETIC;
+    if (command == "gt")       return C_ARITHMETIC;
+    if (command == "add")      return C_ARITHMETIC;
+    if (command == "sub")      return C_ARITHMETIC;
+    if (command == "neg")      return C_ARITHMETIC;
+    if (command == "and")      return C_ARITHMETIC;
+    if (command == "or")       return C_ARITHMETIC;
+    if (command == "not")      return C_ARITHMETIC;
+    if (command == "label")    return C_LABEL;
+    if (command == "if-goto")  return C_IF_GOTO;
+    if (command == "goto")     return C_GOTO;
+    if (command == "function") return C_FUNCTION;
 
     ASSERT(0, string("Unsupported command: ") + command);
 
@@ -202,12 +205,15 @@ public:
 
     itr++;
 
-    if ((cmdType == C_LABEL) || (cmdType == C_IF_GOTO) || (cmdType == C_GOTO))
+    if ((cmdType == C_LABEL) || (cmdType == C_IF_GOTO) || (cmdType == C_GOTO) ||
+        (cmdType == C_FUNCTION))
     {
       string label = *itr;
 
+#ifdef NONO
       // Make all labels upper case
       transform(label.begin(), label.end(), label.begin(), ::toupper);
+#endif
 
       return label;
     }
@@ -643,7 +649,26 @@ public:
     }
   }
 
+  // On entry:
+  //   Segment local has been initialized to zeros
+  //   Segment static has been set
+  //   Segments this, that, pointer, and temp are undefined
+  // On exit:
+  //   Return value is pushed onto stack.
+  void writeFunction(int lineNumber, Command_t command,
+      string label)
+  {
+    if (command == C_FUNCTION)
+    {
+      outfile << "// " << lineNumber << ": function " << " " << label << endl;
 
+      outfile << "(" << newLabel(label) << ")" << endl;
+    }
+    else
+    {
+      assert(0);
+    }
+  }
 };
 
 class VMTranslator
@@ -816,6 +841,11 @@ class VMTranslator
         else if (cmdType == C_GOTO)
         {
           writer.writeGoto(parser.lineNumber(), parser.commandType(),
+              parser.arg1());
+        }
+        else if (cmdType == C_FUNCTION)
+        {
+          writer.writeFunction(parser.lineNumber(), parser.commandType(),
               parser.arg1());
         }
       }
