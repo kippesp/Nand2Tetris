@@ -535,8 +535,8 @@ public:
         outfile << "@" << index << endl;
         outfile << "D=D+A" << endl;
 
-        // Spill *segment_base + index to R13
-        outfile << "@" << "R13" << endl;
+        // Spill *segment_base + index to R15
+        outfile << "@" << "R15" << endl;
         outfile << "M=D" << endl;
 
         // update stack
@@ -546,7 +546,7 @@ public:
         outfile << "D=M" << endl;
 
         // Store in *segment_base + index
-        outfile << "@" << "R13" << endl;
+        outfile << "@" << "R15" << endl;
         outfile << "A=M" << endl;
         outfile << "M=D" << endl;
       }
