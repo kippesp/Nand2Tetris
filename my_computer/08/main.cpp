@@ -179,6 +179,7 @@ public:
     if (command == "if-goto")  return C_IF_GOTO;
     if (command == "goto")     return C_GOTO;
     if (command == "function") return C_FUNCTION;
+    if (command == "return")   return C_RETURN;
 
     ASSERT(0, string("Unsupported command: ") + command);
 
@@ -660,9 +661,78 @@ public:
   {
     if (command == C_FUNCTION)
     {
+      // TODO: Validate function name (pg. 160)
       outfile << "// " << lineNumber << ": function " << " " << label << endl;
 
       outfile << "(" << newLabel(label) << ")" << endl;
+    }
+    else
+    {
+      assert(0);
+    }
+  }
+
+  void writeReturn(int lineNumber, Command_t command)
+  {
+    if (command == C_RETURN)
+    {
+      outfile << "// " << lineNumber << ": return" << endl;
+
+      // R13 = LCL - Save LCL to temporary register
+      outfile << "@LCL" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@R13" << endl;
+      outfile << "M=D" << endl;
+      // R14 = *(R13 - 5) - Save return address in R14
+      outfile << "@R13" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@R14" << endl;
+      outfile << "M=D" << endl;
+      // *ARG = pop() - Reposition the return value for caller
+      writePushPop(lineNumber, C_POP, "argument"); // trashes R15
+      // SP = ARG+1 - Restore SP of caller
+      outfile << "@ARG" << endl;
+      outfile << "D=A+1" << endl;
+      outfile << "@SP" << endl;
+      outfile << "M=D" << endl;
+      // THAT = *(R13 - 1) - Restore THAT of caller
+      outfile << "@R13" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@THAT" << endl;
+      outfile << "M=D" << endl;
+      // THIS = *(R13 - 2) - Restore THIS of caller
+      outfile << "@R13" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@THIS" << endl;
+      outfile << "M=D" << endl;
+      // ARG = *(R13 - 3) - Restore ARG of caller
+      outfile << "@R13" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@ARG" << endl;
+      outfile << "M=D" << endl;
+      // LCL = *(R13 - 4) - Restore LCL of caller
+      outfile << "@R13" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "A=A-1" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@LCL" << endl;
+      outfile << "M=D" << endl;
+      // goto RET (R14)
+      outfile << "@R14" << endl;
+      outfile << "0;JMP" << endl;
     }
     else
     {
@@ -847,6 +917,14 @@ class VMTranslator
         {
           writer.writeFunction(parser.lineNumber(), parser.commandType(),
               parser.arg1());
+        }
+        else if (cmdType == C_RETURN)
+        {
+          writer.writeReturn(parser.lineNumber(), parser.commandType());
+        }
+        else
+        {
+          ASSERT(0, string("Unsupported cmdType."));
         }
       }
     }
