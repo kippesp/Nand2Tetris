@@ -657,18 +657,18 @@ public:
   // On exit:
   //   Return value is pushed onto stack.
   void writeFunction(int lineNumber, Command_t command,
-      string label, int args)
+      string label, int nargs)
   {
     if (command == C_FUNCTION)
     {
       // TODO: Validate function name (pg. 160)
       // dot, letters, digits, underscores, color; can not start with digit
       outfile << "// " << lineNumber << ": function" << " " << label;
-      outfile << " (" << args << " args)" << endl;
+      outfile << " (" << nargs << " nargs)" << endl;
 
       outfile << "(" << newLabel(label) << ")" << endl;
 
-      for (int i = 0; i < args; i++)
+      for (int i = 0; i < nargs; i++)
       {
         writePushPop(lineNumber, C_PUSH, "local", 0);
       }
