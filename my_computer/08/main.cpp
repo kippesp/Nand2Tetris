@@ -651,20 +651,27 @@ public:
   }
 
   // On entry:
-  //   Segment local has been initialized to zeros
+  //   Segment local has been initialized to zeros for each local variable
   //   Segment static has been set
   //   Segments this, that, pointer, and temp are undefined
   // On exit:
   //   Return value is pushed onto stack.
   void writeFunction(int lineNumber, Command_t command,
-      string label)
+      string label, int args)
   {
     if (command == C_FUNCTION)
     {
       // TODO: Validate function name (pg. 160)
-      outfile << "// " << lineNumber << ": function " << " " << label << endl;
+      // dot, letters, digits, underscores, color; can not start with digit
+      outfile << "// " << lineNumber << ": function" << " " << label;
+      outfile << " (" << args << " args)" << endl;
 
       outfile << "(" << newLabel(label) << ")" << endl;
+
+      for (int i = 0; i < args; i++)
+      {
+        writePushPop(lineNumber, C_PUSH, "local", 0);
+      }
     }
     else
     {
@@ -694,7 +701,7 @@ public:
       outfile << "@R14" << endl;
       outfile << "M=D" << endl;
       // *ARG = pop() - Reposition the return value for caller
-      writePushPop(lineNumber, C_POP, "argument"); // trashes R15
+      writePushPop(lineNumber, C_POP, "argument", 0); // trashes R15
       // SP = ARG+1 - Restore SP of caller
       outfile << "@ARG" << endl;
       outfile << "D=A+1" << endl;
@@ -916,7 +923,7 @@ class VMTranslator
         else if (cmdType == C_FUNCTION)
         {
           writer.writeFunction(parser.lineNumber(), parser.commandType(),
-              parser.arg1());
+              parser.arg1(), parser.args());
         }
         else if (cmdType == C_RETURN)
         {
