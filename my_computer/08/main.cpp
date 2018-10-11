@@ -14,6 +14,18 @@
 # include <dirent.h>
 #endif
 
+/* C_CALL
+ *  push returnAddress    // push label
+ *  push LCL              // save LCL
+ *  push ARG              // save ARG
+ *  push THIS             // save THIS
+ *  push THAT             // save THAT
+ *  ARG = SP - 5 - nargs  // point to arg0
+ *  LCL = SP              // reposition LCL
+ *  goto functionName     // transfer control to called function
+ *  (returnAddress)       // define label for return address
+ */
+
 
 #ifndef NDEBUG
 # define ASSERT(condition, message) \
@@ -46,8 +58,8 @@ typedef enum {
   C_GOTO,
   C_IF_GOTO,
   C_FUNCTION,
+  C_CALL,
   C_RETURN,
-  C_CALL
 } Command_t;
 
 /* Parser - Handles the parsing of a single .vm file     */
@@ -180,6 +192,7 @@ public:
     if (command == "goto")     return C_GOTO;
     if (command == "function") return C_FUNCTION;
     if (command == "return")   return C_RETURN;
+    if (command == "call")     return C_CALL;
 
     ASSERT(0, string("Unsupported command: ") + command);
 
@@ -207,7 +220,7 @@ public:
     itr++;
 
     if ((cmdType == C_LABEL) || (cmdType == C_IF_GOTO) || (cmdType == C_GOTO) ||
-        (cmdType == C_FUNCTION))
+        (cmdType == C_FUNCTION) || (cmdType == C_CALL))
     {
       string label = *itr;
 
@@ -267,6 +280,7 @@ class CodeWriter {
   const string filename;
   string currentFunction = "anonymous";
   set<string> fileLabels;
+  int callReturnPointCounter = 0;
 
   string getLabel(string label)
   {
@@ -303,6 +317,13 @@ class CodeWriter {
      }
 
     return to_string(counter) + "$" + tag;
+  }
+
+  string createReturnLabel()
+  {
+    string newLabel = string(currentFunction) + "." + to_string(callReturnPointCounter);
+
+    return newLabel;
   }
 
 public:
@@ -661,6 +682,9 @@ public:
   {
     if (command == C_FUNCTION)
     {
+      callReturnPointCounter = 0;
+      currentFunction = label;
+
       // TODO: Validate function name (pg. 160)
       // dot, letters, digits, underscores, color; can not start with digit
       outfile << "// " << lineNumber << ": function" << " " << label;
@@ -668,10 +692,99 @@ public:
 
       outfile << "(" << newLabel(label) << ")" << endl;
 
+      // Build local variables
       for (int i = 0; i < nargs; i++)
       {
         writePushPop(lineNumber, C_PUSH, "local", 0);
       }
+    }
+    else
+    {
+      assert(0);
+    }
+  }
+
+  void writeCall(int lineNumber, Command_t command,
+      string label, int nargs)
+  {
+    if (command == C_CALL)
+    {
+      // TODO: Validate function name (pg. 160)
+      // dot, letters, digits, underscores, color; can not start with digit
+      outfile << "// " << lineNumber << ": call" << " " << label;
+      outfile << " (" << nargs << " nargs)" << endl;
+
+      // create label for the return goto
+      string returnAddressLabel = createReturnLabel();
+
+      // load address of returnAddressLabel
+      outfile << "@" << returnAddressLabel << endl;
+      outfile << "D=M" << endl;
+
+      // push address of returnAddressLabel onto stack
+      outfile << "@SP" << endl;
+      outfile << "A=M" << endl;
+      outfile << "M=D" << endl;
+      outfile << "@SP" << endl;
+      outfile << "M=M+1" << endl;
+
+      // push LCL
+      outfile << "@LCL" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@SP" << endl;
+      outfile << "A=M" << endl;
+      outfile << "M=D" << endl;
+      outfile << "@SP" << endl;
+      outfile << "M=M+1" << endl;
+
+      // push ARG
+      outfile << "@ARG" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@SP" << endl;
+      outfile << "A=M" << endl;
+      outfile << "M=D" << endl;
+      outfile << "@SP" << endl;
+      outfile << "M=M+1" << endl;
+
+      // push THIS
+      outfile << "@THIS" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@SP" << endl;
+      outfile << "A=M" << endl;
+      outfile << "M=D" << endl;
+      outfile << "@SP" << endl;
+      outfile << "M=M+1" << endl;
+
+      // push THAT
+      outfile << "@THAT" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@SP" << endl;
+      outfile << "A=M" << endl;
+      outfile << "M=D" << endl;
+      outfile << "@SP" << endl;
+      outfile << "M=M+1" << endl;
+
+      // point ARG to arg0
+      // ARG = SP - 5 - nargs  // point to arg0
+      outfile << "@SP" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@5" << endl;
+      outfile << "D=D-A" << endl;
+      outfile << "@" << nargs << endl;
+      outfile << "D=D-A" << endl;
+      outfile << "@ARG" << endl;
+      outfile << "M=D" << endl;
+
+      // reposition LCL
+      // LCL = SP
+      outfile << "@SP" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@LCL" << endl;
+      outfile << "M=D" << endl;
+
+      writeGoto(lineNumber, C_GOTO, filenameStem + "$" + label);
+
+      outfile << "(" << newLabel(label) << ")" << endl;
     }
     else
     {
@@ -685,12 +798,15 @@ public:
     {
       outfile << "// " << lineNumber << ": return" << endl;
 
-      // R13 = LCL - Save LCL to temporary register
+      // R13 - LCL
+      // R14 - Return Address
+
+      // R13 = LCL - Save LCL (endFrame) to temporary register
       outfile << "@LCL" << endl;
       outfile << "D=M" << endl;
       outfile << "@R13" << endl;
       outfile << "M=D" << endl;
-      // R14 = *(R13 - 5) - Save return address in R14
+      // R14 = *(endFrame - 5) = *(R13 - 5) - Save return address in R14
       outfile << "@R13" << endl;
       outfile << "A=A-1" << endl;
       outfile << "A=A-1" << endl;
@@ -923,6 +1039,11 @@ class VMTranslator
         else if (cmdType == C_FUNCTION)
         {
           writer.writeFunction(parser.lineNumber(), parser.commandType(),
+              parser.arg1(), parser.args());
+        }
+        else if (cmdType == C_CALL)
+        {
+          writer.writeCall(parser.lineNumber(), parser.commandType(),
               parser.arg1(), parser.args());
         }
         else if (cmdType == C_RETURN)
