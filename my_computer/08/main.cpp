@@ -280,11 +280,24 @@ class CodeWriter {
   const string filename;
   string currentFunction = "anonymous";
   set<string> fileLabels;
-  int callReturnPointCounter = 0;
+  int anonymousLabelCounter = 0;
 
   string getLabel(string label)
   {
-      string newLabel = string(currentFunction) + "$" + label;
+      string newLabel;
+
+      // Use for call return labels
+      if (label == "")
+      {
+          anonymousLabelCounter++;
+          newLabel = string(currentFunction) + "." + to_string(anonymousLabelCounter);
+      }
+      // Use for branching labels
+      else
+      {
+          // TODO: have separate counters for each label argument
+          newLabel = string(currentFunction) + "$" + label;
+      }
 
       return newLabel;
   }
@@ -321,7 +334,7 @@ class CodeWriter {
 
   string createReturnLabel()
   {
-    string newLabel = string(currentFunction) + "." + to_string(callReturnPointCounter);
+    string newLabel = string(currentFunction) + "." + to_string(anonymousLabelCounter);
 
     return newLabel;
   }
@@ -682,7 +695,7 @@ public:
   {
     if (command == C_FUNCTION)
     {
-      callReturnPointCounter = 0;
+      anonymousLabelCounter = 0;
       currentFunction = label;
 
       // TODO: Validate function name (pg. 160)
@@ -690,7 +703,7 @@ public:
       outfile << "// " << lineNumber << ": function" << " " << label;
       outfile << " (" << nargs << " nargs)" << endl;
 
-      outfile << "(" << newLabel(label) << ")" << endl;
+      outfile << "(" << label << ")" << endl;
 
       // Build local variables
       for (int i = 0; i < nargs; i++)
