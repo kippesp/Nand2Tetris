@@ -708,7 +708,7 @@ public:
       // Build local variables
       for (int i = 0; i < nargs; i++)
       {
-        writePushPop(lineNumber, C_PUSH, "local", 0);
+        writePushPop(lineNumber, C_PUSH, "constant", 0);
       }
     }
     else
@@ -815,34 +815,38 @@ public:
       // R14 - Return Address
 
       // R13 = LCL - Save LCL (endFrame) to temporary register
+      outfile << "// " << lineNumber << ": R13 = FRAME = LCL" << endl;
       outfile << "@LCL" << endl;
       outfile << "D=M" << endl;
       outfile << "@R13" << endl;
       outfile << "M=D" << endl;
       // R14 = *(endFrame - 5) = *(R13 - 5) - Save return address in R14
+      outfile << "// " << lineNumber << ": R14 = RET = *(FRAME-5)" << endl;
       outfile << "@R13" << endl;
-      outfile << "A=A-1" << endl;
-      outfile << "A=A-1" << endl;
-      outfile << "A=A-1" << endl;
-      outfile << "A=A-1" << endl;
-      outfile << "A=A-1" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@5" << endl;
+      outfile << "A=D-A" << endl;
       outfile << "D=M" << endl;
       outfile << "@R14" << endl;
       outfile << "M=D" << endl;
       // *ARG = pop() - Reposition the return value for caller
-      writePushPop(lineNumber, C_POP, "argument", 0); // trashes R15
+      outfile << "// " << lineNumber << ": *ARG = pop()" << endl;
+      writePushPop(lineNumber, C_POP, "local", 0); // trashes R15
       // SP = ARG+1 - Restore SP of caller
+      outfile << "// " << lineNumber << ": SP = ARG+1" << endl;
       outfile << "@ARG" << endl;
       outfile << "D=A+1" << endl;
       outfile << "@SP" << endl;
       outfile << "M=D" << endl;
       // THAT = *(R13 - 1) - Restore THAT of caller
+      outfile << "// " << lineNumber << ": THAT = *(FRAME-1)" << endl;
       outfile << "@R13" << endl;
       outfile << "A=A-1" << endl;
       outfile << "D=M" << endl;
       outfile << "@THAT" << endl;
       outfile << "M=D" << endl;
       // THIS = *(R13 - 2) - Restore THIS of caller
+      outfile << "// " << lineNumber << ": THIS = *(FRAME-2)" << endl;
       outfile << "@R13" << endl;
       outfile << "A=A-1" << endl;
       outfile << "A=A-1" << endl;
@@ -850,6 +854,7 @@ public:
       outfile << "@THIS" << endl;
       outfile << "M=D" << endl;
       // ARG = *(R13 - 3) - Restore ARG of caller
+      outfile << "// " << lineNumber << ": ARG = *(FRAME-3)" << endl;
       outfile << "@R13" << endl;
       outfile << "A=A-1" << endl;
       outfile << "A=A-1" << endl;
@@ -858,16 +863,18 @@ public:
       outfile << "@ARG" << endl;
       outfile << "M=D" << endl;
       // LCL = *(R13 - 4) - Restore LCL of caller
+      outfile << "// " << lineNumber << ": LCL = *(FRAME-4)" << endl;
       outfile << "@R13" << endl;
-      outfile << "A=A-1" << endl;
-      outfile << "A=A-1" << endl;
-      outfile << "A=A-1" << endl;
-      outfile << "A=A-1" << endl;
+      outfile << "D=A" << endl;
+      outfile << "@5" << endl;
+      outfile << "A=D-A" << endl;
       outfile << "D=M" << endl;
       outfile << "@LCL" << endl;
       outfile << "M=D" << endl;
       // goto RET (R14)
+      outfile << "// " << lineNumber << ": goto RET/R14" << endl;
       outfile << "@R14" << endl;
+      outfile << "A=M" << endl;
       outfile << "0;JMP" << endl;
     }
     else
