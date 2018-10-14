@@ -5,8 +5,10 @@
 #include <fstream>
 #include <iostream>
 #include <list>
+#include <libgen.h>
 #include <set>
 #include <sys/stat.h>
+#include <stdlib.h>
 
 #ifdef CPP17_LATER
 # include <filesystem>
@@ -269,6 +271,10 @@ class CodeWriter {
   set<string> fileLabels;
   int anonymousLabelCounter = 0;
 
+  // TODO: writeInit() - Writes the assembly instructions that effect the bootstrap code tht initializes the VM.  This code myst be placed at the beginning of the generated .asm file
+  // TODO: setFileName() - Informs the codeWriter that the translation of a new vm file has started.
+  //
+
   string getLabel(string label)
   {
       string newLabel;
@@ -338,13 +344,16 @@ public:
       cerr << "Failed to open output file, " << filename << endl;
       exit(-2);
     }
-
-    outfile << "// File: " << filename << endl;
   }
 
   ~CodeWriter()
   {
     outfile.close();
+  }
+
+  void setFileName(string filename)
+  {
+    outfile << "// File: " << filename << endl;
   }
 
   // See section 7.2.3 - Memory Access Commands
@@ -782,7 +791,8 @@ public:
       outfile << "@LCL" << endl;
       outfile << "M=D" << endl;
 
-      writeGoto(lineNumber, C_GOTO, filenameStem + "$" + label);
+      // TODO: This is f-ed
+      writeGoto(lineNumber, C_GOTO, string("TODO") + "$" + label);
 
       outfile << "(" << newLabel(label) << ")" << endl;
     }
@@ -878,6 +888,7 @@ public:
 class VMTranslator
 {
   list<string> fileNameStemList;  // list .vm files with ".vm" dropped
+  string outputFileNameStem;
 
   public:
 
@@ -925,6 +936,7 @@ class VMTranslator
       }
 
       fileNameStemList.push_back(filenameStem);
+      outputFileNameStem = filenameStem;
     }
     else
     {
@@ -942,6 +954,8 @@ class VMTranslator
         cerr << "Unable to read files in directory." << endl;
         exit(-1);
       }
+
+      // TODO: Save argv as directory name minus full path
 
       while(true)
       {
@@ -1007,16 +1021,39 @@ class VMTranslator
 
         string filenameStem = fileEntry.substr(0, fileEntry.length() - 3);
         fileNameStemList.push_back(argv + "/" + filenameStem);
+
+        // Resolve the directory name for path/to/directory or '.'
+        if (outputFileNameStem == "")
+        {
+          char buff[PATH_MAX + 1];
+          char* absolutePath = realpath(filePath.c_str(), buff);
+
+          if (absolutePath == nullptr)
+          {
+            puts("Error obtaining directory path.");
+            exit(-1);
+          }
+
+          char* directoryNameFull = dirname(absolutePath);
+          char* directoryName = basename(directoryNameFull);
+          outputFileNameStem = string(directoryNameFull) + "/" + string(directoryName);
+        }
       }
     }
   }
 
   void process()
   {
+    CodeWriter writer(outputFileNameStem);
+
+    // TODO: If directory name set, open writer file with that name
+    // TODO: Writer is only a single .asm file.  So either way,
+    // can call writer just once.  Why the list of stems for writing?  Just needed for reading.
+
     for (auto filenameStem : fileNameStemList)
     {
       Parser parser(filenameStem);
-      CodeWriter writer(filenameStem);
+      writer.setFileName(filenameStem + ".vm");
 
       while (parser.hasMoreCommands())
       {
