@@ -290,7 +290,7 @@ class CodeWriter {
       if (label == "")
       {
           anonymousLabelCounter++;
-          newLabel = string(currentFunction) + "." + to_string(anonymousLabelCounter);
+          newLabel = string(currentFunction) + "$ret." + to_string(anonymousLabelCounter);
       }
       // Use for branching labels
       else
