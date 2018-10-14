@@ -14,19 +14,6 @@
 # include <dirent.h>
 #endif
 
-/* C_CALL
- *  push returnAddress    // push label
- *  push LCL              // save LCL
- *  push ARG              // save ARG
- *  push THIS             // save THIS
- *  push THAT             // save THAT
- *  ARG = SP - 5 - nargs  // point to arg0
- *  LCL = SP              // reposition LCL
- *  goto functionName     // transfer control to called function
- *  (returnAddress)       // define label for return address
- */
-
-
 #ifndef NDEBUG
 # define ASSERT(condition, message) \
     do { \
