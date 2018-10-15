@@ -654,9 +654,11 @@ public:
   {
     if (command == C_LABEL)
     {
-      outfile << "// " << lineNumber << ": label " << label << endl;
+      string newLabel = getLabel(label);
 
-      outfile << "(" << newLabel(label) << ")" << endl;
+      outfile << "// " << lineNumber << ": label " << newLabel << endl;
+
+      outfile << "(" << newLabel << ")" << endl;
     }
     else
     {
@@ -669,9 +671,11 @@ public:
   {
     if (command == C_GOTO)
     {
-      outfile << "// " << lineNumber << ": goto " << label << endl;
+      string gotoLabel = getLabel(label);
 
-      outfile << "@" << label << endl;
+      outfile << "// " << lineNumber << ": goto " << gotoLabel << endl;
+
+      outfile << "@" << gotoLabel << endl;
       outfile << "0;JMP" << endl;
     }
     else
