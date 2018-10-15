@@ -358,6 +358,19 @@ public:
     outfile << "// File: " << filename << endl;
   }
 
+  void writeInit()
+  {
+    outfile << "// Bootstrap code to Sys.init function" << endl;
+    outfile << "@256" << endl;
+    outfile << "D=A" << endl;
+    outfile << "@SP" << endl;
+    outfile << "M=D" << endl;
+    outfile << "@Sys.init" << endl;
+    outfile << "0;JMP" << endl;
+  }
+
+
+
   // See section 7.2.3 - Memory Access Commands
   void writeArithmetic(int lineNumber, string command)
   {
@@ -1052,6 +1065,14 @@ class VMTranslator
   void process()
   {
     CodeWriter writer(outputFileNameStem);
+
+    // If size of fileNameStemList > 1 then a directory is being processed
+    // so there must be a function Sys.init() defined.  It is the entry
+    // point and must be called.
+    if (fileNameStemList.size() > 1)
+    {
+      writer.writeInit();
+    }
 
     // TODO: If directory name set, open writer file with that name
     // TODO: Writer is only a single .asm file.  So either way,
