@@ -272,8 +272,6 @@ class CodeWriter {
   int anonymousLabelCounter = 0;
 
   // TODO: writeInit() - Writes the assembly instructions that effect the bootstrap code tht initializes the VM.  This code myst be placed at the beginning of the generated .asm file
-  // TODO: setFileName() - Informs the codeWriter that the translation of a new vm file has started.
-  //
 
   string getLabel(string label)
   {
@@ -283,12 +281,12 @@ class CodeWriter {
       if (label == "")
       {
           anonymousLabelCounter++;
+          assert(0);
           newLabel = string(currentFunction) + "$ret." + to_string(anonymousLabelCounter);
       }
       // Use for branching labels
       else
       {
-          // TODO: have separate counters for each label argument
           newLabel = string(currentFunction) + "$" + label;
       }
 
@@ -317,6 +315,8 @@ class CodeWriter {
      auto i = filenameStem.rfind('/', filenameStem.length());
      string tag;
 
+     assert(0);
+
      if (i != string::npos)
      {
        tag = filenameStem.substr(i+1, filenameStem.length() - i);
@@ -327,7 +327,7 @@ class CodeWriter {
 
   string createReturnLabel()
   {
-    string newLabel = string(currentFunction) + "." + to_string(anonymousLabelCounter);
+    string newLabel = string(currentFunction) + "$ret." + to_string(anonymousLabelCounter);
 
     return newLabel;
   }
@@ -654,7 +654,7 @@ public:
   {
     if (command == C_LABEL)
     {
-      outfile << "// " << lineNumber << ": label " << " " << label << endl;
+      outfile << "// " << lineNumber << ": label " << label << endl;
 
       outfile << "(" << newLabel(label) << ")" << endl;
     }
@@ -669,9 +669,9 @@ public:
   {
     if (command == C_GOTO)
     {
-      outfile << "// " << lineNumber << ": goto " << " " << label << endl;
+      outfile << "// " << lineNumber << ": goto " << label << endl;
 
-      outfile << "@" << getLabel(label) << endl;
+      outfile << "@" << label << endl;
       outfile << "0;JMP" << endl;
     }
     else
@@ -792,9 +792,9 @@ public:
       outfile << "M=D" << endl;
 
       // TODO: This is f-ed
-      writeGoto(lineNumber, C_GOTO, string("TODO") + "$" + label);
+      writeGoto(lineNumber, C_GOTO, label);
 
-      outfile << "(" << newLabel(label) << ")" << endl;
+      outfile << "(" << returnAddressLabel << ")" << endl;
     }
     else
     {
