@@ -270,6 +270,7 @@ class CodeWriter {
   string currentFunction = "anonymous";
   set<string> fileLabels;
   int anonymousLabelCounter = 0;
+  int returnLabelCounter = 0;
 
   // TODO: writeInit() - Writes the assembly instructions that effect the bootstrap code tht initializes the VM.  This code myst be placed at the beginning of the generated .asm file
 
@@ -327,7 +328,8 @@ class CodeWriter {
 
   string createReturnLabel()
   {
-    string newLabel = string(currentFunction) + "$ret." + to_string(anonymousLabelCounter);
+    string newLabel = string(currentFunction) + "$ret." + to_string(returnLabelCounter);
+    returnLabelCounter++;
 
     return newLabel;
   }
@@ -696,6 +698,7 @@ public:
     if (command == C_FUNCTION)
     {
       anonymousLabelCounter = 0;
+      returnLabelCounter = 0;
       currentFunction = label;
 
       // TODO: Validate function name (pg. 160)
