@@ -211,6 +211,8 @@ def assemble(s):
         cval = '110010'
       elif comp == 'D+A':
         cval = '000010'
+      elif comp == 'D-A':
+        cval = '010011'
       elif comp == 'A-D':
         cval = '010011'
       elif comp == 'D&A':
