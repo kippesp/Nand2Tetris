@@ -272,8 +272,6 @@ class CodeWriter {
   int anonymousLabelCounter = 0;
   int returnLabelCounter = 0;
 
-  // TODO: writeInit() - Writes the assembly instructions that effect the bootstrap code tht initializes the VM.  This code myst be placed at the beginning of the generated .asm file
-
   string getLabel(string label)
   {
       string newLabel;
@@ -368,8 +366,6 @@ public:
     outfile << "@Sys.init" << endl;
     outfile << "0;JMP" << endl;
   }
-
-
 
   // See section 7.2.3 - Memory Access Commands
   void writeArithmetic(int lineNumber, string command)
@@ -909,6 +905,7 @@ class VMTranslator
 {
   list<string> fileNameStemList;  // list .vm files with ".vm" dropped
   string outputFileNameStem;
+  bool bootstrapRequired = false;
 
   public:
 
@@ -1057,6 +1054,7 @@ class VMTranslator
           char* directoryNameFull = dirname(absolutePath);
           char* directoryName = basename(directoryNameFull);
           outputFileNameStem = string(directoryNameFull) + "/" + string(directoryName);
+          bootstrapRequired = true;
         }
       }
     }
@@ -1066,12 +1064,9 @@ class VMTranslator
   {
     CodeWriter writer(outputFileNameStem);
 
-    // If size of fileNameStemList > 1 then a directory is being processed
-    // so there must be a function Sys.init() defined.  It is the entry
-    // point and must be called.
-    if (fileNameStemList.size() > 1)
+    if (bootstrapRequired)
     {
-      writer.writeInit();
+      //writer.writeInit();
     }
 
     // TODO: If directory name set, open writer file with that name
