@@ -286,7 +286,7 @@ class CodeWriter {
       // Use for branching labels
       else
       {
-          newLabel = string(currentFunction) + "$" + label;
+          newLabel = label;
       }
 
       return newLabel;
@@ -682,7 +682,7 @@ public:
   {
     if (command == C_GOTO)
     {
-      string gotoLabel = getLabel(label);
+      string gotoLabel = label;
 
       outfile << "// " << lineNumber << ": goto " << gotoLabel << endl;
 
@@ -807,7 +807,6 @@ public:
       outfile << "@LCL" << endl;
       outfile << "M=D" << endl;
 
-      // TODO: This is f-ed
       writeGoto(lineNumber, C_GOTO, label);
 
       outfile << "(" << returnAddressLabel << ")" << endl;
