@@ -359,7 +359,7 @@ public:
   void writeInit()
   {
     outfile << "// Bootstrap code to Sys.init function" << endl;
-    outfile << "@256" << endl;
+    outfile << "@" << 256+5 << endl; // account for 5 pushes if were actual call
     outfile << "D=A" << endl;
     outfile << "@SP" << endl;
     outfile << "M=D" << endl;
@@ -1066,7 +1066,7 @@ class VMTranslator
 
     if (bootstrapRequired)
     {
-      //writer.writeInit();
+      writer.writeInit();
     }
 
     // TODO: If directory name set, open writer file with that name
