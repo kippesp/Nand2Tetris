@@ -294,10 +294,14 @@ def main():
   global auto_variable_val, symbols
 
   if len(sys.argv) == 1:
-    print 'Usage: python hasm.py -l FILE.asm'
+    print 'Usage: python hasm.py [-l] FILE.asm'
+    sys.exit(-1)
 
   # Check for listing file production
   if sys.argv[1] == '-l':
+    if len(sys.argv) == 2:
+      print 'Usage: python hasm.py [-l] FILE.asm'
+      sys.exit(-1)
     make_listing_file = True
     filename = sys.argv[2]
   else:
