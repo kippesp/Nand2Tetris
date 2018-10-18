@@ -368,9 +368,20 @@ def main():
     for i,listingLine in enumerate(listingLines):
       if listingLine.is_instruction:
         asm_hex = int(listingLine.ml_instr, 2)
-        print "%4i: %04X   %-35s %s" % (
+        if listingLine.is_instruction:
+          a_instr_value = ''
+
+          if listingLine.instruction_text[0] == '@':
+            a_instr = listingLine.instruction_text[1:]
+            if a_instr not in default_symbols:
+              try:
+                throw_away = int(a_instr)
+              except:
+                a_instr_value = " =%d" % symbols[a_instr]
+        print "%4i: %04X   %-35s %s%s" % (
             listingLine.instruction_number, asm_hex,
-            listingLine.instruction_text, listingLine.comment_text)
+            listingLine.instruction_text, listingLine.comment_text,
+            a_instr_value)
       elif listingLine.has_comment:
         print "             %s" % listingLine.comment_text
       elif listingLine.is_label:
