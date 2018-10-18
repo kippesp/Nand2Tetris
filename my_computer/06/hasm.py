@@ -378,10 +378,10 @@ def main():
                 throw_away = int(a_instr)
               except:
                 a_instr_value = " =%d" % symbols[a_instr]
-        print "%4i: %04X   %-35s %s%s" % (
+        print "%4i: %04X   %-35s %s%-7s%s" % (
             listingLine.instruction_number, asm_hex,
             listingLine.instruction_text, listingLine.comment_text,
-            a_instr_value)
+            a_instr_value, listingLine.ml_instr)
       elif listingLine.has_comment:
         print "             %s" % listingLine.comment_text
       elif listingLine.is_label:
