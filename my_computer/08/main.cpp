@@ -366,9 +366,7 @@ public:
     outfile << "M=D" << endl;
 
     outfile << "// For debug, set LCL=-1, ARG=-2, THIS=-3, THAT=-4" << endl;
-    outfile << "@" << 0 << endl;
-    outfile << "D=A" << endl;
-    outfile << "D=D-1" << endl;
+    outfile << "D=-1" << endl;
     outfile << "@LCL" << endl;
     outfile << "M=D" << endl;
 
