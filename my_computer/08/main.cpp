@@ -479,10 +479,9 @@ public:
 
         // push D onto stack
         outfile << "@SP" << endl;
-        outfile << "A=M" << endl;
+        outfile << "AM=M+1" << endl;
+        outfile << "A=A-1" << endl;
         outfile << "M=D" << endl;
-        outfile << "@SP" << endl;
-        outfile << "M=M+1" << endl;
       }
       else if (segment == "constant")
       {
@@ -491,10 +490,9 @@ public:
 
         // push D onto stack
         outfile << "@SP" << endl;
-        outfile << "A=M" << endl;
+        outfile << "AM=M+1" << endl;
+        outfile << "A=A-1" << endl;
         outfile << "M=D" << endl;
-        outfile << "@SP" << endl;
-        outfile << "M=M+1" << endl;
       }
       else if (segment == "temp")
       {
@@ -505,10 +503,9 @@ public:
 
         // push D onto stack
         outfile << "@SP" << endl;
-        outfile << "A=M" << endl;
+        outfile << "AM=M+1" << endl;
+        outfile << "A=A-1" << endl;
         outfile << "M=D" << endl;
-        outfile << "@SP" << endl;
-        outfile << "M=M+1" << endl;
       }
       else if (segment == "static")
       {
@@ -520,10 +517,9 @@ public:
 
         // push D onto stack
         outfile << "@SP" << endl;
-        outfile << "A=M" << endl;
+        outfile << "AM=M+1" << endl;
+        outfile << "A=A-1" << endl;
         outfile << "M=D" << endl;
-        outfile << "@SP" << endl;
-        outfile << "M=M+1" << endl;
       }
       else if (segment == "pointer")
       {
@@ -537,10 +533,9 @@ public:
 
         // push D onto stack
         outfile << "@SP" << endl;
-        outfile << "A=M" << endl;
+        outfile << "AM=M+1" << endl;
+        outfile << "A=A-1" << endl;
         outfile << "M=D" << endl;
-        outfile << "@SP" << endl;
-        outfile << "M=M+1" << endl;
       }
       else
       {
