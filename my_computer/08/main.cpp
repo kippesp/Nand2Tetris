@@ -95,11 +95,13 @@ public:
       if (start == string::npos)
         continue;
 
-      line = line.substr(start, line.length() - 1);
-
       // ignore line if first two characters are '//'
       if (line.substr(0, 2) == "//")
         continue;
+
+      // drop ending CRLF character
+      if (line.substr(line.length() - 1, 1) == "\r")
+        line = line.substr(start, line.length() - 1);
 
       // ignore empty lines
       if (line.substr(0, 1) == "")
