@@ -385,9 +385,6 @@ public:
     outfile << "M=D" << endl;
 
     writeCall(0, C_CALL, "Sys.init", 0);
-
-    outfile << "@Sys.init" << endl;
-    outfile << "0;JMP" << endl;
   }
 
   // See section 7.2.3 - Memory Access Commands
