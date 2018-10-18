@@ -384,13 +384,7 @@ public:
     outfile << "@THAT" << endl;
     outfile << "M=D" << endl;
 
-    outfile << "// Adjust SP as if by CALL instruction" << endl;
-    outfile << "@SP" << endl;
-    outfile << "D=M" << endl;
-    outfile << "@5" << endl;
-    outfile << "D=D+A" << endl;
-    outfile << "@SP" << endl;
-    outfile << "M=D" << endl;
+    writeCall(0, C_CALL, "Sys.init", 0);
 
     outfile << "@Sys.init" << endl;
     outfile << "0;JMP" << endl;
