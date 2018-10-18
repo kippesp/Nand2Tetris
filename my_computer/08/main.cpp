@@ -591,8 +591,7 @@ public:
           outfile << "@" << "THAT" << endl;
         }
 
-        outfile << "A=M" << endl;
-        outfile << "D=A" << endl;
+        outfile << "AD=M" << endl;
         outfile << "@" << index << endl;
         outfile << "D=D+A" << endl;
 
@@ -602,8 +601,7 @@ public:
 
         // update stack
         outfile << "@SP" << endl;
-        outfile << "M=M-1" << endl;
-        outfile << "A=M" << endl;
+        outfile << "AM=M-1" << endl;
         outfile << "D=M" << endl;
 
         // Store in *segment_base + index
@@ -618,8 +616,7 @@ public:
         assert(index <= 8);
 
         outfile << "@SP" << endl;
-        outfile << "M=M-1" << endl;
-        outfile << "A=M" << endl;
+        outfile << "AM=M-1" << endl;
         outfile << "D=M" << endl;
         outfile << "@" << "R" << 5 + index << endl;
         outfile << "M=D" << endl;
@@ -629,8 +626,7 @@ public:
         int staticAddress = STATIC_SEGMENT_BASE + index;
 
         outfile << "@SP" << endl;
-        outfile << "M=M-1" << endl;
-        outfile << "A=M" << endl;
+        outfile << "AM=M-1" << endl;
         outfile << "D=M" << endl;
         outfile << "@" << staticAddress << endl;
         outfile << "M=D" << endl;
@@ -642,8 +638,7 @@ public:
         string selectedRegister = (index == 0) ? "@THIS" : "@THAT";
 
         outfile << "@SP" << endl;
-        outfile << "M=M-1" << endl;
-        outfile << "A=M" << endl;
+        outfile << "AM=M-1" << endl;
         outfile << "D=M" << endl;
         outfile << selectedRegister << endl;
         outfile << "M=D" << endl;
