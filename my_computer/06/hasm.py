@@ -273,19 +273,61 @@ def test_all():
 
   print 'done'
 
+class ListingLine:
+  asm_line_number = 0
+  is_instruction = False
+  is_label = False
+  has_comment = False
+  instruction_number = 0
+  instruction_text = ''
+  ml_instr = ''
+  label_text = ''
+  comment_text = ''
+
+  def __repr__(self):
+    return "%i %s %s %s %i '%s' '(%s)' '%s'" % (
+        self.asm_line_number, self.is_instruction, self.is_label,
+        self.has_comment, self.instruction_number, self.instruction_text,
+        self.ml_instr, self.label_text, self.comment_text)
+
 def main():
   global auto_variable_val, symbols
 
   if len(sys.argv) == 1:
-    print 'Usage: python hasm.py FILE.asm'
+    print 'Usage: python hasm.py [-l] FILE.asm'
+    sys.exit(-1)
 
-  filename = sys.argv[1]
+  # Check for listing file production
+  if sys.argv[1] == '-l':
+    if len(sys.argv) == 2:
+      print 'Usage: python hasm.py [-l] FILE.asm'
+      sys.exit(-1)
+    make_listing_file = True
+    filename = sys.argv[2]
+  else:
+    make_listing_file = False
+    filename = sys.argv[1]
+
+  if make_listing_file:
+    print "---"
+    print "--- Hack Computer"
+    print "--- Listing file: %s" % sys.argv[-1]
+    print "---\n"
+    print "--- CODE LISTING ---\n"
+
+  default_symbols = set(symbols.keys())
+
   lines = file(filename).read().split('\n')
+  listingLines = []
   statement_no = 0
   for i,line in enumerate(lines):
+    listingLine = ListingLine()
+    listingLine.asm_line_number = i
     line = line.strip()
     if line.find('//') >= 0:
+      listingLine.comment_text = line[line.find('//'):]
       line = line[:line.find('//')].strip()
+      listingLine.has_comment = True
     if line:
       if line[0] == '(':
         if line[-1] != ')':
@@ -293,27 +335,67 @@ def main():
         symbol = line[1:-1]
         if not validSymbol(symbol):
           raise ParseError("Parse error: invalid character in '%s'" % symbol)
+        listingLine.is_label = True
+        listingLine.label_text = symbol
         symbols[symbol] = statement_no
+        listingLines.append(listingLine)
         continue
+      listingLine.is_instruction = True
+      listingLine.instruction_number = statement_no
+      listingLine.instruction_text = line
       statement_no = statement_no + 1
+      listingLines.append(listingLine)
+    else:
+      listingLines.append(listingLine)
 
-  #print symbols
+  code_symbols = set(symbols.keys())
 
-  for i,line in enumerate(lines):
-    line = line.strip()
-    if line.find('//') >= 0:
-      line = line[:line.find('//')].strip()
-    if line:
-      if line[0] == '(':
-        continue
+  for i,listingLine in enumerate(listingLines):
+    if listingLine.is_instruction:
       try:
-        ml_instr = assemble(line)
-        #print ml_instr, '      ', line
-        print ml_instr
+        ml_instr = assemble(listingLine.instruction_text)
+        listingLines[i].ml_instr = ml_instr
+        if not make_listing_file:
+          print ml_instr
       except ParseError as e:
         print 'Line %d' % i
         print e
         sys.exit(1)
+
+  data_symbols = set(symbols.keys()) - code_symbols
+
+  if make_listing_file:
+    for i,listingLine in enumerate(listingLines):
+      if listingLine.is_instruction:
+        asm_hex = int(listingLine.ml_instr, 2)
+        print "%4i: %04X   %-35s %s" % (
+            listingLine.instruction_number, asm_hex,
+            listingLine.instruction_text, listingLine.comment_text)
+      elif listingLine.has_comment:
+        print "             %s" % listingLine.comment_text
+      elif listingLine.is_label:
+        print ""
+        symbol_val = symbols[listingLine.label_text]
+        print "      (%s) =%d" % (listingLine.label_text, symbol_val)
+
+    print ""
+    print "--- DATA SYMBOLS ---\n"
+
+    data_symbol_tuples = {k: symbols[k] for k in data_symbols}
+    data_symbol_tuples = [(v,k) for k,v in data_symbol_tuples.iteritems()]
+
+    for v,k in sorted(data_symbol_tuples):
+      print "%4d  %s" % (v, k)
+
+    print ""
+    print "--- CODE SYMBOLS ---\n"
+
+    new_code_symbols = code_symbols - default_symbols
+    code_symbol_tuples = {k: symbols[k] for k in new_code_symbols}
+    code_symbol_tuples = [(v,k) for k,v in code_symbol_tuples.iteritems()]
+
+    for v,k in sorted(code_symbol_tuples):
+      print "%4d  %s" % (v, k)
 
 
 if __name__ == '__main__':
