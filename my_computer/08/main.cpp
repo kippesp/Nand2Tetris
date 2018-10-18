@@ -358,11 +358,40 @@ public:
 
   void writeInit()
   {
-    outfile << "// Bootstrap code to Sys.init function" << endl;
-    outfile << "@" << 256+5 << endl; // account for 5 pushes if were actual call
+    outfile << "// Bootstrap code to Sys.init function" << endl << endl;
+
+    outfile << "@" << 256 << endl;
     outfile << "D=A" << endl;
     outfile << "@SP" << endl;
     outfile << "M=D" << endl;
+
+    outfile << "// For debug, set LCL=-1, ARG=-2, THIS=-3, THAT=-4" << endl;
+    outfile << "@" << 0 << endl;
+    outfile << "D=A" << endl;
+    outfile << "D=D-1" << endl;
+    outfile << "@LCL" << endl;
+    outfile << "M=D" << endl;
+
+    outfile << "D=D-1" << endl;
+    outfile << "@ARG" << endl;
+    outfile << "M=D" << endl;
+
+    outfile << "D=D-1" << endl;
+    outfile << "@THIS" << endl;
+    outfile << "M=D" << endl;
+
+    outfile << "D=D-1" << endl;
+    outfile << "@THAT" << endl;
+    outfile << "M=D" << endl;
+
+    outfile << "// Adjust SP as if by CALL instruction" << endl;
+    outfile << "@SP" << endl;
+    outfile << "D=M" << endl;
+    outfile << "@5" << endl;
+    outfile << "D=D+A" << endl;
+    outfile << "@SP" << endl;
+    outfile << "M=D" << endl;
+
     outfile << "@Sys.init" << endl;
     outfile << "0;JMP" << endl;
   }
