@@ -382,8 +382,7 @@ public:
       string operation;
 
       outfile << "@SP" << endl;
-      outfile << "M=M-1" << endl;
-      outfile << "A=M" << endl;
+      outfile << "AM=M-1" << endl;
       outfile << "D=M" << endl;
       outfile << "A=A-1" << endl;
 
@@ -403,8 +402,7 @@ public:
       branchNumber++;
 
       outfile << "@SP" << endl;   // SP' = SP
-      outfile << "M=M-1" << endl; // SP  = SP'-1
-      outfile << "A=M" << endl;   // A   = SP'-1    = SP-2
+      outfile << "AM=M-1" << endl;// SP  = SP'-1
       outfile << "D=M" << endl;   // D   = *[SP'-1] = *[SP'-2]
       outfile << "A=A-1" << endl; // A   = SP'-2
       outfile << "D=M-D" << endl; // D   = *[SP'-2] - *[SP'-1]
