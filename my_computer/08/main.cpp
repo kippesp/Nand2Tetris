@@ -307,23 +307,6 @@ class CodeWriter {
       return newLabel;
   }
 
-  // TODO: add and call to "createLabel"
-  string createBranchTag(int counter)
-  {
-     // TODO: Set as "functionName$label_ctr"
-     auto i = currentInputFilenameStem.rfind('/', currentInputFilenameStem.length());
-     string tag;
-
-     assert(0);
-
-     if (i != string::npos)
-     {
-       tag = currentInputFilenameStem.substr(i+1, currentInputFilenameStem.length() - i);
-     }
-
-    return to_string(counter) + "$" + tag;
-  }
-
   string createReturnLabel()
   {
     string newLabel = string(currentFunction) + "$ret." + to_string(returnLabelCounter);
@@ -427,7 +410,7 @@ public:
       outfile << "A=A-1" << endl; // A   = SP'-2
       outfile << "D=M-D" << endl; // D   = *[SP'-2] - *[SP'-1]
 
-      outfile << "@CMP_" << createBranchTag(branchNumber) << endl;
+      outfile << "@CMP_" << branchNumber << endl;
 
       if (command == "eq")
         outfile << "D;JEQ" << endl;
@@ -437,11 +420,11 @@ public:
         outfile << "D;JGT" << endl;
 
       outfile << "D=0" << endl;
-      outfile << "@JOIN_CMP_" << createBranchTag(branchNumber) << endl;
+      outfile << "@JOIN_CMP_" << branchNumber << endl;
       outfile << "0;JMP" << endl;
-      outfile << "(CMP_" << createBranchTag(branchNumber) << ")" << endl;
+      outfile << "(CMP_" << branchNumber << ")" << endl;
       outfile << "D=-1" << endl;
-      outfile << "(JOIN_CMP_" << createBranchTag(branchNumber) << ")" << endl;
+      outfile << "(JOIN_CMP_" << branchNumber << ")" << endl;
 
       outfile << "@SP" << endl;
       outfile << "A=M-1" << endl; // A = SP-1 = SP'-1-1 = SP'-2
