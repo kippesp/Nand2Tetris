@@ -767,7 +767,7 @@ public:
 
       // load address of returnAddressLabel
       outfile << "@" << returnAddressLabel << endl;
-      outfile << "D=M" << endl;
+      outfile << "D=A" << endl;
 
       // push address of returnAddressLabel onto stack
       outfile << "@SP" << endl;
