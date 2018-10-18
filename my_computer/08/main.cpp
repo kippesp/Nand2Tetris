@@ -491,8 +491,7 @@ public:
 
         outfile << "D=M" << endl;
         outfile << "@" << index << endl;
-        outfile << "D=D+A" << endl;
-        outfile << "A=D" << endl;
+        outfile << "AD=D+A" << endl;
         outfile << "D=M" << endl;
 
         // push D onto stack
@@ -766,46 +765,41 @@ public:
 
       // push address of returnAddressLabel onto stack
       outfile << "@SP" << endl;
-      outfile << "A=M" << endl;
+      outfile << "AM=M+1" << endl;
+      outfile << "A=A-1" << endl;
       outfile << "M=D" << endl;
-      outfile << "@SP" << endl;
-      outfile << "M=M+1" << endl;
 
       // push LCL
       outfile << "@LCL" << endl;
       outfile << "D=M" << endl;
       outfile << "@SP" << endl;
-      outfile << "A=M" << endl;
+      outfile << "AM=M+1" << endl;
+      outfile << "A=A-1" << endl;
       outfile << "M=D" << endl;
-      outfile << "@SP" << endl;
-      outfile << "M=M+1" << endl;
 
       // push ARG
       outfile << "@ARG" << endl;
       outfile << "D=M" << endl;
       outfile << "@SP" << endl;
-      outfile << "A=M" << endl;
+      outfile << "AM=M+1" << endl;
+      outfile << "A=A-1" << endl;
       outfile << "M=D" << endl;
-      outfile << "@SP" << endl;
-      outfile << "M=M+1" << endl;
 
       // push THIS
       outfile << "@THIS" << endl;
       outfile << "D=M" << endl;
       outfile << "@SP" << endl;
-      outfile << "A=M" << endl;
+      outfile << "AM=M+1" << endl;
+      outfile << "A=A-1" << endl;
       outfile << "M=D" << endl;
-      outfile << "@SP" << endl;
-      outfile << "M=M+1" << endl;
 
       // push THAT
       outfile << "@THAT" << endl;
       outfile << "D=M" << endl;
       outfile << "@SP" << endl;
-      outfile << "A=M" << endl;
+      outfile << "AM=M+1" << endl;
+      outfile << "A=A-1" << endl;
       outfile << "M=D" << endl;
-      outfile << "@SP" << endl;
-      outfile << "M=M+1" << endl;
 
       // point ARG to arg0
       // ARG = SP - 5 - nargs  // point to arg0
@@ -865,8 +859,7 @@ public:
       // SP = ARG+1 - Restore SP of caller
       outfile << "// " << lineNumber << ": SP = ARG+1" << endl;
       outfile << "@ARG" << endl;
-      outfile << "A=M+1" << endl;
-      outfile << "D=A" << endl;
+      outfile << "AD=M+1" << endl;
       outfile << "@SP" << endl;
       outfile << "M=D" << endl;
       // THAT = *(R13 - 1) - Restore THAT of caller
