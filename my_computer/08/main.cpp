@@ -264,9 +264,9 @@ public:
 class CodeWriter {
   ofstream outfile;
   unsigned int branchNumber = 0;
-  const string filenameStem;
-  const string filename;
-  string inputFilename = "unknown";
+  const string outputFilenameStem = "unknown";
+  const string outputFilename = "unknown";
+  string currentInputFilenameStem = "unset";
   string currentFunction = "anonymous";
   set<string> fileLabels;
   int anonymousLabelCounter = 0;
@@ -311,14 +311,14 @@ class CodeWriter {
   string createBranchTag(int counter)
   {
      // TODO: Set as "functionName$label_ctr"
-     auto i = filenameStem.rfind('/', filenameStem.length());
+     auto i = currentInputFilenameStem.rfind('/', currentInputFilenameStem.length());
      string tag;
 
      assert(0);
 
      if (i != string::npos)
      {
-       tag = filenameStem.substr(i+1, filenameStem.length() - i);
+       tag = currentInputFilenameStem.substr(i+1, currentInputFilenameStem.length() - i);
      }
 
     return to_string(counter) + "$" + tag;
@@ -334,14 +334,14 @@ class CodeWriter {
 
 public:
 
-  CodeWriter(string filenameStem) : filenameStem(filenameStem),
-                                    filename(filenameStem + ".asm")
+  CodeWriter(string filenameStem) : outputFilenameStem(filenameStem),
+                                    outputFilename(filenameStem + ".asm")
   {
-    outfile.open(filename, ofstream::out);
+    outfile.open(outputFilename, ofstream::out);
 
     if (!outfile.is_open())
     {
-      cerr << "Failed to open output file, " << filename << endl;
+      cerr << "Failed to open output file, " << outputFilename << endl;
       exit(-2);
     }
   }
@@ -351,10 +351,10 @@ public:
     outfile.close();
   }
 
-  void setInputFilename(string filename)
+  void setInputFilenameStem(string inputFilenameStem)
   {
-    inputFilename = filename;
-    outfile << "// File: " << inputFilename << endl;
+    currentInputFilenameStem = inputFilenameStem;
+    outfile << "// File: " << currentInputFilenameStem + ".vm" << endl;
   }
 
   void writeInit()
@@ -536,7 +536,7 @@ public:
         // Directly compute the absolute address
         int staticAddress = STATIC_SEGMENT_BASE + index;
 
-        outfile << "@" << filenameStem << "." << staticAddress << endl;
+        outfile << "@" << currentInputFilenameStem << "." << staticAddress << endl;
         outfile << "D=M" << endl;
 
         // push D onto stack
@@ -1121,7 +1121,7 @@ class VMTranslator
     for (auto filenameStem : fileNameStemList)
     {
       Parser parser(directoryName + "/" + filenameStem + ".vm");
-      writer.setInputFilename(filenameStem + ".vm");
+      writer.setInputFilenameStem(filenameStem);
 
       while (parser.hasMoreCommands())
       {
