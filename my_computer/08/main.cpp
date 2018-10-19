@@ -36,8 +36,6 @@
 
 using namespace std;
 
-const int STATIC_SEGMENT_BASE = 16;
-
 typedef enum {
   C_NONE,
   C_ARITHMETIC,
@@ -516,10 +514,7 @@ public:
       }
       else if (segment == "static")
       {
-        // Directly compute the absolute address
-        int staticAddress = STATIC_SEGMENT_BASE + index;
-
-        outfile << "@" << currentInputFilenameStem << "." << staticAddress << endl;
+        outfile << "@" << currentInputFilenameStem << "." << index << endl;
         outfile << "D=M" << endl;
 
         // push D onto stack
@@ -611,13 +606,11 @@ public:
       }
       else if (segment == "static")
       {
-        int staticAddress = STATIC_SEGMENT_BASE + index;
-
         outfile << "@SP" << endl;
         outfile << "M=M-1" << endl;
         outfile << "A=M" << endl;
         outfile << "D=M" << endl;
-        outfile << "@" << staticAddress << endl;
+        outfile << "@" << currentInputFilenameStem << "." << index << endl;
         outfile << "M=D" << endl;
       }
       else if (segment == "pointer")
