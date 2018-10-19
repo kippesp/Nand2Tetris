@@ -65,16 +65,15 @@ class Parser {
 public:
 
   // Open the input file and get ready to parse it
-  Parser(string filenameStem) : commandLineNumber(0)
+  Parser(string pathname) : commandLineNumber(0)
   {
     ifstream infile;
-    string filename = filenameStem + ".vm";
 
-    infile.open(filename, ios::in);
+    infile.open(pathname, ios::in);
 
     if (!infile.is_open())
     {
-      cerr << "Failed to open input file, " << filename << endl;
+      cerr << "Failed to open input file, " << pathname << endl;
       exit(-2);
     }
 
@@ -267,8 +266,9 @@ public:
 class CodeWriter {
   ofstream outfile;
   unsigned int branchNumber = 0;
-  const string filenameStem;
-  const string filename;
+  const string outputFilenameStem = "unknown";
+  const string outputFilename = "unknown";
+  string currentInputFilenameStem = "unset";
   string currentFunction = "anonymous";
   set<string> fileLabels;
   int anonymousLabelCounter = 0;
@@ -319,14 +319,14 @@ class CodeWriter {
 
 public:
 
-  CodeWriter(string filenameStem) : filenameStem(filenameStem),
-                                    filename(filenameStem + ".asm")
+  CodeWriter(string filenameStem) : outputFilenameStem(filenameStem),
+                                    outputFilename(filenameStem + ".asm")
   {
-    outfile.open(filename, ofstream::out);
+    outfile.open(outputFilename, ofstream::out);
 
     if (!outfile.is_open())
     {
-      cerr << "Failed to open output file, " << filename << endl;
+      cerr << "Failed to open output file, " << outputFilename << endl;
       exit(-2);
     }
   }
@@ -336,9 +336,10 @@ public:
     outfile.close();
   }
 
-  void setFileName(string filename)
+  void setInputFilenameStem(string inputFilenameStem)
   {
-    outfile << "// File: " << filename << endl;
+    currentInputFilenameStem = inputFilenameStem;
+    outfile << "// File: " << currentInputFilenameStem + ".vm" << endl;
   }
 
   void writeInit()
@@ -512,7 +513,7 @@ public:
         // Directly compute the absolute address
         int staticAddress = STATIC_SEGMENT_BASE + index;
 
-        outfile << "@" << staticAddress << endl;
+        outfile << "@" << currentInputFilenameStem << "." << staticAddress << endl;
         outfile << "D=M" << endl;
 
         // push D onto stack
@@ -887,7 +888,8 @@ public:
 class VMTranslator
 {
   list<string> fileNameStemList;  // list .vm files with ".vm" dropped
-  string outputFileNameStem;
+  string directoryName;
+  string outputFilenameStem;
   bool bootstrapRequired = false;
 
   public:
@@ -898,6 +900,7 @@ class VMTranslator
   {
     struct stat argStat;
     bool isFile = false;
+    char tmpPath[PATH_MAX + 1];
 
     // Determine if specified argument is a directory of filename
 
@@ -905,18 +908,20 @@ class VMTranslator
 
     if (rvalue == 0)
     {
-      if (argStat.st_mode & S_IFDIR)
+      if ((argStat.st_mode & S_IFDIR) == 0)
       {
-        // isFile = false;
-      }
-      else if (argStat.st_mode & S_IFREG)
-      {
-        isFile = true;
-      }
-      else
-      {
-        cerr << "Not a file or directory." << endl;
-        exit(-1);
+        FILE* infile = fopen(argv.c_str(), "r");
+
+        if (infile != nullptr)
+        {
+          isFile = true;
+          fclose(infile);
+        }
+        else
+        {
+          cerr << "Error opening file." << endl;
+          exit(-1);
+        }
       }
     }
     else
@@ -925,37 +930,85 @@ class VMTranslator
       exit(-1);
     }
 
+    char* rvalue_s;
+   
+    rvalue_s = dirname_r(argv.c_str(), tmpPath);
+
+    if (rvalue_s == nullptr)
+    {
+      puts("Failed to get directory path");
+      exit(1);
+    }
+
     if (isFile)
     {
-      string filenameStem = argv.substr(0, argv.length() - 3);
+      directoryName = string(tmpPath);
 
-      if ((argv.length() <= 3) || (argv.substr(argv.length() - 3) != ".vm"))
+      // Extract the output filename from provided path
+      rvalue_s = basename_r(argv.c_str(), tmpPath);
+
+      if (rvalue_s == nullptr)
+      {
+        puts("Failed to get final path component name");
+        exit(1);
+      }
+
+      string tmpPath_s(tmpPath);
+
+      if ((tmpPath_s.length() <= 3) ||
+          (tmpPath_s.substr(tmpPath_s.length() - 3) != ".vm"))
       {
         cerr << "Input filename required to end with .vm extension." << endl;
         exit(-1);
       }
 
-      fileNameStemList.push_back(filenameStem);
-      outputFileNameStem = filenameStem;
+      outputFilenameStem = tmpPath_s.substr(0, tmpPath_s.length() - 3);
     }
     else
     {
-#ifdef CPP17_LATER
-      namespace fs = std::filesystem;
+      // Expand given directory into full path
+      rvalue_s = realpath(argv.c_str(), tmpPath);
 
-      std::string path = "path_to_directory";
-      for (auto & p : fs::directory_iterator(path))
-        std::cout << p << std::endl;
-#endif
-      DIR* dir = opendir(argv.c_str());
+      if (rvalue_s == nullptr)
+      {
+        puts("Failed to get absolute directory path");
+        exit(1);
+      }
+
+      directoryName = string(tmpPath);
+
+      // Derive output filename from directory
+      rvalue_s = basename_r(directoryName.c_str(), tmpPath);
+
+      if (rvalue_s == nullptr)
+      {
+        puts("Failed to get final path component name");
+        exit(1);
+      }
+
+      outputFilenameStem = string(tmpPath);
+    }
+
+    //
+    // Add file(s) to be processed to fileNameStemList
+    //
+
+    if (isFile)
+    {
+      fileNameStemList.push_back(outputFilenameStem);
+    }
+    else
+    {
+      // Directories are assumed to require bootstrap code
+      bootstrapRequired = true;
+
+      DIR* dir = opendir(directoryName.c_str());
 
       if (dir == NULL)
       {
         cerr << "Unable to read files in directory." << endl;
         exit(-1);
       }
-
-      // TODO: Save argv as directory name minus full path
 
       while(true)
       {
@@ -982,70 +1035,43 @@ class VMTranslator
         if (fileEntry.substr(fileEntry.length() - 3) != ".vm")
           continue;
 
-        string filePath = argv + "/" + dirEntry->d_name;
+        string filePath = directoryName + "/" + dirEntry->d_name;
 
         rvalue = stat(filePath.c_str(), &argStat);
-        bool isFile = false;
 
         if (rvalue == 0)
         {
           if (argStat.st_mode & S_IFDIR)
           {
-            cerr << "Directory contains an unsupported directory name." << endl;
-            exit(-1);
+            // ignore directories ending in .vm
           }
           else if (argStat.st_mode & S_IFREG)
           {
-            isFile = true;
+            string filenameStem = fileEntry.substr(0, fileEntry.length() - 3);
+            fileNameStemList.push_back(filenameStem);
           }
           else
           {
-            cerr << "Not a file or directory." << endl;
-            exit(-1);
+            // ignore
           }
         }
         else
         {
-          cerr << "Directory contains an unsupported file." << endl;
-          cerr << strerror(errno) << endl;
-          exit(-1);
-        }
-
-        if (!isFile)
-        {
-          cerr << "Directory contains an unsupported filetype." << endl;
-          exit(-1);
-        }
-
-        // They entry dirEntry->d_name is now considered okay
-
-        string filenameStem = fileEntry.substr(0, fileEntry.length() - 3);
-        fileNameStemList.push_back(argv + "/" + filenameStem);
-
-        // Resolve the directory name for path/to/directory or '.'
-        if (outputFileNameStem == "")
-        {
-          char buff[PATH_MAX + 1];
-          char* absolutePath = realpath(filePath.c_str(), buff);
-
-          if (absolutePath == nullptr)
-          {
-            puts("Error obtaining directory path.");
-            exit(-1);
-          }
-
-          char* directoryNameFull = dirname(absolutePath);
-          char* directoryName = basename(directoryNameFull);
-          outputFileNameStem = string(directoryNameFull) + "/" + string(directoryName);
-          bootstrapRequired = true;
+          // ignore situation
         }
       }
+    }
+
+    if (fileNameStemList.size() == 0)
+    {
+      puts("No .vm files found.  Exiting normally.");
+      exit(0);
     }
   }
 
   void process()
   {
-    CodeWriter writer(outputFileNameStem);
+    CodeWriter writer(directoryName + "/" + outputFilenameStem);
 
     if (bootstrapRequired)
     {
@@ -1058,8 +1084,8 @@ class VMTranslator
 
     for (auto filenameStem : fileNameStemList)
     {
-      Parser parser(filenameStem);
-      writer.setFileName(filenameStem + ".vm");
+      Parser parser(directoryName + "/" + filenameStem + ".vm");
+      writer.setInputFilenameStem(filenameStem);
 
       while (parser.hasMoreCommands())
       {
