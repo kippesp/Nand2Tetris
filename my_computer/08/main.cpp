@@ -926,11 +926,8 @@ class VMTranslator
 {
   list<string> fileNameStemList;  // list .vm files with ".vm" dropped
   string directoryName;
-  string outputFilename;
+  string outputFilenameStem;
   bool bootstrapRequired = false;
-#ifdef NONO
-  string sourceDirectory;
-#endif
 
   public:
 
@@ -1002,7 +999,7 @@ class VMTranslator
         exit(-1);
       }
 
-      outputFilename = tmpPath_s.substr(0, tmpPath_s.length() - 3) + ".asm";
+      outputFilenameStem = tmpPath_s.substr(0, tmpPath_s.length() - 3);
     }
     else
     {
@@ -1026,18 +1023,16 @@ class VMTranslator
         exit(1);
       }
 
-      outputFilename = string(tmpPath) + ".asm";
+      outputFilenameStem = string(tmpPath);
     }
 
-    puts(directoryName.c_str());
-    puts(outputFilename.c_str());
-
+    //
     // Add file(s) to be processed to fileNameStemList
+    //
 
     if (isFile)
     {
-      fileNameStemList.push_back(
-          outputFilename.substr(0, outputFilename.length() - 4));
+      fileNameStemList.push_back(outputFilenameStem);
     }
     else
     {
@@ -1104,193 +1099,16 @@ class VMTranslator
       }
     }
 
-    printf("%lu input files\n", fileNameStemList.size());
-    for (auto filenameStem : fileNameStemList)
-    {
-      printf("%s,", filenameStem.c_str());
-    }
-      printf("\n");
-
     if (fileNameStemList.size() == 0)
     {
       puts("No .vm files found.  Exiting normally.");
       exit(0);
     }
-
-
-
-
-    exit(0);
-
-#ifdef NONO
-    // Determine the source/output directory
-    if (isFile)
-    {
-      char path[PATH_MAX + 1];
-      char* rvalue = dirname_r(argv.c_str(), path);
-
-      if (rvalue == nullptr)
-      {
-        puts("Failed to get directory path");
-        exit(1);
-      }
-
-      char abspath[PATH_MAX + 1];
-
-      rvalue = realpath(path, abspath);
-
-      if (rvalue == nullptr)
-      {
-        puts("Failed to get absolute directory path");
-        exit(1);
-      }
-
-      sourceDirectory = string(abspath);
-    }
-    else
-    {
-      char abspath[PATH_MAX + 1];
-      char* rvalue = realpath(argv.c_str(), abspath);
-
-      if (rvalue == nullptr)
-      {
-        puts("Failed to get absolute directory path");
-        exit(1);
-      }
-
-      sourceDirectory = string(abspath);
-      //outputFilename = inputFileOrDirectory + ".asm";
-    }
-
-    outputDirectoryName = sourceDirectory;
-    string inputFileOrDirectory;
-
-    {
-      char inputName[PATH_MAX];
-
-      char* rvalue = basename_r(argv.c_str(), inputName);
-
-      if (rvalue == nullptr)
-      {
-        puts("Failed to get final path component name");
-        exit(1);
-      }
-
-      inputFileOrDirectory = string(inputName);
-    }
-
-    if (isFile)
-    {
-      string filenameStem = inputFileOrDirectory.substr(0,
-          inputFileOrDirectory.length() - 3);
-
-      if ((inputFileOrDirectory.length() <= 3) ||
-          (inputFileOrDirectory.substr(argv.length() - 3) != ".vm"))
-      {
-        cerr << "Input filename required to end with .vm extension." << endl;
-        exit(-1);
-      }
-
-      fileNameStemList.push_back(filenameStem);
-      outputFilename = filenameStem + ".asm";
-    }
-    else
-    {
-#ifdef CPP17_LATER
-      namespace fs = std::filesystem;
-
-      std::string path = "path_to_directory";
-      for (auto & p : fs::directory_iterator(path))
-        std::cout << p << std::endl;
-#endif
-      // Directories are assumed to require bootstrap code
-      bootstrapRequired = true;
-
-      DIR* dir = opendir(sourceDirectory.c_str());
-
-      if (dir == NULL)
-      {
-        cerr << "Unable to read files in directory." << endl;
-        exit(-1);
-      }
-
-      while(true)
-      {
-        struct dirent* dirEntry;
-       
-        dirEntry = readdir(dir);
-
-        if (dirEntry == NULL)
-        {
-          if (errno != 0)
-          {
-            cerr << "Unhandled error while reading directory." << endl;
-            exit(-1);
-          }
-
-          break;
-        }
-
-        if (strlen(dirEntry->d_name) <= 3)
-          continue;
-
-        string fileEntry(dirEntry->d_name);
-
-        if (fileEntry.substr(fileEntry.length() - 3) != ".vm")
-          continue;
-
-        string filePath = sourceDirectory + "/" + dirEntry->d_name;
-
-        rvalue = stat(filePath.c_str(), &argStat);
-        bool isFile = false;
-
-        if (rvalue == 0)
-        {
-          if (argStat.st_mode & S_IFDIR)
-          {
-            cerr << "Directory contains an unsupported directory name." << endl;
-            exit(-1);
-          }
-          else if (argStat.st_mode & S_IFREG)
-          {
-            isFile = true;
-          }
-          else
-          {
-            cerr << "Not a file or directory." << endl;
-            exit(-1);
-          }
-        }
-        else
-        {
-          cerr << "Directory contains an unsupported file." << endl;
-          cerr << strerror(errno) << endl;
-          exit(-1);
-        }
-
-        if (!isFile)
-        {
-          cerr << "Directory contains an unsupported filetype." << endl;
-          exit(-1);
-        }
-
-        // They entry dirEntry->d_name is now considered okay
-
-        string filenameStem = fileEntry.substr(0, fileEntry.length() - 3);
-        fileNameStemList.push_back(filenameStem);
-      }
-    }
-
-    printf("output dir: %s\n", outputDirectoryName.c_str());
-    printf("output file: %s\n", outputFilename.c_str());
-
-    exit(0);
-#endif
   }
 
   void process()
   {
-    CodeWriter writer(directoryName + "/" + outputFilename);
+    CodeWriter writer(directoryName + "/" + outputFilenameStem);
 
     if (bootstrapRequired)
     {
