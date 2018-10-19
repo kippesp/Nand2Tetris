@@ -65,16 +65,15 @@ class Parser {
 public:
 
   // Open the input file and get ready to parse it
-  Parser(string filenameStem) : commandLineNumber(0)
+  Parser(string pathname) : commandLineNumber(0)
   {
     ifstream infile;
-    string filename = filenameStem + ".vm";
 
-    infile.open(filename, ios::in);
+    infile.open(pathname, ios::in);
 
     if (!infile.is_open())
     {
-      cerr << "Failed to open input file, " << filename << endl;
+      cerr << "Failed to open input file, " << pathname << endl;
       exit(-2);
     }
 
@@ -1121,7 +1120,7 @@ class VMTranslator
 
     for (auto filenameStem : fileNameStemList)
     {
-      Parser parser(filenameStem);
+      Parser parser(directoryName + "/" + filenameStem + ".vm");
       writer.setInputFilename(filenameStem + ".vm");
 
       while (parser.hasMoreCommands())
