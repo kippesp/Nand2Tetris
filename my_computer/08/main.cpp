@@ -849,10 +849,9 @@ public:
       // ARG = *(R13 - 3) - Restore ARG of caller
       outfile << "// " << lineNumber << ": ARG = *(FRAME-3)" << endl;
       outfile << "@R13" << endl;
-      outfile << "A=M" << endl;
-      outfile << "A=A-1" << endl;
-      outfile << "A=A-1" << endl;
-      outfile << "A=A-1" << endl;
+      outfile << "D=M" << endl;
+      outfile << "@3" << endl;
+      outfile << "A=D-A" << endl;
       outfile << "D=M" << endl;
       outfile << "@ARG" << endl;
       outfile << "M=D" << endl;
