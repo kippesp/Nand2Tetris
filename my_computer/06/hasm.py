@@ -378,9 +378,13 @@ def main():
                 throw_away = int(a_instr)
               except:
                 a_instr_value = " =%d" % symbols[a_instr]
+        if listingLine.has_comment:
+          # Move inline comments to its own line for readability
+          print "%5i: %4s      %s" % (listingLine.instruction_number, "",
+              listingLine.comment_text)
         print "%5i: %04X   %-35s %s%-8s%s" % (
             listingLine.instruction_number, asm_hex,
-            listingLine.instruction_text, listingLine.comment_text,
+            listingLine.instruction_text, "",
             a_instr_value, listingLine.ml_instr)
       elif listingLine.has_comment:
         print "              %s" % listingLine.comment_text
