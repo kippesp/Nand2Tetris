@@ -5,7 +5,7 @@
     vmt [-h] FILE.vm|DIRECTORY
 
 Parses the VM commands found in FILENAME.vm into the corresponding Hack
-assembly code file, FILENAME.hack.  When provided the argument DIRECTORY,
+assembly code file, FILENAME.asm.  When provided the argument DIRECTORY,
 all .vm files will be processed as if called individually.
 
 ## Pre-defined Registers
