@@ -892,7 +892,7 @@ class VMTranslator
   {
     struct stat argStat;
     bool isFile = false;
-    char tmpPath[PATH_MAX + 1];
+    char argvDirtyCopy[PATH_MAX + 1];
 
     // Determine if specified argument is a directory of filename
 
@@ -923,62 +923,48 @@ class VMTranslator
     }
 
     char* rvalue_s;
-   
-    rvalue_s = dirname_r(argv.c_str(), tmpPath);
 
-    if (rvalue_s == nullptr)
-    {
-      puts("Failed to get directory path");
-      exit(1);
-    }
+    strcpy(argvDirtyCopy, argv.c_str());
+    char* pDirname = dirname(argvDirtyCopy);
 
     if (isFile)
     {
-      directoryName = string(tmpPath);
+      directoryName = string(pDirname);
 
       // Extract the output filename from provided path
-      rvalue_s = basename_r(argv.c_str(), tmpPath);
+      strcpy(argvDirtyCopy, argv.c_str());
+      char* pBasename = basename(argvDirtyCopy);
 
-      if (rvalue_s == nullptr)
-      {
-        puts("Failed to get final path component name");
-        exit(1);
-      }
+      string fileBasename(pBasename);
 
-      string tmpPath_s(tmpPath);
-
-      if ((tmpPath_s.length() <= 3) ||
-          (tmpPath_s.substr(tmpPath_s.length() - 3) != ".vm"))
+      if ((fileBasename.length() <= 3) ||
+          (fileBasename.substr(fileBasename.length() - 3) != ".vm"))
       {
         cerr << "Input filename required to end with .vm extension." << endl;
         exit(-1);
       }
 
-      outputFilenameStem = tmpPath_s.substr(0, tmpPath_s.length() - 3);
+      outputFilenameStem = fileBasename.substr(0, fileBasename.length() - 3);
     }
     else
     {
+      char resolvedDirPath[PATH_MAX + 1];
+
       // Expand given directory into full path
-      rvalue_s = realpath(argv.c_str(), tmpPath);
+      rvalue_s = realpath(argv.c_str(), resolvedDirPath);
 
       if (rvalue_s == nullptr)
       {
-        puts("Failed to get absolute directory path");
+        puts("Failed to resolve directory path");
         exit(1);
       }
 
-      directoryName = string(tmpPath);
+      directoryName = string(resolvedDirPath);
 
       // Derive output filename from directory
-      rvalue_s = basename_r(directoryName.c_str(), tmpPath);
+      char* pDirBasename = basename(resolvedDirPath);
 
-      if (rvalue_s == nullptr)
-      {
-        puts("Failed to get final path component name");
-        exit(1);
-      }
-
-      outputFilenameStem = string(tmpPath);
+      outputFilenameStem = string(pDirBasename);
     }
 
     //
