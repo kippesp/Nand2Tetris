@@ -64,6 +64,7 @@ def test_case():
         ["    M=D",                                        "1110001100001000"],
         ["    @16384",                                     "0100000000000000"],
         ["    D=A",                                        "1110110000010000"],
+        ["    D       // noop",                            "1110001100000000"],
         ["    @1",                                         "0000000000000001"],
         ["    M=D     // set screen base address",         "1110001100001000"],
         ["    @0     // load color",                       "0000000000000000"],
@@ -84,6 +85,8 @@ def test_case():
         ["    D;JGE   // continue if not done",            "1110001100000011"],
         ["    @0",                                         "0000000000000000"],
         ["    0;JMP   // restart program",                 "1110101010000111"],
+        ["    D=A+1;JLE",                                  "1110110111010110"],
+        ["    M;JGE",                                      "1111110000000011"],
       ]
   for i in c:
     yield i
@@ -152,63 +155,58 @@ def assemble(s):
       elif jump == 'JMP': jval = '111'
       else:
         raise ParseError("Parse error: expecting jmp instruction '%s'" % s)
+
+      # Remove the jump portion from the instruction during further evaluation
+      s = s[:s.find(';')]
       
-      if   comp == 'D': cval = '001100'
-      elif comp == 'A': cval = '110000'
-      elif comp == 'M': cval = '110000'; aval = '1'
-      elif int(comp) >= 0:
-        cval = '101010'
-        aval = '0'
-      else:
-        raise ParseError("Parse error: expecting valid jmp comparison '%s'" % s)
-    elif '=' in s:
+    if '=' in s:
       dest = s[:s.find('=')]
       comp = s[s.find('=') + 1:]
 
       if   dest == 'M':   dval = '001'
       elif dest == 'D':   dval = '010'
-      elif dest == 'MD':  dval = '011'
+      elif dest == 'MD':  dval = '011' # Strict interpretation of Fig. 4.4
       elif dest == 'A':   dval = '100'
       elif dest == 'AM':  dval = '101'
       elif dest == 'AD':  dval = '110'
       elif dest == 'AMD': dval = '111'
       else:
         raise ParseError("Parse error: expecting destination instruction '%s'" % s)
-
-      if   comp == '0':   cval = '101010'
-      elif comp == '1':   cval = '111111'
-      elif comp == '-1':  cval = '111010'
-      elif comp == 'D':   cval = '001100'
-      elif comp == 'A':   cval = '110000'
-      elif comp == '!D':  cval = '001101'
-      elif comp == '!A':  cval = '110001'
-      elif comp == '-D':  cval = '001111'
-      elif comp == '-A':  cval = '110011'
-      elif comp == 'D+1': cval = '011111'
-      elif comp == 'A+1': cval = '110111'
-      elif comp == 'D-1': cval = '001110'
-      elif comp == 'A-1': cval = '110010'
-      elif comp == 'D-1': cval = '001110'
-      elif comp == 'A-1': cval = '110010'
-      elif comp == 'D+A': cval = '000010'
-      elif comp == 'D-A': cval = '010011'
-      elif comp == 'A-D': cval = '010011'
-      elif comp == 'D&A': cval = '000000'
-      elif comp == 'D|A': cval = '010101'
-
-      elif comp == 'M':   cval = '110000'; aval = '1'
-      elif comp == '!M':  cval = '110001'; aval = '1'
-      elif comp == 'M+1': cval = '110111'; aval = '1'
-      elif comp == 'M-1': cval = '110010'; aval = '1'
-      elif comp == 'D+M': cval = '000010'; aval = '1'
-      elif comp == 'D-M': cval = '010011'; aval = '1'
-      elif comp == 'M-D': cval = '000111'; aval = '1'
-      elif comp == 'D&M': cval = '000000'; aval = '1'
-      elif comp == 'D|M': cval = '010101'; aval = '1'
-      else:
-        raise ParseError("Parse error: unknown computation instruction '%s'" % s)
     else:
-        raise ParseError("Parse error: unknown construction '%s'" % s)
+      comp = s
+
+    if   comp == '0':   cval = '101010'
+    elif comp == '1':   cval = '111111'
+    elif comp == '-1':  cval = '111010'
+    elif comp == 'D':   cval = '001100'
+    elif comp == 'A':   cval = '110000'
+    elif comp == '!D':  cval = '001101'
+    elif comp == '!A':  cval = '110001'
+    elif comp == '-D':  cval = '001111'
+    elif comp == '-A':  cval = '110011'
+    elif comp == 'D+1': cval = '011111'
+    elif comp == 'A+1': cval = '110111'
+    elif comp == 'D-1': cval = '001110'
+    elif comp == 'A-1': cval = '110010'
+    elif comp == 'D-1': cval = '001110'
+    elif comp == 'A-1': cval = '110010'
+    elif comp == 'D+A': cval = '000010'
+    elif comp == 'D-A': cval = '010011'
+    elif comp == 'A-D': cval = '010011'
+    elif comp == 'D&A': cval = '000000'
+    elif comp == 'D|A': cval = '010101'
+
+    elif comp == 'M':   cval = '110000'; aval = '1'
+    elif comp == '!M':  cval = '110001'; aval = '1'
+    elif comp == 'M+1': cval = '110111'; aval = '1'
+    elif comp == 'M-1': cval = '110010'; aval = '1'
+    elif comp == 'D+M': cval = '000010'; aval = '1'
+    elif comp == 'D-M': cval = '010011'; aval = '1'
+    elif comp == 'M-D': cval = '000111'; aval = '1'
+    elif comp == 'D&M': cval = '000000'; aval = '1'
+    elif comp == 'D|M': cval = '010101'; aval = '1'
+    else:
+      raise ParseError("Parse error: unknown computation instruction '%s'" % s)
 
   return preamble + aval + cval + dval + jval
 
