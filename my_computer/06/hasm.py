@@ -143,7 +143,7 @@ def assemble(s):
     if ';' in s:
       comp = s[:s.find(';')]
       jump = s[s.find(';') + 1:]
-      if jump == 'JGT':   jval = '001'
+      if   jump == 'JGT': jval = '001'
       elif jump == 'JEQ': jval = '010'
       elif jump == 'JGE': jval = '011'
       elif jump == 'JLT': jval = '100'
@@ -153,13 +153,9 @@ def assemble(s):
       else:
         raise ParseError("Parse error: expecting jmp instruction '%s'" % s)
       
-      if comp == 'D':
-        cval = '001100'
-      elif comp == 'A':
-        cval = '110000'
-      elif comp == 'M':
-        cval = '110000'
-        aval = '1'
+      if   comp == 'D': cval = '001100'
+      elif comp == 'A': cval = '110000'
+      elif comp == 'M': cval = '110000'; aval = '1'
       elif int(comp) >= 0:
         cval = '101010'
         aval = '0'
@@ -169,7 +165,7 @@ def assemble(s):
       dest = s[:s.find('=')]
       comp = s[s.find('=') + 1:]
 
-      if dest == 'M':     dval = '001'
+      if   dest == 'M':   dval = '001'
       elif dest == 'D':   dval = '010'
       elif dest == 'MD':  dval = '011'
       elif dest == 'A':   dval = '100'
@@ -179,74 +175,36 @@ def assemble(s):
       else:
         raise ParseError("Parse error: expecting destination instruction '%s'" % s)
 
-      if comp == '0':
-        cval = '101010'
-      elif comp == '1':
-        cval = '111111'
-      elif comp == '-1':
-        cval = '111010'
-      elif comp == 'D':
-        cval = '001100'
-      elif comp == 'A':
-        cval = '110000'
-      elif comp == '!D':
-        cval = '001101'
-      elif comp == '!A':
-        cval = '110001'
-      elif comp == '-D':
-        cval = '001111'
-      elif comp == '-A':
-        cval = '110011'
-      elif comp == 'D+1':
-        cval = '011111'
-      elif comp == 'A+1':
-        cval = '110111'
-      elif comp == 'D-1':
-        cval = '001110'
-      elif comp == 'A-1':
-        cval = '110010'
-      elif comp == 'D-1':
-        cval = '001110'
-      elif comp == 'A-1':
-        cval = '110010'
-      elif comp == 'D+A':
-        cval = '000010'
-      elif comp == 'D-A':
-        cval = '010011'
-      elif comp == 'A-D':
-        cval = '010011'
-      elif comp == 'D&A':
-        cval = '000000'
-      elif comp == 'D|A':
-        cval = '010101'
+      if   comp == '0':   cval = '101010'
+      elif comp == '1':   cval = '111111'
+      elif comp == '-1':  cval = '111010'
+      elif comp == 'D':   cval = '001100'
+      elif comp == 'A':   cval = '110000'
+      elif comp == '!D':  cval = '001101'
+      elif comp == '!A':  cval = '110001'
+      elif comp == '-D':  cval = '001111'
+      elif comp == '-A':  cval = '110011'
+      elif comp == 'D+1': cval = '011111'
+      elif comp == 'A+1': cval = '110111'
+      elif comp == 'D-1': cval = '001110'
+      elif comp == 'A-1': cval = '110010'
+      elif comp == 'D-1': cval = '001110'
+      elif comp == 'A-1': cval = '110010'
+      elif comp == 'D+A': cval = '000010'
+      elif comp == 'D-A': cval = '010011'
+      elif comp == 'A-D': cval = '010011'
+      elif comp == 'D&A': cval = '000000'
+      elif comp == 'D|A': cval = '010101'
 
-      elif comp == 'M':
-        cval = '110000'
-        aval = '1'
-      elif comp == '!M':
-        cval = '110001'
-        aval = '1'
-      elif comp == 'M+1':
-        cval = '110111'
-        aval = '1'
-      elif comp == 'M-1':
-        cval = '110010'
-        aval = '1'
-      elif comp == 'D+M':
-        cval = '000010'
-        aval = '1'
-      elif comp == 'D-M':
-        cval = '010011'
-        aval = '1'
-      elif comp == 'M-D':
-        cval = '000111'
-        aval = '1'
-      elif comp == 'D&M':
-        cval = '000000'
-        aval = '1'
-      elif comp == 'D|M':
-        cval = '010101'
-        aval = '1'
+      elif comp == 'M':   cval = '110000'; aval = '1'
+      elif comp == '!M':  cval = '110001'; aval = '1'
+      elif comp == 'M+1': cval = '110111'; aval = '1'
+      elif comp == 'M-1': cval = '110010'; aval = '1'
+      elif comp == 'D+M': cval = '000010'; aval = '1'
+      elif comp == 'D-M': cval = '010011'; aval = '1'
+      elif comp == 'M-D': cval = '000111'; aval = '1'
+      elif comp == 'D&M': cval = '000000'; aval = '1'
+      elif comp == 'D|M': cval = '010101'; aval = '1'
       else:
         raise ParseError("Parse error: unknown computation instruction '%s'" % s)
     else:
