@@ -1121,7 +1121,7 @@ int main(int argc, char** argv)
 {
   if (argc != 2)
   {
-    cout << "USAGE: vmt [-h] FILENAME.vm | DIRECTORY" << endl;
+    cout << "USAGE: vmt [-h] FILENAME.vm | DIRECTORY | ." << endl;
     return 1;
   }
 
@@ -1129,11 +1129,11 @@ int main(int argc, char** argv)
   {
     cout << "USAGE:\n\n"
               << "    vmt FILENAME.vm\n\n"
-              << "    vmt DIRECTORY\n\n"
+              << "    vmt DIRECTORY | .\n\n"
               << "DESCRIPTION\n\n"
               << "    Parses the VM commands found in FILENAME.vm into the corresponding Hack\n"
-              << "    assembly code file, FILENAME.hack.  When provided the argument DIRECTORY,\n"
-              << "    all .vm files will be processed as if called individually.\n" << endl;
+              << "    assembly code file, FILENAME.asm.  When provided the argument DIRECTORY,\n"
+              << "    all .vm files will be translated into DIRECTORY.asm.\n" << endl;
     return 0;
   }
 
