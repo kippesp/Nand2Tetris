@@ -1,0 +1,154 @@
+class TitleCredit {
+  function int get_x_size() { return 208; }
+  function int get_y_size() { return 17; }
+
+  function void draw(int dblcol, int row) {
+    var int base_address;
+    let base_address = 16384 + (32 * row) + dblcol;
+
+    do Memory.poke(base_address + 2 + 0, 14336);
+    do Memory.poke(base_address + 1 + 0, 128);
+    do Memory.poke(base_address + 0 + 0, 17);
+    do Memory.poke(base_address + 2 + 32, 17408);
+    do Memory.poke(base_address + 0 + 32, 27);
+    do Memory.poke(base_address + 5 + 64, 1);
+    do Memory.poke(base_address + 4 + 64, -14521);
+    do Memory.poke(base_address + 3 + 64, 4412);
+    do Memory.poke(base_address + 2 + 64, 1025);
+    do Memory.poke(base_address + 1 + 64, -7997);
+    do Memory.poke(base_address + 0 + 64, -30955);
+    do Memory.poke(base_address + 5 + 96, 2);
+    do Memory.poke(base_address + 4 + 96, 8392);
+    do Memory.poke(base_address + 3 + 96, 4386);
+    do Memory.poke(base_address + 2 + 96, 14336);
+    do Memory.poke(base_address + 1 + 96, 4228);
+    do Memory.poke(base_address + 0 + 96, 18453);
+    do Memory.poke(base_address + 5 + 128, 3);
+    do Memory.poke(base_address + 4 + 128, -8113);
+    do Memory.poke(base_address + 3 + 128, 4386);
+    do Memory.poke(base_address + 2 + 128, 16384);
+    do Memory.poke(base_address + 1 + 128, 4228);
+    do Memory.poke(base_address + 0 + 128, 20241);
+    do Memory.poke(base_address + 4 + 160, 8264);
+    do Memory.poke(base_address + 3 + 160, -26308);
+    do Memory.poke(base_address + 2 + 160, 17408);
+    do Memory.poke(base_address + 1 + 160, 4231);
+    do Memory.poke(base_address + 0 + 160, -30575);
+    do Memory.poke(base_address + 5 + 192, 3);
+    do Memory.poke(base_address + 4 + 192, -16305);
+    do Memory.poke(base_address + 3 + 192, 5664);
+    do Memory.poke(base_address + 2 + 192, 14337);
+    do Memory.poke(base_address + 1 + 192, -7740);
+    do Memory.poke(base_address + 0 + 192, 3857);
+    do Memory.poke(base_address + 3 + 224, 32);
+    do Memory.poke(base_address + 1 + 224, 3);
+    do Memory.poke(base_address + 0 + 224, 32767 + 1);
+    do Memory.poke(base_address + 11 + 288, 2);
+    do Memory.poke(base_address + 10 + 288, 4352);
+    do Memory.poke(base_address + 9 + 288, 6144);
+    do Memory.poke(base_address + 8 + 288, 480);
+    do Memory.poke(base_address + 7 + 288, 1806);
+    do Memory.poke(base_address + 6 + 288, 7224);
+    do Memory.poke(base_address + 5 + 288, 64);
+    do Memory.poke(base_address + 4 + 288, 256);
+    do Memory.poke(base_address + 3 + 288, 514);
+    do Memory.poke(base_address + 2 + 288, 32);
+    do Memory.poke(base_address + 0 + 288, 14);
+    do Memory.poke(base_address + 10 + 320, 2304);
+    do Memory.poke(base_address + 9 + 320, 4096);
+    do Memory.poke(base_address + 8 + 320, 544);
+    do Memory.poke(base_address + 7 + 320, 2193);
+    do Memory.poke(base_address + 6 + 320, 8772);
+    do Memory.poke(base_address + 5 + 320, 128);
+    do Memory.poke(base_address + 4 + 320, 128);
+    do Memory.poke(base_address + 3 + 320, 514);
+    do Memory.poke(base_address + 0 + 320, 17);
+    do Memory.poke(base_address + 12 + 352, -3871);
+    do Memory.poke(base_address + 11 + 352, -7229);
+    do Memory.poke(base_address + 10 + 352, 1280);
+    do Memory.poke(base_address + 9 + 352, 4232);
+    do Memory.poke(base_address + 8 + 352, -7648);
+    do Memory.poke(base_address + 7 + 352, 3216);
+    do Memory.poke(base_address + 6 + 352, 12864);
+    do Memory.poke(base_address + 5 + 352, 259);
+    do Memory.poke(base_address + 4 + 352, -16320);
+    do Memory.poke(base_address + 3 + 352, 3870);
+    do Memory.poke(base_address + 2 + 352, 14385);
+    do Memory.poke(base_address + 1 + 352, -11741);
+    do Memory.poke(base_address + 0 + 352, -14591);
+    do Memory.poke(base_address + 12 + 384, 2322);
+    do Memory.poke(base_address + 11 + 384, 9282);
+    do Memory.poke(base_address + 10 + 384, 768);
+    do Memory.poke(base_address + 9 + 384, 4233);
+    do Memory.poke(base_address + 8 + 384, 480);
+    do Memory.poke(base_address + 7 + 384, 2700);
+    do Memory.poke(base_address + 6 + 384, 10800);
+    do Memory.poke(base_address + 5 + 384, 256);
+    do Memory.poke(base_address + 4 + 384, 8256);
+    do Memory.poke(base_address + 3 + 384, 546);
+    do Memory.poke(base_address + 2 + 384, 17440);
+    do Memory.poke(base_address + 1 + 384, 12836);
+    do Memory.poke(base_address + 0 + 384, 18561);
+    do Memory.poke(base_address + 12 + 416, 29170);
+    do Memory.poke(base_address + 11 + 416, 9282);
+    do Memory.poke(base_address + 10 + 416, 1280);
+    do Memory.poke(base_address + 9 + 416, 4233);
+    do Memory.poke(base_address + 8 + 416, -8160);
+    do Memory.poke(base_address + 7 + 416, 2434);
+    do Memory.poke(base_address + 6 + 416, 9736);
+    do Memory.poke(base_address + 5 + 416, 256);
+    do Memory.poke(base_address + 4 + 416, 8256);
+    do Memory.poke(base_address + 3 + 416, 546);
+    do Memory.poke(base_address + 2 + 416, 17440);
+    do Memory.poke(base_address + 1 + 416, 4644);
+    do Memory.poke(base_address + 0 + 416, 18561);
+    do Memory.poke(base_address + 12 + 448, -32751);
+    do Memory.poke(base_address + 11 + 448, -7230);
+    do Memory.poke(base_address + 10 + 448, 2304);
+    do Memory.poke(base_address + 9 + 448, 4297);
+    do Memory.poke(base_address + 8 + 448, 4128);
+    do Memory.poke(base_address + 7 + 448, 2177);
+    do Memory.poke(base_address + 6 + 448, 8708);
+    do Memory.poke(base_address + 5 + 448, 128);
+    do Memory.poke(base_address + 4 + 448, 8320);
+    do Memory.poke(base_address + 3 + 448, 4642);
+    do Memory.poke(base_address + 2 + 448, 30752);
+    do Memory.poke(base_address + 1 + 448, 5059);
+    do Memory.poke(base_address + 0 + 448, -14191);
+    do Memory.poke(base_address + 12 + 480, 31200);
+    do Memory.poke(base_address + 11 + 480, 8263);
+    do Memory.poke(base_address + 10 + 480, 4352);
+    do Memory.poke(base_address + 9 + 480, 14513);
+    do Memory.poke(base_address + 8 + 480, -8160);
+    do Memory.poke(base_address + 7 + 480, 1823);
+    do Memory.poke(base_address + 6 + 480, 7292);
+    do Memory.poke(base_address + 5 + 480, 67);
+    do Memory.poke(base_address + 4 + 480, -16128);
+    do Memory.poke(base_address + 3 + 480, 3106);
+    do Memory.poke(base_address + 2 + 480, 16496);
+    do Memory.poke(base_address + 1 + 480, 4608);
+    do Memory.poke(base_address + 0 + 480, 18190);
+    do Memory.poke(base_address + 11 + 512, 8256);
+    do Memory.poke(base_address + 2 + 512, 14336);
+    do Memory.poke(base_address + 1 + 512, 448);
+    do Memory.poke(base_address + 0 + 512, 16384);
+
+    return;
+  }
+
+  function void blank(int dblcol, int row) {
+    var int x1;
+    var int y1;
+    var int x2;
+    var int y2;
+    let x1 = dblcol * 16;
+    let y1 = row;
+    let x2 = x1 + 207;
+    let y2 = y1 + 17;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(x1, y1, x2, y2);
+
+    return;
+  }
+}

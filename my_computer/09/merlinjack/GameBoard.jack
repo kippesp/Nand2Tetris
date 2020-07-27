@@ -1,0 +1,380 @@
+class GameBoard {
+  static int m_A;
+  static int m_M;
+  static int m_Q;
+  static int m_R;
+
+  field int m_state;  // state of the pips, max 0x1ff
+  field int m_difficulty;
+  field GuiBoard m_guiBoard;
+  field int m_rnd_seed;
+  field Array m_random_values;
+
+  constructor GameBoard new() {
+    let m_guiBoard = GuiBoard.new(32, 24);
+    let m_difficulty = 0;
+
+    // Set constants for random generator
+    let m_A = 219;
+    let m_M = 32749;
+    let m_Q = m_M / m_A;
+    let m_R = Util.mod(m_M, m_A);
+
+    // Set predetermined random value table
+    // (This was done prior to the PRNG code
+    // and left in.)
+    let m_random_values = Array.new(40);
+    let m_random_values[ 0] = 15069;  // 0x3add
+    let m_random_values[ 1] = 11931;  // 0x2e9b
+    let m_random_values[ 2] = 29581;  // 0x738d
+    let m_random_values[ 3] = 13810;  // 0x35f2
+    let m_random_values[ 4] = 22605;  // 0x584d
+    let m_random_values[ 5] = 12277;  // 0x2ff5
+    let m_random_values[ 6] =  6304;  // 0x18a0
+    let m_random_values[ 7] = 17071;  // 0x42af
+    let m_random_values[ 8] =  8807;  // 0x2267
+    let m_random_values[ 9] = 19730;  // 0x4d12
+    let m_random_values[10] = 27331;  // 0x6ac3
+    let m_random_values[11] = 10308;  // 0x2844
+    let m_random_values[12] = 12243;  // 0x2fd3
+    let m_random_values[13] = 32514;  // 0x7f02
+    let m_random_values[14] =  7012;  // 0x1b64
+    let m_random_values[15] = 20622;  // 0x508e
+    let m_random_values[16] =  8019;  // 0x1f53
+    let m_random_values[17] = 11483;  // 0x2cdb
+    let m_random_values[18] = 28322;  // 0x6ea2
+    let m_random_values[19] = 26509;  // 0x678d
+    let m_random_values[20] =  2588;  // 0x0a1c
+    let m_random_values[21] = 23259;  // 0x5adb
+    let m_random_values[22] = 31528;  // 0x7b28
+    let m_random_values[23] =   231;  // 0x00e7
+    let m_random_values[24] = 18264;  // 0x4758
+    let m_random_values[25] =  4356;  // 0x1104
+    let m_random_values[26] = 15251;  // 0x3b93
+    let m_random_values[27] = 13943;  // 0x3677
+    let m_random_values[28] = 32395;  // 0x7e8b
+    let m_random_values[29] =  5307;  // 0x14bb
+    let m_random_values[30] =  6706;  // 0x1a32
+    let m_random_values[31] = 30661;  // 0x77c5
+    let m_random_values[32] = 11671;  // 0x2d97
+    let m_random_values[33] = 11084;  // 0x2b4c
+    let m_random_values[34] = 18997;  // 0x4a35
+    let m_random_values[35] =   626;  // 0x0272
+    let m_random_values[36] = 10524;  // 0x291c
+    let m_random_values[37] =   852;  // 0x0354
+    let m_random_values[38] =  3907;  // 0x0f43
+    let m_random_values[39] =   410;  // 0x019a
+
+    return this;
+  }
+
+  method void initGameScreen() {
+    do Screen.clearScreen();
+    do m_guiBoard.drawGrid();
+
+    return;
+  }
+
+  method void dispose() {
+    do m_random_values.dispose();
+    do m_guiBoard.dispose();
+    return;
+  }
+
+  // Input from the keyboard this way so that no echo to the screen happens
+  method int debouncePipNumberInput() {
+    var int pip_number;
+    var char ch;
+
+    let ch = 0;
+
+    // Wait for valid key press
+    while (ch = 0) {
+        let ch = Keyboard.keyPressed();
+
+        if ((ch < 49) | (ch > 57)) {
+          let ch = 0;
+        }
+    }
+
+    let pip_number = 0;
+
+    if (ch = 49) { let pip_number = 1; }
+    if (ch = 50) { let pip_number = 2; }
+    if (ch = 51) { let pip_number = 3; }
+    if (ch = 52) { let pip_number = 4; }
+    if (ch = 53) { let pip_number = 5; }
+    if (ch = 54) { let pip_number = 6; }
+    if (ch = 55) { let pip_number = 7; }
+    if (ch = 56) { let pip_number = 8; }
+    if (ch = 57) { let pip_number = 9; }
+
+    // Wait for key to be release
+    while (~(ch = 0)) {
+      let ch = Keyboard.keyPressed();
+    }
+
+    return pip_number;
+  }
+
+  function int xorMaskFromPipNumber(int pip_number) {
+    var int xor_mask;
+
+    let xor_mask = 0;
+
+    // Get the pip's XOR mask
+    if (pip_number = 1) { let xor_mask =  27; }   // 0x01b
+    if (pip_number = 2) { let xor_mask =   7; }   // 0x007
+    if (pip_number = 3) { let xor_mask =  54; }   // 0x036
+    if (pip_number = 4) { let xor_mask =  73; }   // 0x049
+    if (pip_number = 5) { let xor_mask = 186; }   // 0x0ba
+    if (pip_number = 6) { let xor_mask = 292; }   // 0x124
+    if (pip_number = 7) { let xor_mask = 216; }   // 0x0d8
+    if (pip_number = 8) { let xor_mask = 448; }   // 0x1c0
+    if (pip_number = 9) { let xor_mask = 432; }   // 0x1b0
+
+    return xor_mask;
+  }
+
+  method void run() {
+    var bool exit_game;
+    var int pip_number;
+    var int xor_mask;
+    var int num_user_moves;
+    var String str;
+    var ch play_again_key;
+
+    let exit_game = false;
+
+    do Output.moveCursor(2, 32);
+    let str = "No. User Moves: ";
+    do Output.printString(str);
+    do str.dispose();
+
+    while (exit_game = false) {
+      let num_user_moves = 0;
+
+      do Output.moveCursor(2, 48);
+      let str = "0    ";
+      do Output.printString(str);
+      do str.dispose();
+
+      do generateGame();
+
+      while (~(m_state = 495)) {
+        let num_user_moves = num_user_moves + 1;
+        let pip_number = debouncePipNumberInput();
+        let xor_mask = GameBoard.xorMaskFromPipNumber(pip_number);
+
+        // Blank out all the pip's affected by the XOR mask,
+        // update to the new state, then redraw new pip states.
+        do blankMaskedPips(xor_mask);
+        let m_state = Util.xor(m_state, xor_mask);
+        do drawMaskedPips(m_state & xor_mask);
+
+        do Output.moveCursor(2, 48);
+        do Output.printInt(num_user_moves);
+      }
+
+      do Output.moveCursor(10, 32);
+      let str = "Solved!!!";
+      do Output.printString(str);
+      do str.dispose();
+
+      do Output.moveCursor(11, 32);
+      let str = "New game? (y/n)-";
+      do Output.printString(str);
+      do str.dispose();
+
+      let play_again_key = 0;
+      while (~((play_again_key =  89) |     // Y
+               (play_again_key = 121) |     // y
+               (play_again_key =  78) |     // N
+               (play_again_key = 110))) {   // n
+        do Output.moveCursor(11, 48);
+        let play_again_key = Keyboard.readChar();
+      }
+
+      if ((play_again_key =  78) |    // N
+          (play_again_key = 110))     // n
+      {
+        let exit_game = true;
+      } else {
+        // Erase Solved!!!
+        do Output.moveCursor(10, 32);
+        let str = "         ";
+        do Output.printString(str);
+        do str.dispose();
+
+        do Output.moveCursor(11, 32);
+        let str = "                 ";
+        do Output.printString(str);
+
+        do generateGame();
+      }
+    }
+
+    return;
+  }
+
+  // While waiting for the user to enter 1/2/3/4, accumulate how my loop
+  // iterations are happening.  Use this with the PRNG seed.
+  method void waitForDifficultyChoice() {
+    var char ch;
+    var int tics;
+    var bool do_wait_loop;
+    var int difficulty;
+
+    let tics = 0;
+    let do_wait_loop = true;
+
+    while (do_wait_loop = true) {
+      let ch = Keyboard.keyPressed();
+
+      // easy (1)
+      if (ch = 49) {
+        let do_wait_loop = false;
+        let difficulty = 1;
+      }
+
+      // medium (2)
+      if (ch = 50) {
+        let do_wait_loop = false;
+        let difficulty = 2;
+      }
+
+      // hard (3)
+      if (ch = 51) {
+        let do_wait_loop = false;
+        let difficulty = 3;
+      }
+
+      // random (4)
+      if (ch = 52) {
+        let do_wait_loop = false;
+        let difficulty = 0;   // Use 0 for random
+      }
+
+      let tics = tics + 1;
+    }
+
+    let m_difficulty = difficulty;
+
+    // Wait for key to be release
+    while (~(ch = 0)) {
+      let ch = Keyboard.keyPressed();
+    }
+
+    do set_random_seed(tics & 32767);
+
+    return;
+  }
+
+  // Set game state and redraw all pips
+  method void setState(int state) {
+    let m_state = state;
+
+    do blankMaskedPips(511);
+    do drawMaskedPips(m_state);
+
+    return;
+  }
+
+  // Erase the pips of the given mask
+  method void blankMaskedPips(int mask) {
+    if (mask & 1)   { do m_guiBoard.blankPip(1); }
+    if (mask & 2)   { do m_guiBoard.blankPip(2); }
+    if (mask & 4)   { do m_guiBoard.blankPip(3); }
+    if (mask & 8)   { do m_guiBoard.blankPip(4); }
+    if (mask & 16)  { do m_guiBoard.blankPip(5); }
+    if (mask & 32)  { do m_guiBoard.blankPip(6); }
+    if (mask & 64)  { do m_guiBoard.blankPip(7); }
+    if (mask & 128) { do m_guiBoard.blankPip(8); }
+    if (mask & 256) { do m_guiBoard.blankPip(9); }
+
+    return;
+  }
+
+  // Draw the pips of the given mask
+  method void drawMaskedPips(int mask) {
+    if (mask & 1)   { do m_guiBoard.drawPip(1); }
+    if (mask & 2)   { do m_guiBoard.drawPip(2); }
+    if (mask & 4)   { do m_guiBoard.drawPip(3); }
+    if (mask & 8)   { do m_guiBoard.drawPip(4); }
+    if (mask & 16)  { do m_guiBoard.drawPip(5); }
+    if (mask & 32)  { do m_guiBoard.drawPip(6); }
+    if (mask & 64)  { do m_guiBoard.drawPip(7); }
+    if (mask & 128) { do m_guiBoard.drawPip(8); }
+    if (mask & 256) { do m_guiBoard.drawPip(9); }
+
+    return;
+  }
+
+  method void generateGame()
+  {
+    var int idx;
+    var int pip_number;
+    var int previous_pip_number;
+    var int xor_mask;
+    let idx = m_difficulty;
+
+    if (m_difficulty = 0) {
+      // Don't randomly pick the solution
+      while ((m_rnd_seed & 511) = 495) {
+        do rand();
+      }
+
+      do setState(m_rnd_seed & 511);
+    } else {
+      let m_state = 495;  // Solved game (i.e. goal state)
+
+      let idx = m_difficulty * 3;
+      let previous_pip_number = -1;
+      let pip_number = -1;
+
+      while (idx > 0) {
+        // Choose a pip
+        while (previous_pip_number = pip_number) {
+          let pip_number = Util.mod(rand(), 9) + 1;
+        }
+
+        let previous_pip_number = pip_number;
+        let xor_mask = GameBoard.xorMaskFromPipNumber(pip_number);
+        let m_state = Util.xor(m_state, xor_mask);
+        let idx = idx - 1;
+      }
+
+      do setState(m_state);
+    }
+
+    return;
+  }
+
+  method void set_random_seed(int val)
+  {
+    var int index;
+    var int bias;
+
+    let index = Util.mod(val, 40);
+    let bias = val;
+
+    let m_rnd_seed = (m_random_values[index] + bias) & 32767;
+
+    return;
+  }
+
+  method int rand()
+  {
+    var int candidate_rnd_seed;
+
+    let candidate_rnd_seed = (m_A * (Util.mod(m_rnd_seed, m_Q))) - (m_R * (m_rnd_seed / m_Q));
+
+    if (candidate_rnd_seed < 0) {
+      let m_rnd_seed = candidate_rnd_seed + m_M;
+    } else {
+      let m_rnd_seed = candidate_rnd_seed;
+    }
+
+    return m_rnd_seed;
+  }
+}
