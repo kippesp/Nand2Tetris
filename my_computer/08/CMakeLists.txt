@@ -1,12 +1,17 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(vmt CXX)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
+set(PROJECT_NAME vmt)
+project(${PROJECT_NAME} CXX)
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_compile_options(-Wall -Wextra)
 
 if (NOT MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
+  add_compile_options(-pedantic)
 endif()
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
@@ -17,7 +22,7 @@ set(VMT_SRCS
   main.cpp
   )
 
-add_executable(vmt
+add_executable(${PROJECT_NAME}
   ${VMT_SRCS}
   )
 
@@ -27,6 +32,6 @@ include_directories(
 
 set(CMAKE_SKIP_RPATH true)
 
-#target_link_libraries(vmt
+#target_link_libraries(${PROJECT_NAME}
 #  ""
 #  )
