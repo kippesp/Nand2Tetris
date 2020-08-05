@@ -9,7 +9,10 @@ set(CMAKE_BUILD_TYPE Debug)
 
 cxx_20()
 
-add_compile_options(-Wall -Wextra)
+add_compile_options(-Wall -Wextra -Wno-c99-extensions)
+
+# Available in newer clang
+add_compile_options(-Wno-c99-extensions)
 
 if (NOT MSVC)
   add_compile_options(-pedantic)

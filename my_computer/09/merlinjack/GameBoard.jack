@@ -65,6 +65,8 @@ class GameBoard {
     let m_random_values[38] =  3907;  // 0x0f43
     let m_random_values[39] =   410;  // 0x019a
 
+    do BestMoveDepth.init();
+
     return this;
   }
 
@@ -147,7 +149,12 @@ class GameBoard {
     let exit_game = false;
 
     do Output.moveCursor(2, 32);
-    let str = "No. User Moves: ";
+    let str = "Num user moves: ";
+    do Output.printString(str);
+    do str.dispose();
+
+    do Output.moveCursor(3, 32);
+    let str = "Moves until solution: ";
     do Output.printString(str);
     do str.dispose();
 
@@ -160,6 +167,9 @@ class GameBoard {
       do str.dispose();
 
       do generateGame();
+
+      do Output.moveCursor(3, 54);
+      do Output.printInt(BestMoveDepth.getDepthToSolution(m_state));
 
       while (~(m_state = 495)) {
         let num_user_moves = num_user_moves + 1;
@@ -174,6 +184,9 @@ class GameBoard {
 
         do Output.moveCursor(2, 48);
         do Output.printInt(num_user_moves);
+
+        do Output.moveCursor(3, 54);
+        do Output.printInt(BestMoveDepth.getDepthToSolution(m_state));
       }
 
       do Output.moveCursor(10, 32);

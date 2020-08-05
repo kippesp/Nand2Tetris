@@ -165,6 +165,17 @@ struct GameState {
   Board board;
 };
 
+typedef struct {
+  int best_pip_choice;
+  int tree_depth;
+} PerfectChoice;
+
+// Define solution table
+PerfectChoice perfect_choices[0x200] =
+{
+#include "perfect_moves.h"
+};
+
 void GameState::print()
 {
   puts("");
@@ -176,6 +187,7 @@ void GameState::print()
          board.state.pip.p8 ? '@' : '.', board.state.pip.p9 ? '@' : '.');
   printf("             ");
   board.print_raw();
+  printf("             steps to solution: %d\n", perfect_choices[board.state.pips].tree_depth);
   puts("----------");
 }
 
@@ -206,10 +218,10 @@ int main(void)
 
   const int STEPS_PER_LEVEL_OF_DIFFICULTY = 3;
 
-  printf("Easy(1), Medium(2), Hard(3), or Random(4) -- Enter: ");
+  printf("Easy(1), Medium(2), Hard(3), Random(4), Manual(5) -- Enter: ");
   int level_difficulty;
   scanf("%d", &level_difficulty);
-  level_difficulty = level_difficulty > 4 ? 1 : level_difficulty;
+  level_difficulty = level_difficulty > 5 ? 1 : level_difficulty;
 
   printf("%d\n", level_difficulty);
 
@@ -217,7 +229,13 @@ int main(void)
   tend = timer.tv_sec << 32 | timer.tv_usec;
   hack.set_random_seed((tend - tstart) % 0x7fff, (tend - tstart) % 0x7fff);
 
-  if (level_difficulty == 4) { game.board.state.pips = hack.rand().v(); }
+  if (level_difficulty == 4) { game.board.state.pips = hack.rand().v() & 0x1ff; }
+  else if (level_difficulty == 5) {
+    int manual_state;
+    printf("Enter state in hex: 0x");
+    scanf("%x", &manual_state);
+    game.board.state.pips = manual_state & 0x1ff;
+  }
   else {
     game.board.state.pips = Board::SOLVED.pips;
 
