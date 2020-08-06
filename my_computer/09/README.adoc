@@ -19,3 +19,5 @@ language version in the book "6502 Games" (c) 1980 by Rodney Zaks.
   to help in seeding a random generator.
 - Python script is included to generate Jack code from a TIFF file.
 - Graphical font elements (pip numbers) are from the Apple ][.
+- A second Python script is included to build a "solved" game tree in order to
+  provide the player with how many steps the current state is from the solution.
