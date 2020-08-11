@@ -7,7 +7,7 @@ project(${PROJECT_NAME} CXX)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-cxx_20()
+#cxx_20()
 
 add_compile_options(-Wall -Wextra -Wno-c99-extensions)
 
