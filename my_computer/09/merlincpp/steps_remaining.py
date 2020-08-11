@@ -130,3 +130,14 @@ while not done:
     done = True
 
 #pprint(solved_states)
+
+for i, ss in enumerate(solved_states):
+  print("{.best_pip_choice = %d, .tree_depth = %d}, // 0x%03x(%d) --> 0x%03x(%d)" %
+          (ss.resolving_pip, depth(ss.state), i, i,
+              i ^ xor_mask_from_pip(ss.resolving_pip),
+              i ^ xor_mask_from_pip(ss.resolving_pip)))
+
+  #  print("let depthToSolution[%d] = %d; // resolving_pip = %d, 0x%03x(%d) --> 0x%03x(%d)" %
+  #      (ss.state, depth(ss.state), ss.resolving_pip, ss.state, ss.state,
+  #      i ^ xor_mask_from_pip(ss.resolving_pip),
+  #      i ^ xor_mask_from_pip(ss.resolving_pip)))
