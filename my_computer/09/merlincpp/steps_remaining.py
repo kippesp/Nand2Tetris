@@ -94,42 +94,44 @@ iterations = 0
 
 print("Initial solution")
 
+iteration_count = 0
 done = False
+
+# Iterate until no changes
 while not done:
+  done = True
+  iteration_count = iteration_count + 1
   sorted_states = sorted([(i, depth(i)) for i,e in enumerate(solved_states)], key=lambda x:x[1])
   iterations = iterations + 1
   updated_count = 0
 
   for state, state_depth in sorted_states[1:]:
+    if solved_states[state].resolving_SolStep == FINAL_SOLUTION_STEP:
+      continue
+
+    updated = False
     best_move_depth = depth(state)
     best_move_pip = solved_states[state].resolving_pip
-    updated = False
 
     for pip in range(1, 10):
-      next_state = state ^ xor_mask_from_pip(pip)
+      candidate_next_state = state ^ xor_mask_from_pip(pip)
 
-      if solved_states[next_state] == FINAL_SOLUTION_STEP:
-        continue
-
-      if depth(next_state) + 1 < best_move_depth:
+      if depth(candidate_next_state) + 1 < best_move_depth:
         updated = True
+        done = False
         updated_count = updated_count + 1
-        best_move_depth = depth(next_state) + 1
+        best_move_depth = depth(candidate_next_state) + 1
         best_move_pip = pip
 
     if updated:
-      print("%d Updated state 0x%03x (old_depth=%d, new_depth=%d)" % (
-        iterations, state, state_depth, best_move_depth))
+      print("%d Updated state 0x%03x (old_depth=%d, new_depth=%d, pip=%d)" % (
+        iterations, state, state_depth, best_move_depth, best_move_pip))
+      next_state = state ^ xor_mask_from_pip(best_move_pip)
       solved_states[state].resolving_pip = best_move_pip
-      solved_states[state].resolving_SolStep = solved_states[state ^ xor_mask_from_pip(best_move_pip)]
+      solved_states[state].resolving_SolStep = solved_states[next_state]
 
   if updated_count > 0:
     print("%d changes" % updated_count)
-
-  if not updated:
-    done = True
-
-#pprint(solved_states)
 
 for i, ss in enumerate(solved_states):
   print("{.best_pip_choice = %d, .tree_depth = %d}, // 0x%03x(%d) --> 0x%03x(%d)" %
@@ -141,3 +143,7 @@ for i, ss in enumerate(solved_states):
   #      (ss.state, depth(ss.state), ss.resolving_pip, ss.state, ss.state,
   #      i ^ xor_mask_from_pip(ss.resolving_pip),
   #      i ^ xor_mask_from_pip(ss.resolving_pip)))
+
+#print(iteration_count)
+#pprint(solved_states)
+#pdb.set_trace()
