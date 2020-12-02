@@ -1,18 +1,15 @@
-cmake_minimum_required(VERSION 2.8.12)
-
-include("${CMAKE_SOURCE_DIR}/cmake/c++-standards.cmake")
+cmake_minimum_required(VERSION 3.13)
 
 set(PROJECT_NAME mg)
 project(${PROJECT_NAME} CXX)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-#cxx_20()
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_compile_options(-Wall -Wextra -Wno-c99-extensions)
-
-# Available in newer clang
-add_compile_options(-Wno-c99-extensions)
+add_compile_options(-Wall -Wextra)
 
 if (NOT MSVC)
   add_compile_options(-pedantic)
