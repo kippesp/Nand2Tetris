@@ -1,13 +1,47 @@
-#include <stdint.h>
-#include <stdio.h>
+#ifndef _WIN32
 #include <sys/time.h>
-#include <cassert>
-
-#if 0
-#include <stdlib.h>
 #endif
 
-// const int NUM_PIPS = 9;
+#ifdef _WIN32
+#define _CRT_SECURE_NO_WARNINGS
+#include "Windows.h"
+#endif
+
+#include <cassert>
+#include <stdint.h>
+#include <stdio.h>
+
+#ifdef _WIN32
+// Source:
+// https://stackoverflow.com/questions/10905892/equivalent-of-gettimeday-for-windows
+
+#if 0
+typedef struct timeval {
+  long tv_sec;
+  long tv_usec;
+} timeval_t;
+#endif
+
+int gettimeofday(struct timeval *tp, struct timezone *) {
+  // Note: some broken versions only have 8 trailing zero's, the correct epoch
+  // has 9 trailing zero's This magic number is the number of 100 nanosecond
+  // intervals since January 1, 1601 (UTC) until 00:00:00 January 1, 1970
+  static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
+
+  SYSTEMTIME system_time;
+  FILETIME file_time;
+  uint64_t time;
+
+  GetSystemTime(&system_time);
+  SystemTimeToFileTime(&system_time, &file_time);
+  time = ((uint64_t)file_time.dwLowDateTime);
+  time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+  tp->tv_sec = (long)((time - EPOCH) / 10000000L);
+  tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
+  return 0;
+}
+#endif
 
 struct HackFn {
   struct HackInt {
@@ -17,42 +51,37 @@ struct HackFn {
 
     uint16_t v() const { return value; }
 
-    HackInt operator+(const HackInt& v2) const
-    {
+    HackInt operator+(const HackInt &v2) const {
       return HackInt(this->value + v2.v());
     }
 
-    HackInt operator-(const HackInt& v2) const
-    {
+    HackInt operator-(const HackInt &v2) const {
       return HackInt(this->value - v2.v());
     }
 
-    HackInt operator*(const HackInt& v2) const
-    {
+    HackInt operator*(const HackInt &v2) const {
       return HackInt(this->value * v2.v());
     }
 
-    HackInt operator/(const HackInt& v2) const
-    {
+    HackInt operator/(const HackInt &v2) const {
       return HackInt(this->value / v2.v());
     }
 
-    HackInt mod(const HackInt& v2) const
-    {
+    HackInt mod(const HackInt &v2) const {
       HackInt d = *this / v2;
       return *this - (d * v2);
     }
 
-    HackInt operator%(const HackInt& v2) const { return this->mod(v2); }
+    HackInt operator%(const HackInt &v2) const { return this->mod(v2); }
 
-   private:
+  private:
     uint16_t value;
   };
 
   void set_random_seed(int index, int bias);
   HackInt rand();
 
- private:
+private:
   uint16_t rnd_seed;
   uint16_t random_values[40] = {
       0x3add, 0x2e9b, 0x738d, 0x35f2, 0x584d, 0x2ff5, 0x18a0, 0x42af,
@@ -66,17 +95,16 @@ struct HackFn {
   static const uint16_t R = M % A;
 };
 
-void HackFn::set_random_seed(int index, int bias)
-{
+void HackFn::set_random_seed(int index, int bias) {
   rnd_seed = (random_values[index % 40] + bias) & 0x7fff;
 }
 
-HackFn::HackInt HackFn::rand()
-{
+HackFn::HackInt HackFn::rand() {
   HackFn::HackInt test(A * (rnd_seed % Q) - R * (rnd_seed / Q));
 
-  if (test < 0) { rnd_seed = test + HackFn::HackInt(M); }
-  else {
+  if (test < 0) {
+    rnd_seed = test + HackFn::HackInt(M);
+  } else {
     rnd_seed = test;
   }
   return rnd_seed;
@@ -121,17 +149,13 @@ struct Board {
 
   static const BoardState SOLVED;
 
- private:
+private:
   static const BoardState xor_table[];
 };
 
-void Board::press(BoardState p)
-{
-  state.pips = state.pips ^ p.pips;
-}
+void Board::press(BoardState p) { state.pips = state.pips ^ p.pips; }
 
-void Board::press(int pip)
-{
+void Board::press(int pip) {
   pip--;
   assert(pip < 9 && "Invalid pip number");
   BoardState p = xor_table[pip];
@@ -143,10 +167,7 @@ const Board::BoardState Board::xor_table[] = {
     Board::PRESS_4, Board::PRESS_5, Board::PRESS_6,
     Board::PRESS_7, Board::PRESS_8, Board::PRESS_9};
 
-void Board::print_raw()
-{
-  printf("0x%03x = %d\n", state.pips, state.pips);
-}
+void Board::print_raw() { printf("0x%03x = %d\n", state.pips, state.pips); }
 
 const Board::BoardState Board::PRESS_1 = {{1, 1, 0, 1, 1, 0, 0, 0, 0}};
 const Board::BoardState Board::PRESS_2 = {{1, 1, 1, 0, 0, 0, 0, 0, 0}};
@@ -171,13 +192,11 @@ typedef struct {
 } PerfectChoice;
 
 // Define solution table
-PerfectChoice perfect_choices[0x200] =
-{
+PerfectChoice perfect_choices[0x200] = {
 #include "perfect_moves.h"
 };
 
-void GameState::print()
-{
+void GameState::print() {
   puts("");
   printf("%c %c %c\n", board.state.pip.p1 ? '@' : '.',
          board.state.pip.p2 ? '@' : '.', board.state.pip.p3 ? '@' : '.');
@@ -187,12 +206,12 @@ void GameState::print()
          board.state.pip.p8 ? '@' : '.', board.state.pip.p9 ? '@' : '.');
   printf("             ");
   board.print_raw();
-  printf("             steps to solution: %d\n", perfect_choices[board.state.pips].tree_depth);
+  printf("             steps to solution: %d\n",
+         perfect_choices[board.state.pips].tree_depth);
   puts("----------");
 }
 
-int main(void)
-{
+int main(void) {
   struct timeval timer;
   uint64_t tstart;
   uint64_t tend;
@@ -201,20 +220,10 @@ int main(void)
   gettimeofday(&timer, NULL);
   tstart = timer.tv_sec << 32 | timer.tv_usec;
 
-#if 0
-  FILE* devrandom = fopen("/dev/random", "rb");
-  uint32_t seed;
-  fread(&seed, sizeof(uint32_t), 1, devrandom);
-  srand(seed);
-#endif
-
   // Since Hack doesn't have any clocks or timers, we can get a seed
   // using the delay waiting for the user to enter the difficulty.
   HackFn hack;
   hack.set_random_seed(0, 0);
-#if 0
-  hack.set_random_seed(seed % 40, seed & 0x7fff);
-#endif
 
   const int STEPS_PER_LEVEL_OF_DIFFICULTY = 3;
 
@@ -229,14 +238,14 @@ int main(void)
   tend = timer.tv_sec << 32 | timer.tv_usec;
   hack.set_random_seed((tend - tstart) % 0x7fff, (tend - tstart) % 0x7fff);
 
-  if (level_difficulty == 4) { game.board.state.pips = hack.rand().v() & 0x1ff; }
-  else if (level_difficulty == 5) {
+  if (level_difficulty == 4) {
+    game.board.state.pips = hack.rand().v() & 0x1ff;
+  } else if (level_difficulty == 5) {
     int manual_state;
     printf("Enter state in hex: 0x");
     scanf("%x", &manual_state);
     game.board.state.pips = manual_state & 0x1ff;
-  }
-  else {
+  } else {
     game.board.state.pips = Board::SOLVED.pips;
 
     for (int i = level_difficulty * STEPS_PER_LEVEL_OF_DIFFICULTY,
@@ -260,14 +269,14 @@ int main(void)
     scanf("%d", &pip);
     game.board.press(pip);
 
-    if (pip == 0) break;
+    if (pip == 0)
+      break;
   }
 
   if (game.board.state.pips == Board::SOLVED.pips) {
     game.print();
     puts("solved!");
-  }
-  else {
+  } else {
     puts("done!");
   }
 
