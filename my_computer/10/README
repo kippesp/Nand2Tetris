@@ -1,0 +1,12 @@
+# Jack Front End Compiler (jfcl)
+
+## Usage
+
+    jfcl -h
+    jfcl [-t] FILENAME.jack
+    jfcl DIRECTORY|FILENAME.jack
+
+## Options
+
+    -h  Display available options
+    -t  Display tokenizer output and halt
