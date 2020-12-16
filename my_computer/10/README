@@ -10,3 +10,11 @@
 
     -h  Display available options
     -t  Display tokenizer output and halt
+
+## Overview
+
+    jfcl
+
+    +-----------+      +-----------+
+    | Tokenizer |----->|  Parser   |
+    +-----------+      +-----------+
