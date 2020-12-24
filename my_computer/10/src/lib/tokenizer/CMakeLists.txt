@@ -3,6 +3,7 @@ set(LIBRARY_TARGET_NAME tokenizer)
 set(${LIBRARY_TARGET_NAME}_SRCS
     file_io.cpp
     jack_tokenizer.cpp
+    jack_lexical_elements.cpp
 
     file_io.h
     jack_tokenizer.h

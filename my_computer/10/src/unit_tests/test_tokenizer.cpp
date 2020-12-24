@@ -124,7 +124,7 @@ SCENARIO("Verify integers", "[integers]")
 
     for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_INTEGER);
+      REQUIRE((*tokens)[i].type == TokenType_t::J_INTEGER_CONSTANT);
       REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
       REQUIRE((*tokens)[i].value_str == expected_parsed_integers[i]);
     }
@@ -142,7 +142,7 @@ SCENARIO("Verify integers", "[integers]")
 
     for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_INTEGER);
+      REQUIRE((*tokens)[i].type == TokenType_t::J_INTEGER_CONSTANT);
       REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
       REQUIRE((*tokens)[i].value_str == expected_parsed_integers[i]);
     }
@@ -157,13 +157,13 @@ SCENARIO("Verify integers", "[integers]")
 
     REQUIRE(tokens->size() == 6);
 
-    REQUIRE((*tokens)[0].type == TokenType_t::J_INTEGER);
+    REQUIRE((*tokens)[0].type == TokenType_t::J_INTEGER_CONSTANT);
     REQUIRE((*tokens)[0].value_str == "10");
 
     REQUIRE((*tokens)[1].type == TokenType_t::J_SYMBOL);
     REQUIRE((*tokens)[1].value_enum == TokenValue_t::J_PLUS);
 
-    REQUIRE((*tokens)[2].type == TokenType_t::J_INTEGER);
+    REQUIRE((*tokens)[2].type == TokenType_t::J_INTEGER_CONSTANT);
     REQUIRE((*tokens)[2].value_str == "5");
 
     REQUIRE((*tokens)[3].type == TokenType_t::J_SYMBOL);
@@ -172,7 +172,7 @@ SCENARIO("Verify integers", "[integers]")
     REQUIRE((*tokens)[4].type == TokenType_t::J_SYMBOL);
     REQUIRE((*tokens)[4].value_enum == TokenValue_t::J_MINUS);
 
-    REQUIRE((*tokens)[5].type == TokenType_t::J_INTEGER);
+    REQUIRE((*tokens)[5].type == TokenType_t::J_INTEGER_CONSTANT);
     REQUIRE((*tokens)[5].value_str == "2");
   }
 }
@@ -274,7 +274,7 @@ SCENARIO("Verify string", "[strings]")
 
     for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_STRING);
+      REQUIRE((*tokens)[i].type == TokenType_t::J_STRING_CONSTANT);
       REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
       REQUIRE((*tokens)[i].value_str == expected_parsed_identifiers[i]);
     }

@@ -34,6 +34,14 @@ CliArgs::CliArgs(int argc, const char* argv[])
       i++;
       continue;
     }
+
+    // -T - stop after tokenizer in xml and output its values
+    if ((argv[i][0] == '-') && (argv[i][1] == 'T') && (argv[i][2] == '\0'))
+    {
+      halt_after_tokenizer_xml = true;
+      i++;
+      continue;
+    }
   }
 
   struct stat argStat;
@@ -180,6 +188,10 @@ void CliArgs::show_help()
   std::cout << "\n  ";
   std::cout << setw(24) << left << "-t";
   std::cout << "Display tokenizer output and halt";
+
+  std::cout << "\n  ";
+  std::cout << setw(24) << left << "-T";
+  std::cout << "Display tokenizer output in xml and halt";
 
   std::cout << std::endl;
 

@@ -6,8 +6,8 @@ typedef enum class TokenType_s {
 
   J_KEYWORD,
   J_SYMBOL,
-  J_INTEGER,
-  J_STRING,
+  J_INTEGER_CONSTANT,
+  J_STRING_CONSTANT,
   J_IDENTIFIER,
 } TokenType_t;
 
@@ -74,4 +74,9 @@ struct JackToken {
   TokenType_t type{TokenType_t::J_UNDEFINED};
   TokenValue_t value_enum{TokenValue_t::J_UNDEFINED};
   std::string value_str{"UNDEFINED"};  // for integer, string, comments tokens
+
+  static std::string to_string(TokenType_t);
+
+  // Used to generate Nand2Tetris xml comparison file
+  std::string to_xml();
 };

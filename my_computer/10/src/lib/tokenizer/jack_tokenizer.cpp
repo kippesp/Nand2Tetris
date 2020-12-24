@@ -3,7 +3,7 @@
 #include "jack_tokenizer.h"
 
 #include <cassert>
-#include <iostream>
+#include <sstream>
 #include <string>
 
 using namespace std;
@@ -75,7 +75,7 @@ JackToken JackTokenizer::get_token()
   {
     token = get_string_token(ch);
 
-    if (token.type == TokenType_t::J_STRING) return token;
+    if (token.type == TokenType_t::J_STRING_CONSTANT) return token;
 
     // An unterminated " is malformed as is a string containing a newline
     assert(token.type == TokenType_t::J_UNDEFINED);
@@ -87,7 +87,7 @@ JackToken JackTokenizer::get_token()
   {
     token = get_integer_token(ch);
 
-    if (token.type == TokenType_t::J_INTEGER) return token;
+    if (token.type == TokenType_t::J_INTEGER_CONSTANT) return token;
   }
 
   // PARSE FOR JACK IDENTIFIER OR KEYWORD
@@ -119,43 +119,6 @@ unique_ptr<std::vector<JackToken>> JackTokenizer::parse_tokens()
   }
 
   return token_vect;
-}
-
-ostream& operator<<(ostream& os, const JackToken& rhs)
-{
-  os << "token_name: ";
-
-  switch (rhs.type)
-  {
-    case TokenType_t::J_UNDEFINED:
-      os << "UNDEFINED";
-      break;
-    case TokenType_t::J_INTERNAL:
-      os << "INTERNAL";
-      break;
-    case TokenType_t::J_KEYWORD:
-      os << "KEYWORD";
-      break;
-    case TokenType_t::J_SYMBOL:
-      os << "SYMBOL";
-      break;
-    case TokenType_t::J_INTEGER:
-      os << "INTEGER";
-      break;
-    case TokenType_t::J_STRING:
-      os << "STRING";
-      break;
-    case TokenType_t::J_IDENTIFIER:
-      os << "IDENTIFIER";
-      break;
-  }
-
-  os << endl;
-
-  os << "token_value_str: ";
-  os << "<<< " << rhs.value_str << " >>>" << endl;
-
-  return os;
 }
 
 JackToken JackTokenizer::get_line_comment_token(char ch)
@@ -246,7 +209,8 @@ JackToken JackTokenizer::get_string_token(char ch)
   {
     ch = reader.read();
 
-    return JackToken(TokenType_t::J_STRING, TokenValue_t::J_NON_ENUM, s.str());
+    return JackToken(TokenType_t::J_STRING_CONSTANT, TokenValue_t::J_NON_ENUM,
+                     s.str());
   }
 
   return JackToken(TokenType_t::J_UNDEFINED, TokenValue_t::J_NON_ENUM, s.str());
@@ -274,7 +238,8 @@ JackToken JackTokenizer::get_integer_token(char ch)
     s << ch;
   }
 
-  return JackToken(TokenType_t::J_INTEGER, TokenValue_t::J_NON_ENUM, s.str());
+  return JackToken(TokenType_t::J_INTEGER_CONSTANT, TokenValue_t::J_NON_ENUM,
+                   s.str());
 }
 
 JackToken JackTokenizer::get_jack_keyword_or_identifier_token(char ch)

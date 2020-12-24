@@ -11,6 +11,7 @@ struct CliArgs {
   static void show_help();
 
   bool halt_after_tokenizer{false};
+  bool halt_after_tokenizer_xml{false};
 
 private:
   std::list<const std::string> filelist;
