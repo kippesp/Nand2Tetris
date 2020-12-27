@@ -112,10 +112,11 @@ unique_ptr<std::vector<JackToken>> JackTokenizer::parse_tokens()
 {
   auto token_vect = make_unique<vector<JackToken>>();
 
-  for (auto token = get_token(); token.value_enum != TokenValue_t::J_EOF;
-       token = get_token())
+  for (bool done = false; !done;)
   {
+    auto token = get_token();
     token_vect->push_back(token);
+    done = (token.value_enum == TokenValue_t::J_EOF);
   }
 
   return token_vect;

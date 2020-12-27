@@ -187,7 +187,7 @@ void CliArgs::show_help()
 
   std::cout << "\n  ";
   std::cout << setw(24) << left << "-t";
-  std::cout << "Display tokenizer output and halt";
+  std::cout << "Display tokenizer output and halt (includes internal tokens)";
 
   std::cout << "\n  ";
   std::cout << setw(24) << left << "-T";

@@ -12,7 +12,33 @@ using namespace std;
 // Tests for Jack Symbols
 /////////////////////////////////////////////////////////////////////////////
 
-SCENARIO("Verify Jack symbols", "[symbols]")
+SCENARIO("Tokenizer baseline checks", "[tokenize_baseline]")
+{
+  test::MockReader R;
+
+  SECTION("tokenizer")
+  {
+    strcpy(R.buffer, "+");
+    JackTokenizer T(R);
+
+    auto expected_parsed_tokens = vector{
+        TokenValue_t::J_PLUS,  // '+'
+        TokenValue_t::J_EOF,
+    };
+
+    auto tokens = T.parse_tokens();
+
+    REQUIRE(tokens->size() == expected_parsed_tokens.size());
+
+    REQUIRE((*tokens)[0].type == TokenType_t::J_SYMBOL);
+    REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_PLUS);
+
+    REQUIRE((*tokens)[1].type == TokenType_t::J_INTERNAL);
+    REQUIRE((*tokens)[1].value_enum == TokenValue_t::J_EOF);
+  }
+}
+
+SCENARIO("Tokenize Jack symbols", "[tokenize_symbols]")
 {
   test::MockReader R;
   strcpy(R.buffer, " { } () [ ] .  , ; + - * / & | < > = ~ ");
@@ -38,6 +64,7 @@ SCENARIO("Verify Jack symbols", "[symbols]")
       TokenValue_t::J_GREATER_THAN,       // '>'
       TokenValue_t::J_EQUAL,              // '='
       TokenValue_t::J_TILDE,              // '~'
+      TokenValue_t::J_EOF,
   };
 
   SECTION("tokenizer")
@@ -46,7 +73,7 @@ SCENARIO("Verify Jack symbols", "[symbols]")
 
     REQUIRE(tokens->size() == expected_parsed_tokens.size());
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
+    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
     {
       REQUIRE((*tokens)[i].type == TokenType_t::J_SYMBOL);
       REQUIRE((*tokens)[i].value_enum == expected_parsed_tokens[i]);
@@ -58,7 +85,7 @@ SCENARIO("Verify Jack symbols", "[symbols]")
 // Tests for Jack Keywords
 /////////////////////////////////////////////////////////////////////////////
 
-SCENARIO("Verify Jack keywords", "[keywords]")
+SCENARIO("Tokenize Jack keywords", "[tokenize_keywords]")
 {
   test::MockReader R;
   strcpy(
@@ -91,6 +118,7 @@ SCENARIO("Verify Jack keywords", "[keywords]")
       TokenValue_t::J_VAR,
       TokenValue_t::J_INT,
       TokenValue_t::J_DO,
+      TokenValue_t::J_EOF,
       // clang-format on
   };
 
@@ -100,7 +128,7 @@ SCENARIO("Verify Jack keywords", "[keywords]")
 
     REQUIRE(tokens->size() == expected_parsed_tokens.size());
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
+    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
     {
       REQUIRE((*tokens)[i].type == TokenType_t::J_KEYWORD);
       REQUIRE((*tokens)[i].value_enum == expected_parsed_tokens[i]);
@@ -108,7 +136,7 @@ SCENARIO("Verify Jack keywords", "[keywords]")
   }
 }
 
-SCENARIO("Verify integers", "[integers]")
+SCENARIO("Tokenize integers", "[tokenize_integers]")
 {
   test::MockReader R;
 
@@ -120,9 +148,9 @@ SCENARIO("Verify integers", "[integers]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_integers.size());
+    REQUIRE(tokens->size() == expected_parsed_integers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
+    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
     {
       REQUIRE((*tokens)[i].type == TokenType_t::J_INTEGER_CONSTANT);
       REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
@@ -138,9 +166,9 @@ SCENARIO("Verify integers", "[integers]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_integers.size());
+    REQUIRE(tokens->size() == expected_parsed_integers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
+    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
     {
       REQUIRE((*tokens)[i].type == TokenType_t::J_INTEGER_CONSTANT);
       REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
@@ -155,7 +183,7 @@ SCENARIO("Verify integers", "[integers]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 6);
+    REQUIRE(tokens->size() == 7);
 
     REQUIRE((*tokens)[0].type == TokenType_t::J_INTEGER_CONSTANT);
     REQUIRE((*tokens)[0].value_str == "10");
@@ -174,10 +202,14 @@ SCENARIO("Verify integers", "[integers]")
 
     REQUIRE((*tokens)[5].type == TokenType_t::J_INTEGER_CONSTANT);
     REQUIRE((*tokens)[5].value_str == "2");
+
+    REQUIRE((*tokens)[6].type == TokenType_t::J_INTERNAL);
+    REQUIRE((*tokens)[6].value_enum == TokenValue_t::J_EOF);
+    REQUIRE((*tokens)[6].value_str == "( eof )");
   }
 }
 
-SCENARIO("Verify identifiers", "[identifiers]")
+SCENARIO("Tokenize identifiers", "[tokenize_identifiers]")
 {
   test::MockReader R;
 
@@ -190,9 +222,9 @@ SCENARIO("Verify identifiers", "[identifiers]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size());
+    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
+    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
     {
       REQUIRE((*tokens)[i].type == TokenType_t::J_IDENTIFIER);
       REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
@@ -208,9 +240,9 @@ SCENARIO("Verify identifiers", "[identifiers]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size());
+    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
+    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
     {
       REQUIRE((*tokens)[i].type == TokenType_t::J_IDENTIFIER);
       REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
@@ -227,9 +259,9 @@ SCENARIO("Verify identifiers", "[identifiers]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size());
+    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
+    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
     {
       REQUIRE((*tokens)[i].type == TokenType_t::J_IDENTIFIER);
       REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
@@ -244,7 +276,7 @@ SCENARIO("Verify identifiers", "[identifiers]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 2);
+    REQUIRE(tokens->size() == 3);
 
     REQUIRE((*tokens)[0].type == TokenType_t::J_IDENTIFIER);
     REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_NON_ENUM);
@@ -255,7 +287,7 @@ SCENARIO("Verify identifiers", "[identifiers]")
   }
 }
 
-SCENARIO("Verify string", "[strings]")
+SCENARIO("Tokenize string", "[tokenize_strings]")
 {
   test::MockReader R;
 
@@ -270,9 +302,9 @@ SCENARIO("Verify string", "[strings]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size());
+    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
+    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
     {
       REQUIRE((*tokens)[i].type == TokenType_t::J_STRING_CONSTANT);
       REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
@@ -281,7 +313,7 @@ SCENARIO("Verify string", "[strings]")
   }
 }
 
-SCENARIO("Verify comments", "[comments]")
+SCENARIO("Tokenize comments", "[tokenize_comments]")
 {
   test::MockReader R;
 
@@ -297,9 +329,9 @@ SCENARIO("Verify comments", "[comments]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size());
+    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
+    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
     {
       REQUIRE((*tokens)[i].type == TokenType_t::J_INTERNAL);
       REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_COMMENT);
@@ -314,7 +346,7 @@ SCENARIO("Verify comments", "[comments]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 3);
+    REQUIRE(tokens->size() == 4);
 
     REQUIRE((*tokens)[0].type == TokenType_t::J_KEYWORD);
     REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_CLASS);
@@ -340,9 +372,9 @@ SCENARIO("Verify comments", "[comments]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size());
+    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size(); i++)
+    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
     {
       REQUIRE((*tokens)[i].type == TokenType_t::J_INTERNAL);
       REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_COMMENT);
@@ -351,7 +383,7 @@ SCENARIO("Verify comments", "[comments]")
   }
 }
 
-SCENARIO("Verify lexical issues", "[lexical issues]")
+SCENARIO("Tokenizer lexical issues", "[tokenizer_lexical_issues]")
 {
   test::MockReader R;
 
@@ -362,11 +394,15 @@ SCENARIO("Verify lexical issues", "[lexical issues]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 1);
+    REQUIRE(tokens->size() == 2);
 
     REQUIRE((*tokens)[0].type == TokenType_t::J_UNDEFINED);
     REQUIRE((*tokens)[0].value_str == "/* comment");
     REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_NON_ENUM);
+
+    REQUIRE((*tokens)[1].type == TokenType_t::J_INTERNAL);
+    REQUIRE((*tokens)[1].value_enum == TokenValue_t::J_EOF);
+    REQUIRE((*tokens)[1].value_str == "( eof )");
   }
 
   SECTION("unterminated string")
@@ -376,11 +412,15 @@ SCENARIO("Verify lexical issues", "[lexical issues]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 1);
+    REQUIRE(tokens->size() == 2);
 
     REQUIRE((*tokens)[0].type == TokenType_t::J_UNDEFINED);
     REQUIRE((*tokens)[0].value_str == "string ");
     REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_NON_ENUM);
+
+    REQUIRE((*tokens)[1].type == TokenType_t::J_INTERNAL);
+    REQUIRE((*tokens)[1].value_enum == TokenValue_t::J_EOF);
+    REQUIRE((*tokens)[1].value_str == "( eof )");
   }
 
   SECTION("empty file")
@@ -390,6 +430,10 @@ SCENARIO("Verify lexical issues", "[lexical issues]")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 0);
+    REQUIRE(tokens->size() == 1);
+
+    REQUIRE((*tokens)[0].type == TokenType_t::J_INTERNAL);
+    REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_EOF);
+    REQUIRE((*tokens)[0].value_str == "( eof )");
   }
 }
