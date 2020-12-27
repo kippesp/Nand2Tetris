@@ -3,8 +3,8 @@
 #include <cassert>
 #include <iostream>
 #include <locale>
-#include <string>
 #include <sstream>
+#include <string>
 
 using namespace std;
 
@@ -25,28 +25,18 @@ string JackToken::to_string(TokenType_t t)
   {
     case TokenType_t::J_UNDEFINED:
       return "UNDEFINED";
-      break;
     case TokenType_t::J_INTERNAL:
       return "INTERNAL";
-      break;
     case TokenType_t::J_KEYWORD:
       return "KEYWORD";
-      break;
     case TokenType_t::J_SYMBOL:
       return "SYMBOL";
-      break;
     case TokenType_t::J_INTEGER_CONSTANT:
       return "INTEGER_CONSTANT";
-      break;
     case TokenType_t::J_STRING_CONSTANT:
       return "STRING_CONSTANT";
-      break;
     case TokenType_t::J_IDENTIFIER:
       return "IDENTIFIER";
-      break;
-    default:
-      assert("unhandled case");
-      return "*** unknown token ***";
   }
 }
 
@@ -100,8 +90,7 @@ string JackToken::to_xml()
         skip++;
       }
 
-      if (c == ' ')
-        skip++;
+      if (c == ' ') skip++;
     }
   }
   else

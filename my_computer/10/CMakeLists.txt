@@ -47,7 +47,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 #set(CMAKE_BUILD_RPATH "/home/kippesp/usr/opt/llvm-10.0.x/lib")
 
-add_compile_options(-Wall -Wextra)
+add_compile_options(-Wall -Wextra -Wimplicit-fallthrough)
 #add_compile_options(-stdlib=libc++)
 
 # cmake 3.13
@@ -56,8 +56,25 @@ add_compile_options(-Wall -Wextra)
 # Available in newer clang
 #add_compile_options(-Wno-c99-extensions)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    #add_compile_options(-Weverything)
+    #add_compile_options(-Wno-c++98-compat)
+    #add_compile_options(-Wno-c++98-compat-pedantic)
+    #add_compile_options(-Wno-padded)
+
+    add_compile_options(-Wshorten-64-to-32)
+    add_compile_options(-Wextra-semi)
+    add_compile_options(-Wzero-as-null-pointer-constant)
+    add_compile_options(-Wshadow-uncaptured-local)
+    add_compile_options(-Wcovered-switch-default)
+    add_compile_options(-Wsign-conversion)
+    add_compile_options(-Wcovered-switch-default)
+    add_compile_options(-Wshadow)
+    add_compile_options(-Wshadow-field)
+endif()
+
 if (NOT MSVC)
-  add_compile_options(-pedantic)
+    add_compile_options(-Wpedantic)
 endif()
 
 add_subdirectory(src)

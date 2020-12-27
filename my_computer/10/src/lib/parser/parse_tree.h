@@ -1,4 +1,7 @@
-#include <string>
+#include <memory>
+#include <vector>
+
+#include "tokenizer/jack_tokenizer.h"
 
 /*
 clang-format off
@@ -41,8 +44,7 @@ Expressions:
                        <subroutine-call> | "(" <expression> ")" | <unary-op> <term>
 <subroutine-call>  ::= <subroutine-name> "(" <expression-list> ")" |
                        (<class-name> | <var-name>) "." <subroutine-name> "(" <expression-list> ")"
-<expression-list>  ::= {<expression
-                       {"," <expression>}*}?
+<expression-list>  ::= {<expression {"," <expression>}*}?
 <op>               ::= "+" | "-" | "*" | "/" | "&" | "|" | "<" | ">" | "="
 <unary-op>         ::= "-" | "~"
 <keyword-constant> ::= "true" | "false" | "null" | "this"
@@ -50,33 +52,126 @@ Expressions:
 clang-format on
 */
 
-#if 0
-typedef enum class TreeNodeType_s {
-  N_CLASS,
-} TreeNodeType_t;
-#endif
+typedef enum class ParseTreeNodeType_s {
+  P_UNDEFINED,
+  P_ARRAY_VAR,
+  P_COMMA,
+  P_EXPRESSION,
+  P_EXPRESSION_LIST,
+  P_INTEGER_CONSTANT,
+  P_KEYWORD_CONSTANT,
+  P_LEFT_BRACKET,
+  P_LEFT_PARENTHESIS,
+  P_OP,
+  P_RIGHT_BRACKET,
+  P_RIGHT_PARENTHESIS,
+  P_SCALAR_VAR,
+  P_STRING_CONSTANT,
+  P_SUBROUTINE_CALL,
+  P_SUBROUTINE_NAME,
+  P_TERM,
+  P_UNARY_OP,
+} ParseTreeNodeType_t;
 
-class Node {
+class ParseTreeNode : public std::enable_shared_from_this<ParseTreeNode> {
+  // class ParseTreeNode {
 public:
-  Node() = delete;
-  Node(const Node&) = delete;
-  Node& operator=(const Node&) = delete;
+  ParseTreeNode() = delete;
+  ParseTreeNode(const ParseTreeNode&) = delete;
+  ParseTreeNode& operator=(const ParseTreeNode&) = delete;
 
-  const std::string name;
+  virtual ~ParseTreeNode() = default;
+
+  const ParseTreeNodeType_t type{ParseTreeNodeType_t::P_UNDEFINED};
+
+  static std::string to_string(ParseTreeNodeType_t);
+
+  friend std::ostream& operator<<(std::ostream&, const ParseTreeNode&);
+
+protected:
+  ParseTreeNode(ParseTreeNodeType_t type) : type(type) {}
 
 private:
-  int nesting_level{0};
-
-  // children_nodes
+  std::shared_ptr<ParseTreeNode> parent{nullptr};
 };
 
-#include "tokenizer/jack_tokenizer.h"
+class ParseTreeTerminal;
 
-class Class : public Node {
+class ParseTreeNonTerminal : public ParseTreeNode {
 public:
-  Class() = delete;
-  Class(const Class&) = delete;
-  Class& operator=(const Class&) = delete;
+  ParseTreeNonTerminal() = delete;
+  ParseTreeNonTerminal(const ParseTreeNonTerminal&) = delete;
+  ParseTreeNonTerminal& operator=(const ParseTreeNonTerminal&) = delete;
 
-  Class(std::unique_ptr<std::vector<JackToken>>);
+  ParseTreeNonTerminal(ParseTreeNodeType_t ty)
+      : ParseTreeNode(ty),
+        child_nodes(
+            std::make_unique<std::vector<std::shared_ptr<ParseTreeNode>>>())
+  {
+  }
+
+  // Create a non-terminal node
+  std::shared_ptr<ParseTreeNode> create_child(
+      std::shared_ptr<ParseTreeNonTerminal>);
+
+  // Create a terminal node
+  std::shared_ptr<ParseTreeNode> create_child(ParseTreeNodeType_t, JackToken&);
+  std::shared_ptr<ParseTreeNode> create_child(
+      std::shared_ptr<ParseTreeTerminal>);
+
+  size_t num_child_nodes() const { return child_nodes->size(); }
+
+  std::vector<std::shared_ptr<ParseTreeNode>> get_child_nodes() const
+  {
+    return *child_nodes;
+  }
+
+private:
+  std::unique_ptr<std::vector<std::shared_ptr<ParseTreeNode>>> child_nodes{
+      nullptr};
+};
+
+class ParseTreeTerminal : public ParseTreeNode {
+public:
+  ParseTreeTerminal() = delete;
+  ParseTreeTerminal(const ParseTreeTerminal&) = delete;
+  ParseTreeTerminal& operator=(const ParseTreeTerminal&) = delete;
+
+  ParseTreeTerminal(ParseTreeNodeType_t ty, JackToken& token)
+      : ParseTreeNode(ty), token(token)
+  {
+  }
+
+  const JackToken token;
+
+private:
+};
+
+class ParseTree {
+public:
+  ParseTree() = delete;
+  ParseTree(const ParseTree&) = delete;
+  ParseTree& operator=(const ParseTree&) = delete;
+
+  ParseTree(ParseTreeNodeType_t type,
+            std::unique_ptr<std::vector<JackToken>>& tokens)
+      : root(std::make_shared<ParseTreeNonTerminal>(type)), tokens(tokens)
+  {
+  }
+
+  std::shared_ptr<ParseTreeNonTerminal> parse_expression();
+  std::shared_ptr<ParseTreeNonTerminal> parse_expression_list();
+  std::shared_ptr<ParseTreeNonTerminal> parse_term();
+  std::shared_ptr<ParseTreeTerminal> parse_op();
+  std::shared_ptr<ParseTreeNonTerminal> parse_subroutine_call();
+
+  static std::unique_ptr<ParseTree> build_parse_tree(
+      std::unique_ptr<std::vector<JackToken>>&);
+
+  const std::shared_ptr<ParseTreeNonTerminal>& get_root() { return root; }
+
+private:
+  const std::shared_ptr<ParseTreeNonTerminal> root{nullptr};
+  const std::unique_ptr<std::vector<JackToken>>& tokens;
+  size_t parse_cursor{0};
 };

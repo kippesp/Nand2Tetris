@@ -75,8 +75,9 @@ struct JackToken {
   TokenValue_t value_enum{TokenValue_t::J_UNDEFINED};
   std::string value_str{"UNDEFINED"};  // for integer, string, comments tokens
 
+  // Convert to text output
   static std::string to_string(TokenType_t);
 
-  // Used to generate Nand2Tetris xml comparison file
+  // Convert to text xml output for comparison files
   std::string to_xml();
 };

@@ -10,9 +10,12 @@ add_library(${JFCL_TEST_PROJECT_NAME}_main STATIC
 )
 
 add_executable(${JFCL_TEST_PROJECT_NAME}
-    test_tokenizer.cpp
-    mock_reader.h
     catch.hpp
+    mock_reader.h
+    test_ast.cpp
+    test_parser.cpp
+    test_parse_tree.cpp
+    test_tokenizer.cpp
 )
 
 target_include_directories(${JFCL_TEST_PROJECT_NAME} PRIVATE ../lib)

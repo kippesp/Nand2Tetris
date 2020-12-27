@@ -12,7 +12,7 @@ using namespace std;
 // Tests for Jack Symbols
 /////////////////////////////////////////////////////////////////////////////
 
-SCENARIO("Tokenizer baseline checks", "[tokenize_baseline]")
+SCENARIO("Tokenizer baseline checks")
 {
   test::MockReader R;
 
@@ -38,7 +38,7 @@ SCENARIO("Tokenizer baseline checks", "[tokenize_baseline]")
   }
 }
 
-SCENARIO("Tokenize Jack symbols", "[tokenize_symbols]")
+SCENARIO("Tokenize Jack symbols")
 {
   test::MockReader R;
   strcpy(R.buffer, " { } () [ ] .  , ; + - * / & | < > = ~ ");
@@ -85,7 +85,7 @@ SCENARIO("Tokenize Jack symbols", "[tokenize_symbols]")
 // Tests for Jack Keywords
 /////////////////////////////////////////////////////////////////////////////
 
-SCENARIO("Tokenize Jack keywords", "[tokenize_keywords]")
+SCENARIO("Tokenize Jack keywords")
 {
   test::MockReader R;
   strcpy(
@@ -136,7 +136,7 @@ SCENARIO("Tokenize Jack keywords", "[tokenize_keywords]")
   }
 }
 
-SCENARIO("Tokenize integers", "[tokenize_integers]")
+SCENARIO("Tokenize integers")
 {
   test::MockReader R;
 
@@ -209,7 +209,7 @@ SCENARIO("Tokenize integers", "[tokenize_integers]")
   }
 }
 
-SCENARIO("Tokenize identifiers", "[tokenize_identifiers]")
+SCENARIO("Tokenize identifiers")
 {
   test::MockReader R;
 
@@ -287,7 +287,7 @@ SCENARIO("Tokenize identifiers", "[tokenize_identifiers]")
   }
 }
 
-SCENARIO("Tokenize string", "[tokenize_strings]")
+SCENARIO("Tokenize string")
 {
   test::MockReader R;
 
@@ -313,7 +313,7 @@ SCENARIO("Tokenize string", "[tokenize_strings]")
   }
 }
 
-SCENARIO("Tokenize comments", "[tokenize_comments]")
+SCENARIO("Tokenize comments")
 {
   test::MockReader R;
 
@@ -383,7 +383,7 @@ SCENARIO("Tokenize comments", "[tokenize_comments]")
   }
 }
 
-SCENARIO("Tokenizer lexical issues", "[tokenizer_lexical_issues]")
+SCENARIO("Tokenizer lexical issues")
 {
   test::MockReader R;
 

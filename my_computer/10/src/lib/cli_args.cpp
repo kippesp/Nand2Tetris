@@ -91,7 +91,7 @@ CliArgs::CliArgs(int argc, const char* argv[])
   {
     DIR* dir = opendir(argv[i]);
 
-    if (dir == NULL)
+    if (dir == nullptr)
     {
       std::cerr << "Unable to read files in directory." << std::endl;
       exit(-1);
@@ -103,7 +103,7 @@ CliArgs::CliArgs(int argc, const char* argv[])
 
       dirEntry = readdir(dir);
 
-      if (dirEntry == NULL)
+      if (dirEntry == nullptr)
       {
         if (errno != 0)
         {

@@ -40,7 +40,7 @@ private:
     ch |= 0x20;
     r |= (ch >= 'a') && (ch <= 'z');
     return r;
-  };
+  }
 
   Reader& reader;
 };

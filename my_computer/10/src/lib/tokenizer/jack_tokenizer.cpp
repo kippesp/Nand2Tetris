@@ -128,8 +128,8 @@ JackToken JackTokenizer::get_line_comment_token(char ch)
 
   assert((ch == '/') && (reader.peek() == '/'));
 
-  auto valid_lcomment_char = [](char ch) {
-    return (ch != 0x0a) && (ch != 0x0d) && (ch != 0x00);
+  auto valid_lcomment_char = [](char c) {
+    return (c != 0x0a) && (c != 0x0d) && (c != 0x00);
   };
 
   stringstream s;
@@ -151,8 +151,8 @@ JackToken JackTokenizer::get_block_comment_token(char ch)
 
   assert((ch == '/') && (reader.peek() == '*'));
 
-  auto valid_inner_bcomment_char = [&](char ch) {
-    return (!((ch == '*') && (reader.peek() == '/')) && (ch != '\0'));
+  auto valid_inner_bcomment_char = [&](char c) {
+    return (!((c == '*') && (reader.peek() == '/')) && (c != '\0'));
   };
 
   stringstream s;
@@ -187,8 +187,8 @@ JackToken JackTokenizer::get_string_token(char ch)
   // implementation will restrict this to a more reasonable ASCII minus
   // newline, double quote, and null.
 
-  auto valid_string_char = [](char ch) {
-    return (ch != '\n') && (ch != '\0') && (ch != '"');
+  auto valid_string_char = [](char c) {
+    return (c != '\n') && (c != '\0') && (c != '"');
   };
 
   assert(ch == '"');
@@ -219,7 +219,7 @@ JackToken JackTokenizer::get_string_token(char ch)
 
 JackToken JackTokenizer::get_integer_token(char ch)
 {
-  auto valid_integer_char = [](char ch) { return (ch >= '0') && (ch <= '9'); };
+  auto valid_integer_char = [](char c) { return (c >= '0') && (c <= '9'); };
 
   JackToken token;
 
@@ -248,12 +248,12 @@ JackToken JackTokenizer::get_jack_keyword_or_identifier_token(char ch)
   // Since keywords can be thought of as a subset of identifiers, keywords
   // will be checked for after identifying any IDENTIFIER U KEYWORD strings.
 
-  auto valid_identifier_char = [](char ch) {
+  auto valid_identifier_char = [](char c) {
     bool r = false;
-    r |= (ch == '_');
-    r |= (ch >= '0') && (ch <= '9');
-    ch |= 0x20;
-    r |= (ch >= 'a') && (ch <= 'z');
+    r |= (c == '_');
+    r |= (c >= '0') && (c <= '9');
+    c |= 0x20;
+    r |= (c >= 'a') && (c <= 'z');
     return r;
   };
 
