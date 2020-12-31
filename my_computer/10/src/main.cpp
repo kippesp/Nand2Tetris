@@ -28,7 +28,8 @@ int main(int argc, const char* argv[])
   CliArgs cliargs(argc, argv);
 
   if ((cliargs.inputlist().size() > 1) &&
-      ((cliargs.halt_after_tokenizer || cliargs.halt_after_tokenizer_xml)))
+      ((cliargs.halt_after_tokenizer ||
+        cliargs.halt_after_tokenizer_s_expression)))
   {
     cout << "Tokenizer output with multiple files not supported." << endl;
     return 1;
@@ -52,18 +53,18 @@ int main(int argc, const char* argv[])
       return 0;
     }
 
-    if (cliargs.halt_after_tokenizer_xml)
+    if (cliargs.halt_after_tokenizer_s_expression)
     {
-      cout << "<tokens>" << endl;
+      cout << "(TOKENS" << endl;
 
       for (auto& token : *tokens)
       {
         if (token.type == TokenType_t::J_INTERNAL) continue;
 
-        cout << token.to_xml() << endl;
+        cout << token.to_s_expression() << endl;
       }
 
-      cout << "</tokens>" << endl;
+      cout << ")" << endl;
 
       return 0;
     }

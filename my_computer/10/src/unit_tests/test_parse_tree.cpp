@@ -188,9 +188,9 @@ SCENARIO("Parse tree simple terms")
     stringstream ss;
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
-            "(P_TERM (P_ARRAY_VAR myvar)(P_LEFT_BRACKET left_bracket( [ ))"
+            "(P_TERM (P_ARRAY_VAR myvar)(P_LEFT_BRACKET <left_bracket>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
-            "(P_RIGHT_BRACKET right_bracket( ] )))");
+            "(P_RIGHT_BRACKET <right_bracket>))");
   }
 
   SECTION("grouped expresson term")
@@ -218,10 +218,10 @@ SCENARIO("Parse tree simple terms")
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
             "(P_EXPRESSION "
-            "(P_TERM (P_LEFT_PARENTHESIS left_parenthesis( ( ))"
+            "(P_TERM (P_LEFT_PARENTHESIS <left_parenthesis>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1))"
-            "(P_OP plus( + ))(P_TERM (P_INTEGER_CONSTANT 1)))"
-            "(P_RIGHT_PARENTHESIS right_parenthesis( ) ))))");
+            "(P_OP <plus>)(P_TERM (P_INTEGER_CONSTANT 1)))"
+            "(P_RIGHT_PARENTHESIS <right_parenthesis>)))");
   }
 
   SECTION("grouped unary expresson term")
@@ -246,9 +246,9 @@ SCENARIO("Parse tree simple terms")
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
             "(P_EXPRESSION "
-            "(P_TERM (P_LEFT_PARENTHESIS left_parenthesis( ( ))"
+            "(P_TERM (P_LEFT_PARENTHESIS <left_parenthesis>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
-            "(P_RIGHT_PARENTHESIS right_parenthesis( ) ))))");
+            "(P_RIGHT_PARENTHESIS <right_parenthesis>)))");
   }
 
   SECTION("unary op - term")
@@ -270,7 +270,7 @@ SCENARIO("Parse tree simple terms")
     stringstream ss;
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
-            "(P_TERM (P_UNARY_OP minus( - ))(P_TERM (P_INTEGER_CONSTANT 1)))");
+            "(P_TERM (P_UNARY_OP <minus>)(P_TERM (P_INTEGER_CONSTANT 1)))");
   }
 
   SECTION("unary op ~ term")
@@ -292,7 +292,7 @@ SCENARIO("Parse tree simple terms")
     stringstream ss;
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
-            "(P_TERM (P_UNARY_OP tilde( ~ ))(P_TERM (P_INTEGER_CONSTANT 1)))");
+            "(P_TERM (P_UNARY_OP <tilde>)(P_TERM (P_INTEGER_CONSTANT 1)))");
   }
 }
 
@@ -343,7 +343,7 @@ SCENARIO("Parse tree expressions")
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
             "(P_EXPRESSION "
-            "(P_TERM (P_KEYWORD_CONSTANT TRUE))(P_OP plus( + ))"
+            "(P_TERM (P_KEYWORD_CONSTANT TRUE))(P_OP <plus>)"
             "(P_TERM (P_KEYWORD_CONSTANT FALSE)))");
   }
 
@@ -370,9 +370,9 @@ SCENARIO("Parse tree expressions")
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
             "(P_EXPRESSION "
-            "(P_TERM (P_KEYWORD_CONSTANT TRUE))(P_OP plus( + ))"
-            "(P_TERM (P_KEYWORD_CONSTANT FALSE))(P_OP plus( + ))"
-            "(P_TERM (P_KEYWORD_CONSTANT NULL))(P_OP plus( + ))"
+            "(P_TERM (P_KEYWORD_CONSTANT TRUE))(P_OP <plus>)"
+            "(P_TERM (P_KEYWORD_CONSTANT FALSE))(P_OP <plus>)"
+            "(P_TERM (P_KEYWORD_CONSTANT NULL))(P_OP <plus>)"
             "(P_TERM (P_KEYWORD_CONSTANT THIS)))");
   }
 }
@@ -399,9 +399,9 @@ SCENARIO("Parse tree subroutine terms")
             "(P_EXPRESSION (P_TERM "
             "(P_SUBROUTINE_CALL "
             "(P_SUBROUTINE_NAME mymethod)"
-            "(P_LEFT_PARENTHESIS left_parenthesis( ( ))"
+            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
             "(P_EXPRESSION_LIST )"
-            "(P_RIGHT_PARENTHESIS right_parenthesis( ) )))))");
+            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
   }
 
   SECTION("class method call w/one expression")
@@ -422,10 +422,10 @@ SCENARIO("Parse tree subroutine terms")
             "(P_EXPRESSION (P_TERM "
             "(P_SUBROUTINE_CALL "
             "(P_SUBROUTINE_NAME mymethod)"
-            "(P_LEFT_PARENTHESIS left_parenthesis( ( ))"
+            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
             "(P_EXPRESSION_LIST "
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1))))"
-            "(P_RIGHT_PARENTHESIS right_parenthesis( ) )))))");
+            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
   }
 
   SECTION("class method call w/expression list")
@@ -446,11 +446,11 @@ SCENARIO("Parse tree subroutine terms")
             "(P_EXPRESSION (P_TERM "
             "(P_SUBROUTINE_CALL "
             "(P_SUBROUTINE_NAME mymethod)"
-            "(P_LEFT_PARENTHESIS left_parenthesis( ( ))"
+            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
             "(P_EXPRESSION_LIST "
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
-            "(P_COMMA comma( , ))"
+            "(P_COMMA <comma>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 2))))"
-            "(P_RIGHT_PARENTHESIS right_parenthesis( ) )))))");
+            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
   }
 }

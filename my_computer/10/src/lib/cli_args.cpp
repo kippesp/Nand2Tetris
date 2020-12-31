@@ -35,10 +35,10 @@ CliArgs::CliArgs(int argc, const char* argv[])
       continue;
     }
 
-    // -T - stop after tokenizer in xml and output its values
+    // -T - stop after tokenizer in s expression and output its values
     if ((argv[i][0] == '-') && (argv[i][1] == 'T') && (argv[i][2] == '\0'))
     {
-      halt_after_tokenizer_xml = true;
+      halt_after_tokenizer_s_expression = true;
       i++;
       continue;
     }
@@ -191,7 +191,8 @@ void CliArgs::show_help()
 
   std::cout << "\n  ";
   std::cout << setw(24) << left << "-T";
-  std::cout << "Display tokenizer output in xml and halt";
+  std::cout
+      << "Display tokenizer output in S expression w/o internals and halt";
 
   std::cout << std::endl;
 

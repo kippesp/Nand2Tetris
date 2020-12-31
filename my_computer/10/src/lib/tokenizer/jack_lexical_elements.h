@@ -77,7 +77,6 @@ struct JackToken {
 
   // Convert to text output
   static std::string to_string(TokenType_t);
-
-  // Convert to text xml output for comparison files
-  std::string to_xml();
+  static std::string to_string(TokenValue_t);
+  std::string to_s_expression();
 };
