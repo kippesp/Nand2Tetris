@@ -143,7 +143,7 @@ SCENARIO("Parse tree simple terms")
 
     stringstream ss;
     ss << *parsetree_node;
-    REQUIRE(ss.str() == "(P_TERM (P_KEYWORD_CONSTANT TRUE))");
+    REQUIRE(ss.str() == "(P_TERM (P_KEYWORD_CONSTANT true))");
   }
 
   SECTION("scalar variable term")
@@ -327,9 +327,9 @@ SCENARIO("Parse tree expressions")
   SECTION("single-op keyword expresson")
   {
     //  (P_EXPRESSION
-    //    (P_TERM (P_KEYWORD_CONSTANT TRUE))
+    //    (P_TERM (P_KEYWORD_CONSTANT true))
     //    (P_OP +)
-    //    (P_TERM (P_KEYWORD_CONSTANT FALSE))
+    //    (P_TERM (P_KEYWORD_CONSTANT false))
     strcpy(R.buffer, "true+false");
     JackTokenizer Tokenizer(R);
     auto tokens = Tokenizer.parse_tokens();
@@ -343,20 +343,20 @@ SCENARIO("Parse tree expressions")
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
             "(P_EXPRESSION "
-            "(P_TERM (P_KEYWORD_CONSTANT TRUE))(P_OP <plus>)"
-            "(P_TERM (P_KEYWORD_CONSTANT FALSE)))");
+            "(P_TERM (P_KEYWORD_CONSTANT true))(P_OP <plus>)"
+            "(P_TERM (P_KEYWORD_CONSTANT false)))");
   }
 
   SECTION("multi-op keyword expresson")
   {
     //  (P_EXPRESSION
-    //    (P_TERM (P_KEYWORD_CONSTANT TRUE))
+    //    (P_TERM (P_KEYWORD_CONSTANT true))
     //    (P_OP +)
-    //    (P_TERM (P_KEYWORD_CONSTANT FALSE))
+    //    (P_TERM (P_KEYWORD_CONSTANT false))
     //    (P_OP +)
-    //    (P_TERM (P_KEYWORD_CONSTANT NULL))
+    //    (P_TERM (P_KEYWORD_CONSTANT null))
     //    (P_OP +)
-    //    (P_TERM (P_KEYWORD_CONSTANT THIS)))
+    //    (P_TERM (P_KEYWORD_CONSTANT this)))
     strcpy(R.buffer, "true + false+null + this");
     JackTokenizer Tokenizer(R);
     auto tokens = Tokenizer.parse_tokens();
@@ -370,10 +370,93 @@ SCENARIO("Parse tree expressions")
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
             "(P_EXPRESSION "
-            "(P_TERM (P_KEYWORD_CONSTANT TRUE))(P_OP <plus>)"
-            "(P_TERM (P_KEYWORD_CONSTANT FALSE))(P_OP <plus>)"
-            "(P_TERM (P_KEYWORD_CONSTANT NULL))(P_OP <plus>)"
-            "(P_TERM (P_KEYWORD_CONSTANT THIS)))");
+            "(P_TERM (P_KEYWORD_CONSTANT true))(P_OP <plus>)"
+            "(P_TERM (P_KEYWORD_CONSTANT false))(P_OP <plus>)"
+            "(P_TERM (P_KEYWORD_CONSTANT null))(P_OP <plus>)"
+            "(P_TERM (P_KEYWORD_CONSTANT this)))");
+  }
+
+  SECTION("math ops expresson")
+  {
+    strcpy(R.buffer, "1 + 2 - 3 * 5 / 6 & 7 | 8");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_expression();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_EXPRESSION "
+            "(P_TERM (P_INTEGER_CONSTANT 1))"
+            "(P_OP <plus>)"
+            "(P_TERM (P_INTEGER_CONSTANT 2))"
+            "(P_OP <minus>)"
+            "(P_TERM (P_INTEGER_CONSTANT 3))"
+            "(P_OP <asterisk>)"
+            "(P_TERM (P_INTEGER_CONSTANT 5))"
+            "(P_OP <divide>)"
+            "(P_TERM (P_INTEGER_CONSTANT 6))"
+            "(P_OP <ampersand>)"
+            "(P_TERM (P_INTEGER_CONSTANT 7))"
+            "(P_OP <vbar>)"
+            "(P_TERM (P_INTEGER_CONSTANT 8)))");
+  }
+
+  SECTION("logical ops expresson")
+  {
+    strcpy(R.buffer, "1 < 2 > 3 = 4");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_expression();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_EXPRESSION "
+            "(P_TERM (P_INTEGER_CONSTANT 1))"
+            "(P_OP <less_than>)"
+            "(P_TERM (P_INTEGER_CONSTANT 2))"
+            "(P_OP <greater_than>)"
+            "(P_TERM (P_INTEGER_CONSTANT 3))"
+            "(P_OP <equal>)"
+            "(P_TERM (P_INTEGER_CONSTANT 4)))");
+  }
+
+  SECTION("long unary expresson")
+  {
+    strcpy(R.buffer, "1 + -2 + ~3");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_expression();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            // clang-format off
+            "(P_EXPRESSION "
+            "(P_TERM (P_INTEGER_CONSTANT 1))"
+            "(P_OP <plus>)"
+            "(P_TERM "
+              "(P_UNARY_OP <minus>)"
+              "(P_TERM (P_INTEGER_CONSTANT 2)))"
+            "(P_OP <plus>)"
+            "(P_TERM "
+              "(P_UNARY_OP <tilde>)"
+              "(P_TERM (P_INTEGER_CONSTANT 3))))"
+            // clang-format on
+    );
   }
 }
 
@@ -449,8 +532,139 @@ SCENARIO("Parse tree subroutine terms")
             "(P_LEFT_PARENTHESIS <left_parenthesis>)"
             "(P_EXPRESSION_LIST "
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
-            "(P_COMMA <comma>)"
+            "(P_DELIMITER <comma>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 2))))"
             "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
+  }
+
+  SECTION("dotted class method call w/no expression")
+  {
+    // <subroutine-call>  ::= (<class-name> | <var-name>) "."
+    //                        <subroutine-name> "(" ")"
+    strcpy(R.buffer, "identifier.mymethod()");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_expression();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_EXPRESSION (P_TERM "
+            "(P_SUBROUTINE_CALL "
+            "(P_CLASS_OR_VAR_NAME identifier)"
+            "(P_DELIMITER <period>)"
+            "(P_SUBROUTINE_NAME mymethod)"
+            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_EXPRESSION_LIST )"
+            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
+  }
+
+  SECTION("dotted class method call w/one expression")
+  {
+    // <subroutine-call> ::= (<class-name> | <var-name>) "."
+    //                       <subroutine-name> "(" <expression> ")"
+    strcpy(R.buffer, "identifier.mymethod(1)");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_expression();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_EXPRESSION (P_TERM "
+            "(P_SUBROUTINE_CALL "
+            "(P_CLASS_OR_VAR_NAME identifier)"
+            "(P_DELIMITER <period>)"
+            "(P_SUBROUTINE_NAME mymethod)"
+            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_EXPRESSION_LIST "
+            "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1))))"
+            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
+  }
+
+  SECTION("dotted class method call w/expression list")
+  {
+    // <subroutine-call> ::= (<class-name> | <var-name>) "."
+    //                       <subroutine-name> "(" <expression>,<expression> ")"
+    strcpy(R.buffer, "identifier.mymethod(1, 2)");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_expression();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_EXPRESSION (P_TERM "
+            "(P_SUBROUTINE_CALL "
+            "(P_CLASS_OR_VAR_NAME identifier)"
+            "(P_DELIMITER <period>)"
+            "(P_SUBROUTINE_NAME mymethod)"
+            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_EXPRESSION_LIST "
+            "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
+            "(P_DELIMITER <comma>)"
+            "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 2))))"
+            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
+  }
+}
+
+SCENARIO("Parse tree statements")
+{
+  test::MockReader R;
+
+  SECTION("return empty expression statement")
+  {
+    // <return-statement> ::= "return" {<expression>}? ";"
+    strcpy(R.buffer, "return;");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_statements();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_STATEMENT_LIST "
+            "(P_RETURN_STATEMENT "
+            "(P_KEYWORD return)"
+            "(P_DELIMITER <semicolon>)))");
+  }
+
+  SECTION("return with expression statement")
+  {
+    // <return-statement> ::= "return" {<expression>}? ";"
+    strcpy(R.buffer, "return 1 = 2;");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_statements();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_STATEMENT_LIST "
+            "(P_RETURN_STATEMENT "
+            "(P_KEYWORD return)"
+            "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1))"
+            "(P_OP <equal>)(P_TERM (P_INTEGER_CONSTANT 2)))"
+            "(P_DELIMITER <semicolon>)))");
   }
 }

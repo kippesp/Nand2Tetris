@@ -18,7 +18,7 @@ Program Structure:
                        ("void" | <type>) <subroutine-name>
                        "(" <parameter-list> ")" <subroutine-body>
 <parameter-list>   ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
-<subroutine-body>  ::= "{" {<var-decl>}* <statements "}"
+<subroutine-body>  ::= "{" {<var-decl>}* <statements> "}"
 <var-decl>         ::= "var" <type> <var-name> {"," <var-name>}* ";"
 <class-name>       ::= <identifier>
 <subroutine-name>  ::= <identifier>
@@ -55,17 +55,21 @@ clang-format on
 typedef enum class ParseTreeNodeType_s {
   P_UNDEFINED,
   P_ARRAY_VAR,
-  P_COMMA,
+  P_CLASS_OR_VAR_NAME,
+  P_DELIMITER,
   P_EXPRESSION,
   P_EXPRESSION_LIST,
   P_INTEGER_CONSTANT,
+  P_KEYWORD,
   P_KEYWORD_CONSTANT,
   P_LEFT_BRACKET,
   P_LEFT_PARENTHESIS,
   P_OP,
+  P_RETURN_STATEMENT,
   P_RIGHT_BRACKET,
   P_RIGHT_PARENTHESIS,
   P_SCALAR_VAR,
+  P_STATEMENT_LIST,
   P_STRING_CONSTANT,
   P_SUBROUTINE_CALL,
   P_SUBROUTINE_NAME,
@@ -158,6 +162,10 @@ public:
       : root(std::make_shared<ParseTreeNonTerminal>(type)), tokens(tokens)
   {
   }
+
+  std::shared_ptr<ParseTreeNonTerminal> parse_statement();
+  std::shared_ptr<ParseTreeNonTerminal> parse_statements();
+  std::shared_ptr<ParseTreeNonTerminal> parse_return_statement();
 
   std::shared_ptr<ParseTreeNonTerminal> parse_expression();
   std::shared_ptr<ParseTreeNonTerminal> parse_expression_list();
