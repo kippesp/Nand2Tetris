@@ -277,10 +277,10 @@ JackToken JackTokenizer::get_jack_keyword_or_identifier_token(char ch)
       // clang-format off
       {"do",          TokenType_t::J_KEYWORD, TokenValue_t::J_DO, "do"},
       {"if",          TokenType_t::J_KEYWORD, TokenValue_t::J_IF, "if"},
-      {"int",         TokenType_t::J_KEYWORD, TokenValue_t::J_INT, "int"},
+      {"int",         TokenType_t::J_KEYWORD, TokenValue_t::J_INT, "integer"},
       {"let",         TokenType_t::J_KEYWORD, TokenValue_t::J_LET, "let"},
       {"var",         TokenType_t::J_KEYWORD, TokenValue_t::J_VAR, "var"},
-      {"char",        TokenType_t::J_KEYWORD, TokenValue_t::J_CHAR, "char"},
+      {"char",        TokenType_t::J_KEYWORD, TokenValue_t::J_CHAR, "character"},
       {"else",        TokenType_t::J_KEYWORD, TokenValue_t::J_ELSE, "else"},
       {"null",        TokenType_t::J_KEYWORD, TokenValue_t::J_NULL, "null"},
       {"this",        TokenType_t::J_KEYWORD, TokenValue_t::J_THIS, "this"},

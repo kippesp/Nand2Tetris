@@ -13,13 +13,13 @@ Program Structure:
 <class>            ::= "class" <class-name> "{" {<class-var-decl>}*
                        {<subroutine-decl>}* "}"
 <class-var-decl>   ::= ("static" | "field") <type> <var-name> {"," <var-name>}* ";"
-<type>             ::= "int" | "char" | "boolean" | <class-name>
 <subroutine-decl>  ::= ("constructor" | "function" | "method")
                        ("void" | <type>) <subroutine-name>
                        "(" <parameter-list> ")" <subroutine-body>
 <parameter-list>   ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
 <subroutine-body>  ::= "{" {<var-decl>}* <statements> "}"
 <var-decl>         ::= "var" <type> <var-name> {"," <var-name>}* ";"
+<type>             ::= "int" | "char" | "boolean" | <class-name>
 <class-name>       ::= <identifier>
 <subroutine-name>  ::= <identifier>
 <var-name>         ::= <identifier>
@@ -57,24 +57,33 @@ typedef enum class ParseTreeNodeType_s {
   P_ARRAY_VAR,
   P_CLASS_OR_VAR_NAME,
   P_DELIMITER,
+  P_DO_STATEMENT,
   P_EXPRESSION,
   P_EXPRESSION_LIST,
+  P_IF_STATEMENT,
   P_INTEGER_CONSTANT,
   P_KEYWORD,
   P_KEYWORD_CONSTANT,
   P_LEFT_BRACKET,
   P_LEFT_PARENTHESIS,
+  P_LET_STATEMENT,
   P_OP,
+  P_PARAMETER_LIST,
   P_RETURN_STATEMENT,
   P_RIGHT_BRACKET,
   P_RIGHT_PARENTHESIS,
   P_SCALAR_VAR,
   P_STATEMENT_LIST,
   P_STRING_CONSTANT,
+  P_SUBROUTINE_BODY,
   P_SUBROUTINE_CALL,
   P_SUBROUTINE_NAME,
   P_TERM,
   P_UNARY_OP,
+  P_VARIABLE_DECL_BLOCK,
+  P_VARIABLE_NAME,
+  P_VARIABLE_TYPE,
+  P_WHILE_STATEMENT,
 } ParseTreeNodeType_t;
 
 class ParseTreeNode : public std::enable_shared_from_this<ParseTreeNode> {
@@ -163,8 +172,17 @@ public:
   {
   }
 
+  std::shared_ptr<ParseTreeNonTerminal> parse_parameter_list();
+  std::shared_ptr<ParseTreeNonTerminal> parse_subroutine_body();
+  std::shared_ptr<ParseTreeNonTerminal> parse_variable_decl_block();
+
   std::shared_ptr<ParseTreeNonTerminal> parse_statement();
   std::shared_ptr<ParseTreeNonTerminal> parse_statements();
+
+  std::shared_ptr<ParseTreeNonTerminal> parse_let_statement();
+  std::shared_ptr<ParseTreeNonTerminal> parse_if_statement();
+  std::shared_ptr<ParseTreeNonTerminal> parse_while_statement();
+  std::shared_ptr<ParseTreeNonTerminal> parse_do_statement();
   std::shared_ptr<ParseTreeNonTerminal> parse_return_statement();
 
   std::shared_ptr<ParseTreeNonTerminal> parse_expression();
