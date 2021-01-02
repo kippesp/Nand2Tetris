@@ -55,7 +55,12 @@ clang-format on
 typedef enum class ParseTreeNodeType_s {
   P_UNDEFINED,
   P_ARRAY_VAR,
+  P_CLASS_DECL_BLOCK,
+  P_CLASS_NAME,
   P_CLASS_OR_VAR_NAME,
+  P_CLASS_VARIABLE_DECL_BLOCK,
+  P_CLASS_VARIABLE_LIST,
+  P_CLASS_VARIABLE_SCOPE,
   P_DELIMITER,
   P_DO_STATEMENT,
   P_EXPRESSION,
@@ -70,6 +75,7 @@ typedef enum class ParseTreeNodeType_s {
   P_OP,
   P_PARAMETER_LIST,
   P_RETURN_STATEMENT,
+  P_RETURN_TYPE,
   P_RIGHT_BRACKET,
   P_RIGHT_PARENTHESIS,
   P_SCALAR_VAR,
@@ -77,7 +83,9 @@ typedef enum class ParseTreeNodeType_s {
   P_STRING_CONSTANT,
   P_SUBROUTINE_BODY,
   P_SUBROUTINE_CALL,
+  P_SUBROUTINE_DECL_BLOCK,
   P_SUBROUTINE_NAME,
+  P_SUBROUTINE_TYPE,
   P_TERM,
   P_UNARY_OP,
   P_VARIABLE_DECL_BLOCK,
@@ -172,19 +180,24 @@ public:
   {
   }
 
+  // program structure parsers
+  std::shared_ptr<ParseTreeNonTerminal> parse_class();
+  std::shared_ptr<ParseTreeNonTerminal> parse_class_variable_decl_block();
+  std::shared_ptr<ParseTreeNonTerminal> parse_subroutine_declaration();
   std::shared_ptr<ParseTreeNonTerminal> parse_parameter_list();
   std::shared_ptr<ParseTreeNonTerminal> parse_subroutine_body();
   std::shared_ptr<ParseTreeNonTerminal> parse_variable_decl_block();
 
+  // statement parsers
   std::shared_ptr<ParseTreeNonTerminal> parse_statement();
   std::shared_ptr<ParseTreeNonTerminal> parse_statements();
-
   std::shared_ptr<ParseTreeNonTerminal> parse_let_statement();
   std::shared_ptr<ParseTreeNonTerminal> parse_if_statement();
   std::shared_ptr<ParseTreeNonTerminal> parse_while_statement();
   std::shared_ptr<ParseTreeNonTerminal> parse_do_statement();
   std::shared_ptr<ParseTreeNonTerminal> parse_return_statement();
 
+  // expression parsers
   std::shared_ptr<ParseTreeNonTerminal> parse_expression();
   std::shared_ptr<ParseTreeNonTerminal> parse_expression_list();
   std::shared_ptr<ParseTreeNonTerminal> parse_term();

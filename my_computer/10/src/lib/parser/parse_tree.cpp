@@ -40,8 +40,18 @@ string ParseTreeNode::to_string(ParseTreeNodeType_t type)
       return "P_UNDEFINE";
     case ParseTreeNodeType_t::P_ARRAY_VAR:
       return "P_ARRAY_VAR";
+    case ParseTreeNodeType_t::P_CLASS_DECL_BLOCK:
+      return "P_CLASS_DECL_BLOCK";
+    case ParseTreeNodeType_t::P_CLASS_NAME:
+      return "P_CLASS_NAME";
     case ParseTreeNodeType_t::P_CLASS_OR_VAR_NAME:
       return "P_CLASS_OR_VAR_NAME";
+    case ParseTreeNodeType_t::P_CLASS_VARIABLE_DECL_BLOCK:
+      return "P_CLASS_VARIABLE_DECL_BLOCK";
+    case ParseTreeNodeType_t::P_CLASS_VARIABLE_SCOPE:
+      return "P_CLASS_VARIABLE_SCOPE";
+    case ParseTreeNodeType_t::P_CLASS_VARIABLE_LIST:
+      return "P_CLASS_VARIABLE_LIST";
     case ParseTreeNodeType_t::P_DELIMITER:
       return "P_DELIMITER";
     case ParseTreeNodeType_t::P_DO_STATEMENT:
@@ -70,6 +80,8 @@ string ParseTreeNode::to_string(ParseTreeNodeType_t type)
       return "P_PARAMETER_LIST";
     case ParseTreeNodeType_t::P_RETURN_STATEMENT:
       return "P_RETURN_STATEMENT";
+    case ParseTreeNodeType_t::P_RETURN_TYPE:
+      return "P_RETURN_TYPE";
     case ParseTreeNodeType_t::P_RIGHT_BRACKET:
       return "P_RIGHT_BRACKET";
     case ParseTreeNodeType_t::P_RIGHT_PARENTHESIS:
@@ -84,8 +96,12 @@ string ParseTreeNode::to_string(ParseTreeNodeType_t type)
       return "P_SUBROUTINE_BODY";
     case ParseTreeNodeType_t::P_SUBROUTINE_CALL:
       return "P_SUBROUTINE_CALL";
+    case ParseTreeNodeType_t::P_SUBROUTINE_DECL_BLOCK:
+      return "P_SUBROUTINE_DECL_BLOCK";
     case ParseTreeNodeType_t::P_SUBROUTINE_NAME:
       return "P_SUBROUTINE_NAME";
+    case ParseTreeNodeType_t::P_SUBROUTINE_TYPE:
+      return "P_SUBROUTINE_TYPE";
     case ParseTreeNodeType_t::P_TERM:
       return "P_TERM";
     case ParseTreeNodeType_t::P_UNARY_OP:
@@ -101,7 +117,7 @@ string ParseTreeNode::to_string(ParseTreeNodeType_t type)
   }
 }
 
-static bool is_valid_type_token(JackToken& token)
+static bool is_valid_type_token(const JackToken& token)
 {
   if (token.type == TokenType_t::J_IDENTIFIER)
   {
@@ -121,6 +137,276 @@ static bool is_valid_type_token(JackToken& token)
   }
 
   return false;
+}
+
+shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
+{
+  if (tokens->size() - parse_cursor <= 4)
+    return shared_ptr<ParseTreeNonTerminal>{nullptr};
+
+  auto& idx = parse_cursor;
+
+  auto root_node = make_shared<ParseTreeNonTerminal>(
+      ParseTreeNodeType_t::P_CLASS_DECL_BLOCK);
+
+  // <class> ::= "class" <class-name> "{" {<class-var-decl>}*
+  //             {<subroutine-decl>}* "}"
+
+  if (JackToken keyword_token = (*tokens)[idx];
+      keyword_token.value_enum == TokenValue_t::J_CLASS)
+  {
+    root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, keyword_token);
+  }
+  else
+  {
+    assert(0 && "Parse error: Expected <class> keyword");
+  }
+
+  idx++;
+
+  if (JackToken class_name_token = (*tokens)[idx];
+      class_name_token.type == TokenType_t::J_IDENTIFIER)
+  {
+    root_node->create_child(ParseTreeNodeType_t::P_CLASS_NAME,
+                            class_name_token);
+  }
+  else
+  {
+    assert(0 && "Parse error: Invalid CLASSNAME identifier");
+  }
+
+  idx++;
+
+  if (JackToken lb_token = (*tokens)[idx];
+      lb_token.value_enum == TokenValue_t::J_LEFT_BRACE)
+  {
+    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lb_token);
+  }
+  else
+  {
+    assert(0 && "Parse error: Expected <left_brace> after CLASSNAME");
+  }
+
+  idx++;
+
+  if (auto class_variable_decl_block = parse_class_variable_decl_block())
+    root_node->create_child(class_variable_decl_block);
+
+  for (bool done = false; !done; /* empty */)
+  {
+    if (auto subroutine_decl_block = parse_subroutine_declaration())
+      root_node->create_child(subroutine_decl_block);
+    else
+      done = true;
+  }
+
+  if (JackToken rb_token = (*tokens)[idx];
+      rb_token.value_enum == TokenValue_t::J_RIGHT_BRACE)
+  {
+    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+  }
+  else
+  {
+    assert(0 &&
+           "Parse error: Expected <right_brace> to close <class> defition");
+  }
+
+  idx++;
+
+  assert(root_node->num_child_nodes() > 0);
+
+  return root_node;
+}
+
+shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class_variable_decl_block()
+{
+  if (tokens->size() - parse_cursor <= 4)
+    return shared_ptr<ParseTreeNonTerminal>{nullptr};
+
+  auto& idx = parse_cursor;
+  JackToken variable_scope_token = (*tokens)[idx];
+
+  auto root_node = make_shared<ParseTreeNonTerminal>(
+      ParseTreeNodeType_t::P_CLASS_VARIABLE_DECL_BLOCK);
+
+  // <class-var-decl> ::= ("static" | "field") <type> <var-name> {","
+  //                      <var-name>}* ";"
+
+  switch (variable_scope_token.value_enum)
+  {
+    case TokenValue_t::J_STATIC:
+    case TokenValue_t::J_FIELD:
+      root_node->create_child(ParseTreeNodeType_t::P_CLASS_VARIABLE_SCOPE,
+                              variable_scope_token);
+      break;
+    default:
+      return shared_ptr<ParseTreeNonTerminal>{nullptr};
+  }
+
+  idx++;
+
+  if (JackToken variable_type_token = (*tokens)[idx];
+      is_valid_type_token(variable_type_token))
+  {
+    root_node->create_child(ParseTreeNodeType_t::P_VARIABLE_TYPE,
+                            variable_type_token);
+  }
+  else
+  {
+    assert(0 && "Parse error: Invalid class variable type");
+  }
+
+  idx++;
+
+  auto variable_list_node = make_shared<ParseTreeNonTerminal>(
+      ParseTreeNodeType_t::P_CLASS_VARIABLE_LIST);
+
+  if (JackToken first_variable_token = (*tokens)[idx];
+      first_variable_token.type == TokenType_t::J_IDENTIFIER)
+  {
+    variable_list_node->create_child(ParseTreeNodeType_t::P_VARIABLE_NAME,
+                                     first_variable_token);
+  }
+  else
+  {
+    assert(0 && "Parse error: Invalid variable name");
+  }
+
+  for (bool done = false; !done; /* empty */)
+  {
+    idx++;
+
+    if (JackToken delimiter_token = (*tokens)[idx];
+        delimiter_token.value_enum == TokenValue_t::J_COMMA)
+    {
+      idx++;
+
+      if (JackToken variable_token = (*tokens)[idx];
+          variable_token.type == TokenType_t::J_IDENTIFIER)
+      {
+        variable_list_node->create_child(ParseTreeNodeType_t::P_VARIABLE_NAME,
+                                         variable_token);
+      }
+      else
+      {
+        assert(0 && "Parse error: Invalid variable name");
+      }
+    }
+    else
+    {
+      done = true;
+    }
+  }
+
+  assert(root_node->num_child_nodes() > 0);
+  assert(variable_list_node->num_child_nodes() > 0);
+
+  root_node->create_child(variable_list_node);
+
+  JackToken final_token = (*tokens)[idx];
+  idx++;
+
+  assert((final_token.value_enum == TokenValue_t::J_SEMICOLON) &&
+         "Parse error: expected <semicolon> at end of variable declaration");
+
+  root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, final_token);
+
+  return root_node;
+}
+
+shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_declaration()
+{
+  if (tokens->size() - parse_cursor <= 7)
+    return shared_ptr<ParseTreeNonTerminal>{nullptr};
+
+  auto& idx = parse_cursor;
+  JackToken subroutine_type = (*tokens)[idx];
+
+  auto root_node = make_shared<ParseTreeNonTerminal>(
+      ParseTreeNodeType_t::P_SUBROUTINE_DECL_BLOCK);
+
+  // <subroutine-decl> ::= ("constructor" | "function" | "method")
+  //                       ("void" | <type>) <subroutine-name>
+  //                       "(" <parameter-list> ")" <subroutine-body>
+
+  switch (subroutine_type.value_enum)
+  {
+    case TokenValue_t::J_CONSTRUCTOR:
+    case TokenValue_t::J_FUNCTION:
+    case TokenValue_t::J_METHOD:
+      root_node->create_child(ParseTreeNodeType_t::P_SUBROUTINE_TYPE,
+                              subroutine_type);
+      break;
+    default:
+      return shared_ptr<ParseTreeNonTerminal>{nullptr};
+  }
+
+  idx++;
+
+  if (JackToken return_type_token = (*tokens)[idx];
+      is_valid_type_token(return_type_token))
+  {
+    root_node->create_child(ParseTreeNodeType_t::P_RETURN_TYPE,
+                            return_type_token);
+  }
+  else if (return_type_token.value_enum == TokenValue_t::J_VOID)
+  {
+    root_node->create_child(ParseTreeNodeType_t::P_RETURN_TYPE,
+                            return_type_token);
+  }
+  else
+  {
+    assert(0 && "Parse error: Invalid return type");
+  }
+
+  idx++;
+
+  if (JackToken subroutine_name_token = (*tokens)[idx];
+      subroutine_name_token.type == TokenType_t::J_IDENTIFIER)
+  {
+    root_node->create_child(ParseTreeNodeType_t::P_SUBROUTINE_NAME,
+                            subroutine_name_token);
+  }
+  else
+  {
+    assert(0 && "Parse error: Invalid subroutine name");
+  }
+
+  idx++;
+
+  if (JackToken lp_token = (*tokens)[idx];
+      lp_token.value_enum == TokenValue_t::J_LEFT_PARENTHESIS)
+  {
+    idx++;
+    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lp_token);
+    if (auto parameter_list = parse_parameter_list())
+    {
+      root_node->create_child(parameter_list);
+    }
+  }
+  else
+  {
+    assert(0 && "Parse error: Expected '(' after subroutine name");
+  }
+
+  if (JackToken rp_token = (*tokens)[idx];
+      rp_token.value_enum == TokenValue_t::J_RIGHT_PARENTHESIS)
+  {
+    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rp_token);
+  }
+  else
+  {
+    assert(0 && "Parse error: Expected ')' after <parameter-list>");
+  }
+
+  idx++;
+
+  if (auto subroutine_body = parse_subroutine_body())
+  {
+    root_node->create_child(subroutine_body);
+  }
+
+  return root_node;
 }
 
 shared_ptr<ParseTreeNonTerminal> ParseTree::parse_parameter_list()
@@ -252,29 +538,10 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_variable_decl_block()
 
   root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, keyword_token);
 
-  if (type_token.type == TokenType_t::J_IDENTIFIER)
-  {
-    root_node->create_child(ParseTreeNodeType_t::P_VARIABLE_TYPE, type_token);
-  }
-  else if (type_token.type == TokenType_t::J_KEYWORD)
-  {
-    switch (type_token.value_enum)
-    {
-      case TokenValue_t::J_INT:
-      case TokenValue_t::J_CHAR:
-      case TokenValue_t::J_BOOLEAN:
-        root_node->create_child(ParseTreeNodeType_t::P_VARIABLE_TYPE,
-                                type_token);
-        break;
-      default:
-        assert(0 &&
-               "Parse error: expected int|char|boolean after <var> keyword");
-    }
-  }
-  else
-  {
-    assert(0 && "Parse error: expected <class_type> after <var> keyword");
-  }
+  assert(is_valid_type_token(type_token) &&
+         "Parse error: expected int|char|boolean after <var> keyword");
+
+  root_node->create_child(ParseTreeNodeType_t::P_VARIABLE_TYPE, type_token);
 
   JackToken first_variable_token = (*tokens)[idx];
   idx++;

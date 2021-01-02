@@ -862,7 +862,7 @@ SCENARIO("Parse tree statements")
   }
 }
 
-SCENARIO("program structure")
+SCENARIO("program low-level structures")
 {
   test::MockReader R;
 
@@ -991,7 +991,7 @@ SCENARIO("program structure")
             "(P_DELIMITER <right_brace>))");
   }
 
-  SECTION("one parameter structure")
+  SECTION("one builtin type parameter structure")
   {
     // <parameter-list> ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
     strcpy(R.buffer, "boolean a");
@@ -1008,6 +1008,26 @@ SCENARIO("program structure")
     REQUIRE(ss.str() ==
             "(P_PARAMETER_LIST "
             "(P_VARIABLE_TYPE boolean)"
+            "(P_VARIABLE_NAME a))");
+  }
+
+  SECTION("one class type parameter structure")
+  {
+    // <parameter-list> ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
+    strcpy(R.buffer, "MyClass a");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_parameter_list();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_PARAMETER_LIST "
+            "(P_VARIABLE_TYPE MyClass)"
             "(P_VARIABLE_NAME a))");
   }
 
@@ -1038,5 +1058,228 @@ SCENARIO("program structure")
             "(P_DELIMITER <comma>)"
             "(P_VARIABLE_TYPE ClassName)"
             "(P_VARIABLE_NAME d))");
+  }
+}
+
+SCENARIO("program high-level structures")
+{
+  test::MockReader R;
+
+  SECTION("empty function decl")
+  {
+    // <subroutine-decl> ::= ("constructor" | "function" | "method")
+    //                       ("void" | <type>) <subroutine-name>
+    //                       "(" <parameter-list> ")" <subroutine-body>
+    strcpy(R.buffer, "function int MySub() {}");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_subroutine_declaration();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_SUBROUTINE_DECL_BLOCK "
+            "(P_SUBROUTINE_TYPE function)"
+            "(P_RETURN_TYPE integer)"
+            "(P_SUBROUTINE_NAME MySub)"
+            "(P_DELIMITER <left_parenthesis>)"
+            "(P_PARAMETER_LIST )"
+            "(P_DELIMITER <right_parenthesis>)"
+            "(P_SUBROUTINE_BODY "
+            "(P_DELIMITER <left_brace>)"
+            "(P_STATEMENT_LIST )"
+            "(P_DELIMITER <right_brace>)))");
+  }
+
+  SECTION("empty method decl")
+  {
+    // <subroutine-decl> ::= ("constructor" | "function" | "method")
+    //                       ("void" | <type>) <subroutine-name>
+    //                       "(" <parameter-list> ")" <subroutine-body>
+    strcpy(R.buffer, "method void MySub() {}");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_subroutine_declaration();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_SUBROUTINE_DECL_BLOCK "
+            "(P_SUBROUTINE_TYPE method)"
+            "(P_RETURN_TYPE void)"
+            "(P_SUBROUTINE_NAME MySub)"
+            "(P_DELIMITER <left_parenthesis>)"
+            "(P_PARAMETER_LIST )"
+            "(P_DELIMITER <right_parenthesis>)"
+            "(P_SUBROUTINE_BODY "
+            "(P_DELIMITER <left_brace>)"
+            "(P_STATEMENT_LIST )"
+            "(P_DELIMITER <right_brace>)))");
+  }
+
+  SECTION("non-empty subroutine decl")
+  {
+    // <subroutine-decl> ::= ("constructor" | "function" | "method")
+    //                       ("void" | <type>) <subroutine-name>
+    //                       "(" <parameter-list> ")" <subroutine-body>
+    strcpy(R.buffer, "constructor void MySub(int a, int b) {let a = b;}");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_subroutine_declaration();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            // clang-format off
+            "(P_SUBROUTINE_DECL_BLOCK "
+            "(P_SUBROUTINE_TYPE constructor)"
+            "(P_RETURN_TYPE void)"
+            "(P_SUBROUTINE_NAME MySub)"
+            "(P_DELIMITER <left_parenthesis>)"
+              "(P_PARAMETER_LIST "
+              "(P_VARIABLE_TYPE integer)"
+              "(P_VARIABLE_NAME a)"
+              "(P_DELIMITER <comma>)"
+              "(P_VARIABLE_TYPE integer)"
+              "(P_VARIABLE_NAME b))"
+            "(P_DELIMITER <right_parenthesis>)"
+            "(P_SUBROUTINE_BODY "
+            "(P_DELIMITER <left_brace>)"
+              "(P_STATEMENT_LIST "
+              "(P_LET_STATEMENT "
+              "(P_KEYWORD let)"
+              "(P_SCALAR_VAR a)"
+              "(P_OP <equal>)"
+              "(P_EXPRESSION (P_TERM (P_SCALAR_VAR b)))"
+              "(P_DELIMITER <semicolon>)))"
+            "(P_DELIMITER <right_brace>)))");
+    // clang-format on
+  }
+
+  SECTION("one class-var decl")
+  {
+    // <class-var-decl> ::= ("static" | "field") <type> <var-name> {","
+    //                      <var-name>}* ";"
+    strcpy(R.buffer, "static int a;");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class_variable_decl_block();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_CLASS_VARIABLE_DECL_BLOCK "
+            "(P_CLASS_VARIABLE_SCOPE static)"
+            "(P_VARIABLE_TYPE integer)"
+            "(P_CLASS_VARIABLE_LIST "
+            "(P_VARIABLE_NAME a))"
+            "(P_DELIMITER <semicolon>))");
+  }
+
+  SECTION("multiple class-var decl")
+  {
+    // <class-var-decl> ::= ("static" | "field") <type> <var-name> {","
+    //                      <var-name>}* ";"
+    strcpy(R.buffer, "field boolean a, b;");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class_variable_decl_block();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_CLASS_VARIABLE_DECL_BLOCK "
+            "(P_CLASS_VARIABLE_SCOPE field)"
+            "(P_VARIABLE_TYPE boolean)"
+            "(P_CLASS_VARIABLE_LIST "
+            "(P_VARIABLE_NAME a)"
+            "(P_VARIABLE_NAME b))"
+            "(P_DELIMITER <semicolon>))");
+  }
+
+  SECTION("empty class decl")
+  {
+    // <class> ::= "class" <class-name> "{" {<class-var-decl>}*
+    //             {<subroutine-decl>}* "}"
+    strcpy(R.buffer, "class MyClass {}");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_CLASS_DECL_BLOCK "
+            "(P_KEYWORD class)"
+            "(P_CLASS_NAME MyClass)"
+            "(P_DELIMITER <left_brace>)"
+            "(P_DELIMITER <right_brace>))");
+  }
+
+  SECTION("class decl")
+  {
+    // <class> ::= "class" <class-name> "{" {<class-var-decl>}*
+    //             {<subroutine-decl>}* "}"
+    strcpy(R.buffer,
+           "class MyClass { static char c; function int MySub() {} }");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            // clang-format off
+            "(P_CLASS_DECL_BLOCK "
+            "(P_KEYWORD class)"
+            "(P_CLASS_NAME MyClass)"
+            "(P_DELIMITER <left_brace>)"
+            "(P_CLASS_VARIABLE_DECL_BLOCK "
+              "(P_CLASS_VARIABLE_SCOPE static)"
+              "(P_VARIABLE_TYPE character)"
+              "(P_CLASS_VARIABLE_LIST "
+              "(P_VARIABLE_NAME c))"
+              "(P_DELIMITER <semicolon>))"
+            "(P_SUBROUTINE_DECL_BLOCK "
+              "(P_SUBROUTINE_TYPE function)"
+              "(P_RETURN_TYPE integer)"
+              "(P_SUBROUTINE_NAME MySub)"
+              "(P_DELIMITER <left_parenthesis>)"
+              "(P_PARAMETER_LIST )"
+              "(P_DELIMITER <right_parenthesis>)"
+              "(P_SUBROUTINE_BODY "
+              "(P_DELIMITER <left_brace>)"
+              "(P_STATEMENT_LIST )"
+              "(P_DELIMITER <right_brace>)))"
+            "(P_DELIMITER <right_brace>))");
+    // clang-format on
   }
 }
