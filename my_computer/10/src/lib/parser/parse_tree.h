@@ -58,9 +58,9 @@ typedef enum class ParseTreeNodeType_s {
   P_CLASS_DECL_BLOCK,
   P_CLASS_NAME,
   P_CLASS_OR_VAR_NAME,
-  P_CLASS_VARIABLE_DECL_BLOCK,
-  P_CLASS_VARIABLE_LIST,
-  P_CLASS_VARIABLE_SCOPE,
+  P_CLASSVAR_DECL_BLOCK,
+  P_CLASSVAR_DECL_STATEMENT,
+  P_CLASSVAR_SCOPE,
   P_DELIMITER,
   P_DO_STATEMENT,
   P_EXPRESSION,
@@ -88,7 +88,10 @@ typedef enum class ParseTreeNodeType_s {
   P_SUBROUTINE_TYPE,
   P_TERM,
   P_UNARY_OP,
-  P_VARIABLE_DECL_BLOCK,
+  P_VAR_DECL_BLOCK,
+  P_VAR_DECL_STATEMENT,
+  P_VARIABLE_DECL,
+  P_VARIABLE_LIST,
   P_VARIABLE_NAME,
   P_VARIABLE_TYPE,
   P_WHILE_STATEMENT,
@@ -187,6 +190,10 @@ public:
   std::shared_ptr<ParseTreeNonTerminal> parse_parameter_list();
   std::shared_ptr<ParseTreeNonTerminal> parse_subroutine_body();
   std::shared_ptr<ParseTreeNonTerminal> parse_variable_decl_block();
+
+  // helper to parse the list of one or more variables in either
+  // a var or class declaration
+  std::shared_ptr<ParseTreeNonTerminal> parse_variable_decl_list();
 
   // statement parsers
   std::shared_ptr<ParseTreeNonTerminal> parse_statement();

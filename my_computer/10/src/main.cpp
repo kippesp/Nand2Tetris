@@ -5,6 +5,7 @@
 #include "cli_args.h"
 #include "tokenizer/file_io.h"
 #include "tokenizer/jack_tokenizer.h"
+#include "parser/parse_tree.h"
 
 using namespace std;
 
@@ -68,6 +69,14 @@ int main(int argc, const char* argv[])
 
       return 0;
     }
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+
+    stringstream ss;
+    ss << *parsetree_node;
+
+    cout << ss.str() << endl;
   }
 
   return 0;

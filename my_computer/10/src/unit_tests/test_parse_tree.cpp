@@ -751,6 +751,38 @@ SCENARIO("Parse tree statements")
             "(P_DELIMITER <right_brace>)))");
   }
 
+  SECTION("non-empty while statement")
+  {
+    // <while-statement> ::= "while" "(" <expression> ")" "{" <statements> "}"
+    strcpy(R.buffer, "while (true) { let i = true; }");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_statements();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_STATEMENT_LIST "
+            "(P_WHILE_STATEMENT "
+            "(P_KEYWORD while)"
+            "(P_DELIMITER <left_parenthesis>)"
+            "(P_EXPRESSION (P_TERM (P_KEYWORD_CONSTANT true)))"
+            "(P_DELIMITER <right_parenthesis>)"
+            "(P_DELIMITER <left_brace>)"
+            "(P_STATEMENT_LIST "
+            "(P_LET_STATEMENT "
+            "(P_KEYWORD let)"
+            "(P_SCALAR_VAR i)"
+            "(P_OP <equal>)"
+            "(P_EXPRESSION (P_TERM (P_KEYWORD_CONSTANT true)))"
+            "(P_DELIMITER <semicolon>)))"
+            "(P_DELIMITER <right_brace>)))");
+  }
+
   SECTION("let scalar statement")
   {
     // <let-statement> ::= "let" <var-name> {"[" <expression> "]"}? "="
@@ -860,6 +892,35 @@ SCENARIO("Parse tree statements")
             "(P_STATEMENT_LIST )"
             "(P_DELIMITER <right_brace>)))");
   }
+
+  SECTION("assignment from function return")
+  {
+    // <class> ::= "class" <class-name> "{" {<class-var-decl>}*
+    //             {<subroutine-decl>}* "}"
+    strcpy(R.buffer, "let a = fn();");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_let_statement();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_LET_STATEMENT "
+            "(P_KEYWORD let)"
+            "(P_SCALAR_VAR a)"
+            "(P_OP <equal>)"
+            "(P_EXPRESSION (P_TERM "
+            "(P_SUBROUTINE_CALL "
+            "(P_SUBROUTINE_NAME fn)"
+            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_EXPRESSION_LIST )"
+            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))"
+            "(P_DELIMITER <semicolon>))");
+  }
 }
 
 SCENARIO("program low-level structures")
@@ -902,11 +963,14 @@ SCENARIO("program low-level structures")
     stringstream ss;
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
-            "(P_VARIABLE_DECL_BLOCK "
+            "(P_VAR_DECL_BLOCK "
+            "(P_VAR_DECL_STATEMENT "
             "(P_KEYWORD var)"
+            "(P_VARIABLE_DECL "
             "(P_VARIABLE_TYPE integer)"
-            "(P_VARIABLE_NAME a)"
-            "(P_DELIMITER <semicolon>))");
+            "(P_VARIABLE_LIST "
+            "(P_VARIABLE_NAME a)))"
+            "(P_DELIMITER <semicolon>)))");
   }
 
   SECTION("multiple variable declaration")
@@ -924,13 +988,48 @@ SCENARIO("program low-level structures")
     stringstream ss;
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
-            "(P_VARIABLE_DECL_BLOCK "
+            "(P_VAR_DECL_BLOCK "
+            "(P_VAR_DECL_STATEMENT "
             "(P_KEYWORD var)"
+            "(P_VARIABLE_DECL "
             "(P_VARIABLE_TYPE myclass)"
+            "(P_VARIABLE_LIST "
             "(P_VARIABLE_NAME a)"
             "(P_DELIMITER <comma>)"
-            "(P_VARIABLE_NAME b)"
-            "(P_DELIMITER <semicolon>))");
+            "(P_VARIABLE_NAME b)))"
+            "(P_DELIMITER <semicolon>)))");
+  }
+
+  SECTION("multi-line variable declaration")
+  {
+    // <var-decl> ::= "var" <type> <var-name> {"," <var-name>}* ";"
+    strcpy(R.buffer, "var int a; var char b;");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_variable_decl_block();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            "(P_VAR_DECL_BLOCK "
+            "(P_VAR_DECL_STATEMENT "
+            "(P_KEYWORD var)"
+            "(P_VARIABLE_DECL "
+            "(P_VARIABLE_TYPE integer)"
+            "(P_VARIABLE_LIST "
+            "(P_VARIABLE_NAME a)))"
+            "(P_DELIMITER <semicolon>))"
+            "(P_VAR_DECL_STATEMENT "
+            "(P_KEYWORD var)"
+            "(P_VARIABLE_DECL "
+            "(P_VARIABLE_TYPE character)"
+            "(P_VARIABLE_LIST "
+            "(P_VARIABLE_NAME b)))"
+            "(P_DELIMITER <semicolon>)))");
   }
 
   SECTION("subroutine-body with empty statements structure")
@@ -950,11 +1049,14 @@ SCENARIO("program low-level structures")
     REQUIRE(ss.str() ==
             "(P_SUBROUTINE_BODY "
             "(P_DELIMITER <left_brace>)"
-            "(P_VARIABLE_DECL_BLOCK "
+            "(P_VAR_DECL_BLOCK "
+            "(P_VAR_DECL_STATEMENT "
             "(P_KEYWORD var)"
+            "(P_VARIABLE_DECL "
             "(P_VARIABLE_TYPE character)"
-            "(P_VARIABLE_NAME a)"
-            "(P_DELIMITER <semicolon>))"
+            "(P_VARIABLE_LIST "
+            "(P_VARIABLE_NAME a)))"
+            "(P_DELIMITER <semicolon>)))"
             "(P_STATEMENT_LIST )"
             "(P_DELIMITER <right_brace>))");
   }
@@ -976,11 +1078,14 @@ SCENARIO("program low-level structures")
     REQUIRE(ss.str() ==
             "(P_SUBROUTINE_BODY "
             "(P_DELIMITER <left_brace>)"
-            "(P_VARIABLE_DECL_BLOCK "
+            "(P_VAR_DECL_BLOCK "
+            "(P_VAR_DECL_STATEMENT "
             "(P_KEYWORD var)"
+            "(P_VARIABLE_DECL "
             "(P_VARIABLE_TYPE boolean)"
-            "(P_VARIABLE_NAME a)"
-            "(P_DELIMITER <semicolon>))"
+            "(P_VARIABLE_LIST "
+            "(P_VARIABLE_NAME a)))"
+            "(P_DELIMITER <semicolon>)))"
             "(P_STATEMENT_LIST "
             "(P_LET_STATEMENT "
             "(P_KEYWORD let)"
@@ -1184,12 +1289,14 @@ SCENARIO("program high-level structures")
     stringstream ss;
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
-            "(P_CLASS_VARIABLE_DECL_BLOCK "
-            "(P_CLASS_VARIABLE_SCOPE static)"
+            "(P_CLASSVAR_DECL_BLOCK "
+            "(P_CLASSVAR_DECL_STATEMENT "
+            "(P_CLASSVAR_SCOPE static)"
+            "(P_VARIABLE_DECL "
             "(P_VARIABLE_TYPE integer)"
-            "(P_CLASS_VARIABLE_LIST "
-            "(P_VARIABLE_NAME a))"
-            "(P_DELIMITER <semicolon>))");
+            "(P_VARIABLE_LIST "
+            "(P_VARIABLE_NAME a)))"
+            "(P_DELIMITER <semicolon>)))");
   }
 
   SECTION("multiple class-var decl")
@@ -1208,13 +1315,16 @@ SCENARIO("program high-level structures")
     stringstream ss;
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
-            "(P_CLASS_VARIABLE_DECL_BLOCK "
-            "(P_CLASS_VARIABLE_SCOPE field)"
+            "(P_CLASSVAR_DECL_BLOCK "
+            "(P_CLASSVAR_DECL_STATEMENT "
+            "(P_CLASSVAR_SCOPE field)"
+            "(P_VARIABLE_DECL "
             "(P_VARIABLE_TYPE boolean)"
-            "(P_CLASS_VARIABLE_LIST "
+            "(P_VARIABLE_LIST "
             "(P_VARIABLE_NAME a)"
-            "(P_VARIABLE_NAME b))"
-            "(P_DELIMITER <semicolon>))");
+            "(P_DELIMITER <comma>)"
+            "(P_VARIABLE_NAME b)))"
+            "(P_DELIMITER <semicolon>)))");
   }
 
   SECTION("empty class decl")
@@ -1262,16 +1372,70 @@ SCENARIO("program high-level structures")
             "(P_KEYWORD class)"
             "(P_CLASS_NAME MyClass)"
             "(P_DELIMITER <left_brace>)"
-            "(P_CLASS_VARIABLE_DECL_BLOCK "
-              "(P_CLASS_VARIABLE_SCOPE static)"
-              "(P_VARIABLE_TYPE character)"
-              "(P_CLASS_VARIABLE_LIST "
-              "(P_VARIABLE_NAME c))"
-              "(P_DELIMITER <semicolon>))"
+            "(P_CLASSVAR_DECL_BLOCK "
+              "(P_CLASSVAR_DECL_STATEMENT "
+                "(P_CLASSVAR_SCOPE static)"
+                "(P_VARIABLE_DECL "
+                "(P_VARIABLE_TYPE character)"
+                "(P_VARIABLE_LIST "
+                "(P_VARIABLE_NAME c)))"
+                "(P_DELIMITER <semicolon>)))"
             "(P_SUBROUTINE_DECL_BLOCK "
               "(P_SUBROUTINE_TYPE function)"
               "(P_RETURN_TYPE integer)"
               "(P_SUBROUTINE_NAME MySub)"
+              "(P_DELIMITER <left_parenthesis>)"
+              "(P_PARAMETER_LIST )"
+              "(P_DELIMITER <right_parenthesis>)"
+              "(P_SUBROUTINE_BODY "
+              "(P_DELIMITER <left_brace>)"
+              "(P_STATEMENT_LIST )"
+              "(P_DELIMITER <right_brace>)))"
+            "(P_DELIMITER <right_brace>))");
+    // clang-format on
+  }
+
+  SECTION("class two var decl")
+  {
+    // <class> ::= "class" <class-name> "{" {<class-var-decl>}*
+    //             {<subroutine-decl>}* "}"
+    strcpy(R.buffer,
+           "class MyClass { field int a; field int b; method void fn() {} }");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    // verify tree structure using strings
+    stringstream ss;
+    ss << *parsetree_node;
+    REQUIRE(ss.str() ==
+            // clang-format off
+            "(P_CLASS_DECL_BLOCK "
+            "(P_KEYWORD class)"
+            "(P_CLASS_NAME MyClass)"
+            "(P_DELIMITER <left_brace>)"
+            "(P_CLASSVAR_DECL_BLOCK "
+              "(P_CLASSVAR_DECL_STATEMENT "
+                "(P_CLASSVAR_SCOPE field)"
+                "(P_VARIABLE_DECL "
+                "(P_VARIABLE_TYPE integer)"
+                "(P_VARIABLE_LIST "
+                "(P_VARIABLE_NAME a)))"
+                "(P_DELIMITER <semicolon>))"
+              "(P_CLASSVAR_DECL_STATEMENT "
+                "(P_CLASSVAR_SCOPE field)"
+                "(P_VARIABLE_DECL "
+                "(P_VARIABLE_TYPE integer)"
+                "(P_VARIABLE_LIST "
+                "(P_VARIABLE_NAME b)))"
+                "(P_DELIMITER <semicolon>)))"
+            "(P_SUBROUTINE_DECL_BLOCK "
+              "(P_SUBROUTINE_TYPE method)"
+              "(P_RETURN_TYPE void)"
+              "(P_SUBROUTINE_NAME fn)"
               "(P_DELIMITER <left_parenthesis>)"
               "(P_PARAMETER_LIST )"
               "(P_DELIMITER <right_parenthesis>)"
