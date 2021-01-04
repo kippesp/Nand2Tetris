@@ -188,23 +188,23 @@ SCENARIO("Parse tree simple terms")
     stringstream ss;
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
-            "(P_TERM (P_ARRAY_VAR myvar)(P_LEFT_BRACKET <left_bracket>)"
+            "(P_TERM (P_ARRAY_VAR myvar)(P_DELIMITER <left_bracket>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
-            "(P_RIGHT_BRACKET <right_bracket>))");
+            "(P_DELIMITER <right_bracket>))");
   }
 
   SECTION("grouped expresson term")
   {
     // (P_EXPRESSION
     //   (P_TERM
-    //     (P_LEFT_PARENTHESIS left_parenthesis( ( ))
+    //     (P_DELIMITER left_parenthesis( ( ))
     //     (P_EXPRESSION
     //       (P_TERM
     //         (P_INTEGER_CONSTANT 1))
     //       (P_OP plus( + ))
     //       (P_TERM
     //         (P_INTEGER_CONSTANT 1)))
-    //     (P_RIGHT_PARENTHESIS right_parenthesis( ) ))))
+    //     (P_DELIMITER right_parenthesis( ) ))))
     strcpy(R.buffer, "(1 + 1)");
     JackTokenizer Tokenizer(R);
     auto tokens = Tokenizer.parse_tokens();
@@ -218,21 +218,21 @@ SCENARIO("Parse tree simple terms")
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
             "(P_EXPRESSION "
-            "(P_TERM (P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_TERM (P_DELIMITER <left_parenthesis>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1))"
             "(P_OP <plus>)(P_TERM (P_INTEGER_CONSTANT 1)))"
-            "(P_RIGHT_PARENTHESIS <right_parenthesis>)))");
+            "(P_DELIMITER <right_parenthesis>)))");
   }
 
   SECTION("grouped unary expresson term")
   {
     // (P_EXPRESSION
     //   (P_TERM
-    //     (P_LEFT_PARENTHESIS left_parenthesis)
+    //     (P_DELIMITER left_parenthesis)
     //     (P_EXPRESSION
     //       (P_TERM
     //         (P_INTEGER_CONSTANT 1)))
-    //     (P_RIGHT_PARENTHESIS right_parenthesis)))
+    //     (P_DELIMITER right_parenthesis)))
     strcpy(R.buffer, "(1)");
     JackTokenizer Tokenizer(R);
     auto tokens = Tokenizer.parse_tokens();
@@ -246,9 +246,9 @@ SCENARIO("Parse tree simple terms")
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
             "(P_EXPRESSION "
-            "(P_TERM (P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_TERM (P_DELIMITER <left_parenthesis>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
-            "(P_RIGHT_PARENTHESIS <right_parenthesis>)))");
+            "(P_DELIMITER <right_parenthesis>)))");
   }
 
   SECTION("unary op - term")
@@ -482,9 +482,9 @@ SCENARIO("Parse tree subroutine terms")
             "(P_EXPRESSION (P_TERM "
             "(P_SUBROUTINE_CALL "
             "(P_SUBROUTINE_NAME mymethod)"
-            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_DELIMITER <left_parenthesis>)"
             "(P_EXPRESSION_LIST )"
-            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
+            "(P_DELIMITER <right_parenthesis>))))");
   }
 
   SECTION("class method call w/one expression")
@@ -505,10 +505,10 @@ SCENARIO("Parse tree subroutine terms")
             "(P_EXPRESSION (P_TERM "
             "(P_SUBROUTINE_CALL "
             "(P_SUBROUTINE_NAME mymethod)"
-            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_DELIMITER <left_parenthesis>)"
             "(P_EXPRESSION_LIST "
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1))))"
-            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
+            "(P_DELIMITER <right_parenthesis>))))");
   }
 
   SECTION("class method call w/expression list")
@@ -529,12 +529,12 @@ SCENARIO("Parse tree subroutine terms")
             "(P_EXPRESSION (P_TERM "
             "(P_SUBROUTINE_CALL "
             "(P_SUBROUTINE_NAME mymethod)"
-            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_DELIMITER <left_parenthesis>)"
             "(P_EXPRESSION_LIST "
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
             "(P_DELIMITER <comma>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 2))))"
-            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
+            "(P_DELIMITER <right_parenthesis>))))");
   }
 
   SECTION("dotted class method call w/no expression")
@@ -558,9 +558,9 @@ SCENARIO("Parse tree subroutine terms")
             "(P_CLASS_OR_VAR_NAME identifier)"
             "(P_DELIMITER <period>)"
             "(P_SUBROUTINE_NAME mymethod)"
-            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_DELIMITER <left_parenthesis>)"
             "(P_EXPRESSION_LIST )"
-            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
+            "(P_DELIMITER <right_parenthesis>))))");
   }
 
   SECTION("dotted class method call w/one expression")
@@ -584,10 +584,10 @@ SCENARIO("Parse tree subroutine terms")
             "(P_CLASS_OR_VAR_NAME identifier)"
             "(P_DELIMITER <period>)"
             "(P_SUBROUTINE_NAME mymethod)"
-            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_DELIMITER <left_parenthesis>)"
             "(P_EXPRESSION_LIST "
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1))))"
-            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
+            "(P_DELIMITER <right_parenthesis>))))");
   }
 
   SECTION("dotted class method call w/expression list")
@@ -611,12 +611,12 @@ SCENARIO("Parse tree subroutine terms")
             "(P_CLASS_OR_VAR_NAME identifier)"
             "(P_DELIMITER <period>)"
             "(P_SUBROUTINE_NAME mymethod)"
-            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_DELIMITER <left_parenthesis>)"
             "(P_EXPRESSION_LIST "
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
             "(P_DELIMITER <comma>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 2))))"
-            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))");
+            "(P_DELIMITER <right_parenthesis>))))");
   }
 }
 
@@ -688,9 +688,9 @@ SCENARIO("Parse tree statements")
             "(P_KEYWORD do)"
             "(P_SUBROUTINE_CALL "
             "(P_SUBROUTINE_NAME fn)"
-            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_DELIMITER <left_parenthesis>)"
             "(P_EXPRESSION_LIST )"
-            "(P_RIGHT_PARENTHESIS <right_parenthesis>))"
+            "(P_DELIMITER <right_parenthesis>))"
             "(P_DELIMITER <semicolon>)))");
   }
 
@@ -716,12 +716,12 @@ SCENARIO("Parse tree statements")
             "(P_CLASS_OR_VAR_NAME cname)"
             "(P_DELIMITER <period>)"
             "(P_SUBROUTINE_NAME fn)"
-            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_DELIMITER <left_parenthesis>)"
             "(P_EXPRESSION_LIST "
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
             "(P_DELIMITER <comma>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 2))))"
-            "(P_RIGHT_PARENTHESIS <right_parenthesis>))"
+            "(P_DELIMITER <right_parenthesis>))"
             "(P_DELIMITER <semicolon>)))");
   }
 
@@ -828,9 +828,9 @@ SCENARIO("Parse tree statements")
             "(P_LET_STATEMENT "
             "(P_KEYWORD let)"
             "(P_ARRAY_VAR myvar)"
-            "(P_LEFT_BRACKET <left_bracket>)"
+            "(P_DELIMITER <left_bracket>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
-            "(P_RIGHT_BRACKET <right_bracket>)"
+            "(P_DELIMITER <right_bracket>)"
             "(P_OP <equal>)"
             "(P_EXPRESSION (P_TERM (P_KEYWORD_CONSTANT true)))"
             "(P_DELIMITER <semicolon>)))");
@@ -916,9 +916,9 @@ SCENARIO("Parse tree statements")
             "(P_EXPRESSION (P_TERM "
             "(P_SUBROUTINE_CALL "
             "(P_SUBROUTINE_NAME fn)"
-            "(P_LEFT_PARENTHESIS <left_parenthesis>)"
+            "(P_DELIMITER <left_parenthesis>)"
             "(P_EXPRESSION_LIST )"
-            "(P_RIGHT_PARENTHESIS <right_parenthesis>))))"
+            "(P_DELIMITER <right_parenthesis>))))"
             "(P_DELIMITER <semicolon>))");
   }
 }
@@ -1404,7 +1404,7 @@ SCENARIO("program high-level structures")
     JackTokenizer Tokenizer(R);
     auto tokens = Tokenizer.parse_tokens();
 
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    ParseTree T(tokens);
     auto parsetree_node = T.parse_class();
     REQUIRE(parsetree_node);
 

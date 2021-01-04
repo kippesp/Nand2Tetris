@@ -69,15 +69,11 @@ typedef enum class ParseTreeNodeType_s {
   P_INTEGER_CONSTANT,
   P_KEYWORD,
   P_KEYWORD_CONSTANT,
-  P_LEFT_BRACKET,
-  P_LEFT_PARENTHESIS,
   P_LET_STATEMENT,
   P_OP,
   P_PARAMETER_LIST,
   P_RETURN_STATEMENT,
   P_RETURN_TYPE,
-  P_RIGHT_BRACKET,
-  P_RIGHT_PARENTHESIS,
   P_SCALAR_VAR,
   P_STATEMENT_LIST,
   P_STRING_CONSTANT,
@@ -177,11 +173,16 @@ public:
   ParseTree(const ParseTree&) = delete;
   ParseTree& operator=(const ParseTree&) = delete;
 
+  // Earlier constructor before parsers were developed
   ParseTree(ParseTreeNodeType_t type,
             std::unique_ptr<std::vector<JackToken>>& tokens)
       : root(std::make_shared<ParseTreeNonTerminal>(type)), tokens(tokens)
   {
   }
+
+  ParseTree(std::unique_ptr<std::vector<JackToken>>& tokens) : tokens(tokens) {}
+
+  std::string pprint(const std::string&) const;
 
   // program structure parsers
   std::shared_ptr<ParseTreeNonTerminal> parse_class();

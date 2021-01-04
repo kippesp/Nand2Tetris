@@ -13,6 +13,8 @@ struct CliArgs {
   bool halt_after_tokenizer{false};
   bool halt_after_tokenizer_s_expression{false};
 
+  bool halt_after_parse_tree_s_expression{false};
+
 private:
   std::list<const std::string> filelist;
 };

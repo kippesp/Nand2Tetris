@@ -70,13 +70,26 @@ int main(int argc, const char* argv[])
       return 0;
     }
 
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    // filter out comment tokens
+    auto filtered_tokens = make_unique<vector<JackToken>>();
+
+    for (auto& token : *tokens)
+    {
+      if (token.value_enum != TokenValue_t::J_COMMENT)
+        filtered_tokens->push_back(token);
+    }
+
+    ParseTree T(filtered_tokens);
+
     auto parsetree_node = T.parse_class();
 
-    stringstream ss;
-    ss << *parsetree_node;
+    if (cliargs.halt_after_parse_tree_s_expression)
+    {
+      stringstream ss;
+      ss << *parsetree_node;
 
-    cout << ss.str() << endl;
+      cout << T.pprint(ss.str()) << endl;
+    }
   }
 
   return 0;

@@ -42,6 +42,14 @@ CliArgs::CliArgs(int argc, const char* argv[])
       i++;
       continue;
     }
+
+    // -p - stop after parser and output the parse tree
+    if ((argv[i][0] == '-') && (argv[i][1] == 'p') && (argv[i][2] == '\0'))
+    {
+      halt_after_parse_tree_s_expression = true;
+      i++;
+      continue;
+    }
   }
 
   struct stat argStat;
@@ -168,9 +176,11 @@ const std::list<const std::string>& CliArgs::inputlist()
 
 void CliArgs::show_usage()
 {
+  std::cout << "Convert .jack files to .sexp parse tree\n\n";
   std::cout << "SYNOPSIS:\n\n";
   std::cout << "  jfcl -h" << std::endl;
-  std::cout << "  jfcl [-t] FILENAME.jack" << std::endl;
+  std::cout << "  jfcl [-t|-T] FILENAME.jack" << std::endl;
+  std::cout << "  jfcl -p FILENAME.jack" << std::endl;
   std::cout << "  jfcl DIRECTORY|FILENAME.jack" << std::endl;
 }
 
@@ -194,11 +204,9 @@ void CliArgs::show_help()
   std::cout
       << "Display tokenizer output in S expression w/o internals and halt";
 
-  std::cout << std::endl;
+  std::cout << "\n  ";
+  std::cout << setw(24) << left << "-p";
+  std::cout << "Display parse tree output and halt";
 
-#if 0
-    std::cout << "\n  ";
-    std::cout << setw(24) << left << "-h";
-    std::cout << "Display available options\n";
-#endif
+  std::cout << std::endl;
 }
