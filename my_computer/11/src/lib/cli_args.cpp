@@ -169,7 +169,7 @@ CliArgs::CliArgs(int argc, const char* argv[])
   }
 }
 
-const std::list<const std::string>& CliArgs::inputlist()
+const std::list<const std::string>& CliArgs::inputlist() const
 {
   return filelist;
 }

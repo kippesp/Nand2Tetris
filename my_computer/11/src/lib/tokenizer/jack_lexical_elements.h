@@ -78,5 +78,5 @@ struct JackToken {
   // Convert to text output
   static std::string to_string(TokenType_t);
   static std::string to_string(TokenValue_t);
-  std::string to_s_expression();
+  std::string to_s_expression() const;
 };

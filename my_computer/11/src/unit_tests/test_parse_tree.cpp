@@ -1350,6 +1350,18 @@ SCENARIO("program high-level structures")
             "(P_DELIMITER <right_brace>))");
   }
 
+  SECTION("invalid class decl")
+  {
+    // <class> ::= "class" <class-name> "{" {<class-var-decl>}*
+    //             {<subroutine-decl>}* "}"
+    strcpy(R.buffer, "class myclass {}");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    REQUIRE_THROWS(T.parse_class());
+  }
+
   SECTION("class decl")
   {
     // <class> ::= "class" <class-name> "{" {<class-var-decl>}*

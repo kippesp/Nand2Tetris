@@ -5,7 +5,7 @@ struct CliArgs {
   CliArgs(int argc, const char* argv[]);
 
   // returns list of input files found (or specified)
-  const std::list<const std::string>& inputlist();
+  const std::list<const std::string>& inputlist() const;
 
   static void show_usage();
   static void show_help();

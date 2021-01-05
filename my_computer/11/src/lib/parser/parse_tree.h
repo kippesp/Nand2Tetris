@@ -1,3 +1,5 @@
+#pragma once
+
 #include <memory>
 #include <vector>
 
@@ -94,7 +96,6 @@ typedef enum class ParseTreeNodeType_s {
 } ParseTreeNodeType_t;
 
 class ParseTreeNode : public std::enable_shared_from_this<ParseTreeNode> {
-  // class ParseTreeNode {
 public:
   ParseTreeNode() = delete;
   ParseTreeNode(const ParseTreeNode&) = delete;
@@ -102,17 +103,16 @@ public:
 
   virtual ~ParseTreeNode() = default;
 
-  const ParseTreeNodeType_t type{ParseTreeNodeType_t::P_UNDEFINED};
-
   static std::string to_string(ParseTreeNodeType_t);
 
   friend std::ostream& operator<<(std::ostream&, const ParseTreeNode&);
+
+  const ParseTreeNodeType_t type{ParseTreeNodeType_t::P_UNDEFINED};
 
 protected:
   ParseTreeNode(ParseTreeNodeType_t type) : type(type) {}
 
 private:
-  std::shared_ptr<ParseTreeNode> parent{nullptr};
 };
 
 class ParseTreeTerminal;
@@ -182,7 +182,7 @@ public:
 
   ParseTree(std::unique_ptr<std::vector<JackToken>>& tokens) : tokens(tokens) {}
 
-  std::string pprint(const std::string&) const;
+  std::string pprint(std::string_view) const;
 
   // program structure parsers
   std::shared_ptr<ParseTreeNonTerminal> parse_class();
@@ -221,4 +221,14 @@ private:
   const std::shared_ptr<ParseTreeNonTerminal> root{nullptr};
   const std::unique_ptr<std::vector<JackToken>>& tokens;
   size_t parse_cursor{0};
+};
+
+class ParseException : public std::exception {
+public:
+  ParseException(std::string, const JackToken&);
+
+  const std::string description;
+  const JackToken token;
+
+  virtual const char* what() const noexcept { return description.data(); }
 };

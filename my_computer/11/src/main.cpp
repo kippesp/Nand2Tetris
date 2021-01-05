@@ -9,33 +9,8 @@
 
 using namespace std;
 
-int main(int argc, const char* argv[])
+int inner_main(const CliArgs& cliargs)
 {
-  (void)argc;
-  (void)argv;
-  if (argc == 1)
-  {
-    cout << "jfcl: missing input" << endl;
-    cout << "Try `jfcl -h' for more options." << endl;
-    exit(1);
-  }
-
-  if ((strcmp(argv[1], "--help") == 0) || (strcmp(argv[1], "-h") == 0))
-  {
-    CliArgs::show_help();
-    exit(1);
-  }
-
-  CliArgs cliargs(argc, argv);
-
-  if ((cliargs.inputlist().size() > 1) &&
-      ((cliargs.halt_after_tokenizer ||
-        cliargs.halt_after_tokenizer_s_expression)))
-  {
-    cout << "Output with multiple files not supported." << endl;
-    return 1;
-  }
-
   for (auto& f : cliargs.inputlist())
   {
     JackInputFile inputfile(f);
@@ -107,4 +82,44 @@ int main(int argc, const char* argv[])
   }
 
   return 0;
+}
+
+int main(int argc, const char* argv[])
+{
+  if (argc == 1)
+  {
+    cout << "jfcl: missing input" << endl;
+    cout << "Try `jfcl -h' for more options." << endl;
+    return 1;
+  }
+
+  if ((strcmp(argv[1], "--help") == 0) || (strcmp(argv[1], "-h") == 0))
+  {
+    CliArgs::show_help();
+    return 1;
+  }
+
+  CliArgs cliargs(argc, argv);
+
+  if ((cliargs.inputlist().size() > 1) &&
+      ((cliargs.halt_after_tokenizer ||
+        cliargs.halt_after_tokenizer_s_expression)))
+  {
+    cout << "Output with multiple files not supported." << endl;
+    return 1;
+  }
+
+  int rvalue;
+
+  try
+  {
+    rvalue = inner_main(cliargs);
+  } catch (ParseException& e)
+  {
+    cout << "Parse error: " << e.what() << endl;
+    cout << e.token.to_s_expression() << endl;
+    return 1;
+  }
+
+  return rvalue;
 }

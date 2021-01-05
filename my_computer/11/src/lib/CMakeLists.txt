@@ -7,9 +7,9 @@ set(${LIBRARY_TARGET_NAME}_SRCS
 
 add_subdirectory(tokenizer)
 add_subdirectory(parser)
+add_subdirectory(vmwriter)
 
 add_library(${LIBRARY_TARGET_NAME} ${${LIBRARY_TARGET_NAME}_SRCS})
 
 # TODO: PRIVATE works too.
-# TODO: Can libraries be combined?
-target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC tokenizer parser)
+target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC tokenizer parser vmwriter)

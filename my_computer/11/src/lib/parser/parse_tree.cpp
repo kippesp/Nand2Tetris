@@ -1,8 +1,10 @@
 #include "parse_tree.h"
 
+#include <ctype.h>
+
 #include <cassert>
 #include <iostream>
-#include <string>
+#include <string_view>
 
 using namespace std;
 
@@ -32,7 +34,7 @@ ostream& operator<<(ostream& os, const ParseTreeNode& rhs_ptn)
   return os;
 }
 
-string ParseTree::pprint(const string& s) const
+string ParseTree::pprint(string_view s) const
 {
   const int LEVEL_INDENT = 1;
   stringstream ss;
@@ -182,7 +184,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
   }
   else
   {
-    assert(0 && "Parse error: Expected <class> keyword");
+    throw ParseException("expected <class> keyword", (*tokens)[idx]);
   }
 
   idx++;
@@ -190,12 +192,18 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
   if (JackToken class_name_token = (*tokens)[idx];
       class_name_token.type == TokenType_t::J_IDENTIFIER)
   {
+    if (!isupper(class_name_token.value_str.c_str()[0]))
+    {
+      throw ParseException("class must start with an uppercase letter",
+                           class_name_token);
+    }
+
     root_node->create_child(ParseTreeNodeType_t::P_CLASS_NAME,
                             class_name_token);
   }
   else
   {
-    assert(0 && "Parse error: Invalid CLASSNAME identifier");
+    throw ParseException("invalid CLASSNAME identifier", class_name_token);
   }
 
   idx++;
@@ -207,7 +215,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
   }
   else
   {
-    assert(0 && "Parse error: Expected <left_brace> after CLASSNAME");
+    throw ParseException("expected '{' after CLASSNAME", (*tokens)[idx]);
   }
 
   idx++;
@@ -230,8 +238,8 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
   }
   else
   {
-    assert(0 &&
-           "Parse error: Expected <right_brace> to close <class> definition");
+    throw ParseException("expected '}' to close class definition",
+                         (*tokens)[idx]);
   }
 
   idx++;
@@ -274,7 +282,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_variable_decl_list()
   }
   else
   {
-    assert(0 && "Parse error: Invalid variable name");
+    throw ParseException("invalid variable name", (*tokens)[idx]);
   }
 
   for (bool done = false; !done; /* empty */)
@@ -295,7 +303,8 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_variable_decl_list()
       }
       else
       {
-        assert(0 && "Parse error: Expected variable name after <comma>");
+        throw ParseException("expected variable name after comma",
+                             (*tokens)[idx]);
       }
     }
     else
@@ -412,7 +421,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_declaration()
   }
   else
   {
-    assert(0 && "Parse error: Invalid return type");
+    throw ParseException("invalid return type", (*tokens)[idx]);
   }
 
   idx++;
@@ -425,7 +434,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_declaration()
   }
   else
   {
-    assert(0 && "Parse error: Invalid subroutine name");
+    throw ParseException("invalid subroutine name", (*tokens)[idx]);
   }
 
   idx++;
@@ -442,7 +451,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_declaration()
   }
   else
   {
-    assert(0 && "Parse error: Expected '(' after subroutine name");
+    throw ParseException("expected '(' after subroutine name", (*tokens)[idx]);
   }
 
   if (JackToken rp_token = (*tokens)[idx];
@@ -452,7 +461,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_declaration()
   }
   else
   {
-    assert(0 && "Parse error: Expected ')' after <parameter-list>");
+    throw ParseException("expected ')' after subroutine name", (*tokens)[idx]);
   }
 
   idx++;
@@ -1335,4 +1344,9 @@ shared_ptr<ParseTreeNode> ParseTreeNonTerminal::create_child(
   auto new_node = child_nodes->back();
 
   return new_node;
+}
+
+ParseException::ParseException(std::string desc, const JackToken& tok)
+    : description(desc), token(tok)
+{
 }

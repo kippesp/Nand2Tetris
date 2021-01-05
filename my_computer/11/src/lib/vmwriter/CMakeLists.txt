@@ -1,8 +1,8 @@
-set(LIBRARY_TARGET_NAME parser)
+set(LIBRARY_TARGET_NAME vmwriter)
 
 set(${LIBRARY_TARGET_NAME}_SRCS
-    parse_tree.cpp
-    parse_tree.h
+    vmwriter.cpp
+    vmwriter.h
 )
 
 add_library(${LIBRARY_TARGET_NAME} ${${LIBRARY_TARGET_NAME}_SRCS})

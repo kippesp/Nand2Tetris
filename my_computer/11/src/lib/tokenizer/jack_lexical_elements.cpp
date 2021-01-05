@@ -93,7 +93,7 @@ string JackToken::to_string(TokenValue_t v)
   }
 }
 
-string JackToken::to_s_expression()
+string JackToken::to_s_expression() const
 {
   stringstream ss;
 

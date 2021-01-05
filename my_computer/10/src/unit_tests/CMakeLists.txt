@@ -12,8 +12,6 @@ add_library(${JFCL_TEST_PROJECT_NAME}_main STATIC
 add_executable(${JFCL_TEST_PROJECT_NAME}
     catch.hpp
     mock_reader.h
-    #test_ast.cpp
-    #test_parser.cpp
     test_parse_tree.cpp
     test_tokenizer.cpp
 )
