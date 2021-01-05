@@ -122,7 +122,7 @@ CliArgs::CliArgs(int argc, const char* argv[])
         break;
       }
 
-      if (strlen(dirEntry->d_name) <= 3) continue;
+      if (strlen(dirEntry->d_name) <= 5) continue;
 
       std::string fileEntry(dirEntry->d_name);
 
@@ -164,7 +164,7 @@ CliArgs::CliArgs(int argc, const char* argv[])
         exit(-1);
       }
 
-      filelist.push_back(fileEntry);
+      filelist.push_back(filePath);
     }
   }
 }

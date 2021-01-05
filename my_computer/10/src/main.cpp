@@ -32,25 +32,27 @@ int main(int argc, const char* argv[])
       ((cliargs.halt_after_tokenizer ||
         cliargs.halt_after_tokenizer_s_expression)))
   {
-    cout << "Tokenizer output with multiple files not supported." << endl;
+    cout << "Output with multiple files not supported." << endl;
     return 1;
   }
 
   for (auto& f : cliargs.inputlist())
   {
     JackInputFile inputfile(f);
-    inputfile.open();
+    if (inputfile.open())
+    {
+      cout << "Failed to open input file, " << f << endl;
+      return -1;
+    }
     JackTokenizer tokenizer(inputfile);
+    string output_filename = f.substr(0, f.length() - 5) + ".sexpr";
 
     auto tokens = tokenizer.parse_tokens();
 
     if (cliargs.halt_after_tokenizer)
     {
       for (auto& token : *tokens)
-      {
         cout << token << endl;
-      }
-
       return 0;
     }
 
@@ -66,7 +68,6 @@ int main(int argc, const char* argv[])
       }
 
       cout << ")" << endl;
-
       return 0;
     }
 
@@ -87,9 +88,22 @@ int main(int argc, const char* argv[])
     {
       stringstream ss;
       ss << *parsetree_node;
-
       cout << T.pprint(ss.str()) << endl;
+      return 0;
     }
+
+    ofstream ofile(output_filename);
+
+    if (!ofile)
+    {
+      cout << "Failed to open output file, " << output_filename << endl;
+      return -1;
+    }
+
+    stringstream ss;
+    ss << *parsetree_node;
+    ofile << T.pprint(ss.str()) << endl;
+    ofile.close();
   }
 
   return 0;

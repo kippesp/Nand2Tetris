@@ -1,5 +1,8 @@
 #include "file_io.h"
 
+#include <errno.h>
+#include <stdio.h>
+
 #include <cassert>
 #include <fstream>
 
@@ -23,10 +26,11 @@ int JackInputFile::open()
 {
   assert(infile == nullptr);
 
-  infile = std::fopen(filename.c_str(), "r");
+  infile = fopen(filename.c_str(), "r");
 
   if (!infile)
   {
+    perror("open");
     return 1;
   }
 

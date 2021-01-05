@@ -20,7 +20,6 @@ public:
   JackInputFile& operator=(const JackInputFile&) = delete;
   JackInputFile& operator=(JackInputFile&&) = delete;
 
-  // opens filename for reading; returns 0 if successful
   int open();
 
   // returns one character from the input file without advancing the cursor
