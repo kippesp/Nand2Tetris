@@ -5,6 +5,10 @@
 
 #include "parser/parse_tree.h"
 
+
+// bool: 0xFFFF
+
+
 const ParseTreeNode* VmWriter::visit()
 {
   if (unvisited_nodes.size() == 0) return nullptr;
