@@ -45,6 +45,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+message(STATUS "Compiler ID: " ${CMAKE_CXX_COMPILER_ID})
+
 #set(CMAKE_BUILD_RPATH "/home/kippesp/usr/opt/llvm-10.0.x/lib")
 
 add_compile_options(-Wall -Wextra -Wimplicit-fallthrough)
@@ -73,13 +75,16 @@ if (NOT MSVC)
         add_compile_options(-Wshadow)
         add_compile_options(-Wshadow-field)
 
-        # support c++17 filesystem
-        add_compile_options(-stdlib=libc++)
     else()
     endif()
 
     if (USE_LEGACY_CLIARGS)
         add_compile_options(-DLEGACY_CLIARGS)
+    else()
+        if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+            # support c++17 filesystem
+            add_compile_options(-stdlib=libc++)
+        endif()
     endif()
 endif()
 

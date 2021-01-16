@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <string.h>
 
 #include "catch.hpp"
@@ -42,5 +43,195 @@ SCENARIO("VMWriter Basics")
         "P_DELIMITER P_EXPRESSION P_TERM P_INTEGER_CONSTANT P_OP P_TERM "
         "P_INTEGER_CONSTANT P_DELIMITER P_DELIMITER P_DELIMITER "
         "P_RETURN_STATEMENT P_KEYWORD P_DELIMITER P_DELIMITER P_DELIMITER ");
+  }
+
+  SECTION("Class vars")
+  {
+    strcpy(R.buffer, CLASSVAR_SRC);
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    stringstream ss;
+
+    VM.lower_class();
+    REQUIRE(VM.class_name == "testjack");
+
+    const auto& ST = VM.get_symbol_table();
+
+    const auto* s1 = ST.find_symbol("var1");
+    REQUIRE(s1->name == "var1");
+    REQUIRE(s1->var_index == 0);
+    REQUIRE(get_if<Symbol::BasicType_t>(&s1->type));
+    REQUIRE(get_if<Symbol::ClassStorageClass_t>(&s1->storage_class));
+    REQUIRE(get<Symbol::BasicType_t>(s1->type) == Symbol::BasicType_t::T_INT);
+    REQUIRE(get<Symbol::ClassStorageClass_t>(s1->storage_class) ==
+            Symbol::ClassStorageClass_t::S_FIELD);
+
+    const auto* s2 = ST.find_symbol("inst1");
+    REQUIRE(s2->name == "inst1");
+    REQUIRE(s2->var_index == 0);
+    REQUIRE(get_if<Symbol::ClassType_t>(&s2->type));
+    REQUIRE(get_if<Symbol::ClassStorageClass_t>(&s2->storage_class));
+    REQUIRE(get<Symbol::ClassType_t>(s2->type) == "ClassName");
+    REQUIRE(get<Symbol::ClassStorageClass_t>(s2->storage_class) ==
+            Symbol::ClassStorageClass_t::S_STATIC);
+
+    const auto* s3 = ST.find_symbol("var2");
+    REQUIRE(s3->name == "var2");
+    REQUIRE(s3->var_index == 1);
+    REQUIRE(get_if<Symbol::BasicType_t>(&s3->type));
+    REQUIRE(get_if<Symbol::ClassStorageClass_t>(&s3->storage_class));
+    REQUIRE(get<Symbol::BasicType_t>(s3->type) ==
+            Symbol::BasicType_t::T_BOOLEAN);
+    REQUIRE(get<Symbol::ClassStorageClass_t>(s3->storage_class) ==
+            Symbol::ClassStorageClass_t::S_FIELD);
+  }
+
+  SECTION("classname to file mismatch")
+  {
+    strcpy(R.buffer, CLASSVAR_SRC);
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(tokens, "NotTheSame");
+    REQUIRE_THROWS(T.parse_class());
+  }
+
+  SECTION("Subroutine vars")
+  {
+    strcpy(R.buffer, CLASSANDSUBVARS_SRC);
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    stringstream ss;
+
+    VM.lower_class();
+    REQUIRE(VM.class_name == "JackTest");
+
+    const auto& ST = VM.get_symbol_table();
+
+    const auto* s0 = ST.find_symbol("this");
+    REQUIRE(s0->name == "this");
+    REQUIRE(s0->var_index == 0);
+    REQUIRE(get_if<Symbol::ClassType_t>(&s0->type));
+    REQUIRE(get_if<Symbol::SubroutineStorageClass_t>(&s0->storage_class));
+    REQUIRE(get<Symbol::ClassType_t>(s0->type) == "JackTest");
+    REQUIRE(get<Symbol::SubroutineStorageClass_t>(s0->storage_class) ==
+            Symbol::SubroutineStorageClass_t::S_ARGUMENT);
+
+    const auto* s1 = ST.find_symbol("a1");
+    REQUIRE(s1->name == "a1");
+    REQUIRE(s1->var_index == 1);
+    REQUIRE(get_if<Symbol::BasicType_t>(&s1->type));
+    REQUIRE(get_if<Symbol::SubroutineStorageClass_t>(&s1->storage_class));
+    REQUIRE(get<Symbol::BasicType_t>(s1->type) == Symbol::BasicType_t::T_INT);
+    REQUIRE(get<Symbol::SubroutineStorageClass_t>(s1->storage_class) ==
+            Symbol::SubroutineStorageClass_t::S_ARGUMENT);
+
+    const auto* s2 = ST.find_symbol("a2");
+    REQUIRE(s2->name == "a2");
+    REQUIRE(s2->var_index == 2);
+    REQUIRE(get_if<Symbol::BasicType_t>(&s2->type));
+    REQUIRE(get_if<Symbol::SubroutineStorageClass_t>(&s2->storage_class));
+    REQUIRE(get<Symbol::BasicType_t>(s2->type) == Symbol::BasicType_t::T_INT);
+    REQUIRE(get<Symbol::SubroutineStorageClass_t>(s2->storage_class) ==
+            Symbol::SubroutineStorageClass_t::S_ARGUMENT);
+
+    const auto* s3 = ST.find_symbol("v1");
+    REQUIRE(s3->name == "v1");
+    REQUIRE(s3->var_index == 0);
+    REQUIRE(get_if<Symbol::BasicType_t>(&s3->type));
+    REQUIRE(get_if<Symbol::SubroutineStorageClass_t>(&s3->storage_class));
+    REQUIRE(get<Symbol::BasicType_t>(s3->type) == Symbol::BasicType_t::T_INT);
+    REQUIRE(get<Symbol::SubroutineStorageClass_t>(s3->storage_class) ==
+            Symbol::SubroutineStorageClass_t::S_LOCAL);
+
+    const auto* s4 = ST.find_symbol("v2");
+    REQUIRE(s4->name == "v2");
+    REQUIRE(s4->var_index == 1);
+    REQUIRE(get_if<Symbol::BasicType_t>(&s4->type));
+    REQUIRE(get_if<Symbol::SubroutineStorageClass_t>(&s4->storage_class));
+    REQUIRE(get<Symbol::BasicType_t>(s4->type) ==
+            Symbol::BasicType_t::T_BOOLEAN);
+    REQUIRE(get<Symbol::SubroutineStorageClass_t>(s4->storage_class) ==
+            Symbol::SubroutineStorageClass_t::S_LOCAL);
+
+    const auto* s5 = ST.find_symbol("v3");
+    REQUIRE(s5->name == "v3");
+    REQUIRE(s5->var_index == 2);
+    REQUIRE(get_if<Symbol::BasicType_t>(&s5->type));
+    REQUIRE(get_if<Symbol::SubroutineStorageClass_t>(&s5->storage_class));
+    REQUIRE(get<Symbol::BasicType_t>(s5->type) ==
+            Symbol::BasicType_t::T_BOOLEAN);
+    REQUIRE(get<Symbol::SubroutineStorageClass_t>(s5->storage_class) ==
+            Symbol::SubroutineStorageClass_t::S_LOCAL);
+  }
+
+  SECTION("Two subroutines vars")
+  {
+    strcpy(R.buffer, TWO_SUBS_SRC);
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    stringstream ss;
+
+    VM.lower_class();
+    REQUIRE(VM.class_name == "JackTest2");
+
+    const auto& ST = VM.get_symbol_table();
+
+    const auto* s1 = ST.find_symbol("v1");
+    REQUIRE(s1 == nullptr);
+
+    const auto* s2 = ST.find_symbol("v2");
+    REQUIRE(s2->name == "v2");
+    REQUIRE(s2->var_index == 0);
+    REQUIRE(get_if<Symbol::BasicType_t>(&s2->type));
+    REQUIRE(get_if<Symbol::SubroutineStorageClass_t>(&s2->storage_class));
+    REQUIRE(get<Symbol::BasicType_t>(s2->type) == Symbol::BasicType_t::T_CHAR);
+    REQUIRE(get<Symbol::SubroutineStorageClass_t>(s2->storage_class) ==
+            Symbol::SubroutineStorageClass_t::S_LOCAL);
+  }
+
+  SECTION("Subroutine Descr")
+  {
+    strcpy(R.buffer, CLASSANDSUBVARS_SRC);
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+
+    auto pClassNode =
+        dynamic_cast<const ParseTreeNonTerminal*>(&(*parsetree_node));
+    auto pSubroutineDeclNode = VM.find_first_nonterm_node(
+        ParseTreeNodeType_t::P_SUBROUTINE_DECL_BLOCK, pClassNode);
+    REQUIRE(pSubroutineDeclNode);
+
+    auto descr = SubroutineDescr(VM, pSubroutineDeclNode);
+    REQUIRE(descr.type == TokenValue_t::J_METHOD);
+    REQUIRE(get_if<Symbol::BasicType_t>(&descr.return_type));
+    REQUIRE(get<Symbol::BasicType_t>(descr.return_type) ==
+            Symbol::BasicType_t::T_VOID);
+    REQUIRE(descr.name == "sub1");
+    REQUIRE(descr.pBody);
   }
 }

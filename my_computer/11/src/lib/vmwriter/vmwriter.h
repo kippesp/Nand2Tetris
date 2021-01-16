@@ -1,6 +1,8 @@
 #pragma once
 
 #include "parser/parse_tree.h"
+#include "semantic_exception.h"
+#include "symbol_table.h"
 
 class VmWriter {
 public:
@@ -27,12 +29,44 @@ public:
     init();
   }
 
+  void lower_class();
+  void lower_subroutine(const ParseTreeNonTerminal*);
+
+  const SymbolTable& get_symbol_table() { return symbol_table; }
+
+  std::string class_name;
+
+  const ParseTreeTerminal* find_first_term_node(
+      ParseTreeNodeType_t, const ParseTreeNonTerminal*) const;
+  const ParseTreeNonTerminal* find_first_nonterm_node(
+      ParseTreeNodeType_t, const ParseTreeNonTerminal*) const;
+
 private:
+  const std::string get_class_name(const ParseTreeNonTerminal*) const;
+  void create_classvar_symtable(const ParseTreeNonTerminal*);
+  void create_subroutine_symtable(const ParseTreeNonTerminal*);
+
   const ParseTreeNode* parsetree_root_node;
   std::vector<const ParseTreeNode*> unvisited_nodes;
+  bool add_comments{true};
+  SymbolTable symbol_table;
+  std::stringstream lowered_vm;
 };
 
+struct SubroutineDescr {
+  SubroutineDescr() = delete;
+  SubroutineDescr(const SubroutineDescr&) = delete;
+  SubroutineDescr& operator=(const SubroutineDescr&) = delete;
 
+  virtual ~SubroutineDescr() = default;
+
+  SubroutineDescr(const VmWriter&, const ParseTreeNonTerminal*);
+
+  TokenValue_t type;  // constructor/function/method
+  Symbol::VariableType_t return_type;
+  std::string name;
+  const ParseTreeNonTerminal* pBody;
+};
 
 /*
 AST Structure

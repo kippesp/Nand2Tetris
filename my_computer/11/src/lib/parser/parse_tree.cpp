@@ -194,10 +194,15 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
   if (JackToken class_name_token = (*tokens)[idx];
       class_name_token.type == TokenType_t::J_IDENTIFIER)
   {
-    if (!isupper(class_name_token.value_str.c_str()[0]))
+    if (base_filename != "%")  // special internal value to skip this check
     {
-      throw ParseException("class must start with an uppercase letter",
-                           class_name_token);
+      if (base_filename.compare(
+              base_filename.length() - class_name_token.value_str.length(),
+              class_name_token.value_str.length(), class_name_token.value_str))
+      {
+        throw ParseException("class name not the same as the file",
+                             class_name_token);
+      }
     }
 
     root_node->create_child(ParseTreeNodeType_t::P_CLASS_NAME,

@@ -20,7 +20,8 @@ int inner_main(const CliArgs& cliargs)
       return -1;
     }
     JackTokenizer tokenizer(inputfile);
-    string output_filename = f.substr(0, f.length() - 5) + ".sexpr";
+    string base_filename = f.substr(0, f.length() - 5);
+    string output_filename = base_filename + ".sexpr";
 
     auto tokens = tokenizer.parse_tokens();
 
@@ -55,7 +56,7 @@ int inner_main(const CliArgs& cliargs)
         filtered_tokens->push_back(token);
     }
 
-    ParseTree T(filtered_tokens);
+    ParseTree T(filtered_tokens, base_filename);
 
     auto parsetree_node = T.parse_class();
 

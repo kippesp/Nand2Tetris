@@ -177,11 +177,17 @@ public:
   // Earlier constructor before parsers were developed
   ParseTree(ParseTreeNodeType_t type,
             std::unique_ptr<std::vector<JackToken>>& tokens)
-      : root(std::make_shared<ParseTreeNonTerminal>(type)), tokens(tokens)
+      : root(std::make_shared<ParseTreeNonTerminal>(type)),
+        tokens(tokens),
+        base_filename("%")
   {
   }
 
-  ParseTree(std::unique_ptr<std::vector<JackToken>>& tokens) : tokens(tokens) {}
+  ParseTree(std::unique_ptr<std::vector<JackToken>>& tokens,
+            std::string s = "%")
+      : tokens(tokens), base_filename(s)
+  {
+  }
 
   std::string pprint(std::string_view) const;
 
@@ -222,6 +228,7 @@ private:
   const std::shared_ptr<ParseTreeNonTerminal> root{nullptr};
   const std::unique_ptr<std::vector<JackToken>>& tokens;
   size_t parse_cursor{0};
+  const std::string base_filename;
 };
 
 class ParseException : public std::exception {

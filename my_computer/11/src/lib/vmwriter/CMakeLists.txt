@@ -1,7 +1,11 @@
 set(LIBRARY_TARGET_NAME vmwriter)
 
 set(${LIBRARY_TARGET_NAME}_SRCS
+    symbol_table.cpp
     vmwriter.cpp
+
+    semantic_exception.h
+    symbol_table.h
     vmwriter.h
 )
 
