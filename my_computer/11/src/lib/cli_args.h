@@ -2,10 +2,12 @@
 #include <string>
 
 struct CliArgs {
+  using filelist_t = std::list<std::string>;
+
   CliArgs(int argc, const char* argv[]);
 
   // returns list of input files found (or specified)
-  const std::list<const std::string>& inputlist() const;
+  const filelist_t& inputlist() const;
 
   static void show_usage();
   static void show_help();
@@ -16,5 +18,5 @@ struct CliArgs {
   bool halt_after_parse_tree_s_expression{false};
 
 private:
-  std::list<const std::string> filelist;
+  filelist_t filelist;
 };

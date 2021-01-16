@@ -1,19 +1,21 @@
 #include "cli_args.h"
 
-#include <dirent.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef LEGACY_CLIARGS
+#include <dirent.h>
 #include <sys/stat.h>
+#else
+#include <filesystem>
+#endif
 
 #include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <string>
 
-using std::cout;
-using std::left;
-using std::setw;
+using namespace std;
 
 enum class RunMode { unknown, file, directory };
 
@@ -52,8 +54,48 @@ CliArgs::CliArgs(int argc, const char* argv[])
     }
   }
 
-  struct stat argStat;
   bool isDirectory = false;
+
+#ifndef LEGACY_CLIARGS
+  // Cleaner implementation with modern std::filesystem support (VS2019,
+  // g++-8, llvm-7)
+  auto filearg = filesystem::path(argv[i]);
+
+  if (filesystem::is_directory(filearg))
+  {
+    isDirectory = true;
+  }
+  else if (filesystem::is_regular_file(filearg))
+  {
+    isDirectory = false;
+  }
+  else
+  {
+    std::cerr << "Not a file or directory." << std::endl;
+    exit(-1);
+  }
+
+  if (!isDirectory)
+  {
+    if (filearg.extension() != ".jack")
+    {
+      std::cerr << "Input filename required to end with .jack extension."
+                << std::endl;
+      exit(-1);
+    }
+
+    filelist.push_back(filearg);
+  }
+  else
+  {
+    for (auto& entry : filesystem::directory_iterator(filearg))
+      if (auto filename = entry.path(); filename.extension() == ".jack")
+        if (filesystem::is_regular_file(filename))
+          filelist.push_back(filename.string());
+  }
+#else
+  // Non-Windoz systems with older c++ support can use this implementation.
+  struct stat argStat;
 
   int rvalue = stat(argv[i], &argStat);
 
@@ -167,9 +209,10 @@ CliArgs::CliArgs(int argc, const char* argv[])
       filelist.push_back(filePath);
     }
   }
+#endif
 }
 
-const std::list<const std::string>& CliArgs::inputlist() const
+const CliArgs::filelist_t& CliArgs::inputlist() const
 {
   return filelist;
 }
