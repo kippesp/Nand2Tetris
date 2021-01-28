@@ -111,6 +111,8 @@ string ParseTreeNode::to_string(ParseTreeNodeType_t type)
       return "P_STRING_CONSTANT";
     case ParseTreeNodeType_t::P_SUBROUTINE_BODY:
       return "P_SUBROUTINE_BODY";
+    case ParseTreeNodeType_t::P_SUBROUTINE_CALL_SITE_BINDING:
+      return "P_SUBROUTINE_CALL_SITE_BINDING";
     case ParseTreeNodeType_t::P_SUBROUTINE_CALL:
       return "P_SUBROUTINE_CALL";
     case ParseTreeNodeType_t::P_SUBROUTINE_DECL_BLOCK:
@@ -1246,6 +1248,8 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_call()
 
   auto root_node =
       make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_SUBROUTINE_CALL);
+  auto call_site_node = make_shared<ParseTreeNonTerminal>(
+      ParseTreeNodeType_t::P_SUBROUTINE_CALL_SITE_BINDING);
 
   if (first_token.type == TokenType_t::J_IDENTIFIER)
   {
@@ -1260,8 +1264,9 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_call()
       assert((rp_token.value_enum == TokenValue_t::J_RIGHT_PARENTHESIS) &&
              "Parse error: expecting closing \")\" for subroutine call");
 
-      root_node->create_child(ParseTreeNodeType_t::P_SUBROUTINE_NAME,
-                              first_token);
+      call_site_node->create_child(ParseTreeNodeType_t::P_SUBROUTINE_NAME,
+                                   first_token);
+      root_node->create_child(call_site_node);
       root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, second_token);
       root_node->create_child(expression_list_node);
       root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rp_token);
@@ -1290,11 +1295,13 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_call()
         assert((rp_token.value_enum == TokenValue_t::J_RIGHT_PARENTHESIS) &&
                "Parse error: expecting closing \")\" for subroutine call");
 
-        root_node->create_child(ParseTreeNodeType_t::P_CLASS_OR_VAR_NAME,
-                                first_token);
-        root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, second_token);
-        root_node->create_child(ParseTreeNodeType_t::P_SUBROUTINE_NAME,
-                                subroutine_token);
+        call_site_node->create_child(ParseTreeNodeType_t::P_CLASS_OR_VAR_NAME,
+                                     first_token);
+        call_site_node->create_child(ParseTreeNodeType_t::P_DELIMITER,
+                                     second_token);
+        call_site_node->create_child(ParseTreeNodeType_t::P_SUBROUTINE_NAME,
+                                     subroutine_token);
+        root_node->create_child(call_site_node);
         root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lp_token);
         root_node->create_child(expression_list_node);
         root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rp_token);
