@@ -16,6 +16,7 @@ struct CliArgs {
   bool halt_after_tokenizer_s_expression{false};
 
   bool halt_after_parse_tree_s_expression{false};
+  bool halt_after_vmwriter{false};
 
 private:
   filelist_t filelist;

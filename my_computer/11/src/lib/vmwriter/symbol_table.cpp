@@ -4,6 +4,7 @@
 // clang-format off
 #include "semantic_exception.h"
 #include "symbol_table.h"
+#include "vmwriter.h"
 // clang-format on
 
 ostream& operator<<(ostream& os, const Symbol& rhs)
@@ -70,8 +71,8 @@ ostream& operator<<(ostream& os, const Symbol& rhs)
 
 ostream& operator<<(ostream& os, const PartialSymbolTable& rhs)
 {
-  for (auto s : rhs.symbols)
-    os << s << endl;;
+  for (auto s : rhs.symbols) os << s << endl;
+  ;
 
   return os;
 }
@@ -99,7 +100,6 @@ ostream& operator<<(ostream& os, const SymbolTable& rhs)
   {
     os << " (none)\b";
   }
-
 
   return os;
 }
@@ -197,6 +197,16 @@ const Symbol* SymbolTable::find_symbol(const string& varname) const
   {
     auto idx = TI->second;
     const Symbol* symbol = &(class_tbl->symbols[idx]);
+
+    if (pSubroutineDescr && symbol &&
+        (pSubroutineDescr->type == TokenValue_t::J_FUNCTION) &&
+        get_if<Symbol::ClassStorageClass_t>(&symbol->storage_class) &&
+        (get<Symbol::ClassStorageClass_t>(symbol->storage_class) ==
+         Symbol::ClassStorageClass_t::S_FIELD))
+    {
+      return nullptr;
+    }
+
     return symbol;
   }
   else
@@ -212,6 +222,7 @@ void SymbolTable::reset(Symbol::ScopeLevel_t type)
     case (Symbol::ScopeLevel_t::SUBROUTINE):
       subroutine_tbl.reset();
       subroutine_tbl = std::make_unique<PartialSymbolTable>();
+      pSubroutineDescr = nullptr;
       break;
     case (Symbol::ScopeLevel_t::CLASS):
       class_tbl.reset();

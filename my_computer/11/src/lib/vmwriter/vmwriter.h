@@ -4,6 +4,8 @@
 #include "semantic_exception.h"
 #include "symbol_table.h"
 
+struct SubroutineDescr;
+
 class VmWriter {
 public:
   VmWriter() = delete;
@@ -17,20 +19,21 @@ public:
   // Return visited node of parse tree using DFS
   const ParseTreeNode* visit();
 
-  void init()
-  {
-    unvisited_nodes.clear();
-    unvisited_nodes.push_back(parsetree_root_node);
-  }
-
   VmWriter(const std::shared_ptr<ParseTreeNonTerminal> pt)
-      : parsetree_root_node(&(*pt))
+      : pClassRootNode(dynamic_cast<const ParseTreeNonTerminal*>(&(*pt)))
   {
-    init();
   }
 
   void lower_class();
   void lower_subroutine(const ParseTreeNonTerminal*);
+
+  void lower_do_statement(const ParseTreeNonTerminal*);
+  void lower_subroutine_call(const ParseTreeNonTerminal*);
+  void lower_expression(const ParseTreeNonTerminal*);
+  void lower_op(const ParseTreeTerminal*);
+  void lower_term(const ParseTreeNonTerminal*);
+  void lower_let_statement(const ParseTreeNonTerminal*);
+  void lower_return_statement(const ParseTreeNonTerminal*);
 
   const SymbolTable& get_symbol_table() { return symbol_table; }
 
@@ -41,16 +44,19 @@ public:
   const ParseTreeNonTerminal* find_first_nonterm_node(
       ParseTreeNodeType_t, const ParseTreeNonTerminal*) const;
 
+  std::stringstream lowered_vm;
+  const ParseTreeNonTerminal* pClassRootNode;
+  std::vector<const ParseTreeNode*> unvisited_nodes;
+
 private:
   const std::string get_class_name(const ParseTreeNonTerminal*) const;
   void create_classvar_symtable(const ParseTreeNonTerminal*);
   void create_subroutine_symtable(const ParseTreeNonTerminal*);
 
-  const ParseTreeNode* parsetree_root_node;
-  std::vector<const ParseTreeNode*> unvisited_nodes;
   bool add_comments{true};
   SymbolTable symbol_table;
-  std::stringstream lowered_vm;
+
+  std::unique_ptr<SubroutineDescr> pSubDescr{nullptr};
 };
 
 struct SubroutineDescr {
@@ -104,16 +110,14 @@ Statements:
 Expressions:
 
 <expression>       ::= <term> {<op> <term>}*
-<term>             ::= <integer-constant> | <string-constant> | <keyword-constant> |
-                       <scalar-var> | <array-var> |
-                       <subroutine-call> | <expression> | <unary-op> <term>
-<scalar-var>       ::= <var-name>
-<array-var>        ::= <var-name> <expression>
-<index-expression> ::= <expression>
+<term>             ::= <integer-constant> | <string-constant> |
+<keyword-constant> | <scalar-var> | <array-var> | <subroutine-call> |
+<expression> | <unary-op> <term> <scalar-var>       ::= <var-name> <array-var>
+::= <var-name> <expression> <index-expression> ::= <expression>
 <subroutine-call>  ::= <internal-subroutine-call> | <external-subroutine-call>
 <internal-subroutine-call> ::= <subroutine-name> <expression-list>
-<external-subroutine-call> ::= <subroutine-owner> <subroutine-name> <expression-list>
-<subroutine-owner> ::= <class-name> | <var-name>
+<external-subroutine-call> ::= <subroutine-owner> <subroutine-name>
+<expression-list> <subroutine-owner> ::= <class-name> | <var-name>
 <expression-list>  ::= {<expression>}*
 <op>               ::= "+" | "-" | "*" | "/" | "&" | "|" | "<" | ">" | "="
 <unary-op>         ::= "-" | "~"

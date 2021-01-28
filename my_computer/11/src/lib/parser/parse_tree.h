@@ -42,10 +42,12 @@ Expressions:
 
 <expression>       ::= <term> {<op> <term>}*
 <term>             ::= <integer-constant> | <string-constant> | <keyword-constant> |
-                       <var-name> | <var-name> "[" <expression> "]" |
-                       <subroutine-call> | "(" <expression> ")" | <unary-op> <term>
-<subroutine-call>  ::= <subroutine-name> "(" <expression-list> ")" |
-                       (<class-name> | <var-name>) "." <subroutine-name> "(" <expression-list> ")"
+                       <var-name> | <array-var> | <subroutine-call> |
+                       "(" <expression> ")" | <unary-op> <term>
+<subroutine-call>  ::= <call-site> "(" <expression-list> ")"
+<call-site>        ::= <subroutine-name> |
+                       (<class-name> | <var-name>) "." <subroutine-name>
+<array-var>        ::= <var-name> "[" <expression> "]" 
 <expression-list>  ::= {<expression {"," <expression>}*}?
 <op>               ::= "+" | "-" | "*" | "/" | "&" | "|" | "<" | ">" | "="
 <unary-op>         ::= "-" | "~"

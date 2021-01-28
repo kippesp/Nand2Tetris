@@ -10,6 +10,8 @@
 
 using namespace std;
 
+struct SubroutineDescr;
+
 // variable definition
 class Symbol {
 public:
@@ -111,6 +113,8 @@ public:
   const Symbol* find_symbol(const std::string&) const;
   void reset(Symbol::ScopeLevel_t);
   void print() const;
+  int num_locals() const { return subroutine_tbl->next_index.local_var; }
+  SubroutineDescr* pSubroutineDescr{nullptr};
 
 private:
   std::unique_ptr<PartialSymbolTable> class_tbl{nullptr};

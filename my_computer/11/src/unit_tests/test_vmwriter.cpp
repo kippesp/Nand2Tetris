@@ -26,6 +26,8 @@ SCENARIO("VMWriter Basics")
     VmWriter VM(parsetree_node);
     stringstream ss;
 
+    VM.unvisited_nodes.push_back(VM.pClassRootNode);
+
     while (auto node = VM.visit())
       ss << ParseTreeNode::to_string(node->type) << " ";
 
@@ -234,4 +236,149 @@ SCENARIO("VMWriter Basics")
     REQUIRE(descr.name == "sub1");
     REQUIRE(descr.pBody);
   }
+}
+
+SCENARIO("VMWriter Expressions")
+{
+  test::MockReader R;
+
+  SECTION("Single return statement")
+  {
+    strcpy(R.buffer, SINGLE_RETURN_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Main");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Main.f1 0\n"
+            "push constant 1\n"
+            "return\n");
+  }
+
+  SECTION("Compile Seven test program")
+  {
+    strcpy(R.buffer, JACK_SEVEN_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Main");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Main.main 0\n"
+            "push constant 1\n"
+            "push constant 2\n"
+            "push constant 3\n"
+            "call Math.multiply 2\n"
+            "add\n"
+            "call Output.printInt 1\n"
+            "pop temp 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+
+  SECTION("Let statement")
+  {
+    strcpy(R.buffer, LET_STATEMENT_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Main");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Main.f1 3\n"
+            "push constant 1\n"
+            "pop local 0\n"
+            "push constant 1\n"
+            "push local 1\n"
+            "neg\n"
+            "add\n"
+            "pop local 1\n"
+            "push constant 0\n"
+            "not\n"
+            "pop local 2\n"
+            "push local 0\n"
+            "push local 1\n"
+            "push constant 2\n"
+            "call Math.pow 2\n"
+            "add\n"
+            "return\n");
+  }
+
+  SECTION("Class method call")
+  {
+    strcpy(R.buffer, CLASS_METHOD_CALL_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Main");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Main.mul 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push constant 0\n"
+            "return\n"
+            "function Main.f1 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push pointer 0\n"
+            "push constant 1\n"
+            "push constant 2\n"
+            "call Main.mul 3\n"
+            "return\n");
+  }
+
+#if 0
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Main.mul 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push this 0\n"
+            "push argument 1\n"
+            "call Math.multiply 2\n"
+            "return\n"
+            "function Main2.f1 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push argument 1\n"
+            "pop this 0\n"
+            "push pointer 0\n"
+            "push constant 2\n"
+            "call Main2.mul 2\n"
+            "return\n");
+  }
+#endif
 }

@@ -52,6 +52,14 @@ CliArgs::CliArgs(int argc, const char* argv[])
       i++;
       continue;
     }
+
+    // -w - stop after first lowering to VM output to console
+    if ((argv[i][0] == '-') && (argv[i][1] == 'w') && (argv[i][2] == '\0'))
+    {
+      halt_after_vmwriter = true;
+      i++;
+      continue;
+    }
   }
 
   bool isDirectory = false;
@@ -219,7 +227,7 @@ const CliArgs::filelist_t& CliArgs::inputlist() const
 
 void CliArgs::show_usage()
 {
-  std::cout << "Convert .jack files to .sexp parse tree\n\n";
+  std::cout << "Compile .jack file to .vm\n\n";
   std::cout << "SYNOPSIS:\n\n";
   std::cout << "  jfcl -h" << std::endl;
   std::cout << "  jfcl [-t|-T] FILENAME.jack" << std::endl;
@@ -250,6 +258,10 @@ void CliArgs::show_help()
   std::cout << "\n  ";
   std::cout << setw(24) << left << "-p";
   std::cout << "Display parse tree output and halt";
+
+  std::cout << "\n  ";
+  std::cout << setw(24) << left << "-w";
+  std::cout << "Display VM Writer output and halt";
 
   std::cout << std::endl;
 }

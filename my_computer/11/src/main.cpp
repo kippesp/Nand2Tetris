@@ -3,9 +3,10 @@
 #include <iostream>
 
 #include "cli_args.h"
+#include "parser/parse_tree.h"
 #include "tokenizer/file_io.h"
 #include "tokenizer/jack_tokenizer.h"
-#include "parser/parse_tree.h"
+#include "vmwriter/vmwriter.h"
 
 using namespace std;
 
@@ -21,7 +22,7 @@ int inner_main(const CliArgs& cliargs)
     }
     JackTokenizer tokenizer(inputfile);
     string base_filename = f.substr(0, f.length() - 5);
-    string output_filename = base_filename + ".sexpr";
+    string output_filename = base_filename + ".vm";
 
     auto tokens = tokenizer.parse_tokens();
 
@@ -68,6 +69,15 @@ int inner_main(const CliArgs& cliargs)
       return 0;
     }
 
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    if (cliargs.halt_after_vmwriter)
+    {
+      cout << VM.lowered_vm.str();
+      return 0;
+    }
+
     ofstream ofile(output_filename);
 
     if (!ofile)
@@ -76,9 +86,7 @@ int inner_main(const CliArgs& cliargs)
       return -1;
     }
 
-    stringstream ss;
-    ss << *parsetree_node;
-    ofile << T.pprint(ss.str()) << endl;
+    ofile << VM.lowered_vm.str();
     ofile.close();
   }
 
@@ -104,7 +112,8 @@ int main(int argc, const char* argv[])
 
   if ((cliargs.inputlist().size() > 1) &&
       ((cliargs.halt_after_tokenizer ||
-        cliargs.halt_after_tokenizer_s_expression)))
+        cliargs.halt_after_tokenizer_s_expression ||
+        cliargs.halt_after_vmwriter)))
   {
     cout << "Output with multiple files not supported." << endl;
     return 1;
