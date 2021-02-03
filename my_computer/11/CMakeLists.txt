@@ -36,7 +36,9 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    add_compile_options(-O0)
+    if (NOT MSVC)
+        add_compile_options(-O0)
+    endif()
 endif()
 
 # cmake 3.8
@@ -49,7 +51,6 @@ message(STATUS "Compiler ID: " ${CMAKE_CXX_COMPILER_ID})
 
 #set(CMAKE_BUILD_RPATH "/home/kippesp/usr/opt/llvm-10.0.x/lib")
 
-add_compile_options(-Wall -Wextra -Wimplicit-fallthrough)
 #add_compile_options(-stdlib=libc++)
 
 # cmake 3.13
@@ -59,6 +60,10 @@ add_compile_options(-Wall -Wextra -Wimplicit-fallthrough)
 #add_compile_options(-Wno-c99-extensions)
 
 if (NOT MSVC)
+    add_compile_options(-Wall)
+    add_compile_options(-Wextra)
+    add_compile_options(-Wimplicit-fallthrough)
+
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         #add_compile_options(-Weverything)
         #add_compile_options(-Wno-c++98-compat)
@@ -86,6 +91,11 @@ if (NOT MSVC)
             add_compile_options(-stdlib=libc++)
         endif()
     endif()
+endif()
+
+# For this project, we're not interested in some things
+if (MSVC)
+    add_compile_options(-D _CRT_SECURE_NO_WARNINGS)
 endif()
 
 if (NOT MSVC)

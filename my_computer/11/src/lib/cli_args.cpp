@@ -92,7 +92,7 @@ CliArgs::CliArgs(int argc, const char* argv[])
       exit(-1);
     }
 
-    filelist.push_back(filearg);
+    filelist.push_back(filearg.string());
   }
   else
   {
