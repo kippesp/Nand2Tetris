@@ -317,6 +317,40 @@ void VmWriter::lower_return_statement(const ParseTreeNonTerminal* pStatement)
   }
 }
 
+void VmWriter::lower_statement_list(
+    const ParseTreeNonTerminal* pStatementListNode)
+{
+  assert(pStatementListNode->type == ParseTreeNodeType_t::P_STATEMENT_LIST);
+
+  auto childNodes = pStatementListNode->get_child_nodes();
+
+  for (auto child : childNodes)
+  {
+    auto pS = dynamic_cast<const ParseTreeNonTerminal*>(&(*child));
+
+    switch ((*child).type)
+    {
+      case ParseTreeNodeType_t::P_DO_STATEMENT:
+        lower_do_statement(pS);
+        break;
+      case ParseTreeNodeType_t::P_IF_STATEMENT:
+        lower_if_statement(pS);
+        break;
+      case ParseTreeNodeType_t::P_LET_STATEMENT:
+        lower_let_statement(pS);
+        break;
+      case ParseTreeNodeType_t::P_RETURN_STATEMENT:
+        lower_return_statement(pS);
+        break;
+      case ParseTreeNodeType_t::P_WHILE_STATEMENT:
+        throw SemanticException("TODO: unknown statement (WHILE)");
+      default:
+        assert(0 && "fallthrough");
+        throw SemanticException("Unexpected node type");
+    }
+  }
+}
+
 void VmWriter::lower_subroutine(const ParseTreeNonTerminal* pSubDeclBlockNode)
 {
   pSubDescr = make_unique<SubroutineDescr>(*this, pSubDeclBlockNode);
@@ -350,58 +384,7 @@ void VmWriter::lower_subroutine(const ParseTreeNonTerminal* pSubDeclBlockNode)
 
   if (childNodes.size() == 0) throw SemanticException("empty subroutine body");
 
-  for (auto child : childNodes)
-  {
-    auto pS = dynamic_cast<const ParseTreeNonTerminal*>(&(*child));
-
-    switch ((*child).type)
-    {
-      case ParseTreeNodeType_t::P_DO_STATEMENT:
-        lower_do_statement(pS);
-        break;
-      case ParseTreeNodeType_t::P_IF_STATEMENT:
-        throw SemanticException("TODO: unknown statement");
-      case ParseTreeNodeType_t::P_LET_STATEMENT:
-        lower_let_statement(pS);
-        break;
-      case ParseTreeNodeType_t::P_RETURN_STATEMENT:
-        lower_return_statement(pS);
-        break;
-      case ParseTreeNodeType_t::P_WHILE_STATEMENT:
-        throw SemanticException("TODO: unknown statement");
-      default:
-        assert(0 && "fallthrough");
-        throw SemanticException("Unexpected node type");
-    }
-  }
-
-#if 0
-  TokenValue_t subroutine_type = TokenValue_t::J_UNDEFINED;
-
-  while (auto node = visit())
-  {
-    if (node->type == ParseTreeNodeType_t::P_SUBROUTINE_TYPE)
-    {
-      auto subroutine_type_node =
-      find_first_term_node(ParseTreeNodeType_t::P_CLASS_NAME, nt_node);
-       
-        node->token.value_enum;
-
-
-      subroutine_type = node->token.value_enum;
-  const string name = class_name_node->token.value_str;
-
-
-  auto class_name_node =
-      find_first_term_node(ParseTreeNodeType_t::P_CLASS_NAME, nt_node);
-  const string name = class_name_node->token.value_str;
-
-const ParseTreeTerminal* VmWriter::find_first_term_node(
-    ParseTreeNodeType_t type, const ParseTreeNonTerminal* nt_node) const
-
-    }
-  }
-#endif
+  lower_statement_list(pStatementListNode);
 }
 
 void VmWriter::lower_op(const ParseTreeTerminal* pOp)
@@ -719,6 +702,8 @@ void VmWriter::lower_subroutine_call(
   lowered_vm << "call " << call_site_name.str() << " ";
   lowered_vm << num_arguments << endl;
 }
+
+void VmWriter::lower_if_statement(const ParseTreeNonTerminal* pS) {}
 
 void VmWriter::lower_let_statement(const ParseTreeNonTerminal* pS)
 {

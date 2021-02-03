@@ -84,18 +84,22 @@ class Main {
     }
 }
 )""";
-#if 0
-class Main {
-    field int v1, v2;
 
-    method int mul(int n) {
-        return v1 * n;
-    }
+const char* SIMPLE_IF_SRC = R"""(
+class IfTest {
+    function int f1(int a) {
+        var int r;
 
-    method int f1(int a1) {
-        let v1 = a1;
+        if (a > 50)
+        {
+            let r = 1;
+        }
+        else
+        {
+            let r = a;
+        }
 
-        return mul(2);
+        return r;
     }
 }
-#endif
+)""";

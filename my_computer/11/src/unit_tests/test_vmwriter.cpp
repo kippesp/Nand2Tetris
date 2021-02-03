@@ -362,22 +362,37 @@ SCENARIO("VMWriter Expressions")
   }
 
 #if 0
+  SECTION("IF-ELSE structure")
+  {
+    strcpy(R.buffer, SIMPLE_IF_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Main");
+
     REQUIRE(VM.lowered_vm.str() ==
-            "function Main.mul 0\n"
+            "function IfTest.f1 0\n"
             "push argument 0\n"
-            "pop pointer 0\n"
-            "push this 0\n"
-            "push argument 1\n"
-            "call Math.multiply 2\n"
-            "return\n"
-            "function Main2.f1 0\n"
+            "push constant 50\n"
+            "gt\n"
+            "neg\n"
+            "if-goto Test.f1.0.IF_FALSE\n"
+            "push constant 1\n"
+            "pop local 0\n"
+            "goto Test.f1.IF_END.0\n"
+            "label Test.f1.0.IF_FALSE\n"
             "push argument 0\n"
-            "pop pointer 0\n"
-            "push argument 1\n"
-            "pop this 0\n"
-            "push pointer 0\n"
-            "push constant 2\n"
-            "call Main2.mul 2\n"
+            "pop local 0\n"
+            "label Test.f1.0.IF_END\n"
+            "push local 0\n"
             "return\n");
   }
 #endif

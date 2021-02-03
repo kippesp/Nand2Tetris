@@ -26,12 +26,14 @@ public:
 
   void lower_class();
   void lower_subroutine(const ParseTreeNonTerminal*);
+  void lower_statement_list(const ParseTreeNonTerminal*);
 
   void lower_do_statement(const ParseTreeNonTerminal*);
   void lower_subroutine_call(const ParseTreeNonTerminal*);
   void lower_expression(const ParseTreeNonTerminal*);
   void lower_op(const ParseTreeTerminal*);
   void lower_term(const ParseTreeNonTerminal*);
+  void lower_if_statement(const ParseTreeNonTerminal*);
   void lower_let_statement(const ParseTreeNonTerminal*);
   void lower_return_statement(const ParseTreeNonTerminal*);
 
