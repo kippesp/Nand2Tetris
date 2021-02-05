@@ -34,6 +34,7 @@ public:
   void lower_op(const ParseTreeTerminal*);
   void lower_term(const ParseTreeNonTerminal*);
   void lower_if_statement(const ParseTreeNonTerminal*);
+  void lower_while_statement(const ParseTreeNonTerminal*);
   void lower_let_statement(const ParseTreeNonTerminal*);
   void lower_return_statement(const ParseTreeNonTerminal*);
 

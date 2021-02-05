@@ -314,7 +314,24 @@ void VmWriter::lower_return_statement(const ParseTreeNonTerminal* pStatement)
   }
   else
   {
-    if (pExpression) lower_expression(pExpression);
+    if (pExpression)
+    {
+      if ((pSubDescr->type == TokenValue_t::J_METHOD) &&
+          get_if<Symbol::BasicType_t>(&pSubDescr->return_type) &&
+          (get<Symbol::BasicType_t>(pSubDescr->return_type) ==
+           Symbol::BasicType_t::T_VOID))
+      {
+        throw SemanticException("Method declared void but returning non-void");
+      }
+
+      lower_expression(pExpression);
+    }
+    else
+    {
+      // Only Methods can return nothing
+      assert(pSubDescr->type == TokenValue_t::J_METHOD);
+      lowered_vm << "push constant 0" << endl;
+    }
     lowered_vm << "return" << endl;
   }
 }
@@ -345,7 +362,8 @@ void VmWriter::lower_statement_list(
         lower_return_statement(pS);
         break;
       case ParseTreeNodeType_t::P_WHILE_STATEMENT:
-        throw SemanticException("TODO: unknown statement (WHILE)");
+        lower_while_statement(pS);
+        break;
       default:
         assert(0 && "fallthrough");
         throw SemanticException("Unexpected node type");
@@ -370,6 +388,15 @@ void VmWriter::lower_subroutine(const ParseTreeNonTerminal* pSubDeclBlockNode)
 
   lowered_vm << "function " << class_name << "." << pSubDescr->name;
   lowered_vm << " " << get_symbol_table().num_locals() << endl;
+
+  // For class constructors, allocate class object and save to pointer 0
+  if (pSubDescr->type == TokenValue_t::J_CONSTRUCTOR)
+  {
+    int num_fields = get_symbol_table().num_fields();
+    lowered_vm << "push constant " << num_fields << endl;
+    lowered_vm << "call Memory.alloc 1" << endl;
+    lowered_vm << "pop pointer 0" << endl;
+  }
 
   // For class methods, get the THIS pointer passed in as argument 0
   // and set up POINTER 0
@@ -479,8 +506,7 @@ void VmWriter::lower_term(const ParseTreeNonTerminal* pTerm)
             if (pSubDescr->type == TokenValue_t::J_FUNCTION)
               throw SemanticException(
                   "Reference to 'this' not permitted in a function");
-
-            throw SemanticException("TODO: Handle this");
+            lowered_vm << "push pointer 0" << endl;
             break;
             // TODO: okay in constructor and method
             // TODO: need test for this
@@ -667,7 +693,14 @@ void VmWriter::lower_subroutine_call(
   }
   else
   {
-    if (const Symbol* this_var = symbol_table.find_symbol("this"))
+    if (pSubDescr->type == TokenValue_t::J_CONSTRUCTOR)
+    {
+      lowered_vm << "push pointer 0" << endl;
+      num_arguments++;
+
+      call_site_name << class_name << ".";
+    }
+    else if (const Symbol* this_var = symbol_table.find_symbol("this"))
     {
       lowered_vm << "push pointer 0" << endl;
       num_arguments++;
@@ -715,6 +748,7 @@ void VmWriter::lower_if_statement(const ParseTreeNonTerminal* pS)
   // IF-END
   auto pE = find_first_nonterm_node(ParseTreeNodeType_t::P_EXPRESSION, pS);
   lower_expression(pE);
+
   lowered_vm << "not" << endl;
 
   std::vector<std::shared_ptr<ParseTreeNode>> if_nodes;
@@ -764,6 +798,48 @@ void VmWriter::lower_if_statement(const ParseTreeNonTerminal* pS)
     lowered_vm << "label " << control_label.str() << ".";
     lowered_vm << ID << ".IF_END" << endl;
   }
+}
+
+void VmWriter::lower_while_statement(const ParseTreeNonTerminal* pS)
+{
+  // WHILE-BEGIN
+  // IF-GOTO not EXPR GOTO WHILE-END
+  //    WHILE_STATEMENT
+  // GOTO WHILE_BEGIN
+  // WHILE-END
+  auto pE = find_first_nonterm_node(ParseTreeNodeType_t::P_EXPRESSION, pS);
+
+  std::vector<std::shared_ptr<ParseTreeNode>> while_nodes;
+  for (auto child_node : pS->get_child_nodes())
+    while_nodes.push_back(child_node);
+
+  stringstream control_label;
+
+  // CLASS-NAME.FUNCTION-NAME
+  control_label << class_name << '.';
+  control_label << pSubDescr->name;
+
+  const auto ID = pSubDescr->structured_control_id++;
+
+  auto pStatementBlock =
+      dynamic_cast<const ParseTreeNonTerminal*>(&(*while_nodes[5]));
+
+  lowered_vm << "label " << control_label.str() << ".";
+  lowered_vm << ID << ".WHILE_BEGIN" << endl;
+
+  lower_expression(pE);
+  lowered_vm << "not" << endl;
+
+  lowered_vm << "if-goto " << control_label.str() << ".";
+  lowered_vm << ID << ".WHILE_END" << endl;
+
+  lower_statement_list(pStatementBlock);
+
+  lowered_vm << "goto " << control_label.str() << ".";
+  lowered_vm << ID << ".WHILE_BEGIN" << endl;
+
+  lowered_vm << "label " << control_label.str() << ".";
+  lowered_vm << ID << ".WHILE_END" << endl;
 }
 
 void VmWriter::lower_let_statement(const ParseTreeNonTerminal* pS)
@@ -828,100 +904,3 @@ void VmWriter::lower_do_statement(const ParseTreeNonTerminal* pDoStatement)
   // discare call-ed subroutine's return
   lowered_vm << "pop temp 0" << endl;
 }
-
-#if 0
-(P_CLASS_DECL_BLOCK 
- (P_KEYWORD class)
- (P_CLASS_NAME Main)
- (P_DELIMITER <left_brace>)
- (P_SUBROUTINE_DECL_BLOCK 
-  (P_SUBROUTINE_TYPE function)
-  (P_RETURN_TYPE void)
-  (P_SUBROUTINE_NAME main)
-  (P_DELIMITER <left_parenthesis>)
-  (P_PARAMETER_LIST )
-  (P_DELIMITER <right_parenthesis>)
-
-  (P_SUBROUTINE_BODY 
-   (P_DELIMITER <left_brace>)
-   (P_STATEMENT_LIST 
-    (P_DO_STATEMENT 
-     (P_KEYWORD do)
-
-     (P_SUBROUTINE_CALL 
-
-      (P_SUBROUTINE_CALL_SITE_BINDING 
-       (P_CLASS_OR_VAR_NAME Output)
-       (P_DELIMITER <period>)
-       (P_SUBROUTINE_NAME printInt))
-
-      (P_DELIMITER <left_parenthesis>)
-
-      (P_EXPRESSION_LIST 
-
-       (P_EXPRESSION 
-        (P_TERM 
-         (P_INTEGER_CONSTANT 1))
-        (P_OP <plus>)
-        (P_TERM 
-         (P_DELIMITER <left_parenthesis>)
-         (P_EXPRESSION 
-          (P_TERM 
-           (P_INTEGER_CONSTANT 2))
-          (P_OP <asterisk>)
-          (P_TERM 
-           (P_INTEGER_CONSTANT 3)))
-         (P_DELIMITER <right_parenthesis>)))
-
-       (P_DELIMITER <comma>)
-
-       (P_EXPRESSION 
-        (P_TERM 
-         (P_INTEGER_CONSTANT 5))))
-
-      (P_DELIMITER <right_parenthesis>))
-
-     (P_DELIMITER <semicolon>))
-    (P_RETURN_STATEMENT 
-     (P_KEYWORD return)
-     (P_DELIMITER <semicolon>)))
-   (P_DELIMITER <right_brace>)))
-
- (P_DELIMITER <right_brace>))
-#endif
-
-#if 0
-class Main {
-    function int f1() {
-        return 1;
-    }
-}
-
-(P_CLASS_DECL_BLOCK 
- (P_KEYWORD class)
- (P_CLASS_NAME Main)
- (P_DELIMITER <left_brace>)
- (P_SUBROUTINE_DECL_BLOCK 
-  (P_SUBROUTINE_TYPE function)
-  (P_RETURN_TYPE integer)
-  (P_SUBROUTINE_NAME f1)
-  (P_DELIMITER <left_parenthesis>)
-  (P_PARAMETER_LIST )
-  (P_DELIMITER <right_parenthesis>)
-  (P_SUBROUTINE_BODY 
-   (P_DELIMITER <left_brace>)
-   (P_STATEMENT_LIST 
-    (P_RETURN_STATEMENT 
-     (P_KEYWORD return)
-     (P_EXPRESSION 
-      (P_TERM 
-       (P_INTEGER_CONSTANT 1)))
-     (P_DELIMITER <semicolon>)))
-   (P_DELIMITER <right_brace>)))
- (P_DELIMITER <right_brace>))
-
-
-function Main.f1 0
-push constant 1
-return
-#endif

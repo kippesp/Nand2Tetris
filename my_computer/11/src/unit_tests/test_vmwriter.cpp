@@ -238,7 +238,7 @@ SCENARIO("VMWriter Basics")
   }
 }
 
-SCENARIO("VMWriter Expressions")
+SCENARIO("VMWriter Statements")
 {
   test::MockReader R;
 
@@ -394,4 +394,127 @@ SCENARIO("VMWriter Expressions")
             "push local 0\n"
             "return\n");
   }
+
+  SECTION("WHILE structure")
+  {
+    strcpy(R.buffer, SIMPLE_WHILE_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "WhileTest");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function WhileTest.f1 0\n"
+            "label WhileTest.f1.0.WHILE_BEGIN\n"
+            "push argument 0\n"
+            "push constant 0\n"
+            "gt\n"
+            "not\n"
+            "if-goto WhileTest.f1.0.WHILE_END\n"
+            "push argument 0\n"
+            "push constant 1\n"
+            "sub\n"
+            "pop argument 0\n"
+            "goto WhileTest.f1.0.WHILE_BEGIN\n"
+            "label WhileTest.f1.0.WHILE_END\n"
+            "push argument 0\n"
+            "return\n");
+  }
+
+  SECTION("Somple Constructor")
+  {
+    strcpy(R.buffer, SIMPLE_CONST_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Test");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Test.new 0\n"
+            "push constant 0\n"
+            "call Memory.alloc 1\n"
+            "pop pointer 0\n"
+            "push pointer 0\n"
+            "return\n"
+            "function Test.ref 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push pointer 0\n"
+            "return\n");
+  }
+
+  SECTION("Void Method return")
+  {
+    strcpy(R.buffer, VOID_RETURN_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Test");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Test.f1 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+
+#if 0
+  SECTION("Method Call From Constructor")
+  {
+    strcpy(R.buffer, CONST_METHOD_CALL_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Test");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Test.new 0\n"
+            "push constant 1\n"
+            "call Memory.alloc 1\n"
+            "pop pointer 0\n"
+            "push pointer 0\n"
+            "call Test.draw 1\n"
+            "pop temp 0\n"
+            "push pointer 0\n"
+            "return\n"
+            "function Test.draw 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+#endif
 }

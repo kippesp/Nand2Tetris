@@ -114,6 +114,7 @@ public:
   void reset(Symbol::ScopeLevel_t);
   void print() const;
   int num_locals() const { return subroutine_tbl->next_index.local_var; }
+  int num_fields() const { return class_tbl->next_index.field_var; }
   SubroutineDescr* pSubroutineDescr{nullptr};
 
 private:

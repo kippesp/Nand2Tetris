@@ -103,3 +103,50 @@ class IfTest {
     }
 }
 )""";
+
+const char* SIMPLE_WHILE_SRC = R"""(
+class WhileTest {
+    function int f1(int a) {
+        while (a > 0)
+        {
+            let a = a - 1;
+        }
+
+        return a;
+    }
+}
+)""";
+
+const char* SIMPLE_CONST_SRC = R"""(
+class Test {
+   constructor Test new() {
+      return this;
+   }
+
+   method int ref() {
+      return this;
+   }
+}
+)""";
+
+const char* VOID_RETURN_SRC = R"""(
+class Test {
+   method void f1() {
+      return;
+   }
+}
+)""";
+
+const char* CONST_METHOD_CALL_SRC = R"""(
+class Test {
+   field int a;
+
+   constructor Test new() {
+      do draw();
+      return this;
+   }
+   method void draw() {
+      return;
+   }
+}
+)""";
