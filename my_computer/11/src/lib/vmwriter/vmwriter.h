@@ -74,6 +74,9 @@ struct SubroutineDescr {
   Symbol::VariableType_t return_type;
   std::string name;
   const ParseTreeNonTerminal* pBody;
+
+  // counter for if-else and while control statements
+  int structured_control_id{0};
 };
 
 /*

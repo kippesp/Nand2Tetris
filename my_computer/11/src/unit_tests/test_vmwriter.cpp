@@ -361,7 +361,6 @@ SCENARIO("VMWriter Expressions")
             "return\n");
   }
 
-#if 0
   SECTION("IF-ELSE structure")
   {
     strcpy(R.buffer, SIMPLE_IF_SRC);
@@ -376,14 +375,14 @@ SCENARIO("VMWriter Expressions")
     VmWriter VM(parsetree_node);
     VM.lower_class();
 
-    REQUIRE(VM.class_name == "Main");
+    REQUIRE(VM.class_name == "IfTest");
 
     REQUIRE(VM.lowered_vm.str() ==
             "function IfTest.f1 0\n"
             "push argument 0\n"
             "push constant 50\n"
             "gt\n"
-            "neg\n"
+            "not\n"
             "if-goto Test.f1.0.IF_FALSE\n"
             "push constant 1\n"
             "pop local 0\n"
@@ -395,5 +394,4 @@ SCENARIO("VMWriter Expressions")
             "push local 0\n"
             "return\n");
   }
-#endif
 }

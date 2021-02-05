@@ -273,6 +273,8 @@ SubroutineDescr::SubroutineDescr(const VmWriter& VM,
   type = sub_type_node->token.value_enum;
   return_type = Symbol::variable_type_from_token(sub_return_type_node->token);
   name = sub_name_node->token.value_str;
+
+  structured_control_id = 0;
 }
 
 void VmWriter::lower_class()
@@ -703,7 +705,52 @@ void VmWriter::lower_subroutine_call(
   lowered_vm << num_arguments << endl;
 }
 
-void VmWriter::lower_if_statement(const ParseTreeNonTerminal* pS) {}
+void VmWriter::lower_if_statement(const ParseTreeNonTerminal* pS)
+{
+  // IF not EXPR GOTO FALSE-PART
+  //    TRUE_STATEMENTS
+  //    GOTO IF-END
+  // FALSE-PART
+  //    FALSE_STATEMENTS
+  // IF-END
+  auto pE = find_first_nonterm_node(ParseTreeNodeType_t::P_EXPRESSION, pS);
+  lower_expression(pE);
+  lowered_vm << "not";
+
+  std::vector<std::shared_ptr<ParseTreeNode>> if_nodes;
+  for (auto child_node : pS->get_child_nodes()) if_nodes.push_back(child_node);
+
+  bool has_else = false;
+
+  if (if_nodes.size() >= 11) has_else = true;
+
+  stringstream control_label;
+
+  // CLASS-NAME.FUNCTION-NAME
+  control_label << class_name << '.';
+  control_label << pSubDescr->name;
+
+  const auto ID = pSubDescr->structured_control_id++;
+
+  auto pTrueStatementBlock = if_nodes[5];
+  assert(pTrueStatementBlock == ParseTreeNodeType_t::P_STATEMENT_LIST);
+
+  if (has_else)
+  {
+    lowered_vm << "if-goto " << control_label.str() << "." << ID << ".IF_FALSE";
+    lower_statement_list(pTrueStatementBlock);
+    lowered_vm << "goto " << control_label.str() << "." << ID << ".IF_END";
+
+    auto pFalseStatementBlock = if_nodes[9];
+    assert(pFalseStatementBlock == ParseTreeNodeType_t::P_STATEMENT_LIST);
+    lower_statement_list(pFalseStatementBlock);
+  }
+  else
+  {
+    lowered_vm << "if-goto " << control_label.str() << "." << ID << ".IF_END";
+    lower_statement_list(pTrueStatementBlock);
+  }
+}
 
 void VmWriter::lower_let_statement(const ParseTreeNonTerminal* pS)
 {
