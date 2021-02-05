@@ -715,12 +715,14 @@ void VmWriter::lower_if_statement(const ParseTreeNonTerminal* pS)
   // IF-END
   auto pE = find_first_nonterm_node(ParseTreeNodeType_t::P_EXPRESSION, pS);
   lower_expression(pE);
-  lowered_vm << "not";
+  lowered_vm << "not" << endl;
 
   std::vector<std::shared_ptr<ParseTreeNode>> if_nodes;
   for (auto child_node : pS->get_child_nodes()) if_nodes.push_back(child_node);
 
   bool has_else = false;
+
+  // raise(SIGTRAP);
 
   if (if_nodes.size() >= 11) has_else = true;
 
@@ -732,23 +734,35 @@ void VmWriter::lower_if_statement(const ParseTreeNonTerminal* pS)
 
   const auto ID = pSubDescr->structured_control_id++;
 
-  auto pTrueStatementBlock = if_nodes[5];
-  assert(pTrueStatementBlock == ParseTreeNodeType_t::P_STATEMENT_LIST);
+  assert(if_nodes[5]->type == ParseTreeNodeType_t::P_STATEMENT_LIST);
+  auto pTrueStatementBlock =
+      dynamic_cast<const ParseTreeNonTerminal*>(&(*if_nodes[5]));
 
   if (has_else)
   {
-    lowered_vm << "if-goto " << control_label.str() << "." << ID << ".IF_FALSE";
+    lowered_vm << "if-goto " << control_label.str() << ".";
+    lowered_vm << ID << ".IF_FALSE" << endl;
     lower_statement_list(pTrueStatementBlock);
-    lowered_vm << "goto " << control_label.str() << "." << ID << ".IF_END";
+    lowered_vm << "goto " << control_label.str() << ".";
+    lowered_vm << ID << ".IF_END" << endl;
 
-    auto pFalseStatementBlock = if_nodes[9];
-    assert(pFalseStatementBlock == ParseTreeNodeType_t::P_STATEMENT_LIST);
+    assert(if_nodes[9]->type == ParseTreeNodeType_t::P_STATEMENT_LIST);
+    auto pFalseStatementBlock =
+        dynamic_cast<const ParseTreeNonTerminal*>(&(*if_nodes[9]));
+
+    lowered_vm << "label " << control_label.str() << ".";
+    lowered_vm << ID << ".IF_FALSE" << endl;
     lower_statement_list(pFalseStatementBlock);
+    lowered_vm << "label " << control_label.str() << ".";
+    lowered_vm << ID << ".IF_END" << endl;
   }
   else
   {
-    lowered_vm << "if-goto " << control_label.str() << "." << ID << ".IF_END";
+    lowered_vm << "if-goto " << control_label.str() << ".";
+    lowered_vm << ID << ".IF_END" << endl;
     lower_statement_list(pTrueStatementBlock);
+    lowered_vm << "label " << control_label.str() << ".";
+    lowered_vm << ID << ".IF_END" << endl;
   }
 }
 
