@@ -429,7 +429,7 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
-  SECTION("Somple Constructor")
+  SECTION("Simple Constructor")
   {
     strcpy(R.buffer, SIMPLE_CONST_SRC);
 

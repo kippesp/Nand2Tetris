@@ -655,19 +655,6 @@ void VmWriter::lower_term(const ParseTreeNonTerminal* pTerm)
   {
     throw SemanticException("TODO/TERM: fallthrough N-term");
   }
-
-#if 0
-  switch (pTerm->type)
-  {
-    case ParseTreeNodeType_t::P_KEYWORD_CONSTANT:
-    case ParseTreeNodeType_t::P_VARIABLE_NAME:
-    case ParseTreeNodeType_t::P_ARRAY_VAR:
-    case ParseTreeNodeType_t::P_SUBROUTINE_CALL:
-      throw SemanticException("TODO term");
-    default:
-      throw SemanticException("Unexpected term fallthrough");
-  }
-#endif
 }
 
 void VmWriter::lower_expression(const ParseTreeNonTerminal* pExpression)
@@ -1028,106 +1015,6 @@ void VmWriter::lower_let_statement(const ParseTreeNonTerminal* pS)
 
     lowered_vm << "pop that 0" << endl;
   }
-
-#if 0
-
-
-
-  if (auto pScalarVar =
-          find_first_term_node(ParseTreeNodeType_t::P_SCALAR_VAR, pS))
-  {
-    const Symbol* lhs = symbol_table.find_symbol(varname);
-    if (!lhs) throw SemanticException("Variable not found: " + varname);
-  }
-  else if (auto pArrayVar =
-               find_first_term_node(ParseTreeNodeType_t::P_ARRAY_BINDING, pS))
-  {
-    const Symbol* lhs = symbol_table.find_symbol(varname);
-    if (!lhs) throw SemanticException("Variable not found: " + varname);
-  }
-
-  if (auto pScalarVar =
-          find_first_term_node(ParseTreeNodeType_t::P_SCALAR_VAR, pS))
-  {
-    varname = get_term_node_str(pScalarVar);
-  }
-  else if (auto pArrayVar =
-               find_first_term_node(ParseTreeNodeType_t::P_ARRAY_VAR, pS))
-  {
-    varname = get_term_node_str(pArrayVar);
-    lhs_is_array = true;
-    raise(SIGTRAP);
-  }
-
-
-  if (!lhs_is_array)
-  {
-    if (auto pClassSC =
-            get_if<Symbol::ClassStorageClass_t>(&lhs->storage_class))
-    {
-      switch (*pClassSC)
-      {
-        case Symbol::ClassStorageClass_t::S_STATIC:
-          lowered_vm << "pop static ";
-          break;
-        case Symbol::ClassStorageClass_t::S_FIELD:
-          lowered_vm << "pop this ";
-          break;
-      }
-    }
-    else if (auto pSubroutineSC =
-                 get_if<Symbol::SubroutineStorageClass_t>(&lhs->storage_class))
-    {
-      switch (*pSubroutineSC)
-      {
-        case Symbol::SubroutineStorageClass_t::S_ARGUMENT:
-          lowered_vm << "pop argument ";
-          break;
-        case Symbol::SubroutineStorageClass_t::S_LOCAL:
-          lowered_vm << "pop local ";
-          break;
-      }
-    }
-
-    lowered_vm << lhs->var_index << endl;
-  }
-  else
-  {
-    // Calculate array address + offset
-    if (auto pClassSC = get_if<Symbol::ClassStorageClass_t>(&lhs->storage_class))
-    {
-
-
-
-
-      switch (*pClassSC)
-      {
-        case Symbol::ClassStorageClass_t::S_STATIC:
-          lowered_vm << "push static ";
-          break;
-        case Symbol::ClassStorageClass_t::S_FIELD:
-          lowered_vm << "push this ";
-          break;
-      }
-    }
-    else if (auto pSubroutineSC =
-                 get_if<Symbol::SubroutineStorageClass_t>(&lhs->storage_class))
-    {
-      switch (*pSubroutineSC)
-      {
-        case Symbol::SubroutineStorageClass_t::S_ARGUMENT:
-          lowered_vm << "push argument ";
-          break;
-        case Symbol::SubroutineStorageClass_t::S_LOCAL:
-          lowered_vm << "push local ";
-          break;
-      }
-    }
-
-    lowered_vm << lhs->var_index << endl;
-
-  }
-#endif
 }
 
 void VmWriter::lower_do_statement(const ParseTreeNonTerminal* pDoStatement)
