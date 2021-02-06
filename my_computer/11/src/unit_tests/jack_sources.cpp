@@ -161,3 +161,62 @@ class Test {
     }
 }
 )""";
+
+const char* LHS_ARRAY_ASSIGN_SRC = R"""(
+class Test {
+   function void main() {
+     var Array a;
+     var int b;
+     let b = 5;
+     let a = Array.new(3);
+     let a[2] = b;
+     return;
+   }
+}
+)""";
+
+const char* RHS_ARRAY_ASSIGN_SRC = R"""(
+class Test {
+   function int main() {
+     var Array a;
+     let a = Array.new(2);
+     let a[1] = 5;
+     let a[0] = 6;
+     return a[0];
+   }
+}
+)""";
+
+const char* ARRAY_ARRAY_ASSIGN_SRC = R"""(
+class Test {
+   function void main() {
+     var Array a;
+     var Array b;
+     let a = Array.new(1);
+     let b = Array.new(1);
+     let b[0] = 5;
+     let a[0] = b[0];
+     return;
+   }
+}
+)""";
+
+#if 0
+// LATER - test RHS and static member
+
+class Test {
+   static Array a;
+
+   constructor Test new() {
+     let a = Array.new(3);
+     let a[2] = 7;
+     let a[1] = 6;
+     let a[0] = 5;
+     return this;
+   }
+
+   function int test(int i) {
+     return a[i];
+   }
+}
+#endif

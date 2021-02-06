@@ -11,3 +11,6 @@ extern const char* SIMPLE_CONST_SRC;
 extern const char* VOID_RETURN_SRC;
 extern const char* CONST_METHOD_CALL_SRC;
 extern const char* OBJECT_METHOD_CALL_SRC;
+extern const char* LHS_ARRAY_ASSIGN_SRC;
+extern const char* RHS_ARRAY_ASSIGN_SRC;
+extern const char* ARRAY_ARRAY_ASSIGN_SRC;

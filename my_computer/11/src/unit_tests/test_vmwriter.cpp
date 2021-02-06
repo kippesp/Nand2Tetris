@@ -542,4 +542,140 @@ SCENARIO("VMWriter Statements")
             "push constant 0\n"
             "return\n");
   }
+
+#if 0
+  SECTION("LHS Array Assignment")
+  {
+    strcpy(R.buffer, LHS_ARRAY_ASSIGN_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Test");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Test.new 2\n"
+            "push constant 5\n"
+            "pop local 1\n"       // b = 5
+            "push constant 3\n"
+            "call Array.new 1\n"
+            "pop local 0\n"       // a = Array.new(3)
+            "push local 1\n"      // b
+            "push local 0\n"      // &a
+            "pop constant 2\n"
+            "add\n"               // a[2]
+            "pop pointer 1\n"
+            "pop that 0\n"        // b -> a[2]
+            "push constant 0\n"
+            "return\n");
+  }
+#endif
+
+#if 0
+  SECTION("RHS Array Assignment")
+  {
+    strcpy(R.buffer, RHS_ARRAY_ASSIGN_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Test");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Test.new 1\n"
+            "push constant 2\n"
+            "call Array.new 1\n"
+            "pop local 0\n"
+            //
+            // let a[1] = 5
+            "push constant 5\n"
+            // a[1] <-- 5
+            "push constant 1\n"
+            "push local 0\n"
+            "add\n"
+            "pop pointer 1\n"
+            "pop that 0\n"
+            //
+            // let a[0] = 6
+            "push constant 6\n"
+            // a[0] <-- 6
+            "push constant 0\n"
+            "push local 0\n"
+            "add\n"
+            "pop pointer 1\n"
+            "pop that 0\n"
+            //
+            // a[0]
+            "push constant 0\n"
+            "push local 0\n"
+            "add\n"
+            "pop pointer 1\n"
+            "push that 0\n"
+            "return\n");
+  }
+#endif
+
+#if 0
+  SECTION("Array-Array assignment")
+  {
+    strcpy(R.buffer, ARRAY_ARRAY_ASSIGN_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Test");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Test.main 2\n"
+            "push constant 1\n"
+            "call Array.new 1\n"
+            "pop local 0\n"
+            "push constant 1\n"
+            "call Array.new 1\n"
+            "pop local 1\n"
+            "push constant 0\n"
+            "push local 1\n"
+            "add\n"
+            "push constant 5\n"
+            "pop temp 0\n"
+            "pop pointer 1\n"
+            "push temp 0\n"
+            "pop that 0\n"
+            "push constant 0\n"
+            "push local 0\n"
+            "add\n"
+            "push constant 0\n"
+            "push local 1\n"
+            "add\n"
+            "pop pointer 1\n"
+            "push that 0\n"
+            "pop temp 0\n"
+            "pop pointer 1\n"
+            "push temp 0\n"
+            "pop that 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+#endif
 }
