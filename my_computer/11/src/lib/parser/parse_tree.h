@@ -58,6 +58,7 @@ clang-format on
 
 typedef enum class ParseTreeNodeType_s {
   P_UNDEFINED,
+  P_ARRAY_BINDING,
   P_ARRAY_VAR,
   P_CLASS_DECL_BLOCK,
   P_CLASS_NAME,

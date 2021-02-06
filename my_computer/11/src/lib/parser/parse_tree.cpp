@@ -65,6 +65,8 @@ string ParseTreeNode::to_string(ParseTreeNodeType_t type)
   {
     case ParseTreeNodeType_t::P_UNDEFINED:
       return "P_UNDEFINE";
+    case ParseTreeNodeType_t::P_ARRAY_BINDING:
+      return "P_ARRAY_BINDING";
     case ParseTreeNodeType_t::P_ARRAY_VAR:
       return "P_ARRAY_VAR";
     case ParseTreeNodeType_t::P_CLASS_DECL_BLOCK:
@@ -776,10 +778,17 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_let_statement()
       assert(0 && "Parse error: expecting <semicolon> after <expression>");
 
     root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, keyword_token);
-    root_node->create_child(ParseTreeNodeType_t::P_ARRAY_VAR, varname);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, next_token);
-    root_node->create_child(index_expression_node);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+
+    auto array_rn =
+        make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_ARRAY_BINDING);
+
+    array_rn->create_child(ParseTreeNodeType_t::P_ARRAY_VAR, varname);
+    array_rn->create_child(ParseTreeNodeType_t::P_DELIMITER, next_token);
+    array_rn->create_child(index_expression_node);
+    array_rn->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+
+    root_node->create_child(array_rn);
+
     root_node->create_child(ParseTreeNodeType_t::P_OP, equal_token);
     root_node->create_child(expression_node);
     root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, (*tokens)[idx]);
@@ -1177,10 +1186,15 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_term()
       assert((rb_token.value_enum == TokenValue_t::J_RIGHT_BRACKET) &&
              "Parse error: expecting ending \"]\"");
 
-      root_node->create_child(ParseTreeNodeType_t::P_ARRAY_VAR, token);
-      root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lb_token);
-      root_node->create_child(expr_node);
-      root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+      auto array_rn = make_shared<ParseTreeNonTerminal>(
+          ParseTreeNodeType_t::P_ARRAY_BINDING);
+
+      array_rn->create_child(ParseTreeNodeType_t::P_ARRAY_VAR, token);
+      array_rn->create_child(ParseTreeNodeType_t::P_DELIMITER, lb_token);
+      array_rn->create_child(expr_node);
+      array_rn->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+
+      root_node->create_child(array_rn);
     }
     else
     {

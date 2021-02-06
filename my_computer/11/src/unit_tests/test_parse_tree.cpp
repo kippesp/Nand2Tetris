@@ -188,9 +188,9 @@ SCENARIO("Parse tree simple terms")
     stringstream ss;
     ss << *parsetree_node;
     REQUIRE(ss.str() ==
-            "(P_TERM (P_ARRAY_VAR myvar)(P_DELIMITER <left_bracket>)"
-            "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
-            "(P_DELIMITER <right_bracket>))");
+            "(P_TERM (P_ARRAY_BINDING (P_ARRAY_VAR myvar)(P_DELIMITER "
+            "<left_bracket>)(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT "
+            "1)))(P_DELIMITER <right_bracket>)))");
   }
 
   SECTION("grouped expresson term")
@@ -835,10 +835,11 @@ SCENARIO("Parse tree statements")
             "(P_STATEMENT_LIST "
             "(P_LET_STATEMENT "
             "(P_KEYWORD let)"
+            "(P_ARRAY_BINDING "
             "(P_ARRAY_VAR myvar)"
             "(P_DELIMITER <left_bracket>)"
             "(P_EXPRESSION (P_TERM (P_INTEGER_CONSTANT 1)))"
-            "(P_DELIMITER <right_bracket>)"
+            "(P_DELIMITER <right_bracket>))"
             "(P_OP <equal>)"
             "(P_EXPRESSION (P_TERM (P_KEYWORD_CONSTANT true)))"
             "(P_DELIMITER <semicolon>)))");
