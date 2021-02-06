@@ -543,7 +543,6 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
-#if 0
   SECTION("LHS Array Assignment")
   {
     strcpy(R.buffer, LHS_ARRAY_ASSIGN_SRC);
@@ -561,24 +560,25 @@ SCENARIO("VMWriter Statements")
     REQUIRE(VM.class_name == "Test");
 
     REQUIRE(VM.lowered_vm.str() ==
-            "function Test.new 2\n"
+            // clang-format off
+            "function Test.main 2\n"
             "push constant 5\n"
-            "pop local 1\n"       // b = 5
+            "pop local 1\n"             // b = 5
             "push constant 3\n"
             "call Array.new 1\n"
-            "pop local 0\n"       // a = Array.new(3)
-            "push local 1\n"      // b
-            "push local 0\n"      // &a
-            "pop constant 2\n"
-            "add\n"               // a[2]
+            "pop local 0\n"             // a = Array.new(3)
+            "push local 1\n"            // b
+            "push constant 2\n"
+            "push local 0\n"            // &a
+            "add\n"                     // &a[2]
             "pop pointer 1\n"
-            "pop that 0\n"        // b -> a[2]
+            "pop that 0\n"              // b -> a[2]
             "push constant 0\n"
-            "return\n");
+            "return\n"
+            // clang-format on
+    );
   }
-#endif
 
-#if 0
   SECTION("RHS Array Assignment")
   {
     strcpy(R.buffer, RHS_ARRAY_ASSIGN_SRC);
@@ -596,7 +596,7 @@ SCENARIO("VMWriter Statements")
     REQUIRE(VM.class_name == "Test");
 
     REQUIRE(VM.lowered_vm.str() ==
-            "function Test.new 1\n"
+            "function Test.main 1\n"
             "push constant 2\n"
             "call Array.new 1\n"
             "pop local 0\n"
@@ -627,7 +627,6 @@ SCENARIO("VMWriter Statements")
             "push that 0\n"
             "return\n");
   }
-#endif
 
 #if 0
   SECTION("Array-Array assignment")

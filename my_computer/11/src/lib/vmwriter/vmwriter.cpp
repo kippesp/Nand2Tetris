@@ -563,6 +563,54 @@ void VmWriter::lower_term(const ParseTreeNonTerminal* pTerm)
       {
         lower_subroutine_call(pN);
       }
+      else if (pN->type == ParseTreeNodeType_t::P_ARRAY_BINDING)
+      {
+        string varname = get_term_node_str(
+            find_first_term_node(ParseTreeNodeType_t::P_ARRAY_VAR, pN));
+
+        const Symbol* lhs = symbol_table.find_symbol(varname);
+        if (!lhs) throw SemanticException("Variable not found: " + varname);
+
+        auto pArrayExpr =
+            find_first_nonterm_node(ParseTreeNodeType_t::P_EXPRESSION, pN);
+        assert(pArrayExpr);
+        lower_expression(pArrayExpr);
+
+        // Calculate array address + offset
+        if (auto pClassSC =
+                get_if<Symbol::ClassStorageClass_t>(&lhs->storage_class))
+        {
+          switch (*pClassSC)
+          {
+            case Symbol::ClassStorageClass_t::S_STATIC:
+              lowered_vm << "push static ";
+              break;
+            case Symbol::ClassStorageClass_t::S_FIELD:
+              lowered_vm << "push this ";
+              break;
+          }
+        }
+        else if (auto pSubroutineSC = get_if<Symbol::SubroutineStorageClass_t>(
+                     &lhs->storage_class))
+        {
+          switch (*pSubroutineSC)
+          {
+            case Symbol::SubroutineStorageClass_t::S_ARGUMENT:
+              lowered_vm << "push argument ";
+              break;
+            case Symbol::SubroutineStorageClass_t::S_LOCAL:
+              lowered_vm << "push local ";
+              break;
+          }
+        }
+
+        lowered_vm << lhs->var_index << endl;
+        lowered_vm << "add" << endl;
+
+        lowered_vm << "pop pointer 1" << endl;
+
+        lowered_vm << "push that 0" << endl;
+      }
       else
       {
         throw SemanticException("TODO/TERM: unhandled non-terminals");
@@ -886,8 +934,117 @@ void VmWriter::lower_while_statement(const ParseTreeNonTerminal* pS)
 
 void VmWriter::lower_let_statement(const ParseTreeNonTerminal* pS)
 {
+  auto pE = find_first_nonterm_node(ParseTreeNodeType_t::P_EXPRESSION, pS);
+  assert(pE);
+  lower_expression(pE);
+
+  auto pScalarVar = find_first_term_node(ParseTreeNodeType_t::P_SCALAR_VAR, pS);
+  auto pArrayBinding =
+      find_first_nonterm_node(ParseTreeNodeType_t::P_ARRAY_BINDING, pS);
+
   string varname;
-  bool lhs_is_array = false;
+
+  if (pScalarVar)
+    varname = get_term_node_str(pScalarVar);
+  else if (pArrayBinding)
+    varname = get_term_node_str(
+        find_first_term_node(ParseTreeNodeType_t::P_ARRAY_VAR, pArrayBinding));
+  else
+    assert(0 && "Fall through");
+
+  const Symbol* lhs = symbol_table.find_symbol(varname);
+  if (!lhs) throw SemanticException("Variable not found: " + varname);
+
+  if (pScalarVar)
+  {
+    if (auto pClassSC =
+            get_if<Symbol::ClassStorageClass_t>(&lhs->storage_class))
+    {
+      switch (*pClassSC)
+      {
+        case Symbol::ClassStorageClass_t::S_STATIC:
+          lowered_vm << "pop static ";
+          break;
+        case Symbol::ClassStorageClass_t::S_FIELD:
+          lowered_vm << "pop this ";
+          break;
+      }
+    }
+    else if (auto pSubroutineSC =
+                 get_if<Symbol::SubroutineStorageClass_t>(&lhs->storage_class))
+    {
+      switch (*pSubroutineSC)
+      {
+        case Symbol::SubroutineStorageClass_t::S_ARGUMENT:
+          lowered_vm << "pop argument ";
+          break;
+        case Symbol::SubroutineStorageClass_t::S_LOCAL:
+          lowered_vm << "pop local ";
+          break;
+      }
+    }
+
+    lowered_vm << lhs->var_index << endl;
+  }
+  else
+  {
+    auto pArrayExpr = find_first_nonterm_node(ParseTreeNodeType_t::P_EXPRESSION,
+                                              pArrayBinding);
+    assert(pArrayExpr);
+    lower_expression(pArrayExpr);
+
+    // Calculate array address + offset
+    if (auto pClassSC =
+            get_if<Symbol::ClassStorageClass_t>(&lhs->storage_class))
+    {
+      switch (*pClassSC)
+      {
+        case Symbol::ClassStorageClass_t::S_STATIC:
+          lowered_vm << "push static ";
+          break;
+        case Symbol::ClassStorageClass_t::S_FIELD:
+          lowered_vm << "push this ";
+          break;
+      }
+    }
+    else if (auto pSubroutineSC =
+                 get_if<Symbol::SubroutineStorageClass_t>(&lhs->storage_class))
+    {
+      switch (*pSubroutineSC)
+      {
+        case Symbol::SubroutineStorageClass_t::S_ARGUMENT:
+          lowered_vm << "push argument ";
+          break;
+        case Symbol::SubroutineStorageClass_t::S_LOCAL:
+          lowered_vm << "push local ";
+          break;
+      }
+    }
+
+    lowered_vm << lhs->var_index << endl;
+    lowered_vm << "add" << endl;
+
+    lowered_vm << "pop pointer 1" << endl;
+
+    lowered_vm << "pop that 0" << endl;
+  }
+
+#if 0
+
+
+
+  if (auto pScalarVar =
+          find_first_term_node(ParseTreeNodeType_t::P_SCALAR_VAR, pS))
+  {
+    const Symbol* lhs = symbol_table.find_symbol(varname);
+    if (!lhs) throw SemanticException("Variable not found: " + varname);
+  }
+  else if (auto pArrayVar =
+               find_first_term_node(ParseTreeNodeType_t::P_ARRAY_BINDING, pS))
+  {
+    const Symbol* lhs = symbol_table.find_symbol(varname);
+    if (!lhs) throw SemanticException("Variable not found: " + varname);
+  }
 
   if (auto pScalarVar =
           find_first_term_node(ParseTreeNodeType_t::P_SCALAR_VAR, pS))
@@ -902,13 +1059,6 @@ void VmWriter::lower_let_statement(const ParseTreeNonTerminal* pS)
     raise(SIGTRAP);
   }
 
-  const Symbol* lhs = symbol_table.find_symbol(varname);
-
-  if (!lhs) throw SemanticException("Variable not found: " + varname);
-
-  auto pE = find_first_nonterm_node(ParseTreeNodeType_t::P_EXPRESSION, pS);
-  assert(pE);
-  lower_expression(pE);
 
   if (!lhs_is_array)
   {
@@ -943,7 +1093,6 @@ void VmWriter::lower_let_statement(const ParseTreeNonTerminal* pS)
   }
   else
   {
-#if 0
     // Calculate array address + offset
     if (auto pClassSC = get_if<Symbol::ClassStorageClass_t>(&lhs->storage_class))
     {
@@ -977,8 +1126,8 @@ void VmWriter::lower_let_statement(const ParseTreeNonTerminal* pS)
 
     lowered_vm << lhs->var_index << endl;
 
-#endif
   }
+#endif
 }
 
 void VmWriter::lower_do_statement(const ParseTreeNonTerminal* pDoStatement)
