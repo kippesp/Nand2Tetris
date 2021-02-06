@@ -550,7 +550,10 @@ void VmWriter::lower_term(const ParseTreeNonTerminal* pTerm)
 
         lowered_vm << rhs->var_index << endl;
       }
-      // case ParseTreeNodeType_t::P_STRING_CONSTANT:
+      else if (pT->type == ParseTreeNodeType_t::P_STRING_CONSTANT)
+      {
+        throw SemanticException("TODO: string support");
+      }
       else
       {
         throw SemanticException("TODO/TERM: unhandled terminal case");

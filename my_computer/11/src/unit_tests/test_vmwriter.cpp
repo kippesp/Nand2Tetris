@@ -671,4 +671,25 @@ SCENARIO("VMWriter Statements")
             "push constant 0\n"
             "return\n");
   }
+
+  SECTION("String term")
+  {
+    strcpy(R.buffer, STRING_TERM_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Test");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Test.main 0\n"
+            "return\n");
+  }
 }

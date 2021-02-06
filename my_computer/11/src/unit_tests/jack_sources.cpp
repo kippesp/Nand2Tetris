@@ -201,6 +201,15 @@ class Test {
 }
 )""";
 
+const char* STRING_TERM_SRC = R"""(
+class Test {
+   function void main() {
+     do Output.printString("Hello");
+     return;
+   }
+}
+)""";
+
 #if 0
 // LATER - test RHS and static member
 
