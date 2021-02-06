@@ -689,31 +689,73 @@ void VmWriter::lower_subroutine_call(
 
   if (pCallVar)
   {
-    call_site_name << pCallVar->token.value_str << ".";
-  }
-  else
-  {
-    if (pSubDescr->type == TokenValue_t::J_CONSTRUCTOR)
+    if (const Symbol* this_var =
+            symbol_table.find_symbol(pCallVar->token.value_str))
     {
-      lowered_vm << "push pointer 0" << endl;
+      if (auto pClassSC =
+              get_if<Symbol::ClassStorageClass_t>(&this_var->storage_class))
+      {
+        switch (*pClassSC)
+        {
+          case Symbol::ClassStorageClass_t::S_STATIC:
+            lowered_vm << "push static ";
+            break;
+          case Symbol::ClassStorageClass_t::S_FIELD:
+            lowered_vm << "push this ";
+            break;
+        }
+
+        auto pTypeName = get_if<Symbol::ClassType_t>(&this_var->type);
+        assert(pTypeName);
+
+        call_site_name << *pTypeName << ".";
+      }
+      else if (auto pSubroutineSC = get_if<Symbol::SubroutineStorageClass_t>(
+                   &this_var->storage_class))
+      {
+        switch (*pSubroutineSC)
+        {
+          case Symbol::SubroutineStorageClass_t::S_ARGUMENT:
+            lowered_vm << "push argument ";
+            break;
+          case Symbol::SubroutineStorageClass_t::S_LOCAL:
+            lowered_vm << "push local ";
+            break;
+        }
+
+        auto pTypeName = get_if<Symbol::ClassType_t>(&this_var->type);
+        assert(pTypeName);
+
+        call_site_name << *pTypeName << ".";
+      }
+
+      lowered_vm << this_var->var_index << endl;
       num_arguments++;
-
-      call_site_name << class_name << ".";
-    }
-    else if (const Symbol* this_var = symbol_table.find_symbol("this"))
-    {
-      lowered_vm << "push pointer 0" << endl;
-      num_arguments++;
-
-      auto pThisVarTypeName = get_if<Symbol::ClassType_t>(&this_var->type);
-      assert(pThisVarTypeName);
-
-      call_site_name << *pThisVarTypeName << ".";
     }
     else
     {
-      throw SemanticException("Method call not inside method");
+      call_site_name << get_term_node_str(pCallVar) << ".";
     }
+  }
+  else if (const Symbol* this_var = symbol_table.find_symbol("this"))
+  {
+    lowered_vm << "push pointer 0" << endl;
+    num_arguments++;
+
+    auto pThisVarTypeName = get_if<Symbol::ClassType_t>(&this_var->type);
+    assert(pThisVarTypeName);
+    call_site_name << *pThisVarTypeName << ".";
+  }
+  else
+  {
+    // Class method call from constructor
+    assert(pSubDescr->type == TokenValue_t::J_CONSTRUCTOR);
+
+    // provide 'this' pointer to internal method call
+    lowered_vm << "push pointer 0" << endl;
+    num_arguments++;
+
+    call_site_name << class_name << ".";
   }
 
   auto pSubName =

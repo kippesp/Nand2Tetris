@@ -483,7 +483,33 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
-#if 0
+  SECTION("Method Call From Constructor")
+  {
+    strcpy(R.buffer, OBJECT_METHOD_CALL_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Test");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Test.main 1\n"
+            "call MyClass.new 0\n"
+            "pop local 0\n"
+            "push local 0\n"
+            "call MyClass.run 1\n"
+            "pop temp 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+
   SECTION("Method Call From Constructor")
   {
     strcpy(R.buffer, CONST_METHOD_CALL_SRC);
@@ -516,5 +542,4 @@ SCENARIO("VMWriter Statements")
             "push constant 0\n"
             "return\n");
   }
-#endif
 }

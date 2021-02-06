@@ -150,3 +150,14 @@ class Test {
    }
 }
 )""";
+
+const char* OBJECT_METHOD_CALL_SRC = R"""(
+class Test {
+    function void main() {
+        var MyClass c;
+        let c = MyClass.new();
+        do c.run();
+        return;
+    }
+}
+)""";

@@ -10,3 +10,4 @@ extern const char* SIMPLE_WHILE_SRC;
 extern const char* SIMPLE_CONST_SRC;
 extern const char* VOID_RETURN_SRC;
 extern const char* CONST_METHOD_CALL_SRC;
+extern const char* OBJECT_METHOD_CALL_SRC;
