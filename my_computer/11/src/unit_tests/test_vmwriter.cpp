@@ -628,7 +628,6 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
-#if 0
   SECTION("Array-Array assignment")
   {
     strcpy(R.buffer, ARRAY_ARRAY_ASSIGN_SRC);
@@ -653,28 +652,23 @@ SCENARIO("VMWriter Statements")
             "push constant 1\n"
             "call Array.new 1\n"
             "pop local 1\n"
+            "push constant 5\n"
             "push constant 0\n"
             "push local 1\n"
             "add\n"
-            "push constant 5\n"
-            "pop temp 0\n"
             "pop pointer 1\n"
-            "push temp 0\n"
             "pop that 0\n"
-            "push constant 0\n"
-            "push local 0\n"
-            "add\n"
             "push constant 0\n"
             "push local 1\n"
             "add\n"
             "pop pointer 1\n"
             "push that 0\n"
-            "pop temp 0\n"
+            "push constant 0\n"
+            "push local 0\n"
+            "add\n"
             "pop pointer 1\n"
-            "push temp 0\n"
             "pop that 0\n"
             "push constant 0\n"
             "return\n");
   }
-#endif
 }
