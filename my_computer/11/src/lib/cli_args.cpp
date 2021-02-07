@@ -230,8 +230,7 @@ void CliArgs::show_usage()
   std::cout << "Compile .jack file to .vm\n\n";
   std::cout << "SYNOPSIS:\n\n";
   std::cout << "  jfcl -h" << std::endl;
-  std::cout << "  jfcl [-t|-T] FILENAME.jack" << std::endl;
-  std::cout << "  jfcl -p FILENAME.jack" << std::endl;
+  std::cout << "  jfcl [-t|-T|-p|-w] FILENAME.jack" << std::endl;
   std::cout << "  jfcl DIRECTORY|FILENAME.jack" << std::endl;
 }
 

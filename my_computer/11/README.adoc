@@ -1,0 +1,46 @@
+= Jack Front End Compiler (jfcl) - part 2
+
+Nand2Tetris project #11 to convert .jack files to .vm Jack virtual machine files.
+
+== Usage
+
+    jfcl -h
+    jfcl [-t|-T|-p|-w] FILENAME.jack
+    jfcl DIRECTORY|FILENAME.jack
+
+== Options
+
+    -h     Display available options
+    -t     Display tokenizer output and halt (includes internal tokens)
+    -T     Display tokenizer output in S expression w/o internals and halt
+    -p     Display parse tree output and halt
+    -w     Display VM Writer output and halt
+
+== Overview
+
+    jfcl
+
+    +-----------+      +---------------+      +----------+      +--------+
+    |           |      |  Parser       |      |          |      |        |
+    | Tokenizer |----->|  (semantic    |----->| VmWriter |----->|  .vm   |
+    |           |      |   parse tree) |      |          |      |        |
+    +-----------+      +---------------+      +----------+      +--------+
+
+== Implementation Notes
+
+The tokenized input is parsed into an augmented parse tree that is less useful
+than an AST but does succeed in the VmWriter implementation when compared to
+the N2T class recursive descent parser.  One might describe it as a semantic
+parse tree since it identifies language elements such as array elements,
+expression lists, and such.
+
+The tree implementation is tedious to work with and requires unnatural casting
+and overly relies on dynamic casting.  C++17 variants were introduced with the
+class and subroutine types (static, field, local, and argument), but the usage
+pattern is cumbersome.
+
+Tree construction doesn't lend itself to implementing a DFS algorithm and thus
+requires a variation of re-implementing the basic code flow of the parser.
+
+The file and directory handling logic was implemented twice in order to compile
+across Windows, Linux, and MacOS.
