@@ -56,7 +56,6 @@ private:
   void create_classvar_symtable(const ParseTreeNonTerminal*);
   void create_subroutine_symtable(const ParseTreeNonTerminal*);
 
-  bool add_comments{true};
   SymbolTable symbol_table;
 
   std::unique_ptr<SubroutineDescr> pSubDescr{nullptr};

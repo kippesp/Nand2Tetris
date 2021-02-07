@@ -37,6 +37,4 @@ public:
 private:
   const std::string filename;
   FILE* infile{nullptr};
-
-  fpos_t saved_pos;
 };
