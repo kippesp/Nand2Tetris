@@ -210,6 +210,23 @@ class Test {
 }
 )""";
 
+const char* NUMERICAL_IF_SRC = R"""(
+class Main {
+  function void main() {
+    if (8191 & 2)
+    {
+      do Output.printInt(1);
+    }
+    else
+    {
+      do Output.printInt(255);
+    }
+
+    return;
+  }
+}
+)""";
+
 #if 0
 // LATER - test RHS and static member
 

@@ -382,15 +382,15 @@ SCENARIO("VMWriter Statements")
             "push argument 0\n"
             "push constant 50\n"
             "gt\n"
-            "not\n"
-            "if-goto IfTest.f1.0.IF_FALSE\n"
-            "push constant 1\n"
-            "pop local 0\n"
-            "goto IfTest.f1.0.IF_END\n"
-            "label IfTest.f1.0.IF_FALSE\n"
+            "if-goto IF_TRUE_0\n"
+            "label IF_FALSE_0\n"
             "push argument 0\n"
             "pop local 0\n"
-            "label IfTest.f1.0.IF_END\n"
+            "goto IF_END_0\n"
+            "label IF_TRUE_0\n"
+            "push constant 1\n"
+            "pop local 0\n"
+            "label IF_END_0\n"
             "push local 0\n"
             "return\n");
   }
@@ -413,18 +413,19 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.lowered_vm.str() ==
             "function WhileTest.f1 0\n"
-            "label WhileTest.f1.0.WHILE_BEGIN\n"
+            "label WHILE_BEGIN_0\n"
             "push argument 0\n"
             "push constant 0\n"
             "gt\n"
-            "not\n"
-            "if-goto WhileTest.f1.0.WHILE_END\n"
+            "if-goto WHILE_TRUE_0\n"
+            "goto WHILE_END_0\n"
+            "label WHILE_TRUE_0\n"
             "push argument 0\n"
             "push constant 1\n"
             "sub\n"
             "pop argument 0\n"
-            "goto WhileTest.f1.0.WHILE_BEGIN\n"
-            "label WhileTest.f1.0.WHILE_END\n"
+            "goto WHILE_BEGIN_0\n"
+            "label WHILE_END_0\n"
             "push argument 0\n"
             "return\n");
   }
@@ -704,6 +705,42 @@ SCENARIO("VMWriter Statements")
             "call String.appendChar 2\n"
             "call Output.printString 1\n"
             "pop temp 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+
+  SECTION("Numerical IF")
+  {
+    strcpy(R.buffer, NUMERICAL_IF_SRC);
+
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_class();
+    REQUIRE(parsetree_node);
+
+    VmWriter VM(parsetree_node);
+    VM.lower_class();
+
+    REQUIRE(VM.class_name == "Main");
+
+    REQUIRE(VM.lowered_vm.str() ==
+            "function Main.main 0\n"
+            "push constant 8191\n"
+            "push constant 2\n"
+            "and\n"
+            "if-goto IF_TRUE_0\n"
+            "label IF_FALSE_0\n"
+            "push constant 255\n"
+            "call Output.printInt 1\n"
+            "pop temp 0\n"
+            "goto IF_END_0\n"
+            "label IF_TRUE_0\n"
+            "push constant 1\n"
+            "call Output.printInt 1\n"
+            "pop temp 0\n"
+            "label IF_END_0\n"
             "push constant 0\n"
             "return\n");
   }

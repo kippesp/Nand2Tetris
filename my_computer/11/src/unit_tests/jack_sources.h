@@ -15,3 +15,4 @@ extern const char* LHS_ARRAY_ASSIGN_SRC;
 extern const char* RHS_ARRAY_ASSIGN_SRC;
 extern const char* ARRAY_ARRAY_ASSIGN_SRC;
 extern const char* STRING_TERM_SRC;
+extern const char* NUMERICAL_IF_SRC;

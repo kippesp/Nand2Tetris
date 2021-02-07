@@ -836,8 +836,6 @@ void VmWriter::lower_if_statement(const ParseTreeNonTerminal* pS)
   auto pE = find_first_nonterm_node(ParseTreeNodeType_t::P_EXPRESSION, pS);
   lower_expression(pE);
 
-  lowered_vm << "not" << endl;
-
   std::vector<std::shared_ptr<ParseTreeNode>> if_nodes;
   for (auto child_node : pS->get_child_nodes()) if_nodes.push_back(child_node);
 
@@ -850,8 +848,6 @@ void VmWriter::lower_if_statement(const ParseTreeNonTerminal* pS)
   stringstream control_label;
 
   // CLASS-NAME.FUNCTION-NAME
-  control_label << class_name << '.';
-  control_label << pSubDescr->name;
 
   const auto ID = pSubDescr->structured_control_id++;
 
@@ -861,29 +857,25 @@ void VmWriter::lower_if_statement(const ParseTreeNonTerminal* pS)
 
   if (has_else)
   {
-    lowered_vm << "if-goto " << control_label.str() << ".";
-    lowered_vm << ID << ".IF_FALSE" << endl;
-    lower_statement_list(pTrueStatementBlock);
-    lowered_vm << "goto " << control_label.str() << ".";
-    lowered_vm << ID << ".IF_END" << endl;
-
     assert(if_nodes[9]->type == ParseTreeNodeType_t::P_STATEMENT_LIST);
     auto pFalseStatementBlock =
         dynamic_cast<const ParseTreeNonTerminal*>(&(*if_nodes[9]));
 
-    lowered_vm << "label " << control_label.str() << ".";
-    lowered_vm << ID << ".IF_FALSE" << endl;
+    lowered_vm << "if-goto IF_TRUE_" << ID << endl;
+    lowered_vm << "label IF_FALSE_" << ID << endl;
     lower_statement_list(pFalseStatementBlock);
-    lowered_vm << "label " << control_label.str() << ".";
-    lowered_vm << ID << ".IF_END" << endl;
+    lowered_vm << "goto IF_END_" << ID << endl;
+    lowered_vm << "label IF_TRUE_" << ID << endl;
+    lower_statement_list(pTrueStatementBlock);
+    lowered_vm << "label IF_END_" << ID << endl;
   }
   else
   {
-    lowered_vm << "if-goto " << control_label.str() << ".";
-    lowered_vm << ID << ".IF_END" << endl;
+    lowered_vm << "if-goto IF_TRUE_" << ID << endl;
+    lowered_vm << "goto IF_END_" << ID << endl;
+    lowered_vm << "label IF_TRUE_" << ID << endl;
     lower_statement_list(pTrueStatementBlock);
-    lowered_vm << "label " << control_label.str() << ".";
-    lowered_vm << ID << ".IF_END" << endl;
+    lowered_vm << "label IF_END_" << ID << endl;
   }
 }
 
@@ -903,30 +895,21 @@ void VmWriter::lower_while_statement(const ParseTreeNonTerminal* pS)
   stringstream control_label;
 
   // CLASS-NAME.FUNCTION-NAME
-  control_label << class_name << '.';
-  control_label << pSubDescr->name;
 
   const auto ID = pSubDescr->structured_control_id++;
 
   auto pStatementBlock =
       dynamic_cast<const ParseTreeNonTerminal*>(&(*while_nodes[5]));
 
-  lowered_vm << "label " << control_label.str() << ".";
-  lowered_vm << ID << ".WHILE_BEGIN" << endl;
-
+  lowered_vm << "label WHILE_BEGIN_" << ID << endl;
   lower_expression(pE);
-  lowered_vm << "not" << endl;
 
-  lowered_vm << "if-goto " << control_label.str() << ".";
-  lowered_vm << ID << ".WHILE_END" << endl;
-
+  lowered_vm << "if-goto WHILE_TRUE_" << ID << endl;
+  lowered_vm << "goto WHILE_END_" << ID << endl;
+  lowered_vm << "label WHILE_TRUE_" << ID << endl;
   lower_statement_list(pStatementBlock);
-
-  lowered_vm << "goto " << control_label.str() << ".";
-  lowered_vm << ID << ".WHILE_BEGIN" << endl;
-
-  lowered_vm << "label " << control_label.str() << ".";
-  lowered_vm << ID << ".WHILE_END" << endl;
+  lowered_vm << "goto WHILE_BEGIN_" << ID << endl;
+  lowered_vm << "label WHILE_END_" << ID << endl;
 }
 
 void VmWriter::lower_let_statement(const ParseTreeNonTerminal* pS)
