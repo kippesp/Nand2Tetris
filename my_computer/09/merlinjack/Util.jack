@@ -1,0 +1,16 @@
+class Util
+{
+  function int mod(int a, int b)
+  {
+    var int div;
+
+    let div = a / b;
+
+    return a - (div * b);
+  }
+
+  function int xor(int a, int b)
+  {
+    return ~(a & b) & (a | b);
+  }
+}

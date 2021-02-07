@@ -1,0 +1,250 @@
+class GuiDigit {
+  function int get_x_size() { return 16; }
+  function int get_y_size() { return 14; }
+
+  function void draw_one(int dblcol, int row) {
+    var int base_address;
+    let base_address = 16384 + (32 * row) + dblcol;
+
+    // 1
+    do Memory.poke(base_address + 0,   48);
+    do Memory.poke(base_address + 32,  48);
+    do Memory.poke(base_address + 64,  60);
+    do Memory.poke(base_address + 96,  60);
+    do Memory.poke(base_address + 128, 48);
+    do Memory.poke(base_address + 160, 48);
+    do Memory.poke(base_address + 192, 48);
+    do Memory.poke(base_address + 224, 48);
+    do Memory.poke(base_address + 256, 48);
+    do Memory.poke(base_address + 288, 48);
+    do Memory.poke(base_address + 320, 48);
+    do Memory.poke(base_address + 352, 48);
+    do Memory.poke(base_address + 384, 252);
+    do Memory.poke(base_address + 416, 252);
+
+    return;
+  }
+
+  function void draw_two(int dblcol, int row) {
+    var int base_address;
+    let base_address = 16384 + (32 * row) + dblcol;
+
+    // 2
+    do Memory.poke(base_address + 0,   252);
+    do Memory.poke(base_address + 32,  252);
+    do Memory.poke(base_address + 64,  771);
+    do Memory.poke(base_address + 96,  771);
+    do Memory.poke(base_address + 128, 768);
+    do Memory.poke(base_address + 160, 768);
+    do Memory.poke(base_address + 192, 240);
+    do Memory.poke(base_address + 224, 240);
+    do Memory.poke(base_address + 256, 12);
+    do Memory.poke(base_address + 288, 12);
+    do Memory.poke(base_address + 320, 3);
+    do Memory.poke(base_address + 352, 3);
+    do Memory.poke(base_address + 384, 1023);
+    do Memory.poke(base_address + 416, 1023);
+
+    return;
+  }
+
+  function void draw_three(int dblcol, int row) {
+    var int base_address;
+    let base_address = 16384 + (32 * row) + dblcol;
+
+    // 3
+    do Memory.poke(base_address + 0,   1023);
+    do Memory.poke(base_address + 32,  1023);
+    do Memory.poke(base_address + 64,  768);
+    do Memory.poke(base_address + 96,  768);
+    do Memory.poke(base_address + 128, 192);
+    do Memory.poke(base_address + 160, 192);
+    do Memory.poke(base_address + 192, 240);
+    do Memory.poke(base_address + 224, 240);
+    do Memory.poke(base_address + 256, 768);
+    do Memory.poke(base_address + 288, 768);
+    do Memory.poke(base_address + 320, 771);
+    do Memory.poke(base_address + 352, 771);
+    do Memory.poke(base_address + 384, 252);
+    do Memory.poke(base_address + 416, 252);
+
+    return;
+  }
+
+  function void draw_four(int dblcol, int row) {
+    var int base_address;
+    let base_address = 16384 + (32 * row) + dblcol;
+
+    // 4
+    do Memory.poke(base_address + 0,   192);
+    do Memory.poke(base_address + 32,  192);
+    do Memory.poke(base_address + 64,  240);
+    do Memory.poke(base_address + 96,  240);
+    do Memory.poke(base_address + 128, 204);
+    do Memory.poke(base_address + 160, 204);
+    do Memory.poke(base_address + 192, 195);
+    do Memory.poke(base_address + 224, 195);
+    do Memory.poke(base_address + 256, 1023);
+    do Memory.poke(base_address + 288, 1023);
+    do Memory.poke(base_address + 320, 192);
+    do Memory.poke(base_address + 352, 192);
+    do Memory.poke(base_address + 384, 192);
+    do Memory.poke(base_address + 416, 192);
+
+    return;
+  }
+
+  function void draw_five(int dblcol, int row) {
+    var int base_address;
+    let base_address = 16384 + (32 * row) + dblcol;
+
+    // 5
+    do Memory.poke(base_address + 0,   1023);
+    do Memory.poke(base_address + 32,  1023);
+    do Memory.poke(base_address + 64,  3);
+    do Memory.poke(base_address + 96,  3);
+    do Memory.poke(base_address + 128, 255);
+    do Memory.poke(base_address + 160, 255);
+    do Memory.poke(base_address + 192, 768);
+    do Memory.poke(base_address + 224, 768);
+    do Memory.poke(base_address + 256, 768);
+    do Memory.poke(base_address + 288, 768);
+    do Memory.poke(base_address + 320, 771);
+    do Memory.poke(base_address + 352, 771);
+    do Memory.poke(base_address + 384, 252);
+    do Memory.poke(base_address + 416, 252);
+
+    return;
+  }
+
+  function void draw_six(int dblcol, int row) {
+    var int base_address;
+    let base_address = 16384 + (32 * row) + dblcol;
+
+    // 6
+    do Memory.poke(base_address + 0,   1008);
+    do Memory.poke(base_address + 32,  1008);
+    do Memory.poke(base_address + 64,  12);
+    do Memory.poke(base_address + 96,  12);
+    do Memory.poke(base_address + 128, 3);
+    do Memory.poke(base_address + 160, 3);
+    do Memory.poke(base_address + 192, 255);
+    do Memory.poke(base_address + 224, 255);
+    do Memory.poke(base_address + 256, 771);
+    do Memory.poke(base_address + 288, 771);
+    do Memory.poke(base_address + 320, 771);
+    do Memory.poke(base_address + 352, 771);
+    do Memory.poke(base_address + 384, 252);
+    do Memory.poke(base_address + 416, 252);
+
+    return;
+  }
+
+  function void draw_seven(int dblcol, int row) {
+    var int base_address;
+    let base_address = 16384 + (32 * row) + dblcol;
+
+    // 7
+    do Memory.poke(base_address + 0,   1023);
+    do Memory.poke(base_address + 32,  1023);
+    do Memory.poke(base_address + 64,  768);
+    do Memory.poke(base_address + 96,  768);
+    do Memory.poke(base_address + 128, 192);
+    do Memory.poke(base_address + 160, 192);
+    do Memory.poke(base_address + 192, 48);
+    do Memory.poke(base_address + 224, 48);
+    do Memory.poke(base_address + 256, 12);
+    do Memory.poke(base_address + 288, 12);
+    do Memory.poke(base_address + 320, 12);
+    do Memory.poke(base_address + 352, 12);
+    do Memory.poke(base_address + 384, 12);
+    do Memory.poke(base_address + 416, 12);
+
+    return;
+  }
+
+  function void draw_eight(int dblcol, int row) {
+    var int base_address;
+    let base_address = 16384 + (32 * row) + dblcol;
+
+    // 8
+    do Memory.poke(base_address + 0,   252);
+    do Memory.poke(base_address + 32,  252);
+    do Memory.poke(base_address + 64,  771);
+    do Memory.poke(base_address + 96,  771);
+    do Memory.poke(base_address + 128, 771);
+    do Memory.poke(base_address + 160, 771);
+    do Memory.poke(base_address + 192, 252);
+    do Memory.poke(base_address + 224, 252);
+    do Memory.poke(base_address + 256, 771);
+    do Memory.poke(base_address + 288, 771);
+    do Memory.poke(base_address + 320, 771);
+    do Memory.poke(base_address + 352, 771);
+    do Memory.poke(base_address + 384, 252);
+    do Memory.poke(base_address + 416, 252);
+
+    return;
+  }
+
+  function void draw_nine(int dblcol, int row) {
+    var int base_address;
+    let base_address = 16384 + (32 * row) + dblcol;
+
+    // 9
+    do Memory.poke(base_address + 0,   252);
+    do Memory.poke(base_address + 32,  252);
+    do Memory.poke(base_address + 64,  771);
+    do Memory.poke(base_address + 96,  771);
+    do Memory.poke(base_address + 128, 771);
+    do Memory.poke(base_address + 160, 771);
+    do Memory.poke(base_address + 192, 1020);
+    do Memory.poke(base_address + 224, 1020);
+    do Memory.poke(base_address + 256, 768);
+    do Memory.poke(base_address + 288, 768);
+    do Memory.poke(base_address + 320, 192);
+    do Memory.poke(base_address + 352, 192);
+    do Memory.poke(base_address + 384, 63);
+    do Memory.poke(base_address + 416, 63);
+
+    return;
+  }
+
+  function void draw_zero(int dblcol, int row) {
+    var int base_address;
+    let base_address = 16384 + (32 * row) + dblcol;
+
+    // 0
+    do Memory.poke(base_address + 0,   252);
+    do Memory.poke(base_address + 32,  252);
+    do Memory.poke(base_address + 64,  771);
+    do Memory.poke(base_address + 96,  771);
+    do Memory.poke(base_address + 128, 963);
+    do Memory.poke(base_address + 160, 963);
+    do Memory.poke(base_address + 192, 819);
+    do Memory.poke(base_address + 224, 819);
+    do Memory.poke(base_address + 256, 783);
+    do Memory.poke(base_address + 288, 783);
+    do Memory.poke(base_address + 320, 771);
+    do Memory.poke(base_address + 352, 771);
+    do Memory.poke(base_address + 384, 252);
+    do Memory.poke(base_address + 416, 252);
+
+    return;
+  }
+
+  function void blank(int dblcol, int row) {
+    var int x1;
+    var int y1;
+    var int x2;
+    var int y2;
+    let x1 = dblcol * 16;
+    let y1 = row;
+    let x2 = x1 + 15;
+    let y2 = y1 + 186;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(x1, y1, x2, y2);
+
+    return;
+  }
+}

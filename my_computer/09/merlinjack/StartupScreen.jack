@@ -1,0 +1,90 @@
+class StartupScreen {
+  function void show_title_screen() {
+    var String str;
+
+    do TitleCredit.draw(0, 0);
+    do GuiDocGoalT0.draw(0, TitleCredit.get_y_size() + 8);
+
+    /*
+                  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+                  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    */
+
+    // Display the rules
+    do Output.moveCursor(3, 15);
+    let str = "The goal of the Magic Square game is to finish";
+    do Output.printString(str);
+
+    do Output.moveCursor(4, 15);
+    let str = "with the game state as a square.";
+    do Output.printString(str);
+
+    do Output.moveCursor(6, 15);
+    let str = "Start by choosing a difficulty level";
+    do Output.printString(str);
+
+    do Output.moveCursor(7, 15);
+    let str = "corresponding to about how many steps to reach";
+    do Output.printString(str);
+
+    do Output.moveCursor(8, 15);
+    let str = "the solution on the left.  Each choice of a pip";
+    do Output.printString(str);
+
+    do Output.moveCursor(9, 15);
+    let str = "inverts itself and two or more neighboring pips.";
+    do Output.printString(str);
+
+    do Output.moveCursor(10, 15);
+    let str = "For example a corner pip (1, 3, 7, or 9) inverts";
+    do Output.printString(str);
+
+    do Output.moveCursor(11, 15);
+    let str = "each of its three neighboring pips as well as";
+    do Output.printString(str);
+
+    do Output.moveCursor(12, 15);
+    let str = "itself.  The center pip, #5, inverts itself and";
+    do Output.printString(str);
+
+    do Output.moveCursor(13, 0);
+    let str = "pips 2, 4, 6, and 8.  Finally, the middle edge pips, invert all";
+    do Output.printString(str);
+
+    do Output.moveCursor(14, 0);
+    let str = "pips of its edge.";
+    do Output.printString(str);
+
+    do Output.moveCursor(16, 0);
+    let str = "History:  This game was one of the built-in games in the late";
+    do Output.printString(str);
+
+    do Output.moveCursor(17, 0);
+    let str = "1970's Parker Bros. handheld game, Merlin.  This implementation";
+    do Output.printString(str);
+
+    do Output.moveCursor(18, 0);
+    let str = "was inspired by the assembly language version in the book";
+    do Output.printString(str);
+
+    do Output.moveCursor(19, 0);
+    do Output.printChar(34);
+
+    let str = "6502 Games";
+    do Output.printString(str);
+    do Output.printChar(34);
+
+    let str = " (c) 1980 by Rodney Zaks.";
+    do Output.printString(str);
+
+    return;
+  }
+}

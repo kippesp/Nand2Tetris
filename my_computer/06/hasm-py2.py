@@ -1,4 +1,4 @@
-# Hack computer assembler
+# Hack computer assembler - NAND2Tetrix P1 - 2017
 import sys
 import pdb
 
@@ -223,11 +223,11 @@ def test_all():
     ml_instr = assemble(inline)
 
     if ml_instr != outline:
-      print("ERROR: %s" % inline)
-      print("expected: %s" % outline)
-      print("actual: %s" % ml_instr)
+      print "ERROR: %s" % inline
+      print "expected: %s" % outline
+      print "actual: %s" % ml_instr
 
-  print('done')
+  print 'done'
 
 class ListingLine:
   asm_line_number = 0
@@ -250,13 +250,13 @@ def main():
   global auto_variable_val, symbols
 
   if len(sys.argv) == 1:
-    print('Usage: python hasm.py [-l] FILE.asm')
+    print 'Usage: python hasm.py [-l] FILE.asm'
     sys.exit(-1)
 
   # Check for listing file production
   if sys.argv[1] == '-l':
     if len(sys.argv) == 2:
-      print('Usage: python hasm.py [-l] FILE.asm')
+      print 'Usage: python hasm.py [-l] FILE.asm'
       sys.exit(-1)
     make_listing_file = True
     filename = sys.argv[2]
@@ -265,11 +265,11 @@ def main():
     filename = sys.argv[1]
 
   if make_listing_file:
-    print("---")
-    print("--- Hack Computer")
-    print("--- Listing file: %s" % sys.argv[-1])
-    print("---\n")
-    print("--- CODE LISTING ---\n")
+    print "---"
+    print "--- Hack Computer"
+    print "--- Listing file: %s" % sys.argv[-1]
+    print "---\n"
+    print "--- CODE LISTING ---\n"
 
   default_symbols = set(symbols.keys())
 
@@ -312,10 +312,10 @@ def main():
         ml_instr = assemble(listingLine.instruction_text)
         listingLines[i].ml_instr = ml_instr
         if not make_listing_file:
-          print(ml_instr)
+          print ml_instr
       except ParseError as e:
-        print('Line %d' % i)
-        print(e)
+        print 'Line %d' % i
+        print e
         sys.exit(1)
 
   data_symbols = set(symbols.keys()) - code_symbols
@@ -336,37 +336,37 @@ def main():
                 a_instr_value = " =%d" % symbols[a_instr]
         if listingLine.has_comment:
           # Move inline comments to its own line for readability
-          print("%5i: %4s      %s" % (listingLine.instruction_number, "",
-              listingLine.comment_text))
-        print("%5i: %04X   %-35s %s%-8s%s" % (
+          print "%5i: %4s      %s" % (listingLine.instruction_number, "",
+              listingLine.comment_text)
+        print "%5i: %04X   %-35s %s%-8s%s" % (
             listingLine.instruction_number, asm_hex,
             listingLine.instruction_text, "",
-            a_instr_value, listingLine.ml_instr))
+            a_instr_value, listingLine.ml_instr)
       elif listingLine.has_comment:
-        print("              %s" % listingLine.comment_text)
+        print "              %s" % listingLine.comment_text
       elif listingLine.is_label:
-        print("")
+        print ""
         symbol_val = symbols[listingLine.label_text]
-        print("      (%s) =%d" % (listingLine.label_text, symbol_val))
+        print "      (%s) =%d" % (listingLine.label_text, symbol_val)
 
-    print("")
-    print("--- DATA SYMBOLS ---\n")
+    print ""
+    print "--- DATA SYMBOLS ---\n"
 
     data_symbol_tuples = {k: symbols[k] for k in data_symbols}
-    data_symbol_tuples = [(v,k) for k,v in data_symbol_tuples.items()]
+    data_symbol_tuples = [(v,k) for k,v in data_symbol_tuples.iteritems()]
 
     for v,k in sorted(data_symbol_tuples):
-      print("%4d  %s" % (v, k))
+      print "%4d  %s" % (v, k)
 
-    print("")
-    print("--- CODE SYMBOLS ---\n")
+    print ""
+    print "--- CODE SYMBOLS ---\n"
 
     new_code_symbols = code_symbols - default_symbols
     code_symbol_tuples = {k: symbols[k] for k in new_code_symbols}
-    code_symbol_tuples = [(v,k) for k,v in code_symbol_tuples.items()]
+    code_symbol_tuples = [(v,k) for k,v in code_symbol_tuples.iteritems()]
 
     for v,k in sorted(code_symbol_tuples):
-      print("%4d  %s" % (v, k))
+      print "%4d  %s" % (v, k)
 
 
 if __name__ == '__main__':

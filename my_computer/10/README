@@ -1,0 +1,27 @@
+# Jack Front End Compiler (jfcl) - part 1
+
+Nand2Tetris project #10 to convert .jack files to .sexp parse tree.  The
+standard project outputs a parse tree in XML and with less-specific node
+names.  This implementation builds the parse tree in memory before producing
+its output.
+
+## Usage
+
+    jfcl -h
+    jfcl [-t] FILENAME.jack
+    jfcl DIRECTORY|FILENAME.jack
+
+## Options
+
+    -h     Display available options
+    -t     Display tokenizer output and halt (includes internal tokens)
+    -T     Display tokenizer output in S expression w/o internals and halt
+    -p     Display parse tree output and halt
+
+## Overview
+
+    jfcl
+
+    +-----------+      +-----------------------+      +--------+
+    | Tokenizer |----->|  Parser (parse tree)  |----->| .sexp  |
+    +-----------+      +-----------------------+      +--------+
