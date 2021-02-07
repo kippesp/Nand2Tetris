@@ -552,7 +552,14 @@ void VmWriter::lower_term(const ParseTreeNonTerminal* pTerm)
       }
       else if (pT->type == ParseTreeNodeType_t::P_STRING_CONSTANT)
       {
-        throw SemanticException("TODO: string support");
+        const string& s(get_term_node_str(pT));
+        lowered_vm << "push constant " << s.length() << endl;
+        lowered_vm << "call String.new 1" << endl;
+        for (auto ch : s)
+        {
+          lowered_vm << "push constant " << (int)ch << endl;
+          lowered_vm << "call String.appendChar 2" << endl;
+        }
       }
       else
       {

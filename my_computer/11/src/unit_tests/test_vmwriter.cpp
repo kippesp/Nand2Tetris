@@ -690,6 +690,21 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.lowered_vm.str() ==
             "function Test.main 0\n"
+            "push constant 5\n"
+            "call String.new 1\n"
+            "push constant 72\n"
+            "call String.appendChar 2\n"
+            "push constant 101\n"
+            "call String.appendChar 2\n"
+            "push constant 108\n"
+            "call String.appendChar 2\n"
+            "push constant 108\n"
+            "call String.appendChar 2\n"
+            "push constant 111\n"
+            "call String.appendChar 2\n"
+            "call Output.printString 1\n"
+            "pop temp 0\n"
+            "push constant 0\n"
             "return\n");
   }
 }
