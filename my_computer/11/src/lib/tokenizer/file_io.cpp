@@ -60,13 +60,3 @@ JackInputFile::char_type JackInputFile::read()
 
   return c;
 }
-
-void JackInputFile::savepos()
-{
-  assert((fgetpos(infile, &saved_pos) == 0) && "Error from saving fgetpos");
-}
-
-void JackInputFile::restorepos()
-{
-  assert((fsetpos(infile, &saved_pos) == 0) && "Error resoring with fsetpos");
-}

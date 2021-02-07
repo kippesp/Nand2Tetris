@@ -30,10 +30,6 @@ public:
   // returns -1 on EOF
   virtual char_type read() override;
 
-  // backtracking functions for how keywords/identifies
-  virtual void savepos() override;
-  virtual void restorepos() override;
-
 private:
   const std::string filename;
   FILE* infile{nullptr};
