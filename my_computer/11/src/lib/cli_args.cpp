@@ -147,74 +147,83 @@ CliArgs::CliArgs(int argc, const char* argv[])
   }
   else
   {
-    DIR* dir = opendir(argv[i]);
-
-    if (dir == nullptr)
+    if (DIR* dir = opendir(argv[i]))
     {
-      std::cerr << "Unable to read files in directory." << std::endl;
-      exit(-1);
-    }
-
-    while (true)
-    {
-      struct dirent* dirEntry;
-
-      dirEntry = readdir(dir);
-
-      if (dirEntry == nullptr)
+      while (true)
       {
-        if (errno != 0)
+        struct dirent* dirEntry;
+        dirEntry = readdir(dir);
+
+        if (dirEntry == nullptr)
         {
-          std::cerr << "Unhandled error while reading directory." << std::endl;
-          exit(-1);
+          if (errno != 0)
+          {
+            std::cerr << "Unhandled error while reading directory."
+                      << std::endl;
+            closedir(dir);
+            exit(-1);
+          }
+
+          break;
         }
 
-        break;
-      }
+        if (strlen(dirEntry->d_name) <= 5) continue;
 
-      if (strlen(dirEntry->d_name) <= 5) continue;
+        std::string fileEntry(dirEntry->d_name);
 
-      std::string fileEntry(dirEntry->d_name);
+        if (fileEntry.substr(fileEntry.length() - 5) != ".jack") continue;
 
-      if (fileEntry.substr(fileEntry.length() - 5) != ".jack") continue;
+        std::string filePath = std::string(argv[i]) + "/" + dirEntry->d_name;
 
-      std::string filePath = std::string(argv[i]) + "/" + dirEntry->d_name;
+        rvalue = stat(filePath.c_str(), &argStat);
+        bool isFile = false;
 
-      rvalue = stat(filePath.c_str(), &argStat);
-      bool isFile = false;
-
-      if (rvalue == 0)
-      {
-        if (argStat.st_mode & S_IFDIR)
+        if (rvalue == 0)
         {
-          std::cerr << "Directory contains an unsupported directory name."
-                    << std::endl;
-          exit(-1);
-        }
-        else if (argStat.st_mode & S_IFREG)
-        {
-          isFile = true;
+          if (argStat.st_mode & S_IFDIR)
+          {
+            std::cerr << "Directory contains an unsupported directory name."
+                      << std::endl;
+            closedir(dir);
+            exit(-1);
+          }
+          else if (argStat.st_mode & S_IFREG)
+          {
+            isFile = true;
+          }
+          else
+          {
+            std::cerr << "Not a file or directory." << std::endl;
+            closedir(dir);
+            exit(-1);
+          }
         }
         else
         {
-          std::cerr << "Not a file or directory." << std::endl;
+          std::cerr << "Directory contains an unsupported file." << std::endl;
+          std::cerr << strerror(errno) << std::endl;
+          closedir(dir);
           exit(-1);
         }
-      }
-      else
-      {
-        std::cerr << "Directory contains an unsupported file." << std::endl;
-        std::cerr << strerror(errno) << std::endl;
-        exit(-1);
+
+        if (!isFile)
+        {
+          std::cerr << "Directory contains an unsupported filetype."
+                    << std::endl;
+          closedir(dir);
+          exit(-1);
+        }
+
+        filelist.push_back(filePath);
       }
 
-      if (!isFile)
-      {
-        std::cerr << "Directory contains an unsupported filetype." << std::endl;
-        exit(-1);
-      }
-
-      filelist.push_back(filePath);
+      closedir(dir);
+    }
+    else
+    {
+      std::cerr << "Unable to read files in directory." << std::endl;
+      closedir(dir);
+      exit(-1);
     }
   }
 #endif
