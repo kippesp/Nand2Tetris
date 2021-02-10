@@ -44,3 +44,14 @@ requires a variation of re-implementing the basic code flow of the parser.
 
 The file and directory handling logic was implemented twice in order to compile
 across Windows, Linux, and MacOS.
+
+== Building
+
+The C++17 filesystem library (in the cli library) was incorporated and found to
+be supported with newer compiler and library implementations.  For
+configurations where support is an issue, a legacy cli implementation can be enabled by
+specifying the following flag during cmake configuration:
+
+    -DUSE_LEGACY_CLIARGS=1
+
+Project 11 was tested on macos, linux, and MSVS 2019.
