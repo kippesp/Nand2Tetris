@@ -81,6 +81,14 @@ if (NOT MSVC)
         add_compile_options(-Wshadow)
         add_compile_options(-Wshadow-field)
 
+        #add_compile_options(-fsanitize=memory)
+        #add_link_options(-fsanitize=memory)
+
+        #add_compile_options(-fsanitize=undefined)
+        #add_link_options(-fsanitize=undefined)
+
+        #add_compile_options(-fsanitize=address)
+        #add_link_options(-fsanitize=address)
     else()
     endif()
 
