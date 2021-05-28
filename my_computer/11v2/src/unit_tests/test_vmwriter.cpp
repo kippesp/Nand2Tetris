@@ -1,13 +1,9 @@
-#include <signal.h>
 #include <string.h>
 
-#include "catch.hpp"
+#include "common.h"
 #include "jack_sources.h"
-#include "mock_reader.h"
 #include "parser/parse_tree.h"
 #include "vmwriter/vmwriter.h"
-
-using namespace std;
 
 SCENARIO("VMWriter Basics")
 {

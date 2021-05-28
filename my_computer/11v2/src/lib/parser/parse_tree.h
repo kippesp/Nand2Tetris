@@ -19,7 +19,7 @@ Program Structure:
                        ("void" | <type>) <subroutine-name>
                        "(" <parameter-list> ")" <subroutine-body>
 <parameter-list>   ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
-<subroutine-body>  ::= "{" {<var-decl>}* <statements> "}"
+<subroutine-body>  ::= "{" {<var-decl>}* {<statement>}* "}"
 <var-decl>         ::= "var" <type> <var-name> {"," <var-name>}* ";"
 <type>             ::= "int" | "char" | "boolean" | <class-name>
 <class-name>       ::= <identifier>
@@ -28,13 +28,12 @@ Program Structure:
 
 Statements:
 
-<statements>       ::= {<statement>}*
 <statement>        ::= <let-statement> | <if-statement> | <while-statement> |
                        <do-statement> | <return-statement>
 <let-statement>    ::= "let" <var-name> {"[" <expression> "]"}? "=" <expression> ";"
-<if-statement>     ::= "if" "(" <expression ")" "{" <statements> "}"
-                       {"else" "{" <statements> "}"}?
-<while-statement>  ::= "while" "(" <expression> ")" "{" <statements> "}"
+<if-statement>     ::= "if" "(" <expression ")" "{" {<statement>}* "}"
+                       {"else" "{" {<statement>}* "}"}?
+<while-statement>  ::= "while" "(" <expression> ")" "{" {<statement>}* "}"
 <do-statement>     ::= "do" <subroutine-call> ";"
 <return-statement> ::= "return" {<expression>}? ";"
 
@@ -52,6 +51,31 @@ Expressions:
 <op>               ::= "+" | "-" | "*" | "/" | "&" | "|" | "<" | ">" | "="
 <unary-op>         ::= "-" | "~"
 <keyword-constant> ::= "true" | "false" | "null" | "this"
+
+<op>               ::= "+" | "-" |
+                       "*" | "/" |
+                       "<" | ">" |
+                       "="
+                       "&" |
+                       "|" |
+
+exp ::= term
+        | exp + term
+        | exp - term
+term ::= fact
+        | term * fact
+        | term / fact
+fact ::= identifier
+        | ( expr )
+
+-------
+
+expr   ::= term {("+" | "-") term}*
+term   ::= factor {("*" | "/") factor}*
+factor ::= "(" expr ")" | identifier
+
+
+
 
 clang-format on
 */

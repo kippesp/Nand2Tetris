@@ -31,6 +31,8 @@ cmake_minimum_required(VERSION 3.13)
 set(PROJECT_NAME jfcl)
 project(${PROJECT_NAME} CXX)
 
+enable_testing()
+
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug")
 endif()
@@ -47,6 +49,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 message(STATUS "Compiler ID: " ${CMAKE_CXX_COMPILER_ID})
 
 #set(CMAKE_BUILD_RPATH "/home/kippesp/usr/opt/llvm-10.0.x/lib")
@@ -54,6 +58,8 @@ message(STATUS "Compiler ID: " ${CMAKE_CXX_COMPILER_ID})
 #add_compile_options(-stdlib=libc++)
 
 # cmake 3.13
+# TODO: target link options
+# TODO: clang version 9 or better
 #add_link_options(-stdlib=libc++ -lc++abi)
 
 # Available in newer clang
@@ -65,10 +71,12 @@ if (NOT MSVC)
     add_compile_options(-Wimplicit-fallthrough)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        #add_compile_options(-Weverything)
-        #add_compile_options(-Wno-c++98-compat)
-        #add_compile_options(-Wno-c++98-compat-pedantic)
-        #add_compile_options(-Wno-padded)
+        add_compile_options(-ferror-limit=10)
+
+        add_compile_options(-Weverything)
+        add_compile_options(-Wno-c++98-compat)
+        add_compile_options(-Wno-c++98-compat-pedantic)
+        add_compile_options(-Wno-padded)
 
         add_compile_options(-Wshorten-64-to-32)
         add_compile_options(-Wextra-semi)
@@ -88,15 +96,20 @@ if (NOT MSVC)
 
         #add_compile_options(-fsanitize=address)
         #add_link_options(-fsanitize=address)
+        add_compile_options(-D _LIBCPP_NODISCARD_EXT)
     else()
     endif()
 
-    if (USE_LEGACY_CLIARGS)
-        add_compile_options(-DLEGACY_CLIARGS)
-    else()
-        if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-            # support c++17 filesystem
+    # support c++17 filesystem
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+            message(FATAL_ERROR
+                "Limited std::filesystem support with current compiler configuration; "
+                "either use a newer version of clang, gcc, or current clang "
+                "with -DLEGACY_CLIARGS specified")
+        else()
             add_compile_options(-stdlib=libc++)
+            add_link_options(-stdlib=libc++ -lc++abi)
         endif()
     endif()
 endif()

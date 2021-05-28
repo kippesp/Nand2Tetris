@@ -8,8 +8,6 @@
 
 #include "tokenizer/jack_tokenizer.h"
 
-using namespace std;
-
 struct SubroutineDescr;
 
 // variable definition

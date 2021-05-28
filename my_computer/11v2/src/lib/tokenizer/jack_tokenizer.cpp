@@ -6,35 +6,65 @@
 #include <sstream>
 #include <string>
 
-using namespace std;
+using char_type = TextReader::char_type;
 
-// convienence structure to build a helper vector
-typedef struct TokenDescr_s {
-  string expected_str;
+// convenience structure to build a helper vector
+using TokenDescr_t = struct TokenDescr_s {
+  std::string expected_str;
   TokenType_t token_type;
   TokenValue_t token_value;
-  string dbg_str;
-} TokenDescr_t;
+  std::string dbg_str;
+};
 
-JackToken JackTokenizer::get_token()
+bool JackTokenizer::valid_identifier_char(char ch)
 {
-  char ch;
+  bool r = false;
+  r |= (ch == '_');
+  r |= (ch >= '0') && (ch <= '9');
+  ch |= 0x20;
+  r |= (ch >= 'a') && (ch <= 'z');
+  return r;
+}
+
+const JackTokenizer::Tokens_t* JackTokenizer::parse_tokens()
+{
+  token_vect = std::make_unique<Tokens_t>();
+
+  for (bool done = false; !done;)
+  {
+    auto token = get_next_token();
+    token_vect->push_back(token);
+    done = (token.value_enum == TokenValue_t::J_EOF);
+  }
+
+  return &(*token_vect);
+}
+
+JackToken JackTokenizer::get_next_token()
+{
+  char ch = 0;
 
   // Read one character, skipping over whitespace
   for (bool done = false; !done;)
   {
     ch = reader.read();
     if ((ch == -1) || (ch == '\0'))
-      return JackToken(TokenType_t::J_INTERNAL, TokenValue_t::J_EOF, "( eof )");
+      return JackToken(TokenType_t::J_INTERNAL, TokenValue_t::J_EOF, "( eof )",
+                       reader.get_current_line_number());
 
     // skip over excess (non-token separators) spaces
-    if (ch == ' ') continue;
+    if (ch == ' ')
+      continue;
 
-    if (ch == '\n') continue;
-    if (ch == '\r') continue;
-    if (ch == '\t') continue;
+    if (ch == '\n')
+      continue;
+    if (ch == '\r')
+      continue;
+    if (ch == '\t')
+      continue;
     if (ch == '\0')
-      return JackToken(TokenType_t::J_INTERNAL, TokenValue_t::J_EOF, "( eof )");
+      return JackToken(TokenType_t::J_INTERNAL, TokenValue_t::J_EOF, "( eof )",
+                       reader.get_current_line_number());
 
     done = true;
   }
@@ -75,7 +105,8 @@ JackToken JackTokenizer::get_token()
   {
     token = get_string_token(ch);
 
-    if (token.type == TokenType_t::J_STRING_CONSTANT) return token;
+    if (token.type == TokenType_t::J_STRING_CONSTANT)
+      return token;
 
     // An unterminated " is malformed as is a string containing a newline
     assert(token.type == TokenType_t::J_UNDEFINED);
@@ -87,7 +118,8 @@ JackToken JackTokenizer::get_token()
   {
     token = get_integer_token(ch);
 
-    if (token.type == TokenType_t::J_INTEGER_CONSTANT) return token;
+    if (token.type == TokenType_t::J_INTEGER_CONSTANT)
+      return token;
   }
 
   // PARSE FOR JACK IDENTIFIER OR KEYWORD
@@ -108,41 +140,25 @@ JackToken JackTokenizer::get_token()
   return token;
 }
 
-unique_ptr<std::vector<JackToken>> JackTokenizer::parse_tokens()
-{
-  auto token_vect = make_unique<vector<JackToken>>();
-
-  for (bool done = false; !done;)
-  {
-    auto token = get_token();
-    token_vect->push_back(token);
-    done = (token.value_enum == TokenValue_t::J_EOF);
-  }
-
-  return token_vect;
-}
-
 JackToken JackTokenizer::get_line_comment_token(char ch)
 {
-  JackToken token;
-
   assert((ch == '/') && (reader.peek() == '/'));
 
   auto valid_lcomment_char = [](char c) {
     return (c != 0x0a) && (c != 0x0d) && (c != 0x00);
   };
 
-  stringstream s;
+  std::stringstream s;
   s << ch;
 
-  for (Reader::char_type in_ch = reader.peek();
-       valid_lcomment_char(reader.peek()); in_ch = reader.peek())
+  for (reader.peek(); valid_lcomment_char(reader.peek()); reader.peek())
   {
     ch = reader.read();
     s << ch;
   }
 
-  return JackToken(TokenType_t::J_INTERNAL, TokenValue_t::J_COMMENT, s.str());
+  return JackToken(TokenType_t::J_INTERNAL, TokenValue_t::J_COMMENT, s.str(),
+                   reader.get_current_line_number());
 }
 
 JackToken JackTokenizer::get_block_comment_token(char ch)
@@ -155,7 +171,7 @@ JackToken JackTokenizer::get_block_comment_token(char ch)
     return (!((c == '*') && (reader.peek() == '/')) && (c != '\0'));
   };
 
-  stringstream s;
+  std::stringstream s;
 
   s << ch;
   s << reader.read();
@@ -170,21 +186,21 @@ JackToken JackTokenizer::get_block_comment_token(char ch)
     s << ch;
     s << reader.read();
 
-    return JackToken(TokenType_t::J_INTERNAL, TokenValue_t::J_COMMENT, s.str());
+    return JackToken(TokenType_t::J_INTERNAL, TokenValue_t::J_COMMENT, s.str(),
+                     reader.get_current_line_number());
   }
 
   // an unterminated block can suck up the entire file and be difficult
   // to identify.
-  return JackToken(TokenType_t::J_UNDEFINED, TokenValue_t::J_NON_ENUM, s.str());
+  return JackToken(TokenType_t::J_UNDEFINED, TokenValue_t::J_NON_ENUM, s.str(),
+                   reader.get_current_line_number());
 }
 
 JackToken JackTokenizer::get_string_token(char ch)
 {
-  JackToken token;
-
   // The Jack spec fails to sufficiently justify why a Jack string is made up
   // of all Unicode characters minus newline and double quote.  My
-  // implementation will restrict this to a more reasonable ASCII minus
+  // implementation will restrict this to a more convenient ASCII minus
   // newline, double quote, and null.
 
   auto valid_string_char = [](char c) {
@@ -193,10 +209,9 @@ JackToken JackTokenizer::get_string_token(char ch)
 
   assert(ch == '"');
 
-  stringstream s;
+  std::stringstream s;
 
-  for (Reader::char_type in_ch = reader.peek();
-       valid_string_char(reader.peek()); in_ch = reader.peek())
+  for (reader.peek(); valid_string_char(reader.peek()); reader.peek())
   {
     ch = reader.read();
     s << ch;
@@ -211,17 +226,16 @@ JackToken JackTokenizer::get_string_token(char ch)
     ch = reader.read();
 
     return JackToken(TokenType_t::J_STRING_CONSTANT, TokenValue_t::J_NON_ENUM,
-                     s.str());
+                     s.str(), reader.get_current_line_number());
   }
 
-  return JackToken(TokenType_t::J_UNDEFINED, TokenValue_t::J_NON_ENUM, s.str());
+  return JackToken(TokenType_t::J_UNDEFINED, TokenValue_t::J_NON_ENUM, s.str(),
+                   reader.get_current_line_number());
 }
 
 JackToken JackTokenizer::get_integer_token(char ch)
 {
   auto valid_integer_char = [](char c) { return (c >= '0') && (c <= '9'); };
-
-  JackToken token;
 
   assert(valid_integer_char(ch));
 
@@ -229,18 +243,17 @@ JackToken JackTokenizer::get_integer_token(char ch)
   // Text such as '1x', '1class', '1+', and '1 ' while not legal Jack will be
   // thrown out (or accepted) by the parser.
 
-  stringstream s;
+  std::stringstream s;
   s << ch;
 
-  for (Reader::char_type in_ch = reader.peek();
-       valid_integer_char(reader.peek()); in_ch = reader.peek())
+  for (reader.peek(); valid_integer_char(reader.peek()); reader.peek())
   {
     ch = reader.read();
     s << ch;
   }
 
   return JackToken(TokenType_t::J_INTEGER_CONSTANT, TokenValue_t::J_NON_ENUM,
-                   s.str());
+                   s.str(), reader.get_current_line_number());
 }
 
 JackToken JackTokenizer::get_jack_keyword_or_identifier_token(char ch)
@@ -248,22 +261,12 @@ JackToken JackTokenizer::get_jack_keyword_or_identifier_token(char ch)
   // Since keywords can be thought of as a subset of identifiers, keywords
   // will be checked for after identifying any IDENTIFIER U KEYWORD strings.
 
-  auto valid_identifier_char = [](char c) {
-    bool r = false;
-    r |= (c == '_');
-    r |= (c >= '0') && (c <= '9');
-    c |= 0x20;
-    r |= (c >= 'a') && (c <= 'z');
-    return r;
-  };
-
   assert(valid_identifier_char(ch));
 
-  stringstream s;
+  std::stringstream s;
   s << ch;
 
-  for (Reader::char_type in_ch = reader.peek();
-       valid_identifier_char(reader.peek()); in_ch = reader.peek())
+  for (reader.peek(); valid_identifier_char(reader.peek()); reader.peek())
   {
     ch = reader.read();
     s << ch;
@@ -273,7 +276,7 @@ JackToken JackTokenizer::get_jack_keyword_or_identifier_token(char ch)
   // Now we need to determine if we have, in fact, a keyword.
   //
 
-  const vector<TokenDescr_t> ExpectedKeywords{
+  const std::vector<TokenDescr_t> ExpectedKeywords{
       // clang-format off
       {"do",          TokenType_t::J_KEYWORD, TokenValue_t::J_DO, "do"},
       {"if",          TokenType_t::J_KEYWORD, TokenValue_t::J_IF, "if"},
@@ -304,20 +307,21 @@ JackToken JackTokenizer::get_jack_keyword_or_identifier_token(char ch)
   {
     if (s.str() == kw.expected_str)
     {
-      return JackToken(kw.token_type, kw.token_value, kw.dbg_str);
+      return JackToken(kw.token_type, kw.token_value, kw.dbg_str,
+                       reader.get_current_line_number());
     }
   }
 
   // Otherwise, its simply an identifier
-  return JackToken(TokenType_t::J_IDENTIFIER, TokenValue_t::J_NON_ENUM,
-                   s.str());
+  return JackToken(TokenType_t::J_IDENTIFIER, TokenValue_t::J_NON_ENUM, s.str(),
+                   reader.get_current_line_number());
 }
 
 JackToken JackTokenizer::get_symbol_token(char ch)
 {
   JackToken token;
 
-  const vector<TokenDescr_t> ExpectedSymbol{
+  const std::vector<TokenDescr_t> ExpectedSymbol{
       // clang-format off
       {"{", TokenType_t::J_SYMBOL, TokenValue_t::J_LEFT_BRACE, "<left_brace>"},
       {"}", TokenType_t::J_SYMBOL, TokenValue_t::J_RIGHT_BRACE, "<right_brace>"},
@@ -341,14 +345,15 @@ JackToken JackTokenizer::get_symbol_token(char ch)
       // clang-format on
   };
 
-  string s;
+  std::string s;
   s = ch;
 
   for (const auto& sym : ExpectedSymbol)
   {
     if (s == sym.expected_str)
     {
-      return JackToken(sym.token_type, sym.token_value, sym.dbg_str);
+      return JackToken(sym.token_type, sym.token_value, sym.dbg_str,
+                       reader.get_current_line_number());
     }
   }
 

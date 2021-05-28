@@ -1,11 +1,9 @@
 #include <cassert>
 #include <string>
 
-// clang-format off
 #include "semantic_exception.h"
 #include "symbol_table.h"
 #include "vmwriter.h"
-// clang-format on
 
 ostream& operator<<(ostream& os, const Symbol& rhs)
 {
@@ -71,7 +69,8 @@ ostream& operator<<(ostream& os, const Symbol& rhs)
 
 ostream& operator<<(ostream& os, const PartialSymbolTable& rhs)
 {
-  for (auto s : rhs.symbols) os << s << endl;
+  for (auto s : rhs.symbols)
+    os << s << endl;
   ;
 
   return os;

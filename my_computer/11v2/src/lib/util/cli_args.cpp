@@ -15,8 +15,6 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
-
 enum class RunMode { unknown, file, directory };
 
 CliArgs::CliArgs(int argc, const char* argv[])
@@ -27,20 +25,13 @@ CliArgs::CliArgs(int argc, const char* argv[])
 
   while (i < argc)
   {
-    if (argv[i][0] != '-') break;
+    if (argv[i][0] != '-')
+      break;
 
     // -t - stop after tokenizer and output its values
     if ((argv[i][0] == '-') && (argv[i][1] == 't') && (argv[i][2] == '\0'))
     {
       halt_after_tokenizer = true;
-      i++;
-      continue;
-    }
-
-    // -T - stop after tokenizer in s expression and output its values
-    if ((argv[i][0] == '-') && (argv[i][1] == 'T') && (argv[i][2] == '\0'))
-    {
-      halt_after_tokenizer_s_expression = true;
       i++;
       continue;
     }
@@ -67,13 +58,13 @@ CliArgs::CliArgs(int argc, const char* argv[])
 #ifndef LEGACY_CLIARGS
   // Cleaner implementation with modern std::filesystem support (VS2019,
   // g++-8, llvm-7)
-  auto filearg = filesystem::path(argv[i]);
+  auto filearg = std::filesystem::path(argv[i]);
 
-  if (filesystem::is_directory(filearg))
+  if (std::filesystem::is_directory(filearg))
   {
     isDirectory = true;
   }
-  else if (filesystem::is_regular_file(filearg))
+  else if (std::filesystem::is_regular_file(filearg))
   {
     isDirectory = false;
   }
@@ -96,9 +87,9 @@ CliArgs::CliArgs(int argc, const char* argv[])
   }
   else
   {
-    for (auto& entry : filesystem::directory_iterator(filearg))
+    for (auto& entry : std::filesystem::directory_iterator(filearg))
       if (auto filename = entry.path(); filename.extension() == ".jack")
-        if (filesystem::is_regular_file(filename))
+        if (std::filesystem::is_regular_file(filename))
           filelist.push_back(filename.string());
   }
 #else
@@ -167,11 +158,13 @@ CliArgs::CliArgs(int argc, const char* argv[])
           break;
         }
 
-        if (strlen(dirEntry->d_name) <= 5) continue;
+        if (strlen(dirEntry->d_name) <= 5)
+          continue;
 
         std::string fileEntry(dirEntry->d_name);
 
-        if (fileEntry.substr(fileEntry.length() - 5) != ".jack") continue;
+        if (fileEntry.substr(fileEntry.length() - 5) != ".jack")
+          continue;
 
         std::string filePath = std::string(argv[i]) + "/" + dirEntry->d_name;
 
@@ -239,7 +232,7 @@ void CliArgs::show_usage()
   std::cout << "Compile .jack file to .vm\n\n";
   std::cout << "SYNOPSIS:\n\n";
   std::cout << "  jfcl -h" << std::endl;
-  std::cout << "  jfcl [-t|-T|-p|-w] FILENAME.jack" << std::endl;
+  std::cout << "  jfcl [-t|-p|-w] FILENAME.jack" << std::endl;
   std::cout << "  jfcl DIRECTORY|FILENAME.jack" << std::endl;
 }
 
@@ -251,24 +244,20 @@ void CliArgs::show_help()
   std::cout << "\nOPTIONS:\n";
 
   std::cout << "\n  ";
-  std::cout << setw(24) << left << "-h";
+  std::cout << std::setw(24) << std::left << "-h";
   std::cout << "Display available options";
 
   std::cout << "\n  ";
-  std::cout << setw(24) << left << "-t";
-  std::cout << "Display tokenizer output and halt (includes internal tokens)";
-
-  std::cout << "\n  ";
-  std::cout << setw(24) << left << "-T";
+  std::cout << std::setw(24) << std::left << "-t";
   std::cout
       << "Display tokenizer output in S expression w/o internals and halt";
 
   std::cout << "\n  ";
-  std::cout << setw(24) << left << "-p";
+  std::cout << std::setw(24) << std::left << "-p";
   std::cout << "Display parse tree output and halt";
 
   std::cout << "\n  ";
-  std::cout << setw(24) << left << "-w";
+  std::cout << std::setw(24) << std::left << "-w";
   std::cout << "Display VM Writer output and halt";
 
   std::cout << std::endl;

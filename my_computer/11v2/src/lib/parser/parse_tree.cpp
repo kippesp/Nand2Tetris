@@ -6,8 +6,6 @@
 #include <iostream>
 #include <string_view>
 
-using namespace std;
-
 ostream& operator<<(ostream& os, const ParseTreeNode& rhs_ptn)
 {
   if (auto rhs_t = dynamic_cast<const ParseTreeTerminal*>(&rhs_ptn))
@@ -48,10 +46,12 @@ string ParseTree::pprint(string_view s) const
     {
       ss << endl;
       indent += LEVEL_INDENT;
-      for (int i = 0; i < indent; i++) ss << " ";
+      for (int i = 0; i < indent; i++)
+        ss << " ";
     }
 
-    if (c == ')') indent -= LEVEL_INDENT;
+    if (c == ')')
+      indent -= LEVEL_INDENT;
 
     ss << c;
   }
@@ -382,7 +382,8 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class_variable_decl_block()
 
     root_node->create_child(class_decl_statement_node);
 
-    if (!statement_start_token((*tokens)[idx])) done = true;
+    if (!statement_start_token((*tokens)[idx]))
+      done = true;
   }
 
   return root_node;
@@ -1091,7 +1092,8 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_expression_list()
   auto root_node =
       make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_EXPRESSION_LIST);
 
-  if (tokens->size() - parse_cursor <= 1) return root_node;
+  if (tokens->size() - parse_cursor <= 1)
+    return root_node;
 
   auto& idx = parse_cursor;
 

@@ -1,10 +1,7 @@
 #include <string.h>
 
-#include "catch.hpp"
-#include "mock_reader.h"
+#include "common.h"
 #include "parser/parse_tree.h"
-
-using namespace std;
 
 SCENARIO("Parse tree simple terms")
 {

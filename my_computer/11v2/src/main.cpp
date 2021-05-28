@@ -2,54 +2,41 @@
 
 #include <iostream>
 
-#include "cli_args.h"
-#include "parser/parse_tree.h"
-#include "tokenizer/file_io.h"
+#include "util/cli_args.h"
+#include "util/textfile_reader.h"
+//#include "parser/parse_tree.h"
 #include "tokenizer/jack_tokenizer.h"
-#include "vmwriter/vmwriter.h"
+//#include "vmwriter/vmwriter.h"
 
-using namespace std;
-
-int inner_main(const CliArgs& cliargs)
+static int inner_main(const CliArgs& cliargs)
 {
   for (auto& f : cliargs.inputlist())
   {
-    JackInputFile inputfile(f);
-    if (inputfile.open())
-    {
-      cout << "Failed to open input file, " << f << endl;
-      return -1;
-    }
+    TextFileReader inputfile(f.data());
     JackTokenizer tokenizer(inputfile);
-    string base_filename = f.substr(0, f.length() - 5);
-    string output_filename = base_filename + ".vm";
+    std::string base_filename = f.substr(0, f.length() - 5);
+    std::string output_filename = base_filename + ".vm";
 
     auto tokens = tokenizer.parse_tokens();
 
     if (cliargs.halt_after_tokenizer)
     {
-      for (auto& token : *tokens)
-        cout << token << endl;
-      return 0;
-    }
-
-    if (cliargs.halt_after_tokenizer_s_expression)
-    {
-      cout << "(TOKENS" << endl;
+      std::cout << "(TOKENS" << std::endl;
 
       for (auto& token : *tokens)
       {
-        if (token.type == TokenType_t::J_INTERNAL) continue;
+        if (token.type == TokenType_t::J_INTERNAL)
+          continue;
 
-        cout << token.to_s_expression() << endl;
+        std::cout << token.to_s_expression() << std::endl;
       }
 
-      cout << ")" << endl;
+      std::cout << ")" << std::endl;
       return 0;
     }
 
     // filter out comment tokens
-    auto filtered_tokens = make_unique<vector<JackToken>>();
+    auto filtered_tokens = std::make_unique<std::vector<JackToken>>();
 
     for (auto& token : *tokens)
     {
@@ -57,6 +44,7 @@ int inner_main(const CliArgs& cliargs)
         filtered_tokens->push_back(token);
     }
 
+#if 0
     ParseTree T(filtered_tokens, base_filename);
 
     auto parsetree_node = T.parse_class();
@@ -88,6 +76,7 @@ int inner_main(const CliArgs& cliargs)
 
     ofile << VM.lowered_vm.str();
     ofile.close();
+#endif
   }
 
   return 0;
@@ -97,8 +86,8 @@ int main(int argc, const char* argv[])
 {
   if (argc == 1)
   {
-    cout << "jfcl: missing input" << endl;
-    cout << "Try `jfcl -h' for more options." << endl;
+    std::cout << "jfcl: missing input" << std::endl;
+    std::cout << "Try `jfcl -h' for more options." << std::endl;
     return 1;
   }
 
@@ -111,25 +100,27 @@ int main(int argc, const char* argv[])
   CliArgs cliargs(argc, argv);
 
   if ((cliargs.inputlist().size() > 1) &&
-      ((cliargs.halt_after_tokenizer ||
-        cliargs.halt_after_tokenizer_s_expression ||
-        cliargs.halt_after_vmwriter)))
+      ((cliargs.halt_after_tokenizer || cliargs.halt_after_vmwriter)))
   {
-    cout << "Output with multiple files not supported." << endl;
+    std::cout << "Output with multiple files not supported." << std::endl;
     return 1;
   }
 
   int rvalue;
 
+#if 0
   try
   {
-    rvalue = inner_main(cliargs);
+#endif
+  rvalue = inner_main(cliargs);
+#if 0
   } catch (ParseException& e)
   {
     cout << "Parse error: " << e.what() << endl;
     cout << e.token.to_s_expression() << endl;
     return 1;
   }
+#endif
 
   return rvalue;
 }

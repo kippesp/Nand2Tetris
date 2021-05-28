@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "jack_lexical_elements.h"
-#include "reader.h"
+#include "jack_token.h"
+#include "util/text_reader.h"
 
 class JackTokenizer {
 public:
@@ -14,13 +14,17 @@ public:
   JackTokenizer(const JackTokenizer&) = delete;
   JackTokenizer& operator=(const JackTokenizer&) = delete;
 
-  JackTokenizer(Reader& r) : reader(r) {}
+  JackTokenizer(TextReader& r) : reader(r) {}
 
-  // get the token and its associated value
-  JackToken get_token();
+  using Tokens_t = std::vector<JackToken>;
 
-  // parse all tokens and return as a vector
-  std::unique_ptr<std::vector<JackToken>> parse_tokens();
+  // parse all tokens and return as an std::vector*
+  const Tokens_t* parse_tokens();
+
+protected:
+  // used to build identifier strings or potential Jack keyword strings
+  // since keywords are parsed first and can become identifiers (like "class1")
+  bool valid_identifier_char(char);
 
 private:
   JackToken get_line_comment_token(char);
@@ -30,17 +34,10 @@ private:
   JackToken get_jack_keyword_or_identifier_token(char);
   JackToken get_symbol_token(char);
 
-  // used to build identifier strings or potential Jack keyword strings
-  // since keywords are parsed first and can become identifiers (like "class1")
-  bool valid_identifier_char(char ch)
-  {
-    bool r = false;
-    r |= (ch == '_');
-    r |= (ch >= '0') && (ch <= '9');
-    ch |= 0x20;
-    r |= (ch >= 'a') && (ch <= 'z');
-    return r;
-  }
+  // get the token and its associated value
+  JackToken get_next_token();
 
-  Reader& reader;
+  std::unique_ptr<Tokens_t> token_vect{nullptr};
+
+  TextReader& reader;
 };

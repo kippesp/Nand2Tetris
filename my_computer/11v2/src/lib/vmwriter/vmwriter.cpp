@@ -9,8 +9,6 @@
 #include "parser/parse_tree.h"
 #include "semantic_exception.h"
 
-using namespace std;
-
 // seven
 // dec-to-bin
 // square dance
@@ -27,7 +25,8 @@ static string get_term_node_str(const ParseTreeNode* pN)
 
 const ParseTreeNode* VmWriter::visit()
 {
-  if (unvisited_nodes.size() == 0) return nullptr;
+  if (unvisited_nodes.size() == 0)
+    return nullptr;
 
   auto node = unvisited_nodes.back();
   unvisited_nodes.pop_back();
@@ -39,7 +38,8 @@ const ParseTreeNode* VmWriter::visit()
       ncopy.push_back(child_node);
     reverse(ncopy.begin(), ncopy.end());
 
-    for (auto child_node : ncopy) unvisited_nodes.push_back(&(*child_node));
+    for (auto child_node : ncopy)
+      unvisited_nodes.push_back(&(*child_node));
   }
 
   return node;
@@ -99,7 +99,8 @@ void VmWriter::create_classvar_symtable(const ParseTreeNonTerminal* nt_node)
   auto pClassVarDeclBlock = find_first_nonterm_node(
       ParseTreeNodeType_t::P_CLASSVAR_DECL_BLOCK, nt_node);
 
-  if (!pClassVarDeclBlock) return;
+  if (!pClassVarDeclBlock)
+    return;
 
   for (auto node : pClassVarDeclBlock->get_child_nodes())
   {
@@ -206,7 +207,8 @@ void VmWriter::create_subroutine_symtable(const ParseTreeNonTerminal* sub_node)
     auto pVarDeclBlock = find_first_nonterm_node(
         ParseTreeNodeType_t::P_VAR_DECL_BLOCK, pSubroutineBody);
 
-    if (!pVarDeclBlock) return;
+    if (!pVarDeclBlock)
+      return;
 
     auto pVarDeclBlockNodes = pVarDeclBlock->get_child_nodes();
 
@@ -216,7 +218,8 @@ void VmWriter::create_subroutine_symtable(const ParseTreeNonTerminal* sub_node)
     {
       auto pVarDeclStatement =
           dynamic_cast<const ParseTreeNonTerminal*>(&(*(*it)));
-      if (!pVarDeclStatement) continue;
+      if (!pVarDeclStatement)
+        continue;
       assert(pVarDeclStatement->type ==
              ParseTreeNodeType_t::P_VAR_DECL_STATEMENT);
 
@@ -411,7 +414,8 @@ void VmWriter::lower_subroutine(const ParseTreeNonTerminal* pSubDeclBlockNode)
 
   auto childNodes = pStatementListNode->get_child_nodes();
 
-  if (childNodes.size() == 0) throw SemanticException("empty subroutine body");
+  if (childNodes.size() == 0)
+    throw SemanticException("empty subroutine body");
 
   lower_statement_list(pStatementListNode);
 }
@@ -462,7 +466,8 @@ void VmWriter::lower_term(const ParseTreeNonTerminal* pTerm)
 {
   vector<const ParseTreeNode*> child_nodes;
 
-  for (auto node : pTerm->get_child_nodes()) child_nodes.push_back(&(*node));
+  for (auto node : pTerm->get_child_nodes())
+    child_nodes.push_back(&(*node));
 
   if (child_nodes.size() == 1)
   {
@@ -519,7 +524,8 @@ void VmWriter::lower_term(const ParseTreeNonTerminal* pTerm)
         string varname = get_term_node_str(pT);
         const Symbol* rhs = symbol_table.find_symbol(varname);
 
-        if (!rhs) throw SemanticException("Variable not found: " + varname);
+        if (!rhs)
+          throw SemanticException("Variable not found: " + varname);
 
         if (auto pClassSC =
                 get_if<Symbol::ClassStorageClass_t>(&rhs->storage_class))
@@ -579,7 +585,8 @@ void VmWriter::lower_term(const ParseTreeNonTerminal* pTerm)
             find_first_term_node(ParseTreeNodeType_t::P_ARRAY_VAR, pN));
 
         const Symbol* lhs = symbol_table.find_symbol(varname);
-        if (!lhs) throw SemanticException("Variable not found: " + varname);
+        if (!lhs)
+          throw SemanticException("Variable not found: " + varname);
 
         auto pArrayExpr =
             find_first_nonterm_node(ParseTreeNodeType_t::P_EXPRESSION, pN);
@@ -817,7 +824,8 @@ void VmWriter::lower_subroutine_call(
     {
       num_arguments++;
       assert(pE->type == ParseTreeNodeType_t::P_EXPRESSION);
-      if (pE) lower_expression(pE);
+      if (pE)
+        lower_expression(pE);
     }
   }
 
@@ -837,13 +845,15 @@ void VmWriter::lower_if_statement(const ParseTreeNonTerminal* pS)
   lower_expression(pE);
 
   std::vector<std::shared_ptr<ParseTreeNode>> if_nodes;
-  for (auto child_node : pS->get_child_nodes()) if_nodes.push_back(child_node);
+  for (auto child_node : pS->get_child_nodes())
+    if_nodes.push_back(child_node);
 
   bool has_else = false;
 
   // raise(SIGTRAP);
 
-  if (if_nodes.size() >= 11) has_else = true;
+  if (if_nodes.size() >= 11)
+    has_else = true;
 
   stringstream control_label;
 
@@ -933,7 +943,8 @@ void VmWriter::lower_let_statement(const ParseTreeNonTerminal* pS)
     assert(0 && "Fall through");
 
   const Symbol* lhs = symbol_table.find_symbol(varname);
-  if (!lhs) throw SemanticException("Variable not found: " + varname);
+  if (!lhs)
+    throw SemanticException("Variable not found: " + varname);
 
   if (pScalarVar)
   {

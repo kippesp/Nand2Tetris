@@ -1,4 +1,4 @@
-#include "jack_lexical_elements.h"
+#include "jack_token.h"
 
 #include <cassert>
 #include <iostream>
@@ -6,41 +6,36 @@
 #include <sstream>
 #include <string>
 
-using namespace std;
-
-ostream& operator<<(ostream& os, const JackToken& rhs)
+std::ostream& operator<<(std::ostream& os, const JackToken& rhs)
 {
   os << "token_name: ";
 
-  os << JackToken::to_string(rhs.type) << endl;
+  os << JackToken::to_string(rhs.type) << std::endl;
   os << "token_value_str: ";
-  os << "<<< " << rhs.value_str << " >>>" << endl;
+  os << "<<< " << rhs.value_str << " >>>" << std::endl;
 
   return os;
 }
 
-string JackToken::to_string(TokenType_t t)
+std::string JackToken::to_string(TokenType_t t)
 {
   switch (t)
   {
-    case TokenType_t::J_UNDEFINED:
-      return "UNDEFINED";
-    case TokenType_t::J_INTERNAL:
-      return "INTERNAL";
-    case TokenType_t::J_KEYWORD:
-      return "KEYWORD";
-    case TokenType_t::J_SYMBOL:
-      return "SYMBOL";
-    case TokenType_t::J_INTEGER_CONSTANT:
-      return "INTEGER_CONSTANT";
-    case TokenType_t::J_STRING_CONSTANT:
-      return "STRING_CONSTANT";
-    case TokenType_t::J_IDENTIFIER:
-      return "IDENTIFIER";
+    // clang-format off
+    case TokenType_t::J_UNDEFINED:          return "UNDEFINED";
+    case TokenType_t::J_INTERNAL:           return "INTERNAL";
+    case TokenType_t::J_KEYWORD:            return "KEYWORD";
+    case TokenType_t::J_SYMBOL:             return "SYMBOL";
+    case TokenType_t::J_INTEGER_CONSTANT:   return "INTEGER_CONSTANT";
+    case TokenType_t::J_STRING_CONSTANT:    return "STRING_CONSTANT";
+    case TokenType_t::J_IDENTIFIER:         return "IDENTIFIER";
+      // clang-format on
   }
+
+  assert(0 && "fallthrough");
 }
 
-string JackToken::to_string(TokenValue_t v)
+std::string JackToken::to_string(TokenValue_t v)
 {
   switch (v)
   {
@@ -91,11 +86,13 @@ string JackToken::to_string(TokenValue_t v)
     case TokenValue_t::J_RETURN:            return "J_RETURN";
       // clang-format on
   }
+
+  assert(0 && "fallthrough");
 }
 
-string JackToken::to_s_expression() const
+std::string JackToken::to_s_expression() const
 {
-  stringstream ss;
+  std::stringstream ss;
 
   ss << "(" << to_string(type);
   ss << " " << to_string(value_enum);

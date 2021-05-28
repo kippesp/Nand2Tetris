@@ -1,6 +1,8 @@
 #include <string>
 
-typedef enum class TokenType_s {
+#include "util/text_reader.h"
+
+using TokenType_t = enum class TokenType_s {
   J_UNDEFINED,
   J_INTERNAL,
 
@@ -9,9 +11,9 @@ typedef enum class TokenType_s {
   J_INTEGER_CONSTANT,
   J_STRING_CONSTANT,
   J_IDENTIFIER,
-} TokenType_t;
+};
 
-typedef enum class TokenValue_s {
+using TokenValue_t = enum class TokenValue_s {
   J_UNDEFINED,
   J_NON_ENUM,
   J_COMMENT,  // comments stored as internal token
@@ -60,12 +62,12 @@ typedef enum class TokenValue_s {
   J_ELSE,
   J_WHILE,
   J_RETURN,
-} TokenValue_t;
+};
 
 struct JackToken {
-  JackToken() {}
-  JackToken(TokenType_t t, TokenValue_t v, std::string s)
-      : type(t), value_enum(v), value_str(s)
+  JackToken() = default;
+  JackToken(TokenType_t t, TokenValue_t v, std::string s, size_t n)
+      : type(t), value_enum(v), value_str(s), line_number(n)
   {
   }
 
@@ -74,6 +76,7 @@ struct JackToken {
   TokenType_t type{TokenType_t::J_UNDEFINED};
   TokenValue_t value_enum{TokenValue_t::J_UNDEFINED};
   std::string value_str{"UNDEFINED"};  // for integer, string, comments tokens
+  size_t line_number;
 
   // Convert to text output
   static std::string to_string(TokenType_t);

@@ -1,12 +1,4 @@
-#include <string.h>
-
-#include <vector>
-
-#include "catch.hpp"
-#include "mock_reader.h"
-#include "tokenizer/jack_tokenizer.h"
-
-using namespace std;
+#include "common.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // Tests for Jack Symbols
@@ -14,14 +6,12 @@ using namespace std;
 
 SCENARIO("Tokenizer baseline checks")
 {
-  test::MockReader R;
-
   SECTION("tokenizer")
   {
-    strcpy(R.buffer, "+");
+    TextReader R("+");
     JackTokenizer T(R);
 
-    auto expected_parsed_tokens = vector{
+    auto expected_parsed_tokens = std::vector{
         TokenValue_t::J_PLUS,  // '+'
         TokenValue_t::J_EOF,
     };
@@ -40,11 +30,10 @@ SCENARIO("Tokenizer baseline checks")
 
 SCENARIO("Tokenize Jack symbols")
 {
-  test::MockReader R;
-  strcpy(R.buffer, " { } () [ ] .  , ; + - * / & | < > = ~ ");
+  TextReader R(" { } () [ ] .  , ; + - * / & | < > = ~ ");
   JackTokenizer T(R);
 
-  auto expected_parsed_tokens = vector{
+  auto expected_parsed_tokens = std::vector{
       TokenValue_t::J_LEFT_BRACE,         // '{'
       TokenValue_t::J_RIGHT_BRACE,        // '}'
       TokenValue_t::J_LEFT_PARENTHESIS,   // '('
@@ -87,15 +76,13 @@ SCENARIO("Tokenize Jack symbols")
 
 SCENARIO("Tokenize Jack keywords")
 {
-  test::MockReader R;
-  strcpy(
-      R.buffer,
+  TextReader R(
       " if let  char this void false while return constructor\n"
       "function boolean static method field class true null else var int do");
 
   JackTokenizer T(R);
 
-  auto expected_parsed_tokens = vector{
+  auto expected_parsed_tokens = std::vector{
       // clang-format off
       TokenValue_t::J_IF,
       TokenValue_t::J_LET,
@@ -138,14 +125,12 @@ SCENARIO("Tokenize Jack keywords")
 
 SCENARIO("Tokenize integers")
 {
-  test::MockReader R;
-
   SECTION("single integers")
   {
-    strcpy(R.buffer, " 1  5 9 ");
-    auto expected_parsed_integers = vector{"1", "5", "9"};
-
+    TextReader R(" 1  5 9 ");
     JackTokenizer T(R);
+
+    auto expected_parsed_integers = std::vector{"1", "5", "9"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_integers.size() + 1);
@@ -160,10 +145,10 @@ SCENARIO("Tokenize integers")
 
   SECTION("long integers")
   {
-    strcpy(R.buffer, " 0987654321  5555 99 ");
-    auto expected_parsed_integers = vector{"0987654321", "5555", "99"};
-
+    TextReader R(" 0987654321  5555 99 ");
     JackTokenizer T(R);
+
+    auto expected_parsed_integers = std::vector{"0987654321", "5555", "99"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_integers.size() + 1);
@@ -178,9 +163,9 @@ SCENARIO("Tokenize integers")
 
   SECTION("simple statement")
   {
-    strcpy(R.buffer, " 10+5 * -2 ");
-
+    TextReader R(" 10+5 * -2 ");
     JackTokenizer T(R);
+
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == 7);
@@ -211,15 +196,13 @@ SCENARIO("Tokenize integers")
 
 SCENARIO("Tokenize identifiers")
 {
-  test::MockReader R;
-
   SECTION("multiple identifiers")
   {
-    strcpy(R.buffer, "c abcd bbbb _AazZ _0a __9z ");
-    auto expected_parsed_identifiers =
-        vector{"c", "abcd", "bbbb", "_AazZ", "_0a", "__9z"};
-
+    TextReader R("c abcd bbbb _AazZ _0a __9z ");
     JackTokenizer T(R);
+
+    auto expected_parsed_identifiers =
+        std::vector{"c", "abcd", "bbbb", "_AazZ", "_0a", "__9z"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
@@ -234,10 +217,10 @@ SCENARIO("Tokenize identifiers")
 
   SECTION("uppercase identifiers")
   {
-    strcpy(R.buffer, "CLASS METHOD ");
-    auto expected_parsed_identifiers = vector{"CLASS", "METHOD"};
-
+    TextReader R("CLASS METHOD ");
     JackTokenizer T(R);
+
+    auto expected_parsed_identifiers = std::vector{"CLASS", "METHOD"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
@@ -252,11 +235,11 @@ SCENARIO("Tokenize identifiers")
 
   SECTION("identifiers containing reserved strings")
   {
-    strcpy(R.buffer, "ifclass _let char_ while1");
-    auto expected_parsed_identifiers =
-        vector{"ifclass", "_let", "char_", "while1"};
-
+    TextReader R("ifclass _let char_ while1");
     JackTokenizer T(R);
+
+    auto expected_parsed_identifiers =
+        std::vector{"ifclass", "_let", "char_", "while1"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
@@ -271,9 +254,9 @@ SCENARIO("Tokenize identifiers")
 
   SECTION("miscellaneous")
   {
-    strcpy(R.buffer, "main\n\r\n\r\tclass");
-
+    TextReader R("main\n\r\n\r\tclass");
     JackTokenizer T(R);
+
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == 3);
@@ -289,17 +272,15 @@ SCENARIO("Tokenize identifiers")
 
 SCENARIO("Tokenize string")
 {
-  test::MockReader R;
-
   SECTION("simple strings")
   {
-    strcpy(R.buffer,
-           "\"test class \" "
-           "\"\" "
-           "\" \"");
-    auto expected_parsed_identifiers = vector{"test class ", "", " "};
-
+    TextReader R(
+        "\"test class \" "
+        "\"\" "
+        "\" \"");
     JackTokenizer T(R);
+
+    auto expected_parsed_identifiers = std::vector{"test class ", "", " "};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
@@ -315,18 +296,16 @@ SCENARIO("Tokenize string")
 
 SCENARIO("Tokenize comments")
 {
-  test::MockReader R;
-
   SECTION("line comments")
   {
-    strcpy(R.buffer,
-           "// comment1\n"
-           "// comment2\x0d\x0a"
-           "// if comment");
-    auto expected_parsed_identifiers =
-        vector{"// comment1", "// comment2", "// if comment"};
-
+    TextReader R(
+        "// comment1\n"
+        "// comment2\x0d\x0a"
+        "// if comment");
     JackTokenizer T(R);
+
+    auto expected_parsed_identifiers =
+        std::vector{"// comment1", "// comment2", "// if comment"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
@@ -341,9 +320,9 @@ SCENARIO("Tokenize comments")
 
   SECTION("mixed comments")
   {
-    strcpy(R.buffer, "class + // comment1\n");
-
+    TextReader R("class + // comment1\n");
     JackTokenizer T(R);
+
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == 4);
@@ -361,15 +340,16 @@ SCENARIO("Tokenize comments")
 
   SECTION("block comments")
   {
-    strcpy(R.buffer,
-           "/* class */\n"
-           "/**/ "
-           "/*   */\n"
-           "/** x */");
-    auto expected_parsed_identifiers =
-        vector{"/* class */", "/**/", "/*   */", "/** x */"};
-
+    TextReader R(
+        "/* class */\n"
+        "/**/ "
+        "/*   */\n"
+        "/** x */");
     JackTokenizer T(R);
+
+    auto expected_parsed_identifiers =
+        std::vector{"/* class */", "/**/", "/*   */", "/** x */"};
+
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
@@ -385,13 +365,11 @@ SCENARIO("Tokenize comments")
 
 SCENARIO("Tokenizer lexical issues")
 {
-  test::MockReader R;
-
   SECTION("unterminated block commment")
   {
-    strcpy(R.buffer, "/* comment");
-
+    TextReader R("/* comment");
     JackTokenizer T(R);
+
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == 2);
@@ -407,9 +385,9 @@ SCENARIO("Tokenizer lexical issues")
 
   SECTION("unterminated string")
   {
-    strcpy(R.buffer, "\"string ");
-
+    TextReader R("\"string ");
     JackTokenizer T(R);
+
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == 2);
@@ -425,9 +403,9 @@ SCENARIO("Tokenizer lexical issues")
 
   SECTION("empty file")
   {
-    strcpy(R.buffer, "");
-
+    TextReader R("");
     JackTokenizer T(R);
+
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == 1);

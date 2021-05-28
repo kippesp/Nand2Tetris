@@ -11,12 +11,12 @@ add_library(${JFCL_TEST_PROJECT_NAME}_main STATIC
 
 add_executable(${JFCL_TEST_PROJECT_NAME}
     catch.hpp
-    mock_reader.h
-    test_parse_tree.cpp
+    test_reader.cpp
     test_tokenizer.cpp
-    test_vmwriter.cpp
-    jack_sources.cpp
-    jack_sources.h
+#   test_parse_tree.cpp
+#   test_vmwriter.cpp
+#   jack_sources.cpp
+#   jack_sources.h
 )
 
 target_include_directories(${JFCL_TEST_PROJECT_NAME} PRIVATE ../lib)
@@ -28,3 +28,6 @@ target_link_libraries(${JFCL_TEST_PROJECT_NAME} ${JFCL_TEST_PROJECT_NAME}_main j
 # Precompile the catch.hpp header to save about half the time (or ~0.5 sec)
 target_compile_definitions(${JFCL_TEST_PROJECT_NAME} PRIVATE CATCH_CONFIG_FAST_COMPILE CATCH_CONFIG_DISABLE_MATCHERS)
 target_precompile_headers(${JFCL_TEST_PROJECT_NAME} PRIVATE catch.hpp)
+
+add_test(NAME testjfcl
+         COMMAND ./testjfcl)

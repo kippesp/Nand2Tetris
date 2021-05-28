@@ -13,7 +13,6 @@ struct CliArgs {
   static void show_help();
 
   bool halt_after_tokenizer{false};
-  bool halt_after_tokenizer_s_expression{false};
 
   bool halt_after_parse_tree_s_expression{false};
   bool halt_after_vmwriter{false};

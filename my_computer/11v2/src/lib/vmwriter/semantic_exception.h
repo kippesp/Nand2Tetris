@@ -2,8 +2,6 @@
 
 #include <string>
 
-using namespace std;
-
 class SemanticException : public std::exception {
 public:
   SemanticException(std::string s) : description(s) {}

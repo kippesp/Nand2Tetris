@@ -1,7 +1,10 @@
 #pragma once
 
-#include "tokenizer/reader.h"
+#include "util/text_reader.h"
 
+// probably delete this file
+
+#if 0
 namespace test {
 
 class MockReader : public Reader {
@@ -21,3 +24,4 @@ private:
 };
 
 }  // namespace test
+#endif
