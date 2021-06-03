@@ -39,7 +39,7 @@ Statements:
 
 Expressions:
 
-<expression>       ::= <term> {<op> <term>}*
+<expression>       ::= <term> {<binary-op> <term>}*
 <term>             ::= <integer-constant> | <string-constant> | <keyword-constant> |
                        <var-name> | <array-var> | <subroutine-call> |
                        "(" <expression> ")" | <unary-op> <term>
@@ -48,35 +48,15 @@ Expressions:
                        (<class-name> | <var-name>) "." <subroutine-name>
 <array-var>        ::= <var-name> "[" <expression> "]" 
 <expression-list>  ::= {<expression {"," <expression>}*}?
-<op>               ::= "+" | "-" | "*" | "/" | "&" | "|" | "<" | ">" | "="
+<binary-op>        ::= "+" | "-" | "*" | "/" | "&" | "|" | "<" | ">" | "="
 <unary-op>         ::= "-" | "~"
 <keyword-constant> ::= "true" | "false" | "null" | "this"
-
-<op>               ::= "+" | "-" |
-                       "*" | "/" |
+<binary-op>        ::= "*" | "/" |
+                       "+" | "-" |
                        "<" | ">" |
-                       "="
                        "&" |
                        "|" |
-
-exp ::= term
-        | exp + term
-        | exp - term
-term ::= fact
-        | term * fact
-        | term / fact
-fact ::= identifier
-        | ( expr )
-
--------
-
-expr   ::= term {("+" | "-") term}*
-term   ::= factor {("*" | "/") factor}*
-factor ::= "(" expr ")" | identifier
-
-
-
-
+                       "="
 clang-format on
 */
 
