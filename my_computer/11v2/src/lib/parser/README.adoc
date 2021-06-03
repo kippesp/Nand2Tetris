@@ -1,0 +1,54 @@
+/*
+clang-format off
+
+Grammar from Figure 10.5
+
+Program Structure:
+
+<class>            ::= "class" <class-name> "{" {<class-var-decl>}*
+                       {<subroutine-decl>}* "}"
+<class-var-decl>   ::= ("static" | "field") <type> <var-name> {"," <var-name>}* ";"
+<subroutine-decl>  ::= ("constructor" | "function" | "method")
+                       ("void" | <type>) <subroutine-name>
+                       "(" <parameter-list> ")" <subroutine-body>
+<parameter-list>   ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
+<subroutine-body>  ::= "{" {<var-decl>}* {<statement>}* "}"
+<var-decl>         ::= "var" <type> <var-name> {"," <var-name>}* ";"
+<type>             ::= "int" | "char" | "boolean" | <class-name>
+<class-name>       ::= <identifier>
+<subroutine-name>  ::= <identifier>
+<var-name>         ::= <identifier>
+
+Statements:
+
+<statement>        ::= <let-statement> | <if-statement> | <while-statement> |
+                       <do-statement> | <return-statement>
+<let-statement>    ::= "let" <var-name> {"[" <expression> "]"}? "=" <expression> ";"
+<if-statement>     ::= "if" "(" <expression ")" "{" {<statement>}* "}"
+                       {"else" "{" {<statement>}* "}"}?
+<while-statement>  ::= "while" "(" <expression> ")" "{" {<statement>}* "}"
+<do-statement>     ::= "do" <subroutine-call> ";"
+<return-statement> ::= "return" {<expression>}? ";"
+
+Expressions:
+
+<expression>       ::= <term> {<binary-op> <term>}*
+<term>             ::= <integer-constant> | <string-constant> | <keyword-constant> |
+                       <var-name> | <array-var> | <subroutine-call> |
+                       "(" <expression> ")" | <unary-op> <term>
+<subroutine-call>  ::= <call-site> "(" <expression-list> ")"
+<call-site>        ::= <subroutine-name> |
+                       (<class-name> | <var-name>) "." <subroutine-name>
+<array-var>        ::= <var-name> "[" <expression> "]" 
+<expression-list>  ::= {<expression {"," <expression>}*}?
+<keyword-constant> ::= "true" | "false" | "null" | "this"
+<unary-op>         ::= "-" | "~"
+<binary-op>        ::= "*" | "/" |
+                       "+" | "-" |
+                       "<" | ">" |
+                       "&" |
+                       "|" |
+                       "="
+clang-format on
+*/
+
