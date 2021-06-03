@@ -1,0 +1,7 @@
+class ConstSeven
+{
+  function int get_seven()
+  {
+    return 7;
+  }
+}

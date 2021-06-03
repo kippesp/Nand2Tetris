@@ -6,12 +6,13 @@
 #include <iostream>
 #include <string_view>
 
-ostream& operator<<(ostream& os, const ParseTreeNode& rhs_ptn)
+#if 0
+ostream& operator<<(ostream& os, const AstNode& rhs_ptn)
 {
   if (auto rhs_t = dynamic_cast<const ParseTreeTerminal*>(&rhs_ptn))
   {
     os << "(";
-    os << ParseTreeNode::to_string(rhs_t->type) << " ";
+    os << AstNode::to_string(rhs_t->type) << " ";
     os << rhs_t->token.value_str;
     os << ")";
     return os;
@@ -19,7 +20,7 @@ ostream& operator<<(ostream& os, const ParseTreeNode& rhs_ptn)
   else if (auto rhs_nt = dynamic_cast<const ParseTreeNonTerminal*>(&rhs_ptn))
   {
     os << "(";
-    os << ParseTreeNode::to_string(rhs_nt->type) << " ";
+    os << AstNode::to_string(rhs_nt->type) << " ";
     for (auto child_node : rhs_nt->get_child_nodes())
     {
       os << *child_node;
@@ -59,89 +60,89 @@ string ParseTree::pprint(string_view s) const
   return ss.str();
 }
 
-string ParseTreeNode::to_string(ParseTreeNodeType_t type)
+string AstNode::to_string(AstNodeType_t type)
 {
   switch (type)
   {
-    case ParseTreeNodeType_t::P_UNDEFINED:
+    case AstNodeType_t::P_UNDEFINED:
       return "P_UNDEFINE";
-    case ParseTreeNodeType_t::P_ARRAY_BINDING:
+    case AstNodeType_t::P_ARRAY_BINDING:
       return "P_ARRAY_BINDING";
-    case ParseTreeNodeType_t::P_ARRAY_VAR:
+    case AstNodeType_t::P_ARRAY_VAR:
       return "P_ARRAY_VAR";
-    case ParseTreeNodeType_t::P_CLASS_DECL_BLOCK:
+    case AstNodeType_t::P_CLASS_DECL_BLOCK:
       return "P_CLASS_DECL_BLOCK";
-    case ParseTreeNodeType_t::P_CLASS_NAME:
+    case AstNodeType_t::P_CLASS_NAME:
       return "P_CLASS_NAME";
-    case ParseTreeNodeType_t::P_CLASS_OR_VAR_NAME:
+    case AstNodeType_t::P_CLASS_OR_VAR_NAME:
       return "P_CLASS_OR_VAR_NAME";
-    case ParseTreeNodeType_t::P_CLASSVAR_DECL_BLOCK:
+    case AstNodeType_t::P_CLASSVAR_DECL_BLOCK:
       return "P_CLASSVAR_DECL_BLOCK";
-    case ParseTreeNodeType_t::P_CLASSVAR_DECL_STATEMENT:
+    case AstNodeType_t::P_CLASSVAR_DECL_STATEMENT:
       return "P_CLASSVAR_DECL_STATEMENT";
-    case ParseTreeNodeType_t::P_CLASSVAR_SCOPE:
+    case AstNodeType_t::P_CLASSVAR_SCOPE:
       return "P_CLASSVAR_SCOPE";
-    case ParseTreeNodeType_t::P_DELIMITER:
+    case AstNodeType_t::P_DELIMITER:
       return "P_DELIMITER";
-    case ParseTreeNodeType_t::P_DO_STATEMENT:
+    case AstNodeType_t::P_DO_STATEMENT:
       return "P_DO_STATEMENT";
-    case ParseTreeNodeType_t::P_EXPRESSION:
+    case AstNodeType_t::P_EXPRESSION:
       return "P_EXPRESSION";
-    case ParseTreeNodeType_t::P_EXPRESSION_LIST:
+    case AstNodeType_t::P_EXPRESSION_LIST:
       return "P_EXPRESSION_LIST";
-    case ParseTreeNodeType_t::P_IF_STATEMENT:
+    case AstNodeType_t::P_IF_STATEMENT:
       return "P_IF_STATEMENT";
-    case ParseTreeNodeType_t::P_INTEGER_CONSTANT:
+    case AstNodeType_t::P_INTEGER_CONSTANT:
       return "P_INTEGER_CONSTANT";
-    case ParseTreeNodeType_t::P_KEYWORD:
+    case AstNodeType_t::P_KEYWORD:
       return "P_KEYWORD";
-    case ParseTreeNodeType_t::P_KEYWORD_CONSTANT:
+    case AstNodeType_t::P_KEYWORD_CONSTANT:
       return "P_KEYWORD_CONSTANT";
-    case ParseTreeNodeType_t::P_LET_STATEMENT:
+    case AstNodeType_t::P_LET_STATEMENT:
       return "P_LET_STATEMENT";
-    case ParseTreeNodeType_t::P_OP:
+    case AstNodeType_t::P_OP:
       return "P_OP";
-    case ParseTreeNodeType_t::P_PARAMETER_LIST:
+    case AstNodeType_t::P_PARAMETER_LIST:
       return "P_PARAMETER_LIST";
-    case ParseTreeNodeType_t::P_RETURN_STATEMENT:
+    case AstNodeType_t::P_RETURN_STATEMENT:
       return "P_RETURN_STATEMENT";
-    case ParseTreeNodeType_t::P_RETURN_TYPE:
+    case AstNodeType_t::P_RETURN_TYPE:
       return "P_RETURN_TYPE";
-    case ParseTreeNodeType_t::P_SCALAR_VAR:
+    case AstNodeType_t::P_SCALAR_VAR:
       return "P_SCALAR_VAR";
-    case ParseTreeNodeType_t::P_STATEMENT_LIST:
+    case AstNodeType_t::P_STATEMENT_LIST:
       return "P_STATEMENT_LIST";
-    case ParseTreeNodeType_t::P_STRING_CONSTANT:
+    case AstNodeType_t::P_STRING_CONSTANT:
       return "P_STRING_CONSTANT";
-    case ParseTreeNodeType_t::P_SUBROUTINE_BODY:
+    case AstNodeType_t::P_SUBROUTINE_BODY:
       return "P_SUBROUTINE_BODY";
-    case ParseTreeNodeType_t::P_SUBROUTINE_CALL_SITE_BINDING:
+    case AstNodeType_t::P_SUBROUTINE_CALL_SITE_BINDING:
       return "P_SUBROUTINE_CALL_SITE_BINDING";
-    case ParseTreeNodeType_t::P_SUBROUTINE_CALL:
+    case AstNodeType_t::P_SUBROUTINE_CALL:
       return "P_SUBROUTINE_CALL";
-    case ParseTreeNodeType_t::P_SUBROUTINE_DECL_BLOCK:
+    case AstNodeType_t::P_SUBROUTINE_DECL_BLOCK:
       return "P_SUBROUTINE_DECL_BLOCK";
-    case ParseTreeNodeType_t::P_SUBROUTINE_NAME:
+    case AstNodeType_t::P_SUBROUTINE_NAME:
       return "P_SUBROUTINE_NAME";
-    case ParseTreeNodeType_t::P_SUBROUTINE_TYPE:
+    case AstNodeType_t::P_SUBROUTINE_TYPE:
       return "P_SUBROUTINE_TYPE";
-    case ParseTreeNodeType_t::P_TERM:
+    case AstNodeType_t::P_TERM:
       return "P_TERM";
-    case ParseTreeNodeType_t::P_UNARY_OP:
+    case AstNodeType_t::P_UNARY_OP:
       return "P_UNARY_OP";
-    case ParseTreeNodeType_t::P_VAR_DECL_BLOCK:
+    case AstNodeType_t::P_VAR_DECL_BLOCK:
       return "P_VAR_DECL_BLOCK";
-    case ParseTreeNodeType_t::P_VAR_DECL_STATEMENT:
+    case AstNodeType_t::P_VAR_DECL_STATEMENT:
       return "P_VAR_DECL_STATEMENT";
-    case ParseTreeNodeType_t::P_VARIABLE_DECL:
+    case AstNodeType_t::P_VARIABLE_DECL:
       return "P_VARIABLE_DECL";
-    case ParseTreeNodeType_t::P_VARIABLE_LIST:
+    case AstNodeType_t::P_VARIABLE_LIST:
       return "P_VARIABLE_LIST";
-    case ParseTreeNodeType_t::P_VARIABLE_NAME:
+    case AstNodeType_t::P_VARIABLE_NAME:
       return "P_VARIABLE_NAME";
-    case ParseTreeNodeType_t::P_VARIABLE_TYPE:
+    case AstNodeType_t::P_VARIABLE_TYPE:
       return "P_VARIABLE_TYPE";
-    case ParseTreeNodeType_t::P_WHILE_STATEMENT:
+    case AstNodeType_t::P_WHILE_STATEMENT:
       return "P_WHILE_STATEMENT";
   }
 }
@@ -176,7 +177,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
   auto& idx = parse_cursor;
 
   auto root_node = make_shared<ParseTreeNonTerminal>(
-      ParseTreeNodeType_t::P_CLASS_DECL_BLOCK);
+      AstNodeType_t::P_CLASS_DECL_BLOCK);
 
   // <class> ::= "class" <class-name> "{" {<class-var-decl>}*
   //             {<subroutine-decl>}* "}"
@@ -184,7 +185,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
   if (JackToken keyword_token = (*tokens)[idx];
       keyword_token.value_enum == TokenValue_t::J_CLASS)
   {
-    root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, keyword_token);
+    root_node->create_child(AstNodeType_t::P_KEYWORD, keyword_token);
   }
   else
   {
@@ -207,7 +208,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
       }
     }
 
-    root_node->create_child(ParseTreeNodeType_t::P_CLASS_NAME,
+    root_node->create_child(AstNodeType_t::P_CLASS_NAME,
                             class_name_token);
   }
   else
@@ -220,7 +221,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
   if (JackToken lb_token = (*tokens)[idx];
       lb_token.value_enum == TokenValue_t::J_LEFT_BRACE)
   {
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lb_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, lb_token);
   }
   else
   {
@@ -243,7 +244,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
   if (JackToken rb_token = (*tokens)[idx];
       rb_token.value_enum == TokenValue_t::J_RIGHT_BRACE)
   {
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, rb_token);
   }
   else
   {
@@ -265,13 +266,13 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_variable_decl_list()
 
   auto& idx = parse_cursor;
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_VARIABLE_DECL);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_VARIABLE_DECL);
 
   // <type> <var-name> {"," <var-name>}*
 
   if (JackToken type_token = (*tokens)[idx]; is_valid_type_token(type_token))
   {
-    root_node->create_child(ParseTreeNodeType_t::P_VARIABLE_TYPE, type_token);
+    root_node->create_child(AstNodeType_t::P_VARIABLE_TYPE, type_token);
     idx++;
   }
   else
@@ -280,12 +281,12 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_variable_decl_list()
   }
 
   auto variable_list_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_VARIABLE_LIST);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_VARIABLE_LIST);
 
   if (JackToken first_variable_token = (*tokens)[idx];
       first_variable_token.type == TokenType_t::J_IDENTIFIER)
   {
-    variable_list_node->create_child(ParseTreeNodeType_t::P_VARIABLE_NAME,
+    variable_list_node->create_child(AstNodeType_t::P_VARIABLE_NAME,
                                      first_variable_token);
     idx++;
   }
@@ -299,14 +300,14 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_variable_decl_list()
     if (JackToken delimiter_token = (*tokens)[idx];
         delimiter_token.value_enum == TokenValue_t::J_COMMA)
     {
-      variable_list_node->create_child(ParseTreeNodeType_t::P_DELIMITER,
+      variable_list_node->create_child(AstNodeType_t::P_DELIMITER,
                                        delimiter_token);
       idx++;
 
       if (JackToken variable_token = (*tokens)[idx];
           variable_token.type == TokenType_t::J_IDENTIFIER)
       {
-        variable_list_node->create_child(ParseTreeNodeType_t::P_VARIABLE_NAME,
+        variable_list_node->create_child(AstNodeType_t::P_VARIABLE_NAME,
                                          variable_token);
         idx++;
       }
@@ -348,20 +349,20 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class_variable_decl_block()
     return shared_ptr<ParseTreeNonTerminal>{nullptr};
 
   auto root_node = make_shared<ParseTreeNonTerminal>(
-      ParseTreeNodeType_t::P_CLASSVAR_DECL_BLOCK);
+      AstNodeType_t::P_CLASSVAR_DECL_BLOCK);
 
   assert(statement_start_token((*tokens)[idx]));
 
   for (bool done = false; !done; /* empty */)
   {
     auto class_decl_statement_node = make_shared<ParseTreeNonTerminal>(
-        ParseTreeNodeType_t::P_CLASSVAR_DECL_STATEMENT);
+        AstNodeType_t::P_CLASSVAR_DECL_STATEMENT);
 
     JackToken variable_scope_token = (*tokens)[idx];
     idx++;
 
     class_decl_statement_node->create_child(
-        ParseTreeNodeType_t::P_CLASSVAR_SCOPE, variable_scope_token);
+        AstNodeType_t::P_CLASSVAR_SCOPE, variable_scope_token);
 
     auto variable_list = parse_variable_decl_list();
     assert(
@@ -377,7 +378,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class_variable_decl_block()
         (final_token.value_enum == TokenValue_t::J_SEMICOLON) &&
         "Parse error: expected <semicolon> at end of variable declaration(s)");
 
-    class_decl_statement_node->create_child(ParseTreeNodeType_t::P_DELIMITER,
+    class_decl_statement_node->create_child(AstNodeType_t::P_DELIMITER,
                                             final_token);
 
     root_node->create_child(class_decl_statement_node);
@@ -398,7 +399,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_declaration()
   JackToken subroutine_type = (*tokens)[idx];
 
   auto root_node = make_shared<ParseTreeNonTerminal>(
-      ParseTreeNodeType_t::P_SUBROUTINE_DECL_BLOCK);
+      AstNodeType_t::P_SUBROUTINE_DECL_BLOCK);
 
   // <subroutine-decl> ::= ("constructor" | "function" | "method")
   //                       ("void" | <type>) <subroutine-name>
@@ -409,7 +410,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_declaration()
     case TokenValue_t::J_CONSTRUCTOR:
     case TokenValue_t::J_FUNCTION:
     case TokenValue_t::J_METHOD:
-      root_node->create_child(ParseTreeNodeType_t::P_SUBROUTINE_TYPE,
+      root_node->create_child(AstNodeType_t::P_SUBROUTINE_TYPE,
                               subroutine_type);
       break;
     default:
@@ -421,12 +422,12 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_declaration()
   if (JackToken return_type_token = (*tokens)[idx];
       is_valid_type_token(return_type_token))
   {
-    root_node->create_child(ParseTreeNodeType_t::P_RETURN_TYPE,
+    root_node->create_child(AstNodeType_t::P_RETURN_TYPE,
                             return_type_token);
   }
   else if (return_type_token.value_enum == TokenValue_t::J_VOID)
   {
-    root_node->create_child(ParseTreeNodeType_t::P_RETURN_TYPE,
+    root_node->create_child(AstNodeType_t::P_RETURN_TYPE,
                             return_type_token);
   }
   else
@@ -439,7 +440,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_declaration()
   if (JackToken subroutine_name_token = (*tokens)[idx];
       subroutine_name_token.type == TokenType_t::J_IDENTIFIER)
   {
-    root_node->create_child(ParseTreeNodeType_t::P_SUBROUTINE_NAME,
+    root_node->create_child(AstNodeType_t::P_SUBROUTINE_NAME,
                             subroutine_name_token);
   }
   else
@@ -453,7 +454,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_declaration()
       lp_token.value_enum == TokenValue_t::J_LEFT_PARENTHESIS)
   {
     idx++;
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lp_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, lp_token);
     if (auto parameter_list = parse_parameter_list())
     {
       root_node->create_child(parameter_list);
@@ -467,7 +468,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_declaration()
   if (JackToken rp_token = (*tokens)[idx];
       rp_token.value_enum == TokenValue_t::J_RIGHT_PARENTHESIS)
   {
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rp_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, rp_token);
   }
   else
   {
@@ -492,7 +493,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_parameter_list()
   auto& idx = parse_cursor;
 
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_PARAMETER_LIST);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_PARAMETER_LIST);
 
   // <parameter-list> ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
 
@@ -506,9 +507,9 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_parameter_list()
     assert((variable_token.type == TokenType_t::J_IDENTIFIER) &&
            "Parse error: Invalid variable name");
 
-    root_node->create_child(ParseTreeNodeType_t::P_VARIABLE_TYPE,
+    root_node->create_child(AstNodeType_t::P_VARIABLE_TYPE,
                             first_type_token);
-    root_node->create_child(ParseTreeNodeType_t::P_VARIABLE_NAME,
+    root_node->create_child(AstNodeType_t::P_VARIABLE_NAME,
                             variable_token);
   }
   else
@@ -536,10 +537,10 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_parameter_list()
       assert((variable_token.type == TokenType_t::J_IDENTIFIER) &&
              "Parse error: Invalid variable name");
 
-      root_node->create_child(ParseTreeNodeType_t::P_DELIMITER,
+      root_node->create_child(AstNodeType_t::P_DELIMITER,
                               delimiter_token);
-      root_node->create_child(ParseTreeNodeType_t::P_VARIABLE_TYPE, type_token);
-      root_node->create_child(ParseTreeNodeType_t::P_VARIABLE_NAME,
+      root_node->create_child(AstNodeType_t::P_VARIABLE_TYPE, type_token);
+      root_node->create_child(AstNodeType_t::P_VARIABLE_NAME,
                               variable_token);
     }
     else
@@ -564,11 +565,11 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_body()
     return shared_ptr<ParseTreeNonTerminal>{nullptr};
 
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_SUBROUTINE_BODY);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_SUBROUTINE_BODY);
 
   // <subroutine-body> ::= "{" {<var-decl>}* <statements> "}"
 
-  root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lb_token);
+  root_node->create_child(AstNodeType_t::P_DELIMITER, lb_token);
 
   if (auto variable_decl_block = parse_variable_decl_block())
     root_node->create_child(variable_decl_block);
@@ -586,7 +587,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_body()
     assert(0 && "Parse error: expecting <right-brace> after <statement-list>");
   }
 
-  root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+  root_node->create_child(AstNodeType_t::P_DELIMITER, rb_token);
 
   return root_node;
 }
@@ -608,14 +609,14 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_variable_decl_block()
   // <var-decl>        ::= "var" <type> <var-name> {"," <var-name>}* ";"
 
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_VAR_DECL_BLOCK);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_VAR_DECL_BLOCK);
 
   assert((*tokens)[idx].value_enum == TokenValue_t::J_VAR);
 
   for (bool done = false; !done; /* empty */)
   {
     auto var_decl_statement_node = make_shared<ParseTreeNonTerminal>(
-        ParseTreeNodeType_t::P_VAR_DECL_STATEMENT);
+        AstNodeType_t::P_VAR_DECL_STATEMENT);
 
     if (JackToken keyword_token = (*tokens)[idx];
         keyword_token.value_enum == TokenValue_t::J_VAR)
@@ -626,7 +627,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_variable_decl_block()
       assert(variable_list &&
              "Parse error: Expected variable list after <var> keyword");
 
-      var_decl_statement_node->create_child(ParseTreeNodeType_t::P_KEYWORD,
+      var_decl_statement_node->create_child(AstNodeType_t::P_KEYWORD,
                                             keyword_token);
       var_decl_statement_node->create_child(variable_list);
 
@@ -637,7 +638,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_variable_decl_block()
           (final_token.value_enum == TokenValue_t::J_SEMICOLON) &&
           "Parse error: expected <semicolon> at end of variable declaration");
 
-      var_decl_statement_node->create_child(ParseTreeNodeType_t::P_DELIMITER,
+      var_decl_statement_node->create_child(AstNodeType_t::P_DELIMITER,
                                             final_token);
 
       root_node->create_child(var_decl_statement_node);
@@ -656,7 +657,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_variable_decl_block()
 shared_ptr<ParseTreeNonTerminal> ParseTree::parse_statements()
 {
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_STATEMENT_LIST);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_STATEMENT_LIST);
 
   // <statements> ::= {<statement>}*
   for (bool done = false; !done; /* empty */)
@@ -726,7 +727,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_let_statement()
   assert(keyword_token.value_enum == TokenValue_t::J_LET);
 
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_LET_STATEMENT);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_LET_STATEMENT);
 
   // <let-statement> ::= "let" <var-name> {"[" <expression> "]"}? "="
   // <expression> ";"
@@ -748,11 +749,11 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_let_statement()
     if ((*tokens)[idx].value_enum != TokenValue_t::J_SEMICOLON)
       assert(0 && "Parse error: expecting <semicolon> after <expression>");
 
-    root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, keyword_token);
-    root_node->create_child(ParseTreeNodeType_t::P_SCALAR_VAR, varname);
-    root_node->create_child(ParseTreeNodeType_t::P_OP, next_token);
+    root_node->create_child(AstNodeType_t::P_KEYWORD, keyword_token);
+    root_node->create_child(AstNodeType_t::P_SCALAR_VAR, varname);
+    root_node->create_child(AstNodeType_t::P_OP, next_token);
     root_node->create_child(expression_node);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, (*tokens)[idx]);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, (*tokens)[idx]);
     idx++;
   }
   else if (next_token.value_enum == TokenValue_t::J_LEFT_BRACKET)
@@ -778,21 +779,21 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_let_statement()
     if ((*tokens)[idx].value_enum != TokenValue_t::J_SEMICOLON)
       assert(0 && "Parse error: expecting <semicolon> after <expression>");
 
-    root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, keyword_token);
+    root_node->create_child(AstNodeType_t::P_KEYWORD, keyword_token);
 
     auto array_rn =
-        make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_ARRAY_BINDING);
+        make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_ARRAY_BINDING);
 
-    array_rn->create_child(ParseTreeNodeType_t::P_ARRAY_VAR, varname);
-    array_rn->create_child(ParseTreeNodeType_t::P_DELIMITER, next_token);
+    array_rn->create_child(AstNodeType_t::P_ARRAY_VAR, varname);
+    array_rn->create_child(AstNodeType_t::P_DELIMITER, next_token);
     array_rn->create_child(index_expression_node);
-    array_rn->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+    array_rn->create_child(AstNodeType_t::P_DELIMITER, rb_token);
 
     root_node->create_child(array_rn);
 
-    root_node->create_child(ParseTreeNodeType_t::P_OP, equal_token);
+    root_node->create_child(AstNodeType_t::P_OP, equal_token);
     root_node->create_child(expression_node);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, (*tokens)[idx]);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, (*tokens)[idx]);
     idx++;
   }
   else
@@ -816,7 +817,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_if_statement()
   assert(keyword_token.value_enum == TokenValue_t::J_IF);
 
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_IF_STATEMENT);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_IF_STATEMENT);
 
   //
   // "if" "(" <expression ")" "{" <statements> "}"
@@ -853,13 +854,13 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_if_statement()
       assert(0 &&
              "Parse error: expecting <right_brace> after TRUE <statements>");
 
-    root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, keyword_token);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lp_token);
+    root_node->create_child(AstNodeType_t::P_KEYWORD, keyword_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, lp_token);
     root_node->create_child(expression_node);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rp_token);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lb_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, rp_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, lb_token);
     root_node->create_child(statements_node);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, rb_token);
   }
   else
   {
@@ -894,10 +895,10 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_if_statement()
       assert(0 &&
              "Parse error: expecting <right_brace> after FALSE <statements>");
 
-    root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, else_token);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lb_token);
+    root_node->create_child(AstNodeType_t::P_KEYWORD, else_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, lb_token);
     root_node->create_child(statements_node);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, rb_token);
   }
 
   return root_node;
@@ -915,7 +916,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_while_statement()
   assert(keyword_token.value_enum == TokenValue_t::J_WHILE);
 
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_WHILE_STATEMENT);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_WHILE_STATEMENT);
 
   // <while-statement> ::= "while" "(" <expression> ")" "{" <statements> "}"
   idx++;
@@ -951,13 +952,13 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_while_statement()
     if (rb_token.value_enum != TokenValue_t::J_RIGHT_BRACE)
       assert(0 && "Parse error: expecting <right_brace> after <statements>");
 
-    root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, keyword_token);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lp_token);
+    root_node->create_child(AstNodeType_t::P_KEYWORD, keyword_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, lp_token);
     root_node->create_child(expression_node);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rp_token);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lb_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, rp_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, lb_token);
     root_node->create_child(statements_node);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, rb_token);
   }
   else
   {
@@ -979,7 +980,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_do_statement()
   assert(token.value_enum == TokenValue_t::J_DO);
 
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_DO_STATEMENT);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_DO_STATEMENT);
 
   // <do-statement> ::= "do" <subroutine-call> ";"
   idx++;
@@ -991,9 +992,9 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_do_statement()
       assert(0 && "Parse error: expecting <semicolon> after <subroutine-call>");
     }
 
-    root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, token);
+    root_node->create_child(AstNodeType_t::P_KEYWORD, token);
     root_node->create_child(subroutine_call_node);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, (*tokens)[idx]);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, (*tokens)[idx]);
 
     idx++;
   }
@@ -1013,13 +1014,13 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_return_statement()
   assert(token.value_enum == TokenValue_t::J_RETURN);
 
   auto root_node = make_shared<ParseTreeNonTerminal>(
-      ParseTreeNodeType_t::P_RETURN_STATEMENT);
+      AstNodeType_t::P_RETURN_STATEMENT);
 
   // <return-statement> ::= "return" {<expression>}? ";"
   if (token_second.value_enum == TokenValue_t::J_SEMICOLON)
   {
-    root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, token);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, token_second);
+    root_node->create_child(AstNodeType_t::P_KEYWORD, token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, token_second);
     idx++;
     idx++;
   }
@@ -1035,9 +1036,9 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_return_statement()
         assert(0 && "Parse error: expecting <semicolon> after <expression>");
       }
 
-      root_node->create_child(ParseTreeNodeType_t::P_KEYWORD, token);
+      root_node->create_child(AstNodeType_t::P_KEYWORD, token);
       root_node->create_child(expression_node);
-      root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, (*tokens)[idx]);
+      root_node->create_child(AstNodeType_t::P_DELIMITER, (*tokens)[idx]);
 
       idx++;
     }
@@ -1052,7 +1053,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_expression()
     return shared_ptr<ParseTreeNonTerminal>{nullptr};
 
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_EXPRESSION);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_EXPRESSION);
 
   auto term1_node = parse_term();
 
@@ -1090,7 +1091,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_expression()
 shared_ptr<ParseTreeNonTerminal> ParseTree::parse_expression_list()
 {
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_EXPRESSION_LIST);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_EXPRESSION_LIST);
 
   if (tokens->size() - parse_cursor <= 1)
     return root_node;
@@ -1109,7 +1110,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_expression_list()
           token.value_enum == TokenValue_t::J_COMMA)
       {
         idx++;
-        root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, token);
+        root_node->create_child(AstNodeType_t::P_DELIMITER, token);
         done = false;
       }
     }
@@ -1127,19 +1128,19 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_term()
   JackToken token = (*tokens)[idx];
 
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_TERM);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_TERM);
 
   // <integer-constant>
   if (token.type == TokenType_t::J_INTEGER_CONSTANT)
   {
     auto leaf_node =
-        root_node->create_child(ParseTreeNodeType_t::P_INTEGER_CONSTANT, token);
+        root_node->create_child(AstNodeType_t::P_INTEGER_CONSTANT, token);
     idx++;
   }
   // <string-constant>
   else if (token.type == TokenType_t::J_STRING_CONSTANT)
   {
-    root_node->create_child(ParseTreeNodeType_t::P_STRING_CONSTANT, token);
+    root_node->create_child(AstNodeType_t::P_STRING_CONSTANT, token);
     idx++;
   }
   // <keyword-constant> ::= "true" | "false" | "null" | "this"
@@ -1150,7 +1151,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_term()
         (token.value_enum == TokenValue_t::J_NULL) ||
         (token.value_enum == TokenValue_t::J_THIS))
     {
-      root_node->create_child(ParseTreeNodeType_t::P_KEYWORD_CONSTANT, token);
+      root_node->create_child(AstNodeType_t::P_KEYWORD_CONSTANT, token);
       idx++;
     }
   }
@@ -1163,7 +1164,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_term()
     assert(right_node && "Parse error: expecting <term>");
 
     // add left-node: <unary-op>
-    root_node->create_child(ParseTreeNodeType_t::P_UNARY_OP, token);
+    root_node->create_child(AstNodeType_t::P_UNARY_OP, token);
 
     // add right-node: <term>
     root_node->create_child(right_node);
@@ -1189,19 +1190,19 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_term()
              "Parse error: expecting ending \"]\"");
 
       auto array_rn = make_shared<ParseTreeNonTerminal>(
-          ParseTreeNodeType_t::P_ARRAY_BINDING);
+          AstNodeType_t::P_ARRAY_BINDING);
 
-      array_rn->create_child(ParseTreeNodeType_t::P_ARRAY_VAR, token);
-      array_rn->create_child(ParseTreeNodeType_t::P_DELIMITER, lb_token);
+      array_rn->create_child(AstNodeType_t::P_ARRAY_VAR, token);
+      array_rn->create_child(AstNodeType_t::P_DELIMITER, lb_token);
       array_rn->create_child(expr_node);
-      array_rn->create_child(ParseTreeNodeType_t::P_DELIMITER, rb_token);
+      array_rn->create_child(AstNodeType_t::P_DELIMITER, rb_token);
 
       root_node->create_child(array_rn);
     }
     else
     {
       // scalar-variable: <var-name>
-      root_node->create_child(ParseTreeNodeType_t::P_SCALAR_VAR, token);
+      root_node->create_child(AstNodeType_t::P_SCALAR_VAR, token);
     }
 
     idx++;
@@ -1216,9 +1217,9 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_term()
     assert((rp_token.value_enum == TokenValue_t::J_RIGHT_PARENTHESIS) &&
            "Parse error: expecting closing \")\" after expression");
 
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, token);
     root_node->create_child(expr_node);
-    root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rp_token);
+    root_node->create_child(AstNodeType_t::P_DELIMITER, rp_token);
     idx++;
   }
 
@@ -1262,7 +1263,7 @@ shared_ptr<ParseTreeTerminal> ParseTree::parse_op()
     return shared_ptr<ParseTreeTerminal>{nullptr};
 
   idx++;
-  return make_shared<ParseTreeTerminal>(ParseTreeNodeType_t::P_OP, token);
+  return make_shared<ParseTreeTerminal>(AstNodeType_t::P_OP, token);
 }
 
 shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_call()
@@ -1277,9 +1278,9 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_call()
   JackToken second_token = (*tokens)[idx + 1];
 
   auto root_node =
-      make_shared<ParseTreeNonTerminal>(ParseTreeNodeType_t::P_SUBROUTINE_CALL);
+      make_shared<ParseTreeNonTerminal>(AstNodeType_t::P_SUBROUTINE_CALL);
   auto call_site_node = make_shared<ParseTreeNonTerminal>(
-      ParseTreeNodeType_t::P_SUBROUTINE_CALL_SITE_BINDING);
+      AstNodeType_t::P_SUBROUTINE_CALL_SITE_BINDING);
 
   if (first_token.type == TokenType_t::J_IDENTIFIER)
   {
@@ -1294,12 +1295,12 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_call()
       assert((rp_token.value_enum == TokenValue_t::J_RIGHT_PARENTHESIS) &&
              "Parse error: expecting closing \")\" for subroutine call");
 
-      call_site_node->create_child(ParseTreeNodeType_t::P_SUBROUTINE_NAME,
+      call_site_node->create_child(AstNodeType_t::P_SUBROUTINE_NAME,
                                    first_token);
       root_node->create_child(call_site_node);
-      root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, second_token);
+      root_node->create_child(AstNodeType_t::P_DELIMITER, second_token);
       root_node->create_child(expression_list_node);
-      root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rp_token);
+      root_node->create_child(AstNodeType_t::P_DELIMITER, rp_token);
     }
     // (<class-name> | <var-name>) "."
     //    <subroutine-name> "(" <expression-list> ")"
@@ -1325,16 +1326,16 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_call()
         assert((rp_token.value_enum == TokenValue_t::J_RIGHT_PARENTHESIS) &&
                "Parse error: expecting closing \")\" for subroutine call");
 
-        call_site_node->create_child(ParseTreeNodeType_t::P_CLASS_OR_VAR_NAME,
+        call_site_node->create_child(AstNodeType_t::P_CLASS_OR_VAR_NAME,
                                      first_token);
-        call_site_node->create_child(ParseTreeNodeType_t::P_DELIMITER,
+        call_site_node->create_child(AstNodeType_t::P_DELIMITER,
                                      second_token);
-        call_site_node->create_child(ParseTreeNodeType_t::P_SUBROUTINE_NAME,
+        call_site_node->create_child(AstNodeType_t::P_SUBROUTINE_NAME,
                                      subroutine_token);
         root_node->create_child(call_site_node);
-        root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, lp_token);
+        root_node->create_child(AstNodeType_t::P_DELIMITER, lp_token);
         root_node->create_child(expression_list_node);
-        root_node->create_child(ParseTreeNodeType_t::P_DELIMITER, rp_token);
+        root_node->create_child(AstNodeType_t::P_DELIMITER, rp_token);
       }
     }
   }
@@ -1346,7 +1347,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_subroutine_call()
   return root_node;
 }
 
-shared_ptr<ParseTreeNode> ParseTreeNonTerminal::create_child(
+shared_ptr<AstNode> ParseTreeNonTerminal::create_child(
     shared_ptr<ParseTreeNonTerminal> child_node)
 {
   child_nodes->push_back(move(child_node));
@@ -1355,7 +1356,7 @@ shared_ptr<ParseTreeNode> ParseTreeNonTerminal::create_child(
   return new_node;
 }
 
-shared_ptr<ParseTreeNode> ParseTreeNonTerminal::create_child(
+shared_ptr<AstNode> ParseTreeNonTerminal::create_child(
     shared_ptr<ParseTreeTerminal> left_node)
 {
   child_nodes->push_back(move(left_node));
@@ -1364,8 +1365,8 @@ shared_ptr<ParseTreeNode> ParseTreeNonTerminal::create_child(
   return new_node;
 }
 
-shared_ptr<ParseTreeNode> ParseTreeNonTerminal::create_child(
-    ParseTreeNodeType_t ty, JackToken& token)
+shared_ptr<AstNode> ParseTreeNonTerminal::create_child(
+    AstNodeType_t ty, JackToken& token)
 {
   auto unattached_leaf_node = make_shared<ParseTreeTerminal>(ty, token);
   child_nodes->push_back(move(unattached_leaf_node));
@@ -1378,3 +1379,4 @@ ParseException::ParseException(std::string desc, const JackToken& tok)
     : description(desc), token(tok)
 {
 }
+#endif

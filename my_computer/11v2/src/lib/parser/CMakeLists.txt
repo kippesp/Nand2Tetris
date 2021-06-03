@@ -1,8 +1,11 @@
 set(LIBRARY_TARGET_NAME parser)
 
 set(${LIBRARY_TARGET_NAME}_SRCS
-    parse_tree.cpp
-    parse_tree.h
+    ast.cpp
+    parser.cpp
+
+    ast.h
+    parser.h
 )
 
 add_library(${LIBRARY_TARGET_NAME} ${${LIBRARY_TARGET_NAME}_SRCS})
