@@ -64,7 +64,8 @@ using TokenValue_t = enum class TokenValue_s {
   J_RETURN,
 };
 
-struct JackToken {
+class JackToken {
+public:
   JackToken() = default;
   JackToken(TokenType_t t, TokenValue_t v, std::string s, size_t n)
       : type(t), value_enum(v), value_str(s), line_number(n)
