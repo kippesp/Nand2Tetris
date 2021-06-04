@@ -1,0 +1,7 @@
+class ConstSeven
+{
+  function int get_four()
+  {
+    return (7 - 5) * -(2 + 8) / 5;
+  }
+}
