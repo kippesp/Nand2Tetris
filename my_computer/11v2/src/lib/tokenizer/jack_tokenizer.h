@@ -37,7 +37,7 @@ private:
   // get the token and its associated value
   JackToken get_next_token();
 
-  std::unique_ptr<Tokens_t> token_vect{nullptr};
+  std::unique_ptr<Tokens_t> token_vect {nullptr};
 
   TextReader& reader;
 };

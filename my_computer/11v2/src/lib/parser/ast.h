@@ -1,30 +1,30 @@
 #pragma once
 
-#include <memory>
-#include <vector>
+//#include <memory>
+//#include <vector>
 
 #include "tokenizer/jack_tokenizer.h"
 
 typedef enum class AstNodeType_s {
-  N_UNDEFINED,
+  // N_UNDEFINED,
   N_BINARY_OP,
   // N_ARRAY_BINDING,
   // N_ARRAY_VAR,
   N_CLASS_DECL_BLOCK,
   N_CLASS_NAME,
-  // N_CLASS_OR_VAR_NAME,
+  // N_CLASS_OR_VAR_NAME,       need a clearer name here...identifier name??
   // N_CLASSVAR_DECL_BLOCK,
   // N_CLASSVAR_DECL_STATEMENT,
   // N_CLASSVAR_SCOPE,
   // N_DELIMITER,
-  // N_DO_STATEMENT,
+  N_DO_STATEMENT,
   N_EXPRESSION,
   // N_EXPRESSION_LIST,
-  // N_IF_STATEMENT,
+  N_IF_STATEMENT,
   N_INTEGER_CONSTANT,
   // N_KEYWORD,
   N_KEYWORD_CONSTANT,
-  // N_LET_STATEMENT,
+  N_LET_STATEMENT,
   // N_OP,
   N_PARAMETER_LIST,
   N_RETURN_STATEMENT,
@@ -46,7 +46,7 @@ typedef enum class AstNodeType_s {
   // N_VARIABLE_LIST,
   // N_VARIABLE_NAME,
   // N_VARIABLE_TYPE,
-  // N_WHILE_STATEMENT,
+  N_WHILE_STATEMENT,
 } AstNodeType_t;
 
 #if 0

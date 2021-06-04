@@ -113,9 +113,9 @@ public:
   void print() const;
   int num_locals() const { return subroutine_tbl->next_index.local_var; }
   int num_fields() const { return class_tbl->next_index.field_var; }
-  SubroutineDescr* pSubroutineDescr{nullptr};
+  SubroutineDescr* pSubroutineDescr {nullptr};
 
 private:
-  std::unique_ptr<PartialSymbolTable> class_tbl{nullptr};
-  std::unique_ptr<PartialSymbolTable> subroutine_tbl{nullptr};
+  std::unique_ptr<PartialSymbolTable> class_tbl {nullptr};
+  std::unique_ptr<PartialSymbolTable> subroutine_tbl {nullptr};
 };

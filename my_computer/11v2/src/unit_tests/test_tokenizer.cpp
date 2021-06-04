@@ -11,7 +11,7 @@ SCENARIO("Tokenizer baseline checks")
     TextReader R("+");
     JackTokenizer T(R);
 
-    auto expected_parsed_tokens = std::vector{
+    auto expected_parsed_tokens = std::vector {
         TokenValue_t::J_PLUS,  // '+'
         TokenValue_t::J_EOF,
     };
@@ -33,7 +33,7 @@ SCENARIO("Tokenize Jack symbols")
   TextReader R(" { } () [ ] .  , ; + - * / & | < > = ~ ");
   JackTokenizer T(R);
 
-  auto expected_parsed_tokens = std::vector{
+  auto expected_parsed_tokens = std::vector {
       TokenValue_t::J_LEFT_BRACE,         // '{'
       TokenValue_t::J_RIGHT_BRACE,        // '}'
       TokenValue_t::J_LEFT_PARENTHESIS,   // '('
@@ -82,7 +82,7 @@ SCENARIO("Tokenize Jack keywords")
 
   JackTokenizer T(R);
 
-  auto expected_parsed_tokens = std::vector{
+  auto expected_parsed_tokens = std::vector {
       // clang-format off
       TokenValue_t::J_IF,
       TokenValue_t::J_LET,
@@ -130,7 +130,7 @@ SCENARIO("Tokenize integers")
     TextReader R(" 1  5 9 ");
     JackTokenizer T(R);
 
-    auto expected_parsed_integers = std::vector{"1", "5", "9"};
+    auto expected_parsed_integers = std::vector {"1", "5", "9"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_integers.size() + 1);
@@ -148,7 +148,7 @@ SCENARIO("Tokenize integers")
     TextReader R(" 0987654321  5555 99 ");
     JackTokenizer T(R);
 
-    auto expected_parsed_integers = std::vector{"0987654321", "5555", "99"};
+    auto expected_parsed_integers = std::vector {"0987654321", "5555", "99"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_integers.size() + 1);
@@ -202,7 +202,7 @@ SCENARIO("Tokenize identifiers")
     JackTokenizer T(R);
 
     auto expected_parsed_identifiers =
-        std::vector{"c", "abcd", "bbbb", "_AazZ", "_0a", "__9z"};
+        std::vector {"c", "abcd", "bbbb", "_AazZ", "_0a", "__9z"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
@@ -220,7 +220,7 @@ SCENARIO("Tokenize identifiers")
     TextReader R("CLASS METHOD ");
     JackTokenizer T(R);
 
-    auto expected_parsed_identifiers = std::vector{"CLASS", "METHOD"};
+    auto expected_parsed_identifiers = std::vector {"CLASS", "METHOD"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
@@ -239,7 +239,7 @@ SCENARIO("Tokenize identifiers")
     JackTokenizer T(R);
 
     auto expected_parsed_identifiers =
-        std::vector{"ifclass", "_let", "char_", "while1"};
+        std::vector {"ifclass", "_let", "char_", "while1"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
@@ -280,7 +280,7 @@ SCENARIO("Tokenize string")
         "\" \"");
     JackTokenizer T(R);
 
-    auto expected_parsed_identifiers = std::vector{"test class ", "", " "};
+    auto expected_parsed_identifiers = std::vector {"test class ", "", " "};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
@@ -305,7 +305,7 @@ SCENARIO("Tokenize comments")
     JackTokenizer T(R);
 
     auto expected_parsed_identifiers =
-        std::vector{"// comment1", "// comment2", "// if comment"};
+        std::vector {"// comment1", "// comment2", "// if comment"};
     auto tokens = T.parse_tokens();
 
     REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
@@ -348,7 +348,7 @@ SCENARIO("Tokenize comments")
     JackTokenizer T(R);
 
     auto expected_parsed_identifiers =
-        std::vector{"/* class */", "/**/", "/*   */", "/** x */"};
+        std::vector {"/* class */", "/**/", "/*   */", "/** x */"};
 
     auto tokens = T.parse_tokens();
 

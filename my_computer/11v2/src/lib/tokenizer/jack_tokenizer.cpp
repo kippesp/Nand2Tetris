@@ -42,7 +42,7 @@ const JackTokenizer::Tokens_t* JackTokenizer::parse_tokens()
 
 JackToken JackTokenizer::get_next_token()
 {
-  char ch = 0;
+  char ch {0};
 
   // Read one character, skipping over whitespace
   for (bool done = false; !done;)
@@ -276,7 +276,7 @@ JackToken JackTokenizer::get_jack_keyword_or_identifier_token(char ch)
   // Now we need to determine if we have, in fact, a keyword.
   //
 
-  const std::vector<TokenDescr_t> ExpectedKeywords{
+  const std::vector<TokenDescr_t> ExpectedKeywords {
       // clang-format off
       {"do",          TokenType_t::J_KEYWORD, TokenValue_t::J_DO, "do"},
       {"if",          TokenType_t::J_KEYWORD, TokenValue_t::J_IF, "if"},
@@ -321,7 +321,7 @@ JackToken JackTokenizer::get_symbol_token(char ch)
 {
   JackToken token;
 
-  const std::vector<TokenDescr_t> ExpectedSymbol{
+  const std::vector<TokenDescr_t> ExpectedSymbol {
       // clang-format off
       {"{", TokenType_t::J_SYMBOL, TokenValue_t::J_LEFT_BRACE, "<left_brace>"},
       {"}", TokenType_t::J_SYMBOL, TokenValue_t::J_RIGHT_BRACE, "<right_brace>"},

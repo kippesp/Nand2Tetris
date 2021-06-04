@@ -1,10 +1,16 @@
-#include "parse_tree.h"
+//#include "parse_tree.h"
 
+extern int __unused2;
+
+int __unused2 = 1;
+
+#if 0
 #include <ctype.h>
 
 #include <cassert>
 #include <iostream>
 #include <string_view>
+#endif
 
 #if 0
 ostream& operator<<(ostream& os, const AstNode& rhs_ptn)

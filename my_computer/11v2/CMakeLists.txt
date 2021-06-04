@@ -53,7 +53,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 message(STATUS "Compiler ID: " ${CMAKE_CXX_COMPILER_ID})
 
-#set(CMAKE_BUILD_RPATH "/home/kippesp/usr/opt/llvm-10.0.x/lib")
+# see: https://trac.macports.org/ticket/62426
+set(CMAKE_BUILD_RPATH "/Users/kippesp/usr/opt/llvm-12.0.1/lib")
 
 #add_compile_options(-stdlib=libc++)
 
@@ -101,18 +102,26 @@ if (NOT MSVC)
     endif()
 
     # support c++17 filesystem
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
-            message(FATAL_ERROR
-                "Limited std::filesystem support with current compiler configuration; "
-                "either use a newer version of clang, gcc, or current clang "
-                "with -DLEGACY_CLIARGS specified")
-        else()
-            add_compile_options(-stdlib=libc++)
-            add_link_options(-stdlib=libc++ -lc++abi)
+    if (USE_LEGACY_CLIARGS)
+        # Used with older configs
+        add_compile_options(-DLEGACY_CLIARGS)
+    else()
+        if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+            if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+                message(FATAL_ERROR
+                    "Limited std::filesystem support with current compiler configuration; "
+                    "either use a newer version of clang, gcc, or current clang "
+                    "with -DLEGACY_CLIARGS specified")
+            else()
+                #add_compile_options(-stdlib=libc++)
+                #add_link_options(-stdlib=libc++ -lc++abi)
+            endif()
         endif()
     endif()
 endif()
+
+add_compile_options(-D_LIBCPP_DISABLE_AVAILABILITY)
+add_link_options(-L/Users/kippesp/usr/opt/llvm-12.0.1/lib)
 
 # For this project, we're not interested in some things
 if (MSVC)

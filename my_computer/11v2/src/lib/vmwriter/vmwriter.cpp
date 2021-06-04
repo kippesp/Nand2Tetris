@@ -160,7 +160,7 @@ void VmWriter::create_subroutine_symtable(const ParseTreeNonTerminal* sub_node)
       sub_type_node->token.value_enum == TokenValue_t::J_METHOD)
   {
     symbol_table.add_symbol(Symbol::ScopeLevel_t::SUBROUTINE, "this",
-                            Symbol::ClassType_t{class_name},
+                            Symbol::ClassType_t {class_name},
                             Symbol::SubroutineStorageClass_t::S_ARGUMENT);
   }
 

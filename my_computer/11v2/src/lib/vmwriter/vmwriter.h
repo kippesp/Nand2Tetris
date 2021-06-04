@@ -58,7 +58,7 @@ private:
 
   SymbolTable symbol_table;
 
-  std::unique_ptr<SubroutineDescr> pSubDescr{nullptr};
+  std::unique_ptr<SubroutineDescr> pSubDescr {nullptr};
 };
 
 struct SubroutineDescr {
@@ -76,7 +76,7 @@ struct SubroutineDescr {
   const ParseTreeNonTerminal* pBody;
 
   // counter for if-else and while control statements
-  int structured_control_id{0};
+  int structured_control_id {0};
 };
 
 /*

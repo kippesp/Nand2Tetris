@@ -44,6 +44,6 @@ protected:
   Contents_t contents;
 
   std::string raw_buffer;
-  size_t cursor_pos{0};
-  size_t current_line_number{1};
+  size_t cursor_pos {0};
+  size_t current_line_number {1};
 };

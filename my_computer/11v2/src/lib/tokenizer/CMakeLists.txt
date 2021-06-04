@@ -21,5 +21,5 @@ foreach(TOKENIZER_TURNT_TEST ${TOKENIZER_TURNT_TESTS})
   get_filename_component(TEST_FILENAME ${TOKENIZER_TURNT_TEST} NAME)
   add_test(NAME tokenizer-${TEST_NAME}
            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/turnt_tests/tokenizer
-           COMMAND turnt --diff ${TEST_FILENAME})
+           COMMAND turnt --command_dir ${CMAKE_BINARY_DIR}/src --diff ${TEST_FILENAME})
 endforeach()

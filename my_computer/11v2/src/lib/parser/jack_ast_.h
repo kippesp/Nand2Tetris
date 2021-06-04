@@ -54,12 +54,12 @@ public:
 
   // AstNode(JackToken tok, AstNodeType_t ty) : token(tok), type(ty) {}
 
-  AstNodeType_t type{AstNodeType_t::N_UNDEFINED};
+  AstNodeType_t type {AstNodeType_t::N_UNDEFINED};
   JackToken token;
 
 private:
-  std::shared_ptr<AstNode> parent{nullptr};
-  std::unique_ptr<std::vector<std::shared_ptr<AstNode>>> child_nodes{};
+  std::shared_ptr<AstNode> parent {nullptr};
+  std::unique_ptr<std::vector<std::shared_ptr<AstNode>>> child_nodes {};
 };
 
 class JackAst {
@@ -84,5 +84,5 @@ private:
 
   // int parse_cursor{0};
 
-  std::shared_ptr<AstNode> root{nullptr};
+  std::shared_ptr<AstNode> root {nullptr};
 };

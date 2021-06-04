@@ -9,4 +9,5 @@
    (P_STATEMENT_LIST 
     (P_RETURN_STATEMENT 
      (P_EXPRESSION 
-       (P_INTEGER_CONSTANT 7)))))))
+      (P_TERM 
+       (P_INTEGER_CONSTANT 7))))))))

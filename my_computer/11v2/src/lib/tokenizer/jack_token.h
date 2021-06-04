@@ -74,9 +74,9 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, const JackToken& rhs);
 
-  TokenType_t type{TokenType_t::J_UNDEFINED};
-  TokenValue_t value_enum{TokenValue_t::J_UNDEFINED};
-  std::string value_str{"UNDEFINED"};  // for integer, string, comments tokens
+  TokenType_t type {TokenType_t::J_UNDEFINED};
+  TokenValue_t value_enum {TokenValue_t::J_UNDEFINED};
+  std::string value_str {"UNDEFINED"};  // for integer, string, comments tokens
   size_t line_number;
 
   // Convert to text output

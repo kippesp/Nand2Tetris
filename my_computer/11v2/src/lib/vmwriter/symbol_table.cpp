@@ -243,7 +243,7 @@ Symbol::VariableType_t Symbol::variable_type_from_token(const JackToken& token)
   else if (token.value_enum == TokenValue_t::J_VOID)
     variable_type = Symbol::BasicType_t::T_VOID;
   else if (token.type == TokenType_t::J_IDENTIFIER)
-    variable_type = Symbol::ClassType_t{token.value_str};
+    variable_type = Symbol::ClassType_t {token.value_str};
 
   return variable_type;
 }
