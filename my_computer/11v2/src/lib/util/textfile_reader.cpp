@@ -21,7 +21,7 @@ auto read_file(std::string_view path) -> std::string
 }
 #endif
 
-TextFileReader::TextFileReader(const char* filename) : TextReader()
+TextFileReader::TextFileReader(const char* filename)
 {
   FILE* fd = fopen(filename, "r");
   std::stringstream ss;

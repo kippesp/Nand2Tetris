@@ -8,12 +8,18 @@ TextReader::char_type TextReader::read()
   TextReader::char_type ch;
 
   if (cursor_pos <= raw_buffer.length())
+  {
     ch = raw_buffer[cursor_pos++];
+  }
   else
+  {
     ch = '\0';
+  }
 
   if (ch == '\n')
+  {
     current_line_number++;
+  }
 
   return ch;
 }
@@ -21,9 +27,10 @@ TextReader::char_type TextReader::read()
 TextReader::char_type TextReader::peek()
 {
   if (cursor_pos <= raw_buffer.length())
+  {
     return raw_buffer[cursor_pos];
-  else
-    return '\0';
+  }
+  return '\0';
 }
 
 void TextReader::init_buffer(const char* buf)
@@ -54,7 +61,9 @@ void TextReader::init_buffer(const char* buf)
   }
 
   if (!ss_line.str().empty())
+  {
     contents.push_back(ss_line.str());
+  }
   raw_buffer = s;
   cursor_pos = 0;
 }

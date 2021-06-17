@@ -49,22 +49,34 @@ JackToken JackTokenizer::get_next_token()
   {
     ch = reader.read();
     if ((ch == -1) || (ch == '\0'))
+    {
       return JackToken(TokenType_t::J_INTERNAL, TokenValue_t::J_EOF, "( eof )",
                        reader.get_current_line_number());
+    }
 
     // skip over excess (non-token separators) spaces
     if (ch == ' ')
+    {
       continue;
+    }
 
     if (ch == '\n')
+    {
       continue;
+    }
     if (ch == '\r')
+    {
       continue;
+    }
     if (ch == '\t')
+    {
       continue;
+    }
     if (ch == '\0')
+    {
       return JackToken(TokenType_t::J_INTERNAL, TokenValue_t::J_EOF, "( eof )",
                        reader.get_current_line_number());
+    }
 
     done = true;
   }
@@ -82,7 +94,9 @@ JackToken JackTokenizer::get_next_token()
 
     if ((token.type == TokenType_t::J_INTERNAL) &&
         (token.value_enum == TokenValue_t::J_COMMENT))
+    {
       return token;
+    }
 
     assert(false && "Should not get here");
   }
@@ -93,7 +107,9 @@ JackToken JackTokenizer::get_next_token()
 
     if ((token.type == TokenType_t::J_INTERNAL) &&
         (token.value_enum == TokenValue_t::J_COMMENT))
+    {
       return token;
+    }
 
     // An unterminated /* is malformed.
     assert(token.type == TokenType_t::J_UNDEFINED);
@@ -106,7 +122,9 @@ JackToken JackTokenizer::get_next_token()
     token = get_string_token(ch);
 
     if (token.type == TokenType_t::J_STRING_CONSTANT)
+    {
       return token;
+    }
 
     // An unterminated " is malformed as is a string containing a newline
     assert(token.type == TokenType_t::J_UNDEFINED);
@@ -119,7 +137,9 @@ JackToken JackTokenizer::get_next_token()
     token = get_integer_token(ch);
 
     if (token.type == TokenType_t::J_INTEGER_CONSTANT)
+    {
       return token;
+    }
   }
 
   // PARSE FOR JACK IDENTIFIER OR KEYWORD
@@ -129,7 +149,9 @@ JackToken JackTokenizer::get_next_token()
 
     if ((token.type == TokenType_t::J_KEYWORD) ||
         (token.type == TokenType_t::J_IDENTIFIER))
+    {
       return token;
+    }
   }
 
   // PARSE FOR JACK SYMBOL

@@ -45,13 +45,30 @@ endif()
 
 # cmake 3.8
 #set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 message(STATUS "Compiler ID: " ${CMAKE_CXX_COMPILER_ID})
+
+set(RUN_CLANG_TIDY OFF)
+
+if (${RUN_CLANG_TIDY})
+  #set(CMAKE_CXX_CLANG_TIDY clang-tidy -header-filter=.* -checks=-*,modernize-use-*' -fix)
+  #set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*,modernize-use-*)
+  set(CMAKE_CXX_CLANG_TIDY clang-tidy
+    -checks=-*,readability-braces-around-statements,readability-qualified-auto,readability-else-after-return,readability-redundant-member-init,readability-convert-member-functions-to-static
+    -fix
+    )
+  #readability-braces-around-statements
+  #readability-qualified-auto
+  #readability-else-after-return
+  #readability-redundant-member-init
+  #readability-convert-member-functions-to-static
+  #set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
+endif()
 
 # see: https://trac.macports.org/ticket/62426
 set(CMAKE_BUILD_RPATH "/Users/kippesp/usr/opt/llvm-12.0.1/lib")

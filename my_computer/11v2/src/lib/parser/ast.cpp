@@ -1,3 +1,5 @@
+#include "ast.h"
+
 //#include "parse_tree.h"
 
 extern int __unused2;

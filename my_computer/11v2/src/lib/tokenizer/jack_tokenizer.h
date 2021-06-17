@@ -24,7 +24,7 @@ public:
 protected:
   // used to build identifier strings or potential Jack keyword strings
   // since keywords are parsed first and can become identifiers (like "class1")
-  bool valid_identifier_char(char);
+  static bool valid_identifier_char(char);
 
 private:
   JackToken get_line_comment_token(char);

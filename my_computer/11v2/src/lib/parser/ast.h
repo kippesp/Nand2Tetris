@@ -1,53 +1,77 @@
 #pragma once
 
 //#include <memory>
-//#include <vector>
+#include <vector>
 
 #include "tokenizer/jack_tokenizer.h"
 
+namespace ast {
+
 typedef enum class AstNodeType_s {
-  // N_UNDEFINED,
-  N_BINARY_OP,
+  N_CLASS_DECL,
+  N_EXPRESSION,
+  N_INTEGER_CONSTANT,
+  N_PARAMETER_LIST,
+  N_RETURN_STATEMENT,
+  N_STATEMENT_BLOCK,
+  N_SUBROUTINE_BODY,
+
   // N_ARRAY_BINDING,
   // N_ARRAY_VAR,
-  N_CLASS_DECL_BLOCK,
-  N_CLASS_NAME,
-  // N_CLASS_OR_VAR_NAME,       need a clearer name here...identifier name??
+  // N_BINARY_OP,
   // N_CLASSVAR_DECL_BLOCK,
   // N_CLASSVAR_DECL_STATEMENT,
   // N_CLASSVAR_SCOPE,
+  // N_CLASS_OR_VAR_NAME,       need a clearer name here...identifier name??
   // N_DELIMITER,
-  N_DO_STATEMENT,
-  N_EXPRESSION,
+  // N_DO_STATEMENT,
   // N_EXPRESSION_LIST,
-  N_IF_STATEMENT,
-  N_INTEGER_CONSTANT,
+  // N_IF_STATEMENT,
   // N_KEYWORD,
-  N_KEYWORD_CONSTANT,
-  N_LET_STATEMENT,
+  // N_KEYWORD_CONSTANT,
+  // N_LET_STATEMENT,
   // N_OP,
-  N_PARAMETER_LIST,
-  N_RETURN_STATEMENT,
-  N_RETURN_TYPE,
+  // N_RETURN_TYPE,
   // N_SCALAR_VAR,
-  N_STATEMENT_LIST,
-  N_STRING_CONSTANT,
-  // N_SUBROUTINE_BODY,
+  // N_STRING_CONSTANT,
   // N_SUBROUTINE_CALL,
   // N_SUBROUTINE_CALL_SITE_BINDING,
-  N_SUBROUTINE_DECL_BLOCK,
-  N_SUBROUTINE_NAME,
-  N_SUBROUTINE_TYPE,
+  // N_SUBROUTINE_DECL_BLOCK,
+  // N_SUBROUTINE_TYPE,
   // N_TERM,
   // N_UNARY_OP,
-  // N_VAR_DECL_BLOCK,
-  // N_VAR_DECL_STATEMENT,
+  // N_UNDEFINED,
   // N_VARIABLE_DECL,
   // N_VARIABLE_LIST,
   // N_VARIABLE_NAME,
   // N_VARIABLE_TYPE,
-  N_WHILE_STATEMENT,
+  // N_VAR_DECL_BLOCK,
+  // N_VAR_DECL_STATEMENT,
+  // N_WHILE_STATEMENT,
 } AstNodeType_t;
+
+class AstTree;
+
+class AstNode {
+public:
+  AstNode() = delete;
+  AstNode(const AstNode&) = delete;
+  AstNode& operator=(const AstNode&) = delete;
+
+private:
+  const AstTree* tree {nullptr};
+  const AstNode* parent_node {nullptr};
+};
+
+class AstTree {
+public:
+  AstTree() = delete;
+  AstTree(const AstTree&) = delete;
+  AstTree& operator=(const AstNode&) = delete;
+
+private:
+  std::vector<AstNode> nodes;
+};
 
 #if 0
 class AstNode : public std::enable_shared_from_this<AstNode> {
@@ -195,3 +219,4 @@ public:
   virtual const char* what() const noexcept { return description.data(); }
 };
 #endif
+}  // namespace ast

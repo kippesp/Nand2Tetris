@@ -26,7 +26,9 @@ CliArgs::CliArgs(int argc, const char* argv[])
   while (i < argc)
   {
     if (argv[i][0] != '-')
+    {
       break;
+    }
 
     // -t - stop after tokenizer and output its values
     if ((argv[i][0] == '-') && (argv[i][1] == 't') && (argv[i][2] == '\0'))
@@ -87,10 +89,16 @@ CliArgs::CliArgs(int argc, const char* argv[])
   }
   else
   {
-    for (auto& entry : std::filesystem::directory_iterator(filearg))
+    for (const auto& entry : std::filesystem::directory_iterator(filearg))
+    {
       if (auto filename = entry.path(); filename.extension() == ".jack")
+      {
         if (std::filesystem::is_regular_file(filename))
+        {
           filelist.push_back(filename.string());
+        }
+      }
+    }
   }
 #else
   // Non-Windoz systems with older c++ support can use this implementation.
