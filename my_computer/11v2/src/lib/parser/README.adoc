@@ -49,6 +49,10 @@ Expressions:
                        "&" |
                        "|" |
                        "="
+
+The <unary-op> and <binary-op> operators are listed in precedence order
+from highest to lowest.
+
 clang-format on
 */
 
