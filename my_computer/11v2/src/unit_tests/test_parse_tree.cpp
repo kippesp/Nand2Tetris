@@ -1,12 +1,55 @@
 #include <string.h>
 
 #include "common.h"
-#include "parser/parse_tree.h"
+//#include "parser/parse_tree.h"
 
 SCENARIO("Parse tree simple terms")
 {
-  test::MockReader R;
+  // test::MockReader R;
 
+#ifdef NEW_AST
+  SECTION("empty class")
+  {
+    strcpy(R.buffer, "class Class MyClass {}");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_term();
+    auto nonterm_node =
+        dynamic_pointer_cast<ParseTreeNonTerminal>(parsetree_node);
+    REQUIRE(!nonterm_node);
+
+    auto term_node = dynamic_pointer_cast<ParseTreeTerminal>(parsetree_node);
+    REQUIRE(!term_node);
+    // (N_CLASS_DECL n:MyClass)
+  }
+#endif
+
+#ifdef NEW_AST
+  SECTION("empty subroutine")
+  {
+    strcpy(R.buffer, "class Class MyClass {method void MyMethod() {}}");
+    JackTokenizer Tokenizer(R);
+    auto tokens = Tokenizer.parse_tokens();
+
+    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
+    auto parsetree_node = T.parse_term();
+    auto nonterm_node =
+        dynamic_pointer_cast<ParseTreeNonTerminal>(parsetree_node);
+    REQUIRE(!nonterm_node);
+
+    auto term_node = dynamic_pointer_cast<ParseTreeTerminal>(parsetree_node);
+    REQUIRE(!term_node);
+    //(N_CLASS_DECL n:MyClass
+    // (N_SUBROUTINE_DECL t:method n:MyMethod
+    //  (N_PARAMETER_LIST )
+    //  (N_SUBROUTINE_BODY)))
+    //  empty statement block??
+  }
+#endif
+
+#if 0
   SECTION("simple integer term")
   {
     //         <term>
@@ -47,23 +90,7 @@ SCENARIO("Parse tree simple terms")
     ss << *nonterm_node;
     REQUIRE(ss.str() == "(P_TERM (P_INTEGER_CONSTANT 1))");
   }
-
-  SECTION("non-term")
-  {
-    // <class>
-    strcpy(R.buffer, "class Class {}");
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
-
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_term();
-    auto nonterm_node =
-        dynamic_pointer_cast<ParseTreeNonTerminal>(parsetree_node);
-    REQUIRE(!nonterm_node);
-
-    auto term_node = dynamic_pointer_cast<ParseTreeTerminal>(parsetree_node);
-    REQUIRE(!term_node);
-  }
+#endif
 
 #if 0
   // a null expression isn't allowed
@@ -103,6 +130,7 @@ SCENARIO("Parse tree simple terms")
   }
 #endif
 
+#if 0
   SECTION("simple string term")
   {
     //         <term>
@@ -1453,4 +1481,5 @@ SCENARIO("program high-level structures")
             "(P_DELIMITER <right_brace>))");
     // clang-format on
   }
+#endif
 }

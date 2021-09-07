@@ -10,16 +10,15 @@
 
 class JackTokenizer {
 public:
+  using Tokens_t = std::vector<const JackToken>;
+
   JackTokenizer() = delete;
   JackTokenizer(const JackTokenizer&) = delete;
   JackTokenizer& operator=(const JackTokenizer&) = delete;
 
   JackTokenizer(TextReader& r) : reader(r) {}
 
-  using Tokens_t = std::vector<JackToken>;
-
-  // parse all tokens and return as an std::vector*
-  const Tokens_t* parse_tokens();
+  const Tokens_t& parse_tokens();
 
 protected:
   // used to build identifier strings or potential Jack keyword strings
@@ -37,7 +36,7 @@ private:
   // get the token and its associated value
   JackToken get_next_token();
 
-  std::unique_ptr<Tokens_t> token_vect {nullptr};
+  Tokens_t token_vect;
 
   TextReader& reader;
 };

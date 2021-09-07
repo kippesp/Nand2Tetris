@@ -17,6 +17,7 @@ static int inner_main(const CliArgs& cliargs)
     std::string base_filename = f.substr(0, f.length() - 5);
     std::string output_filename = base_filename + ".vm";
 
+#if 0
     const auto* tokens = tokenizer.parse_tokens();
 
     if (cliargs.halt_after_tokenizer)
@@ -38,15 +39,16 @@ static int inner_main(const CliArgs& cliargs)
     }
 
     // filter out comment tokens
-    auto filtered_tokens = std::make_unique<std::vector<JackToken>>();
+    std::vector<const JackToken> filtered_tokens;
 
     for (const auto& token : *tokens)
     {
       if (token.value_enum != TokenValue_t::J_COMMENT)
       {
-        filtered_tokens->push_back(token);
+        filtered_tokens.push_back(token);
       }
     }
+#endif
 
 #if 0
     ParseTree T(filtered_tokens, base_filename);

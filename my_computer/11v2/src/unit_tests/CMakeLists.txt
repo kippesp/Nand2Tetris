@@ -13,6 +13,7 @@ add_executable(${JFCL_TEST_PROJECT_NAME}
     catch.hpp
     test_reader.cpp
     test_tokenizer.cpp
+    test_parser.cpp
 #   test_parse_tree.cpp
 #   test_vmwriter.cpp
 #   jack_sources.cpp

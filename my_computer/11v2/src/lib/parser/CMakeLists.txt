@@ -2,10 +2,7 @@ set(LIBRARY_TARGET_NAME parser)
 
 set(${LIBRARY_TARGET_NAME}_SRCS
     ast.cpp
-    pratt_parser.cpp
-
-    ast.h
-    pratt_parser.h
+    parser.cpp
 )
 
 add_library(${LIBRARY_TARGET_NAME} ${${LIBRARY_TARGET_NAME}_SRCS})

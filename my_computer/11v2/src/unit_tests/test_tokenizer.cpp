@@ -18,13 +18,13 @@ SCENARIO("Tokenizer baseline checks")
 
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_tokens.size());
+    REQUIRE(tokens.size() == expected_parsed_tokens.size());
 
-    REQUIRE((*tokens)[0].type == TokenType_t::J_SYMBOL);
-    REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_PLUS);
+    REQUIRE(tokens[0].type == TokenType_t::J_SYMBOL);
+    REQUIRE(tokens[0].value_enum == TokenValue_t::J_PLUS);
 
-    REQUIRE((*tokens)[1].type == TokenType_t::J_INTERNAL);
-    REQUIRE((*tokens)[1].value_enum == TokenValue_t::J_EOF);
+    REQUIRE(tokens[1].type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[1].value_enum == TokenValue_t::J_EOF);
   }
 }
 
@@ -60,12 +60,12 @@ SCENARIO("Tokenize Jack symbols")
   {
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_tokens.size());
+    REQUIRE(tokens.size() == expected_parsed_tokens.size());
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
+    for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_SYMBOL);
-      REQUIRE((*tokens)[i].value_enum == expected_parsed_tokens[i]);
+      REQUIRE(tokens[i].type == TokenType_t::J_SYMBOL);
+      REQUIRE(tokens[i].value_enum == expected_parsed_tokens[i]);
     }
   }
 }
@@ -113,12 +113,12 @@ SCENARIO("Tokenize Jack keywords")
   {
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_tokens.size());
+    REQUIRE(tokens.size() == expected_parsed_tokens.size());
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
+    for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_KEYWORD);
-      REQUIRE((*tokens)[i].value_enum == expected_parsed_tokens[i]);
+      REQUIRE(tokens[i].type == TokenType_t::J_KEYWORD);
+      REQUIRE(tokens[i].value_enum == expected_parsed_tokens[i]);
     }
   }
 }
@@ -133,13 +133,13 @@ SCENARIO("Tokenize integers")
     auto expected_parsed_integers = std::vector {"1", "5", "9"};
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_integers.size() + 1);
+    REQUIRE(tokens.size() == expected_parsed_integers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
+    for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_INTEGER_CONSTANT);
-      REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE((*tokens)[i].value_str == expected_parsed_integers[i]);
+      REQUIRE(tokens[i].type == TokenType_t::J_INTEGER_CONSTANT);
+      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].value_str == expected_parsed_integers[i]);
     }
   }
 
@@ -151,13 +151,13 @@ SCENARIO("Tokenize integers")
     auto expected_parsed_integers = std::vector {"0987654321", "5555", "99"};
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_integers.size() + 1);
+    REQUIRE(tokens.size() == expected_parsed_integers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
+    for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_INTEGER_CONSTANT);
-      REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE((*tokens)[i].value_str == expected_parsed_integers[i]);
+      REQUIRE(tokens[i].type == TokenType_t::J_INTEGER_CONSTANT);
+      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].value_str == expected_parsed_integers[i]);
     }
   }
 
@@ -168,29 +168,29 @@ SCENARIO("Tokenize integers")
 
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 7);
+    REQUIRE(tokens.size() == 7);
 
-    REQUIRE((*tokens)[0].type == TokenType_t::J_INTEGER_CONSTANT);
-    REQUIRE((*tokens)[0].value_str == "10");
+    REQUIRE(tokens[0].type == TokenType_t::J_INTEGER_CONSTANT);
+    REQUIRE(tokens[0].value_str == "10");
 
-    REQUIRE((*tokens)[1].type == TokenType_t::J_SYMBOL);
-    REQUIRE((*tokens)[1].value_enum == TokenValue_t::J_PLUS);
+    REQUIRE(tokens[1].type == TokenType_t::J_SYMBOL);
+    REQUIRE(tokens[1].value_enum == TokenValue_t::J_PLUS);
 
-    REQUIRE((*tokens)[2].type == TokenType_t::J_INTEGER_CONSTANT);
-    REQUIRE((*tokens)[2].value_str == "5");
+    REQUIRE(tokens[2].type == TokenType_t::J_INTEGER_CONSTANT);
+    REQUIRE(tokens[2].value_str == "5");
 
-    REQUIRE((*tokens)[3].type == TokenType_t::J_SYMBOL);
-    REQUIRE((*tokens)[3].value_enum == TokenValue_t::J_ASTERISK);
+    REQUIRE(tokens[3].type == TokenType_t::J_SYMBOL);
+    REQUIRE(tokens[3].value_enum == TokenValue_t::J_ASTERISK);
 
-    REQUIRE((*tokens)[4].type == TokenType_t::J_SYMBOL);
-    REQUIRE((*tokens)[4].value_enum == TokenValue_t::J_MINUS);
+    REQUIRE(tokens[4].type == TokenType_t::J_SYMBOL);
+    REQUIRE(tokens[4].value_enum == TokenValue_t::J_MINUS);
 
-    REQUIRE((*tokens)[5].type == TokenType_t::J_INTEGER_CONSTANT);
-    REQUIRE((*tokens)[5].value_str == "2");
+    REQUIRE(tokens[5].type == TokenType_t::J_INTEGER_CONSTANT);
+    REQUIRE(tokens[5].value_str == "2");
 
-    REQUIRE((*tokens)[6].type == TokenType_t::J_INTERNAL);
-    REQUIRE((*tokens)[6].value_enum == TokenValue_t::J_EOF);
-    REQUIRE((*tokens)[6].value_str == "( eof )");
+    REQUIRE(tokens[6].type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[6].value_enum == TokenValue_t::J_EOF);
+    REQUIRE(tokens[6].value_str == "( eof )");
   }
 }
 
@@ -205,13 +205,13 @@ SCENARIO("Tokenize identifiers")
         std::vector {"c", "abcd", "bbbb", "_AazZ", "_0a", "__9z"};
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
+    REQUIRE(tokens.size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
+    for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_IDENTIFIER);
-      REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE((*tokens)[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].type == TokenType_t::J_IDENTIFIER);
+      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
     }
   }
 
@@ -223,13 +223,13 @@ SCENARIO("Tokenize identifiers")
     auto expected_parsed_identifiers = std::vector {"CLASS", "METHOD"};
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
+    REQUIRE(tokens.size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
+    for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_IDENTIFIER);
-      REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE((*tokens)[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].type == TokenType_t::J_IDENTIFIER);
+      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
     }
   }
 
@@ -242,13 +242,13 @@ SCENARIO("Tokenize identifiers")
         std::vector {"ifclass", "_let", "char_", "while1"};
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
+    REQUIRE(tokens.size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
+    for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_IDENTIFIER);
-      REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE((*tokens)[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].type == TokenType_t::J_IDENTIFIER);
+      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
     }
   }
 
@@ -259,14 +259,14 @@ SCENARIO("Tokenize identifiers")
 
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 3);
+    REQUIRE(tokens.size() == 3);
 
-    REQUIRE((*tokens)[0].type == TokenType_t::J_IDENTIFIER);
-    REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_NON_ENUM);
-    REQUIRE((*tokens)[0].value_str == "main");
+    REQUIRE(tokens[0].type == TokenType_t::J_IDENTIFIER);
+    REQUIRE(tokens[0].value_enum == TokenValue_t::J_NON_ENUM);
+    REQUIRE(tokens[0].value_str == "main");
 
-    REQUIRE((*tokens)[1].type == TokenType_t::J_KEYWORD);
-    REQUIRE((*tokens)[1].value_enum == TokenValue_t::J_CLASS);
+    REQUIRE(tokens[1].type == TokenType_t::J_KEYWORD);
+    REQUIRE(tokens[1].value_enum == TokenValue_t::J_CLASS);
   }
 }
 
@@ -283,13 +283,13 @@ SCENARIO("Tokenize string")
     auto expected_parsed_identifiers = std::vector {"test class ", "", " "};
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
+    REQUIRE(tokens.size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
+    for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_STRING_CONSTANT);
-      REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE((*tokens)[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].type == TokenType_t::J_STRING_CONSTANT);
+      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
     }
   }
 }
@@ -308,13 +308,13 @@ SCENARIO("Tokenize comments")
         std::vector {"// comment1", "// comment2", "// if comment"};
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
+    REQUIRE(tokens.size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
+    for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_INTERNAL);
-      REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_COMMENT);
-      REQUIRE((*tokens)[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].type == TokenType_t::J_INTERNAL);
+      REQUIRE(tokens[i].value_enum == TokenValue_t::J_COMMENT);
+      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
     }
   }
 
@@ -325,17 +325,17 @@ SCENARIO("Tokenize comments")
 
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 4);
+    REQUIRE(tokens.size() == 4);
 
-    REQUIRE((*tokens)[0].type == TokenType_t::J_KEYWORD);
-    REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_CLASS);
+    REQUIRE(tokens[0].type == TokenType_t::J_KEYWORD);
+    REQUIRE(tokens[0].value_enum == TokenValue_t::J_CLASS);
 
-    REQUIRE((*tokens)[1].type == TokenType_t::J_SYMBOL);
-    REQUIRE((*tokens)[1].value_enum == TokenValue_t::J_PLUS);
+    REQUIRE(tokens[1].type == TokenType_t::J_SYMBOL);
+    REQUIRE(tokens[1].value_enum == TokenValue_t::J_PLUS);
 
-    REQUIRE((*tokens)[2].type == TokenType_t::J_INTERNAL);
-    REQUIRE((*tokens)[2].value_str == "// comment1");
-    REQUIRE((*tokens)[2].value_enum == TokenValue_t::J_COMMENT);
+    REQUIRE(tokens[2].type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[2].value_str == "// comment1");
+    REQUIRE(tokens[2].value_enum == TokenValue_t::J_COMMENT);
   }
 
   SECTION("block comments")
@@ -352,13 +352,13 @@ SCENARIO("Tokenize comments")
 
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == expected_parsed_identifiers.size() + 1);
+    REQUIRE(tokens.size() == expected_parsed_identifiers.size() + 1);
 
-    for (decltype(tokens->size()) i = 0; i < tokens->size() - 1; i++)
+    for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE((*tokens)[i].type == TokenType_t::J_INTERNAL);
-      REQUIRE((*tokens)[i].value_enum == TokenValue_t::J_COMMENT);
-      REQUIRE((*tokens)[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].type == TokenType_t::J_INTERNAL);
+      REQUIRE(tokens[i].value_enum == TokenValue_t::J_COMMENT);
+      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
     }
   }
 }
@@ -372,15 +372,15 @@ SCENARIO("Tokenizer lexical issues")
 
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 2);
+    REQUIRE(tokens.size() == 2);
 
-    REQUIRE((*tokens)[0].type == TokenType_t::J_UNDEFINED);
-    REQUIRE((*tokens)[0].value_str == "/* comment");
-    REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_NON_ENUM);
+    REQUIRE(tokens[0].type == TokenType_t::J_UNDEFINED);
+    REQUIRE(tokens[0].value_str == "/* comment");
+    REQUIRE(tokens[0].value_enum == TokenValue_t::J_NON_ENUM);
 
-    REQUIRE((*tokens)[1].type == TokenType_t::J_INTERNAL);
-    REQUIRE((*tokens)[1].value_enum == TokenValue_t::J_EOF);
-    REQUIRE((*tokens)[1].value_str == "( eof )");
+    REQUIRE(tokens[1].type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[1].value_enum == TokenValue_t::J_EOF);
+    REQUIRE(tokens[1].value_str == "( eof )");
   }
 
   SECTION("unterminated string")
@@ -390,15 +390,15 @@ SCENARIO("Tokenizer lexical issues")
 
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 2);
+    REQUIRE(tokens.size() == 2);
 
-    REQUIRE((*tokens)[0].type == TokenType_t::J_UNDEFINED);
-    REQUIRE((*tokens)[0].value_str == "string ");
-    REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_NON_ENUM);
+    REQUIRE(tokens[0].type == TokenType_t::J_UNDEFINED);
+    REQUIRE(tokens[0].value_str == "string ");
+    REQUIRE(tokens[0].value_enum == TokenValue_t::J_NON_ENUM);
 
-    REQUIRE((*tokens)[1].type == TokenType_t::J_INTERNAL);
-    REQUIRE((*tokens)[1].value_enum == TokenValue_t::J_EOF);
-    REQUIRE((*tokens)[1].value_str == "( eof )");
+    REQUIRE(tokens[1].type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[1].value_enum == TokenValue_t::J_EOF);
+    REQUIRE(tokens[1].value_str == "( eof )");
   }
 
   SECTION("empty file")
@@ -408,10 +408,10 @@ SCENARIO("Tokenizer lexical issues")
 
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens->size() == 1);
+    REQUIRE(tokens.size() == 1);
 
-    REQUIRE((*tokens)[0].type == TokenType_t::J_INTERNAL);
-    REQUIRE((*tokens)[0].value_enum == TokenValue_t::J_EOF);
-    REQUIRE((*tokens)[0].value_str == "( eof )");
+    REQUIRE(tokens[0].type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[0].value_enum == TokenValue_t::J_EOF);
+    REQUIRE(tokens[0].value_str == "( eof )");
   }
 }

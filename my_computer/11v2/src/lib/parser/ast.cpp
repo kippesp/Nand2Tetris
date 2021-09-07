@@ -2,9 +2,21 @@
 
 //#include "parse_tree.h"
 
+#if 0
 extern int __unused2;
 
 int __unused2 = 1;
+#endif
+
+namespace ast {
+
+AstNode::AstNode(AstNodeType_t type) : node_type(type) {}
+
+#if 0
+AstTree parse_ast(const std::vector<const JackToken> tokens)
+{
+}
+#endif
 
 #if 0
 #include <ctype.h>
@@ -1388,3 +1400,4 @@ ParseException::ParseException(std::string desc, const JackToken& tok)
 {
 }
 #endif
+}  // namespace ast

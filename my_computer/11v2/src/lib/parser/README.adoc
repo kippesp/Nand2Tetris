@@ -23,7 +23,7 @@ Statements:
 
 <statement>        ::= <let-statement> | <if-statement> | <while-statement> |
                        <do-statement> | <return-statement>
-<let-statement>    ::= "let" <var-name> {"[" <expression> "]"}? "=" <expression> ";"
+<let-statement>    ::= "let" (<var-name> | <array-var>) "=" <expression> ";"
 <if-statement>     ::= "if" "(" <expression ")" "{" {<statement>}* "}"
                        {"else" "{" {<statement>}* "}"}?
 <while-statement>  ::= "while" "(" <expression> ")" "{" {<statement>}* "}"

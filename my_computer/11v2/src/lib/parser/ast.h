@@ -1,6 +1,7 @@
 #pragma once
 
 //#include <memory>
+#include <variant>
 #include <vector>
 
 #include "tokenizer/jack_tokenizer.h"
@@ -12,8 +13,8 @@ typedef enum class AstNodeType_s {
   N_EXPRESSION,
   N_INTEGER_CONSTANT,
   N_PARAMETER_LIST,
-  N_RETURN_STATEMENT,
-  N_STATEMENT_BLOCK,
+  // N_RETURN_STATEMENT,
+  // N_STATEMENT_BLOCK,
   N_SUBROUTINE_BODY,
 
   // N_ARRAY_BINDING,
@@ -28,29 +29,38 @@ typedef enum class AstNodeType_s {
   // N_EXPRESSION_LIST,
   // N_IF_STATEMENT,
   // N_KEYWORD,
-  // N_KEYWORD_CONSTANT,
-  // N_LET_STATEMENT,
+  N_KEYWORD_CONSTANT,
+  N_TRUE_KEYWORD,
+  N_FALSE_KEYWORD,
+  N_NULL_KEYWORD,
+  N_THIS_KEYWORD,
+  N_LET_STATEMENT,
   // N_OP,
   // N_RETURN_TYPE,
-  // N_SCALAR_VAR,
+  N_SCALAR_VAR,
   // N_STRING_CONSTANT,
   // N_SUBROUTINE_CALL,
   // N_SUBROUTINE_CALL_SITE_BINDING,
   // N_SUBROUTINE_DECL_BLOCK,
   // N_SUBROUTINE_TYPE,
-  // N_TERM,
+  N_TERM,
   // N_UNARY_OP,
   // N_UNDEFINED,
   // N_VARIABLE_DECL,
   // N_VARIABLE_LIST,
-  // N_VARIABLE_NAME,
+  N_VARIABLE_NAME,
   // N_VARIABLE_TYPE,
   // N_VAR_DECL_BLOCK,
   // N_VAR_DECL_STATEMENT,
   // N_WHILE_STATEMENT,
 } AstNodeType_t;
 
-class AstTree;
+#if 0
+using AstNodeType_t = std::variant<
+  //std::monostate,
+AstNodeType_t
+  >;
+#endif
 
 class AstNode {
 public:
@@ -58,9 +68,21 @@ public:
   AstNode(const AstNode&) = delete;
   AstNode& operator=(const AstNode&) = delete;
 
+  AstNode(AstNodeType_t type);
+
 private:
-  const AstTree* tree {nullptr};
-  const AstNode* parent_node {nullptr};
+  const AstNodeType_t node_type;
+
+  // std::vector<const AstNode&> child_nodes;
+  std::vector<const AstNode*> child_nodes;
+  // std::vector<std::reference_wrapper<const AstNode&>> child_nodes;
+
+  std::variant<std::monostate, std::string, int> value;
+
+#if 0
+private:
+  const AstNode& parent_node;
+#endif
 };
 
 class AstTree {
@@ -69,7 +91,10 @@ public:
   AstTree(const AstTree&) = delete;
   AstTree& operator=(const AstNode&) = delete;
 
+  // static AstTree parse_ast(const std::vector<const JackToken>);
+
 private:
+  // const AstNode& root_node;
   std::vector<AstNode> nodes;
 };
 
