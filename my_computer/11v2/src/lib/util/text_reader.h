@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <exception>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -29,7 +30,7 @@ public:
   [[nodiscard]] const std::string_view get_line(size_t x) const
   {
     if (x >= contents.size())
-      throw std::overflow_error("Read beyond input");
+      throw std::runtime_error("Read beyond input");
 
     return contents[static_cast<Contents_t::size_type>(x)];
   }

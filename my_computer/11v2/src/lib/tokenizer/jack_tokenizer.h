@@ -10,7 +10,7 @@
 
 class JackTokenizer {
 public:
-  using Tokens_t = std::vector<const JackToken>;
+  using Tokens_t = std::vector<JackToken>;
 
   JackTokenizer() = delete;
   JackTokenizer(const JackTokenizer&) = delete;

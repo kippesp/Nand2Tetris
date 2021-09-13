@@ -1,16 +1,117 @@
 #include "ast.h"
 
+#include <cassert>
+
 //#include "parse_tree.h"
-
-#if 0
-extern int __unused2;
-
-int __unused2 = 1;
-#endif
 
 namespace ast {
 
-AstNode::AstNode(AstNodeType_t type) : node_type(type) {}
+std::ostream& operator<<(std::ostream& os, const AstNode& rhs)
+{
+  os << "type: ";
+
+  os << AstNode::to_string(rhs.type) << std::endl;
+
+  if (const auto s_ptr(std::get_if<std::string>(&rhs.value)); s_ptr)
+  {
+    os << "value (string): ";
+    os << *s_ptr << std::endl;
+  }
+  else if (const auto i_ptr(std::get_if<int>(&rhs.value)); i_ptr)
+  {
+    os << "value (int): ";
+    os << *i_ptr << std::endl;
+  }
+
+  // os << "token_value_str: ";
+  // os << "<<< " << rhs.value_str << " >>>" << std::endl;
+
+  return os;
+}
+
+std::string AstNode::to_string(AstNodeType_t t)
+{
+  switch (t)
+  {
+    // clang-format off
+    case AstNodeType_t::N_CLASS_DECL:       return "CLASS_DECL";
+    case AstNodeType_t::N_EXPRESSION:       return "EXPRESSION";
+    case AstNodeType_t::N_INTEGER_CONSTANT: return "INTEGER_CONSTANT";
+    case AstNodeType_t::N_PARAMETER_LIST:   return "PARAMETER_LIST";
+    case AstNodeType_t::N_SUBROUTINE_BODY:  return "SUBROUTINE_BODY";
+    case AstNodeType_t::N_KEYWORD_CONSTANT: return "KEYWORD_CONSTANT";
+    case AstNodeType_t::N_TRUE_KEYWORD:     return "TRUE_KEYWORD";
+    case AstNodeType_t::N_FALSE_KEYWORD:    return "FALSE_KEYWORD";
+    case AstNodeType_t::N_NULL_KEYWORD:     return "NULL_KEYWORD";
+    case AstNodeType_t::N_THIS_KEYWORD:     return "THIS_KEYWORD";
+    case AstNodeType_t::N_LET_STATEMENT:    return "LET_STATEMENT";
+    case AstNodeType_t::N_SCALAR_VAR:       return "SCALAR_VAR";
+    case AstNodeType_t::N_TERM:             return "TERM";
+    case AstNodeType_t::N_VARIABLE_NAME:    return "VARIABLE_NAME";
+      // clang-format on
+  }
+
+  assert(0 && "fallthrough");
+}
+
+std::string AstNode::as_s_expression(const std::string& indent)
+{
+  std::stringstream ss;
+
+  ss << indent << "(" << to_string(type);
+
+  if (const auto s_ptr(std::get_if<std::string>(&value)); s_ptr)
+  {
+    ss << " string_value:" << *s_ptr;
+  }
+  else if (const auto i_ptr(std::get_if<int>(&value)); i_ptr)
+  {
+    ss << " int_value:" << *i_ptr;
+  }
+
+  for (const auto& N : child_nodes)
+  {
+    ss << "\n" << N.get().as_s_expression(indent + "  ");
+  }
+
+  ss << ")";
+
+  return ss.str();
+}
+
+AstNode::AstNode(AstNodeType_t node_type, const JackToken& _token)
+    : type(node_type), token(_token)
+{
+}
+
+std::vector<AstNodeCRef> AstNode::get_child_nodes() const
+{
+  std::vector<AstNodeCRef> V;
+
+  for (const auto& N : child_nodes)
+  {
+    V.emplace_back(std::cref(N.get()));
+  }
+
+  return V;
+}
+
+AstNodeRef AstNode::add_child(AstNodeRef node)
+{
+  AstNodeRef r = child_nodes.emplace_back(node);
+  return r;
+}
+
+AstNodeRef AstTree::add(const AstNode& node)
+{
+  /*
+   * TODO: Check this on Windows for warning/notice
+  auto& added_node =
+      nodes.emplace_back(std::move(std::make_unique<AstNode>(node)));
+  */
+  auto& added_node = nodes.emplace_back(std::make_unique<AstNode>(node));
+  return *added_node;
+}
 
 #if 0
 AstTree parse_ast(const std::vector<const JackToken> tokens)

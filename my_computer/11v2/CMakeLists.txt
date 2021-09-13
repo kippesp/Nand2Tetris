@@ -27,9 +27,9 @@
 #
 
 cmake_minimum_required(VERSION 3.13)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(PROJECT_NAME jfcl)
-project(${PROJECT_NAME} CXX)
+project(jfcl LANGUAGES CXX)
 
 enable_testing()
 
@@ -44,7 +44,6 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 endif()
 
 # cmake 3.8
-#set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)

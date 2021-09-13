@@ -4,11 +4,15 @@
 #include <variant>
 #include <vector>
 
+#include <iostream>
+
+#include <signal.h>
+
 #include "tokenizer/jack_tokenizer.h"
 
 namespace ast {
 
-typedef enum class AstNodeType_s {
+using AstNodeType_t = enum class AstNodeType_s {
   N_CLASS_DECL,
   N_EXPRESSION,
   N_INTEGER_CONSTANT,
@@ -53,7 +57,7 @@ typedef enum class AstNodeType_s {
   // N_VAR_DECL_BLOCK,
   // N_VAR_DECL_STATEMENT,
   // N_WHILE_STATEMENT,
-} AstNodeType_t;
+};
 
 #if 0
 using AstNodeType_t = std::variant<
@@ -62,40 +66,62 @@ AstNodeType_t
   >;
 #endif
 
+class AstNode;
+
+using AstNodeRef = std::reference_wrapper<AstNode>;
+using AstNodeCRef = std::reference_wrapper<const AstNode>;
+
 class AstNode {
 public:
-  AstNode() = delete;
-  AstNode(const AstNode&) = delete;
-  AstNode& operator=(const AstNode&) = delete;
-
-  AstNode(AstNodeType_t type);
-
-private:
-  const AstNodeType_t node_type;
-
-  // std::vector<const AstNode&> child_nodes;
-  std::vector<const AstNode*> child_nodes;
-  // std::vector<std::reference_wrapper<const AstNode&>> child_nodes;
-
+  const AstNodeType_t type;
   std::variant<std::monostate, std::string, int> value;
 
-#if 0
+  AstNode() = delete;
+  // AstNode(const AstNode&) = delete;
+
+  AstNode(const AstNode& my_class, const JackToken& _token)
+      : type(my_class.type), token(_token)
+  {
+    std::cout << "Copy Constructor Called" << std::endl;
+    value = my_class.value;
+    child_nodes = my_class.child_nodes;
+  }
+
+  AstNode& operator=(const AstNode&) = delete;
+
+  friend std::ostream& operator<<(std::ostream& os, const AstNode& rhs);
+
+  std::string as_s_expression(const std::string& = "");
+
+  AstNode(AstNodeType_t type, const JackToken&);
+
+  AstNodeRef add_child(AstNodeRef);
+
+  static std::string to_string(AstNodeType_t);
+
+  // Access the node's children
+  std::vector<AstNodeCRef> get_child_nodes() const;
+
 private:
-  const AstNode& parent_node;
-#endif
+  std::vector<AstNodeRef> child_nodes;
+
+  // backing token with line number context
+  const JackToken& token;
 };
 
 class AstTree {
 public:
-  AstTree() = delete;
+  AstTree() { nodes.reserve(100); }
   AstTree(const AstTree&) = delete;
   AstTree& operator=(const AstNode&) = delete;
 
   // static AstTree parse_ast(const std::vector<const JackToken>);
 
+  AstNodeRef add(const AstNode& node);
+
 private:
-  // const AstNode& root_node;
-  std::vector<AstNode> nodes;
+  // All nodes of the tree with nodes[0] being the root
+  std::vector<std::unique_ptr<AstNode>> nodes;
 };
 
 #if 0

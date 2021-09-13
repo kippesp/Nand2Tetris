@@ -31,7 +31,7 @@ const JackTokenizer::Tokens_t& JackTokenizer::parse_tokens()
   for (bool done = false; !done;)
   {
     auto token = get_next_token();
-    token_vect.push_back(token);
+    token_vect.emplace_back(token);
     done = (token.value_enum == TokenValue_t::J_EOF);
   }
 

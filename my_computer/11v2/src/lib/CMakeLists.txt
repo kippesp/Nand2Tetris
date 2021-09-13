@@ -12,6 +12,7 @@ add_subdirectory(parser)
 add_library(${LIBRARY_TARGET_NAME} ${${LIBRARY_TARGET_NAME}_SRCS})
 
 # TODO: PRIVATE works too.
-target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC util)
+#target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC util)
+#target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC util tokenizer)
 target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC util tokenizer parser)
 #target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC util tokenizer parser vmwriter)
