@@ -17,9 +17,26 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_EXPRESSION,
   N_INTEGER_CONSTANT,
   N_PARAMETER_LIST,
-  // N_RETURN_STATEMENT,
-  // N_STATEMENT_BLOCK,
+  N_RETURN_STATEMENT,
+  N_STATEMENT_BLOCK,
+  //
+  N_FUNCTION_DECL,
+  N_METHOD_DECL,
+  N_CONSTRUCTOR_DECL,
+  //
   N_SUBROUTINE_BODY,
+  N_SUBROUTINE_DECL_RETURN_TYPE,
+  N_SUBROUTINE_DESCR,
+  //
+  N_KEYWORD_CONSTANT,
+  N_TRUE_KEYWORD,
+  N_FALSE_KEYWORD,
+  N_NULL_KEYWORD,
+  N_THIS_KEYWORD,
+  N_LET_STATEMENT,
+  N_SCALAR_VAR,
+  N_TERM,
+  N_VARIABLE_NAME,
 
   // N_ARRAY_BINDING,
   // N_ARRAY_VAR,
@@ -33,26 +50,17 @@ using AstNodeType_t = enum class AstNodeType_s {
   // N_EXPRESSION_LIST,
   // N_IF_STATEMENT,
   // N_KEYWORD,
-  N_KEYWORD_CONSTANT,
-  N_TRUE_KEYWORD,
-  N_FALSE_KEYWORD,
-  N_NULL_KEYWORD,
-  N_THIS_KEYWORD,
-  N_LET_STATEMENT,
   // N_OP,
   // N_RETURN_TYPE,
-  N_SCALAR_VAR,
   // N_STRING_CONSTANT,
   // N_SUBROUTINE_CALL,
   // N_SUBROUTINE_CALL_SITE_BINDING,
   // N_SUBROUTINE_DECL_BLOCK,
   // N_SUBROUTINE_TYPE,
-  N_TERM,
   // N_UNARY_OP,
   // N_UNDEFINED,
   // N_VARIABLE_DECL,
   // N_VARIABLE_LIST,
-  N_VARIABLE_NAME,
   // N_VARIABLE_TYPE,
   // N_VAR_DECL_BLOCK,
   // N_VAR_DECL_STATEMENT,
@@ -71,10 +79,12 @@ class AstNode;
 using AstNodeRef = std::reference_wrapper<AstNode>;
 using AstNodeCRef = std::reference_wrapper<const AstNode>;
 
+using AstNodeValue_t = std::variant<std::monostate, std::string, int>;
+
 class AstNode {
 public:
   const AstNodeType_t type;
-  std::variant<std::monostate, std::string, int> value;
+  AstNodeValue_t value;
 
   AstNode() = delete;
   // AstNode(const AstNode&) = delete;

@@ -17,14 +17,13 @@ static int inner_main(const CliArgs& cliargs)
     std::string base_filename = f.substr(0, f.length() - 5);
     std::string output_filename = base_filename + ".vm";
 
-#if 0
-    const auto* tokens = tokenizer.parse_tokens();
+    const auto tokens = tokenizer.parse_tokens();
 
     if (cliargs.halt_after_tokenizer)
     {
       std::cout << "(TOKENS" << std::endl;
 
-      for (const auto& token : *tokens)
+      for (const auto& token : tokens)
       {
         if (token.type == TokenType_t::J_INTERNAL)
         {
@@ -38,10 +37,11 @@ static int inner_main(const CliArgs& cliargs)
       return 0;
     }
 
+#if 0
     // filter out comment tokens
     std::vector<const JackToken> filtered_tokens;
 
-    for (const auto& token : *tokens)
+    for (const auto& token : tokens)
     {
       if (token.value_enum != TokenValue_t::J_COMMENT)
       {

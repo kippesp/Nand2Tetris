@@ -34,20 +34,30 @@ std::string AstNode::to_string(AstNodeType_t t)
   switch (t)
   {
     // clang-format off
-    case AstNodeType_t::N_CLASS_DECL:       return "CLASS_DECL";
-    case AstNodeType_t::N_EXPRESSION:       return "EXPRESSION";
-    case AstNodeType_t::N_INTEGER_CONSTANT: return "INTEGER_CONSTANT";
-    case AstNodeType_t::N_PARAMETER_LIST:   return "PARAMETER_LIST";
-    case AstNodeType_t::N_SUBROUTINE_BODY:  return "SUBROUTINE_BODY";
-    case AstNodeType_t::N_KEYWORD_CONSTANT: return "KEYWORD_CONSTANT";
-    case AstNodeType_t::N_TRUE_KEYWORD:     return "TRUE_KEYWORD";
-    case AstNodeType_t::N_FALSE_KEYWORD:    return "FALSE_KEYWORD";
-    case AstNodeType_t::N_NULL_KEYWORD:     return "NULL_KEYWORD";
-    case AstNodeType_t::N_THIS_KEYWORD:     return "THIS_KEYWORD";
-    case AstNodeType_t::N_LET_STATEMENT:    return "LET_STATEMENT";
-    case AstNodeType_t::N_SCALAR_VAR:       return "SCALAR_VAR";
-    case AstNodeType_t::N_TERM:             return "TERM";
-    case AstNodeType_t::N_VARIABLE_NAME:    return "VARIABLE_NAME";
+    case AstNodeType_t::N_CLASS_DECL:                  return "CLASS_DECL";
+    case AstNodeType_t::N_EXPRESSION:                  return "EXPRESSION";
+    case AstNodeType_t::N_INTEGER_CONSTANT:            return "INTEGER_CONSTANT";
+    case AstNodeType_t::N_PARAMETER_LIST:              return "PARAMETER_LIST";
+    case AstNodeType_t::N_RETURN_STATEMENT:            return "RETURN_STATEMENT";
+    case AstNodeType_t::N_STATEMENT_BLOCK:             return "STATEMENT_BLOCK";
+
+    case AstNodeType_t::N_FUNCTION_DECL:               return "FUNCTION_DECL";
+    case AstNodeType_t::N_METHOD_DECL:                 return "METHOD_DECL";
+    case AstNodeType_t::N_CONSTRUCTOR_DECL:            return "CONSTRUCTOR_DECL";
+
+    case AstNodeType_t::N_SUBROUTINE_BODY:             return "SUBROUTINE_BODY";
+    case AstNodeType_t::N_SUBROUTINE_DECL_RETURN_TYPE: return "SUBROUTINE_DECL_RETURN_TYPE";
+    case AstNodeType_t::N_SUBROUTINE_DESCR:            return "SUBROUTINE_DESCR";
+
+    case AstNodeType_t::N_KEYWORD_CONSTANT:            return "KEYWORD_CONSTANT";
+    case AstNodeType_t::N_TRUE_KEYWORD:                return "TRUE_KEYWORD";
+    case AstNodeType_t::N_FALSE_KEYWORD:               return "FALSE_KEYWORD";
+    case AstNodeType_t::N_NULL_KEYWORD:                return "NULL_KEYWORD";
+    case AstNodeType_t::N_THIS_KEYWORD:                return "THIS_KEYWORD";
+    case AstNodeType_t::N_LET_STATEMENT:               return "LET_STATEMENT";
+    case AstNodeType_t::N_SCALAR_VAR:                  return "SCALAR_VAR";
+    case AstNodeType_t::N_TERM:                        return "TERM";
+    case AstNodeType_t::N_VARIABLE_NAME:               return "VARIABLE_NAME";
       // clang-format on
   }
 
