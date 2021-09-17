@@ -34,6 +34,8 @@ std::string AstNode::to_string(AstNodeType_t t)
   switch (t)
   {
     // clang-format off
+    case AstNodeType_t::N_UNDEFINED:                   return "UNDEFINED";
+
     case AstNodeType_t::N_CLASS_DECL:                  return "CLASS_DECL";
     case AstNodeType_t::N_EXPRESSION:                  return "EXPRESSION";
     case AstNodeType_t::N_INTEGER_CONSTANT:            return "INTEGER_CONSTANT";
@@ -58,6 +60,18 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_SCALAR_VAR:                  return "SCALAR_VAR";
     case AstNodeType_t::N_TERM:                        return "TERM";
     case AstNodeType_t::N_VARIABLE_NAME:               return "VARIABLE_NAME";
+
+    case AstNodeType_t::N_CLASSVAR_DECL_BLOCK:         return "CLASSVAR_DECL_BLOCK";
+    case AstNodeType_t::N_CLASSVAR_DECL:               return "CLASSVAR_DECL";
+    case AstNodeType_t::N_CLASSVAR_SCOPE:              return "CLASSVAR_SCOPE";
+    case AstNodeType_t::N_VARIABLE_TYPE:               return "VARIABLE_TYPE";
+
+    case AstNodeType_t::N_STATIC_SCOPE:                return "STATIC_SCOPE";
+    case AstNodeType_t::N_FIELD_SCOPE:                 return "FIELD_SCOPE";
+    case AstNodeType_t::N_CLASS_TYPE:                  return "CLASS_TYPE";
+    case AstNodeType_t::N_INTEGER_TYPE:                return "INTEGER_TYPE";
+    case AstNodeType_t::N_CHAR_TYPE:                   return "CHAR_TYPE";
+    case AstNodeType_t::N_BOOLEAN_TYPE:                return "BOOLEAN_TYPE";
       // clang-format on
   }
 
@@ -87,6 +101,13 @@ std::string AstNode::as_s_expression(const std::string& indent)
   ss << ")";
 
   return ss.str();
+}
+
+void AstNode::dump()
+{
+  auto const& output = as_s_expression();
+
+  std::cout << output << std::endl;
 }
 
 AstNode::AstNode(AstNodeType_t node_type, const JackToken& _token)

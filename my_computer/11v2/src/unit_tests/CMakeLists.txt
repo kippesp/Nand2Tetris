@@ -16,8 +16,10 @@ add_executable(${JFCL_TEST_PROJECT_NAME}
     test_parser.cpp
 #   test_parse_tree.cpp
 #   test_vmwriter.cpp
-#   jack_sources.cpp
-#   jack_sources.h
+   jack_sources.cpp
+   jack_sources.h
+   common.cpp
+   common.h
 )
 
 target_include_directories(${JFCL_TEST_PROJECT_NAME} PRIVATE ../lib)

@@ -13,6 +13,7 @@
 namespace ast {
 
 using AstNodeType_t = enum class AstNodeType_s {
+  N_UNDEFINED,
   N_CLASS_DECL,
   N_EXPRESSION,
   N_INTEGER_CONSTANT,
@@ -38,13 +39,21 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_TERM,
   N_VARIABLE_NAME,
 
+  N_INTEGER_TYPE,
+  N_CHAR_TYPE,
+  N_CLASS_TYPE,
+  N_BOOLEAN_TYPE,
+
+  N_STATIC_SCOPE,
+  N_FIELD_SCOPE,
+
   // N_ARRAY_BINDING,
   // N_ARRAY_VAR,
   // N_BINARY_OP,
-  // N_CLASSVAR_DECL_BLOCK,
-  // N_CLASSVAR_DECL_STATEMENT,
-  // N_CLASSVAR_SCOPE,
-  // N_CLASS_OR_VAR_NAME,       need a clearer name here...identifier name??
+  N_CLASSVAR_DECL_BLOCK,
+  N_CLASSVAR_DECL,
+  N_CLASSVAR_SCOPE,
+  N_VARIABLE_TYPE,
   // N_DELIMITER,
   // N_DO_STATEMENT,
   // N_EXPRESSION_LIST,
@@ -109,7 +118,10 @@ public:
 
   static std::string to_string(AstNodeType_t);
 
-  // Access the node's children
+  // console printer for s-expression tree
+  void dump();
+
+  // access the node's children
   std::vector<AstNodeCRef> get_child_nodes() const;
 
 private:

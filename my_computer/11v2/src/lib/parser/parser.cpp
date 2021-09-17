@@ -53,27 +53,6 @@ AstNodeRef Parser::create_ast_node(AstNodeType_t type)
   return AST.add(AstNode(type, current_token));
 }
 
-#if 0
-(TOKENS
-(KEYWORD CLASS class)
-
-(IDENTIFIER NON_ENUM ConstSeven)
-(SYMBOL LEFT_BRACE <left_brace>)
-(KEYWORD FUNCTION function)
-
-(KEYWORD INT integer)
-(IDENTIFIER NON_ENUM get_seven)
-(SYMBOL LEFT_PARENTHESIS <left_parenthesis>)
-(SYMBOL RIGHT_PARENTHESIS <right_parenthesis>)
-(SYMBOL LEFT_BRACE <left_brace>)
-(KEYWORD RETURN return)
-(INTEGER_CONSTANT NON_ENUM 7)
-(SYMBOL SEMICOLON <semicolon>)
-(SYMBOL RIGHT_BRACE <right_brace>)
-(SYMBOL RIGHT_BRACE <right_brace>)
-)
-#endif
-
 AstNodeRef Parser::parse_class()
 {
   const auto start_token = TokenValue_t::J_CLASS;
@@ -90,7 +69,17 @@ AstNodeRef Parser::parse_class()
   require_token(start_token, TokenValue_t::J_LEFT_BRACE);
   get_next_token();
 
-  // TODO: <class-var-decl>
+  // <class-var-decl>
+  //      ::= ("static" | "field") <type> <var-name> {"," <var-name>}* ";"
+
+  // raise(SIGTRAP);
+  if ((current_token.get().value_enum == TokenValue_t::J_STATIC) ||
+      (current_token.get().value_enum == TokenValue_t::J_FIELD))
+  {
+    AstNodeRef ClassDeclBlockAst = parse_class_decl_block();
+
+    ClassAst.get().add_child(ClassDeclBlockAst);
+  }
 
   while (current_token.get().value_enum != TokenValue_t::J_RIGHT_BRACE)
   {
@@ -101,6 +90,107 @@ AstNodeRef Parser::parse_class()
   require_token(start_token, TokenValue_t::J_RIGHT_BRACE);
 
   return ClassAst;
+}
+
+AstNodeRef Parser::parse_class_decl_block()
+{
+  const auto start_token = TokenValue_t::J_CLASS;
+
+  AstNodeRef ClassDeclBlockAst =
+      create_ast_node(AstNodeType_t::N_CLASSVAR_DECL_BLOCK);
+
+  while ((current_token.get().value_enum == TokenValue_t::J_STATIC) ||
+         (current_token.get().value_enum == TokenValue_t::J_FIELD))
+  {
+    AstNodeType_t class_var_scope = AstNodeType_t::N_UNDEFINED;
+    AstNodeType_t class_var_type = AstNodeType_t::N_UNDEFINED;
+    std::string class_var_type_classname = "";
+
+    if (current_token.get().value_enum == TokenValue_t::J_STATIC)
+    {
+      class_var_scope = AstNodeType_t::N_STATIC_SCOPE;
+    }
+    else if (current_token.get().value_enum == TokenValue_t::J_FIELD)
+    {
+      class_var_scope = AstNodeType_t::N_FIELD_SCOPE;
+    }
+    else
+    {
+      std::stringstream ss;
+
+      ss << "Line #" << current_token.get().line_number << ": "
+         << "Expected static|field"
+         << " while parsing " << JackToken::to_string(start_token);
+
+      fatal_error(ss.str());
+    }
+
+    AstNodeRef ClassVarScopeAst =
+        create_ast_node(AstNodeType_t::N_CLASSVAR_SCOPE);
+    ClassVarScopeAst.get().add_child(create_ast_node(class_var_scope));
+
+    get_next_token();
+
+    switch (current_token.get().value_enum)
+    {
+      case TokenValue_t::J_INT:
+        class_var_type = AstNodeType_t::N_INTEGER_TYPE;
+        break;
+      case TokenValue_t::J_CHAR:
+        class_var_type = AstNodeType_t::N_CHAR_TYPE;
+        break;
+      case TokenValue_t::J_BOOLEAN:
+        class_var_type = AstNodeType_t::N_BOOLEAN_TYPE;
+        break;
+      default:
+        class_var_type = AstNodeType_t::N_CLASS_TYPE;
+        class_var_type_classname = current_token.get().value_str;
+    }
+
+    AstNodeRef VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_TYPE);
+
+    if (class_var_type == AstNodeType_t::N_CLASS_TYPE)
+    {
+      VarTypeAst.get().add_child(
+          create_ast_node(class_var_type, current_token.get().value_str));
+    }
+    else
+    {
+      VarTypeAst.get().add_child(create_ast_node(class_var_type));
+    }
+
+    auto add_def_to_block = [&]() {
+      require_token(start_token, TokenType_t::J_IDENTIFIER);
+
+      AstNodeRef ClassVarDecl = create_ast_node(AstNodeType_t::N_CLASSVAR_DECL);
+
+      AstNodeRef ClassVarDeclName = create_ast_node(
+          AstNodeType_t::N_VARIABLE_NAME, current_token.get().value_str);
+
+      ClassVarDecl.get().add_child(ClassVarDeclName);
+      ClassVarDecl.get().add_child(ClassVarScopeAst);
+      ClassVarDecl.get().add_child(VarTypeAst);
+
+      ClassDeclBlockAst.get().add_child(ClassVarDecl);
+      get_next_token();
+    };
+
+    get_next_token();
+    require_token(start_token, TokenType_t::J_IDENTIFIER);
+    add_def_to_block();
+
+    while (current_token.get().value_enum == TokenValue_t::J_COMMA)
+    {
+      get_next_token();
+      require_token(start_token, TokenType_t::J_IDENTIFIER);
+      add_def_to_block();
+    }
+
+    require_token(start_token, TokenValue_t::J_SEMICOLON);
+    get_next_token();
+  }
+
+  return ClassDeclBlockAst;
 }
 
 AstNodeRef Parser::parse_subroutine()
@@ -274,23 +364,8 @@ AstNodeRef Parser::parse_subroutine()
     SubrDeclAst.value().get().add_child(SubroutineBodyAst);
 
     require_token(start_token, TokenValue_t::J_RIGHT_BRACE);
+    get_next_token();
 
-#if 0
-    N_FUNCTION_DECL,
-        N_METHOD_DECL,
-        N_CONSTRUCTOR_DECL,
-        N_SUBROUTINE_BODY,
-        N_SUBROUTINE_DECL_RETURN_TYPE,
-        N_SUBROUTINE_DESCR,
-#endif
-
-#if 0
-        "(CLASS_DECL ConstSeven\n"
-        "  (FUNCTION_DECL get_seven\n"
-        "    (SUBROUTINE_DESCR\n"
-        "      (SUBROUTINE_DECL_RETURN_TYPE integer))\n"
-        "    (SUBROUTINE_BODY\n"
-#endif
     return SubrDeclAst.value();
 }
 
@@ -342,8 +417,11 @@ ast::AstNodeRef Parser::parse_return_statement()
   AstNodeRef ReturnAst = create_ast_node(AstNodeType_t::N_RETURN_STATEMENT);
   get_next_token();
 
-  AstNode& ExpressionAst = parse_expression();
-  ReturnAst.get().add_child(ExpressionAst);
+  if (current_token.get().value_enum != TokenValue_t::J_SEMICOLON)
+  {
+    AstNode& ExpressionAst = parse_expression();
+    ReturnAst.get().add_child(ExpressionAst);
+  }
 
   require_token(start_token, TokenValue_t::J_SEMICOLON);
   get_next_token();
@@ -376,6 +454,20 @@ AstNodeRef Parser::parse_expression()
         AstNodeType_t::N_INTEGER_CONSTANT, current_token.get().value_str);
 
     TermAst.get().add_child(IntegerConstAst);
+
+    ExpressionAst.get().add_child(TermAst);
+
+    get_next_token();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_THIS)
+  {
+    AstNodeRef TermAst = create_ast_node(AstNodeType_t::N_TERM);
+    AstNodeRef KeywordConstAst =
+        create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
+    AstNodeRef TrueKeywordAst = create_ast_node(AstNodeType_t::N_THIS_KEYWORD);
+
+    KeywordConstAst.get().add_child(TrueKeywordAst);
+    TermAst.get().add_child(KeywordConstAst);
 
     ExpressionAst.get().add_child(TermAst);
 
