@@ -37,7 +37,7 @@ public:
   ast::AstNodeRef create_ast_node(ast::AstNodeType_t type, T value);
 
   ast::AstNodeRef parse_class();
-  ast::AstNodeRef parse_class_decl_block();
+  ast::AstNodeRef parse_classvar_decl_block();
   ast::AstNodeRef parse_subroutine();
   ast::AstNodeRef parse_let_statement();
   ast::AstNodeRef parse_return_statement();

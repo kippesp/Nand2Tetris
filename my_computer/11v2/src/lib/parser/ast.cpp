@@ -62,16 +62,13 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_VARIABLE_NAME:               return "VARIABLE_NAME";
 
     case AstNodeType_t::N_CLASSVAR_DECL_BLOCK:         return "CLASSVAR_DECL_BLOCK";
-    case AstNodeType_t::N_CLASSVAR_DECL:               return "CLASSVAR_DECL";
-    case AstNodeType_t::N_CLASSVAR_SCOPE:              return "CLASSVAR_SCOPE";
-    case AstNodeType_t::N_VARIABLE_TYPE:               return "VARIABLE_TYPE";
 
-    case AstNodeType_t::N_STATIC_SCOPE:                return "STATIC_SCOPE";
-    case AstNodeType_t::N_FIELD_SCOPE:                 return "FIELD_SCOPE";
-    case AstNodeType_t::N_CLASS_TYPE:                  return "CLASS_TYPE";
-    case AstNodeType_t::N_INTEGER_TYPE:                return "INTEGER_TYPE";
-    case AstNodeType_t::N_CHAR_TYPE:                   return "CHAR_TYPE";
-    case AstNodeType_t::N_BOOLEAN_TYPE:                return "BOOLEAN_TYPE";
+    case AstNodeType_t::N_CLASSVAR_STATIC_DECL:        return "CLASSVAR_STATIC_DECL";
+    case AstNodeType_t::N_CLASSVAR_FIELD_DECL:         return "CLASSVAR_FIELD_DECL";
+    case AstNodeType_t::N_VARIABLE_INTEGER_TYPE:       return "VARIABLE_INTEGER_TYPE";
+    case AstNodeType_t::N_VARIABLE_BOOLEAN_TYPE:       return "VARIABLE_BOOLEAN_TYPE";
+    case AstNodeType_t::N_VARIABLE_CHARACTER_TYPE:     return "VARIABLE_CHARACTER_TYPE";
+    case AstNodeType_t::N_VARIABLE_CLASS_TYPE:         return "VARIABLE_CLASS_TYPE";
       // clang-format on
   }
 

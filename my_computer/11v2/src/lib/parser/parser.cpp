@@ -76,9 +76,9 @@ AstNodeRef Parser::parse_class()
   if ((current_token.get().value_enum == TokenValue_t::J_STATIC) ||
       (current_token.get().value_enum == TokenValue_t::J_FIELD))
   {
-    AstNodeRef ClassDeclBlockAst = parse_class_decl_block();
+    AstNodeRef ClassVarDeclBlockAst = parse_classvar_decl_block();
 
-    ClassAst.get().add_child(ClassDeclBlockAst);
+    ClassAst.get().add_child(ClassVarDeclBlockAst);
   }
 
   while (current_token.get().value_enum != TokenValue_t::J_RIGHT_BRACE)
@@ -92,27 +92,25 @@ AstNodeRef Parser::parse_class()
   return ClassAst;
 }
 
-AstNodeRef Parser::parse_class_decl_block()
+AstNodeRef Parser::parse_classvar_decl_block()
 {
   const auto start_token = TokenValue_t::J_CLASS;
 
-  AstNodeRef ClassDeclBlockAst =
+  AstNodeRef ClassVarDeclBlockAst =
       create_ast_node(AstNodeType_t::N_CLASSVAR_DECL_BLOCK);
 
   while ((current_token.get().value_enum == TokenValue_t::J_STATIC) ||
          (current_token.get().value_enum == TokenValue_t::J_FIELD))
   {
     AstNodeType_t class_var_scope = AstNodeType_t::N_UNDEFINED;
-    AstNodeType_t class_var_type = AstNodeType_t::N_UNDEFINED;
-    std::string class_var_type_classname = "";
 
     if (current_token.get().value_enum == TokenValue_t::J_STATIC)
     {
-      class_var_scope = AstNodeType_t::N_STATIC_SCOPE;
+      class_var_scope = AstNodeType_t::N_CLASSVAR_STATIC_DECL;
     }
     else if (current_token.get().value_enum == TokenValue_t::J_FIELD)
     {
-      class_var_scope = AstNodeType_t::N_FIELD_SCOPE;
+      class_var_scope = AstNodeType_t::N_CLASSVAR_FIELD_DECL;
     }
     else
     {
@@ -125,53 +123,40 @@ AstNodeRef Parser::parse_class_decl_block()
       fatal_error(ss.str());
     }
 
-    AstNodeRef ClassVarScopeAst =
-        create_ast_node(AstNodeType_t::N_CLASSVAR_SCOPE);
-    ClassVarScopeAst.get().add_child(create_ast_node(class_var_scope));
-
     get_next_token();
+
+    AstNodeType_t class_var_type = AstNodeType_t::N_UNDEFINED;
+
+    std::optional<AstNodeRef> VarTypeAst;
 
     switch (current_token.get().value_enum)
     {
       case TokenValue_t::J_INT:
-        class_var_type = AstNodeType_t::N_INTEGER_TYPE;
+        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_INTEGER_TYPE);
         break;
       case TokenValue_t::J_CHAR:
-        class_var_type = AstNodeType_t::N_CHAR_TYPE;
+        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_CHARACTER_TYPE);
         break;
       case TokenValue_t::J_BOOLEAN:
-        class_var_type = AstNodeType_t::N_BOOLEAN_TYPE;
+        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_BOOLEAN_TYPE);
         break;
       default:
-        class_var_type = AstNodeType_t::N_CLASS_TYPE;
-        class_var_type_classname = current_token.get().value_str;
-    }
-
-    AstNodeRef VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_TYPE);
-
-    if (class_var_type == AstNodeType_t::N_CLASS_TYPE)
-    {
-      VarTypeAst.get().add_child(
-          create_ast_node(class_var_type, current_token.get().value_str));
-    }
-    else
-    {
-      VarTypeAst.get().add_child(create_ast_node(class_var_type));
+        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_CLASS_TYPE,
+                                     current_token.get().value_str);
     }
 
     auto add_def_to_block = [&]() {
       require_token(start_token, TokenType_t::J_IDENTIFIER);
 
-      AstNodeRef ClassVarDecl = create_ast_node(AstNodeType_t::N_CLASSVAR_DECL);
+      AstNodeRef ClassVarDecl = create_ast_node(class_var_scope);
 
       AstNodeRef ClassVarDeclName = create_ast_node(
           AstNodeType_t::N_VARIABLE_NAME, current_token.get().value_str);
 
       ClassVarDecl.get().add_child(ClassVarDeclName);
-      ClassVarDecl.get().add_child(ClassVarScopeAst);
-      ClassVarDecl.get().add_child(VarTypeAst);
+      ClassVarDecl.get().add_child(VarTypeAst.value());
 
-      ClassDeclBlockAst.get().add_child(ClassVarDecl);
+      ClassVarDeclBlockAst.get().add_child(ClassVarDecl);
       get_next_token();
     };
 
@@ -190,7 +175,7 @@ AstNodeRef Parser::parse_class_decl_block()
     get_next_token();
   }
 
-  return ClassDeclBlockAst;
+  return ClassVarDeclBlockAst;
 }
 
 AstNodeRef Parser::parse_subroutine()
