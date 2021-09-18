@@ -107,10 +107,7 @@ void AstNode::dump()
   std::cout << output << std::endl;
 }
 
-AstNode::AstNode(AstNodeType_t node_type, const JackToken& _token)
-    : type(node_type), token(_token)
-{
-}
+AstNode::AstNode(AstNodeType_t node_type) : type(node_type) {}
 
 std::vector<AstNodeCRef> AstNode::get_child_nodes() const
 {

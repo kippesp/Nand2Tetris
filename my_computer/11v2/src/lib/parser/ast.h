@@ -93,21 +93,15 @@ public:
   AstNode() = delete;
   // AstNode(const AstNode&) = delete;
 
-  AstNode(const AstNode& my_class, const JackToken& _token)
-      : type(my_class.type), token(_token)
-  {
-    std::cout << "Copy Constructor Called" << std::endl;
-    value = my_class.value;
-    child_nodes = my_class.child_nodes;
-  }
+  AstNode(AstNodeType_t type);
+
+  AstNode(const AstNode& my_class) : type(my_class.type) {}
 
   AstNode& operator=(const AstNode&) = delete;
 
   friend std::ostream& operator<<(std::ostream& os, const AstNode& rhs);
 
   std::string as_s_expression(const std::string& = "");
-
-  AstNode(AstNodeType_t type, const JackToken&);
 
   AstNodeRef add_child(AstNodeRef);
 
@@ -121,9 +115,6 @@ public:
 
 private:
   std::vector<AstNodeRef> child_nodes;
-
-  // backing token with line number context
-  const JackToken& token;
 };
 
 class AstTree {
