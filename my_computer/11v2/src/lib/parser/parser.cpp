@@ -364,9 +364,9 @@ AstNodeRef Parser::parse_subroutine()
     // <subroutine-body>  ::= "{" {<var-decl>}* {<statement>}* "}"
     //                            \----------/
     //                                 / \
-    //                                /   ------- N_SUBROUTINEVAR_DECL_BLOCK
+    //                                /   ------- N_LOCAL_VAR_DECL_BLOCK
     //       +-----------------------+
-    //      /                                 ------ N_SUBROUTINEVAR_DECL
+    //      /                                 ------ N_LOCAL_VAR_DECL
     //     /                                 /
     // /--------\                   /---------------\
     // <var-decl>         ::= "var" <type> <var-name> {"," <var-name>}* ";"
@@ -380,7 +380,7 @@ AstNodeRef Parser::parse_subroutine()
     if (current_token.get().value_enum == TokenValue_t::J_VAR)
     {
       AstNodeRef SubroutineVarDeclBlockAst =
-          create_ast_node(AstNodeType_t::N_SUBROUTINEVAR_DECL_BLOCK);
+          create_ast_node(AstNodeType_t::N_LOCAL_VAR_DECL_BLOCK);
 
       while (current_token.get().value_enum == TokenValue_t::J_VAR)
       {
@@ -414,7 +414,7 @@ AstNodeRef Parser::parse_subroutine()
           require_token(start_token, TokenType_t::J_IDENTIFIER);
 
           AstNodeRef SubroutineVarDeclAst =
-              create_ast_node(AstNodeType_t::N_SUBROUTINEVAR_DECL);
+              create_ast_node(AstNodeType_t::N_LOCAL_VAR_DECL);
 
           AstNodeRef VarNameAst = create_ast_node(
               AstNodeType_t::N_VARIABLE_NAME, current_token.get().value_str);
@@ -451,6 +451,9 @@ AstNodeRef Parser::parse_subroutine()
         {
           AstNodeRef LetAst = parse_let_statement();
           StatementBlockAst.get().add_child(LetAst);
+        }
+        else if (current_token.get().value_enum == TokenValue_t::J_DO)
+        {
         }
         else if (current_token.get().value_enum == TokenValue_t::J_RETURN)
         {

@@ -53,15 +53,25 @@ class JackTest {
 
 const char* CONST_VOID_METHOD_CALL_SRC = R"""(
 class Test {
-   field int a;
-
-   constructor Test new() {
-      do draw();
-      return this;
-   }
    method void draw() {
       return;
    }
+
+   method void run() {
+      do draw();
+      return;
+   }
+}
+)""";
+
+const char* OBJECT_METHOD_CALL_SRC = R"""(
+class Test {
+    function void main() {
+        var MyClass c;
+        let c = MyClass.new();
+        do c.run();
+        return;
+    }
 }
 )""";
 
@@ -102,17 +112,6 @@ class JackTest2 {
         var char v2;
 
         return 2;
-    }
-}
-)""";
-
-const char* OBJECT_METHOD_CALL_SRC = R"""(
-class Test {
-    function void main() {
-        var MyClass c;
-        let c = MyClass.new();
-        do c.run();
-        return;
     }
 }
 )""";

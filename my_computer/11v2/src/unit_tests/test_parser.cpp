@@ -202,14 +202,14 @@ SCENARIO("Parse tree simple terms")
         "          (VARIABLE_NAME string_value:a2)",
         "          (VARIABLE_INTEGER_TYPE))))",
         "    (SUBROUTINE_BODY",
-        "      (SUBROUTINEVAR_DECL_BLOCK",
-        "        (SUBROUTINEVAR_DECL",
+        "      (LOCAL_VAR_DECL_BLOCK",
+        "        (LOCAL_VAR_DECL",
         "          (VARIABLE_NAME string_value:v1)",
         "          (VARIABLE_INTEGER_TYPE))",
-        "        (SUBROUTINEVAR_DECL",
+        "        (LOCAL_VAR_DECL",
         "          (VARIABLE_NAME string_value:v2)",
         "          (VARIABLE_BOOLEAN_TYPE))",
-        "        (SUBROUTINEVAR_DECL",
+        "        (LOCAL_VAR_DECL",
         "          (VARIABLE_NAME string_value:v3)",
         "          (VARIABLE_BOOLEAN_TYPE)))",
         "      (STATEMENT_BLOCK",
@@ -227,57 +227,150 @@ SCENARIO("Parse tree simple terms")
 
     auto tokens = T.parse_tokens();
 
-    std::cout << CONST_VOID_METHOD_CALL_SRC << std::endl;
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_class();
+    std::string as_str = root.get().as_s_expression();
+    REQUIRE(as_str ==
+        "(CLASS_DECL string_value:Test\n"
+        "  (METHOD_DECL string_value:draw",
+        "    (SUBROUTINE_DESCR",
+        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void))",
+        "    (SUBROUTINE_BODY",
+        "      (STATEMENT_BLOCK",
+        "        (RETURN_STATEMENT))))"
 
-    for (const auto& token : tokens)
-    {
-      if (token.type == TokenType_t::J_INTERNAL)
-      {
-        continue;
-      }
+        "  (METHOD_DECL string_value:run",
+        "    (SUBROUTINE_DESCR",
+        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void))",
+        "    (SUBROUTINE_BODY",
+        "      (STATEMENT_BLOCK",
+        "        (SUBROUTINE_CALL",
+        "          (CALL_SITE_BINDING",
 
-      std::cout << token.to_s_expression() << std::endl;
-    }
-#if 0
-(KEYWORD CLASS class)
-(IDENTIFIER NON_ENUM Test)
-(SYMBOL LEFT_BRACE <left_brace>)
-(KEYWORD FIELD field)
-(KEYWORD INT integer)
-(IDENTIFIER NON_ENUM a)
-(SYMBOL SEMICOLON <semicolon>)
-(KEYWORD CONSTRUCTOR constructor)
-(IDENTIFIER NON_ENUM Test)
-(IDENTIFIER NON_ENUM new)
-(SYMBOL LEFT_PARENTHESIS <left_parenthesis>)
-(SYMBOL RIGHT_PARENTHESIS <right_parenthesis>)
-(SYMBOL LEFT_BRACE <left_brace>)
-(KEYWORD DO do)
-(IDENTIFIER NON_ENUM draw)
-(SYMBOL LEFT_PARENTHESIS <left_parenthesis>)
-(SYMBOL RIGHT_PARENTHESIS <right_parenthesis>)
-(SYMBOL SEMICOLON <semicolon>)
-(KEYWORD RETURN return)
-(KEYWORD THIS this)
-(SYMBOL SEMICOLON <semicolon>)
-(SYMBOL RIGHT_BRACE <right_brace>)
-(KEYWORD METHOD method)
-(KEYWORD VOID void)
-(IDENTIFIER NON_ENUM draw)
-(SYMBOL LEFT_PARENTHESIS <left_parenthesis>)
-(SYMBOL RIGHT_PARENTHESIS <right_parenthesis>)
-(SYMBOL LEFT_BRACE <left_brace>)
-(KEYWORD RETURN return)
-(SYMBOL SEMICOLON <semicolon>)
-(SYMBOL RIGHT_BRACE <right_brace>)
-(SYMBOL RIGHT_BRACE <right_brace>)
+        "            (BIND_NAME",
+        "            (SUBROUTINE_NAME",
+
+        "        (RETURN_STATEMENT))))"
+
+        "    (SUBROUTINE_DESCR",
+        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void)",
+        "      (PARAMETER_LIST",
+        "        (PARAMETER_DECL",
+        "          (VARIABLE_NAME string_value:a1)",
+        "          (VARIABLE_INTEGER_TYPE))",
+        "        (PARAMETER_DECL",
+        "          (VARIABLE_NAME string_value:a2)",
+        "          (VARIABLE_INTEGER_TYPE))))",
+        "    (SUBROUTINE_BODY",
+        "      (LOCAL_VAR_DECL_BLOCK",
+        "        (LOCAL_VAR_DECL",
+        "          (VARIABLE_NAME string_value:v1)",
+        "          (VARIABLE_INTEGER_TYPE))",
+        "        (LOCAL_VAR_DECL",
+        "          (VARIABLE_NAME string_value:v2)",
+        "          (VARIABLE_BOOLEAN_TYPE))",
+        "        (LOCAL_VAR_DECL",
+        "          (VARIABLE_NAME string_value:v3)",
+        "          (VARIABLE_BOOLEAN_TYPE)))",
+        "      (STATEMENT_BLOCK",
+        "        (RETURN_STATEMENT)))))"};
+
+
+
+
+
+
+
+
+            "  (FUNCTION_DECL string_value:f1\n"
+            "    (SUBROUTINE_DESCR\n"
+            "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int))\n"
+            "    (SUBROUTINE_BODY\n"
+            "      (STATEMENT_BLOCK\n"
+            "        (RETURN_STATEMENT\n"
+            "          (EXPRESSION\n"
+            "            (TERM\n"
+            "              (INTEGER_CONSTANT string_value:1))))))))");
+  }
 #endif
+
+#if 0
+  SECTION("object method call")
+  {
+    TextReader R(OBJECT_METHOD_CALL_SRC);
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
 
     recursive_descent::Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
     REQUIRE(as_str ==
-            "(CLASS_DECL string_value:Main\n"
+        "(CLASS_DECL string_value:Main",
+        "  (METHOD_DECL string_value:mul",
+        "    (SUBROUTINE_DESCR",
+        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int)",
+        "      (PARAMETER_LIST",
+        "        (PARAMETER_DECL",
+        "          (VARIABLE_NAME string_value:a1)",
+        "          (VARIABLE_INTEGER_TYPE))",
+        "        (PARAMETER_DECL",
+        "          (VARIABLE_NAME string_value:b)",
+        "          (VARIABLE_INTEGER_TYPE))))",
+        "        (RETURN_STATEMENT",
+        "          (EXPRESSION",
+        "            (TERM",
+        "              (INTEGER_CONSTANT string_value:0)))))",
+
+
+
+        "    (SUBROUTINE_BODY",
+        "      (STATEMENT_BLOCK",
+        "        (RETURN_STATEMENT))))"
+
+        "  (METHOD_DECL string_value:run",
+        "    (SUBROUTINE_DESCR",
+        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void))",
+        "    (SUBROUTINE_BODY",
+        "      (STATEMENT_BLOCK",
+        "        (SUBROUTINE_CALL",
+        "          (CALL_SITE_BINDING",
+
+        "            (BIND_NAME",
+        "            (SUBROUTINE_NAME",
+
+        "        (RETURN_STATEMENT))))"
+
+        "    (SUBROUTINE_DESCR",
+        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void)",
+        "      (PARAMETER_LIST",
+        "        (PARAMETER_DECL",
+        "          (VARIABLE_NAME string_value:a1)",
+        "          (VARIABLE_INTEGER_TYPE))",
+        "        (PARAMETER_DECL",
+        "          (VARIABLE_NAME string_value:a2)",
+        "          (VARIABLE_INTEGER_TYPE))))",
+        "    (SUBROUTINE_BODY",
+        "      (LOCAL_VAR_DECL_BLOCK",
+        "        (LOCAL_VAR_DECL",
+        "          (VARIABLE_NAME string_value:v1)",
+        "          (VARIABLE_INTEGER_TYPE))",
+        "        (LOCAL_VAR_DECL",
+        "          (VARIABLE_NAME string_value:v2)",
+        "          (VARIABLE_BOOLEAN_TYPE))",
+        "        (LOCAL_VAR_DECL",
+        "          (VARIABLE_NAME string_value:v3)",
+        "          (VARIABLE_BOOLEAN_TYPE)))",
+        "      (STATEMENT_BLOCK",
+        "        (RETURN_STATEMENT)))))"};
+
+
+
+
+
+
+
+
             "  (FUNCTION_DECL string_value:f1\n"
             "    (SUBROUTINE_DESCR\n"
             "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int))\n"
@@ -307,41 +400,6 @@ SCENARIO("Parse tree simple terms")
 
       std::cout << token.to_s_expression() << std::endl;
     }
-#if 0
-(KEYWORD CLASS class)
-(IDENTIFIER NON_ENUM Main)
-(SYMBOL LEFT_BRACE <left_brace>)
-(KEYWORD METHOD method)
-(KEYWORD INT integer)
-(IDENTIFIER NON_ENUM mul)
-(SYMBOL LEFT_PARENTHESIS <left_parenthesis>)
-(KEYWORD INT integer)
-(IDENTIFIER NON_ENUM a)
-(SYMBOL COMMA <comma>)
-(IDENTIFIER NON_ENUM b)
-(SYMBOL RIGHT_PARENTHESIS <right_parenthesis>)
-(SYMBOL LEFT_BRACE <left_brace>)
-(KEYWORD RETURN return)
-(INTEGER_CONSTANT NON_ENUM 0)
-(SYMBOL SEMICOLON <semicolon>)
-(SYMBOL RIGHT_BRACE <right_brace>)
-(KEYWORD METHOD method)
-(KEYWORD INT integer)
-(IDENTIFIER NON_ENUM f1)
-(SYMBOL LEFT_PARENTHESIS <left_parenthesis>)
-(SYMBOL RIGHT_PARENTHESIS <right_parenthesis>)
-(SYMBOL LEFT_BRACE <left_brace>)
-(KEYWORD RETURN return)
-(IDENTIFIER NON_ENUM mul)
-(SYMBOL LEFT_PARENTHESIS <left_parenthesis>)
-(INTEGER_CONSTANT NON_ENUM 1)
-(SYMBOL COMMA <comma>)
-(INTEGER_CONSTANT NON_ENUM 2)
-(SYMBOL RIGHT_PARENTHESIS <right_parenthesis>)
-(SYMBOL SEMICOLON <semicolon>)
-(SYMBOL RIGHT_BRACE <right_brace>)
-(SYMBOL RIGHT_BRACE <right_brace>)
-#endif
 
     recursive_descent::Parser parser(tokens);
     const auto& root = parser.parse_class();
