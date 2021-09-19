@@ -30,6 +30,7 @@ void Parser::require_token(TokenValue_t start_token, TokenType_t token_type)
        << "Expected " << JackToken::to_string(token_type) << " while parsing "
        << JackToken::to_string(start_token);
 
+    raise(SIGTRAP);
     fatal_error(ss.str());
   }
 }
@@ -44,6 +45,7 @@ void Parser::require_token(TokenValue_t start_token, TokenValue_t token_value)
        << "Expected " << JackToken::to_string(token_value) << " while parsing "
        << JackToken::to_string(start_token);
 
+    raise(SIGTRAP);
     fatal_error(ss.str());
   }
 }
@@ -213,8 +215,6 @@ AstNodeRef Parser::parse_subroutine()
         fatal_error(ss.str());
     }
 
-    // TODO: class-var-decl
-
     get_next_token();
 
     AstNodeRef SubrDescrAst =
@@ -287,6 +287,7 @@ AstNodeRef Parser::parse_subroutine()
 
     get_next_token();
     require_token(start_token, TokenValue_t::J_LEFT_PARENTHESIS);
+    get_next_token();
 
     // <subroutine-decl>  ::= ("constructor" | "function" | "method")
     //                        ("void" | <type>) <subroutine-name>
@@ -294,11 +295,65 @@ AstNodeRef Parser::parse_subroutine()
     //                            \--------------/
     //                                    /
     //                                   /
-    //                                  ?
+    //          +-----------------------+
+    //         /
+    //        /
+    // /--------------\
+    // <parameter-list>   ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
+    //       \
+    //        -- N_PARAMETER_LIST
 
-    // TODO: parameter-list
+    if (current_token.get().value_enum != TokenValue_t::J_RIGHT_PARENTHESIS)
+    {
+      AstNodeRef ParamListAst = create_ast_node(AstNodeType_t::N_PARAMETER_LIST);
 
-    get_next_token();
+      while (current_token.get().value_enum != TokenValue_t::J_RIGHT_PARENTHESIS)
+      {
+        std::optional<AstNodeRef> VarTypeAst;
+
+        // TODO: pattern is very common
+        if (current_token.get().value_enum == TokenValue_t::J_INT)
+        {
+          VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_INTEGER_TYPE);
+        }
+        else if (current_token.get().value_enum == TokenValue_t::J_CHAR)
+        {
+          VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_CHARACTER_TYPE);
+        }
+        else if (current_token.get().value_enum == TokenValue_t::J_BOOLEAN)
+        {
+          VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_BOOLEAN_TYPE);
+        }
+        else
+        {
+          require_token(start_token, TokenType_t::J_IDENTIFIER);
+          VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_CLASS_TYPE,
+                                       current_token.get().value_str);
+        }
+
+        get_next_token();
+        require_token(start_token, TokenType_t::J_IDENTIFIER);
+
+        AstNodeRef ParamDeclName = create_ast_node(
+            AstNodeType_t::N_PARAMETER_DECL);
+
+        ParamDeclName.get().add_child(create_ast_node(
+            AstNodeType_t::N_VARIABLE_NAME, current_token.get().value_str));
+        ParamDeclName.get().add_child(VarTypeAst.value());
+
+        ParamListAst.get().add_child(ParamDeclName);
+
+        get_next_token();
+
+        if (current_token.get().value_enum == TokenValue_t::J_COMMA)
+        {
+          get_next_token();
+        }
+      }
+
+      SubrDescrAst.get().add_child(ParamListAst);
+    }
+
     require_token(start_token, TokenValue_t::J_RIGHT_PARENTHESIS);
     get_next_token();
 
@@ -308,9 +363,75 @@ AstNodeRef Parser::parse_subroutine()
     //
     // <subroutine-body>  ::= "{" {<var-decl>}* {<statement>}* "}"
     //                            \----------/
-    //
+    //                                 / \
+    //                                /   ------- N_SUBROUTINEVAR_DECL_BLOCK
+    //       +-----------------------+
+    //      /                                 ------ N_SUBROUTINEVAR_DECL
+    //     /                                 /
+    // /--------\                   /---------------\
+    // <var-decl>         ::= "var" <type> <var-name> {"," <var-name>}* ";"
+    //                              \----/ \--------/
+    //                                /         \
+    //         N_VARIABLE_XX_TYPE ----           ---- N_VARIABLE_NAME
 
-    // TODO: var-decl
+    AstNodeRef SubroutineBodyAst =
+        create_ast_node(AstNodeType_t::N_SUBROUTINE_BODY);
+
+    if (current_token.get().value_enum == TokenValue_t::J_VAR)
+    {
+      AstNodeRef SubroutineVarDeclBlockAst =
+          create_ast_node(AstNodeType_t::N_SUBROUTINEVAR_DECL_BLOCK);
+
+      while (current_token.get().value_enum == TokenValue_t::J_VAR)
+      {
+        std::optional<AstNodeRef> VarTypeAst;
+
+        get_next_token();
+
+        if (current_token.get().value_enum == TokenValue_t::J_INT)
+        {
+          VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_INTEGER_TYPE);
+        }
+        else if (current_token.get().value_enum == TokenValue_t::J_CHAR)
+        {
+          VarTypeAst =
+              create_ast_node(AstNodeType_t::N_VARIABLE_CHARACTER_TYPE);
+        }
+        else if (current_token.get().value_enum == TokenValue_t::J_BOOLEAN)
+        {
+          VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_BOOLEAN_TYPE);
+        }
+        else
+        {
+          require_token(start_token, TokenType_t::J_IDENTIFIER);
+          VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_CLASS_TYPE,
+                                       current_token.get().value_str);
+        }
+
+        do
+        {
+          get_next_token();
+          require_token(start_token, TokenType_t::J_IDENTIFIER);
+
+          AstNodeRef SubroutineVarDeclAst =
+              create_ast_node(AstNodeType_t::N_SUBROUTINEVAR_DECL);
+
+          AstNodeRef VarNameAst = create_ast_node(
+              AstNodeType_t::N_VARIABLE_NAME, current_token.get().value_str);
+
+          SubroutineVarDeclAst.get().add_child(VarNameAst);
+          SubroutineVarDeclAst.get().add_child(VarTypeAst.value());
+
+          SubroutineVarDeclBlockAst.get().add_child(SubroutineVarDeclAst);
+          get_next_token();
+        } while (current_token.get().value_enum == TokenValue_t::J_COMMA);
+
+        require_token(start_token, TokenValue_t::J_SEMICOLON);
+        get_next_token();
+      }
+
+      SubroutineBodyAst.get().add_child(SubroutineVarDeclBlockAst);
+    }
 
     //
     // <subroutine-body>  ::= "{" {<var-decl>}* {<statement>}* "}"
@@ -318,11 +439,6 @@ AstNodeRef Parser::parse_subroutine()
     //                                                /
     //                                               /
     //                                      SubroutineBodyAst
-
-    // raise(SIGTRAP);
-
-    AstNodeRef SubroutineBodyAst =
-        create_ast_node(AstNodeType_t::N_SUBROUTINE_BODY);
 
     if (peek_token.get().value_enum != TokenValue_t::J_RIGHT_BRACE)
     {

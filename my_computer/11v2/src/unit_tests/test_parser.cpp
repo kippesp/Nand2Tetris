@@ -172,82 +172,52 @@ SCENARIO("Parse tree simple terms")
     REQUIRE(as_str == expected_str);
   }
 
-#if 0
   SECTION("class and subroutine vars")
   {
-    TextReader R(CLASSANDSUBVARS_SRC);
+    TextReader R(CLASSVARS_AND_SUBVARS_SRC);
     JackTokenizer T(R);
 
     auto tokens = T.parse_tokens();
 
-    for (const auto& token : tokens)
-    {
-      if (token.type == TokenType_t::J_INTERNAL)
-      {
-        continue;
-      }
-
-      std::cout << token.to_s_expression() << std::endl;
-    }
-#if 0
-(KEYWORD CLASS class)
-(IDENTIFIER NON_ENUM JackTest)
-(SYMBOL LEFT_BRACE <left_brace>)
-(KEYWORD STATIC static)
-(IDENTIFIER NON_ENUM ClassName)
-(IDENTIFIER NON_ENUM inst1)
-(SYMBOL SEMICOLON <semicolon>)
-(KEYWORD FIELD field)
-(KEYWORD INT integer)
-(IDENTIFIER NON_ENUM var1)
-(SYMBOL SEMICOLON <semicolon>)
-(KEYWORD FIELD field)
-(KEYWORD BOOLEAN boolean)
-(IDENTIFIER NON_ENUM var2)
-(SYMBOL SEMICOLON <semicolon>)
-(KEYWORD METHOD method)
-(KEYWORD VOID void)
-(IDENTIFIER NON_ENUM sub1)
-(SYMBOL LEFT_PARENTHESIS <left_parenthesis>)
-(KEYWORD INT integer)
-(IDENTIFIER NON_ENUM a1)
-(SYMBOL COMMA <comma>)
-(KEYWORD INT integer)
-(IDENTIFIER NON_ENUM a2)
-(SYMBOL RIGHT_PARENTHESIS <right_parenthesis>)
-(SYMBOL LEFT_BRACE <left_brace>)
-(KEYWORD VAR var)
-(KEYWORD INT integer)
-(IDENTIFIER NON_ENUM v1)
-(SYMBOL SEMICOLON <semicolon>)
-(KEYWORD VAR var)
-(KEYWORD BOOLEAN boolean)
-(IDENTIFIER NON_ENUM v2)
-(SYMBOL COMMA <comma>)
-(IDENTIFIER NON_ENUM v3)
-(SYMBOL SEMICOLON <semicolon>)
-(KEYWORD RETURN return)
-(SYMBOL SEMICOLON <semicolon>)
-(SYMBOL RIGHT_BRACE <right_brace>)
-(SYMBOL RIGHT_BRACE <right_brace>)
-#endif
-
     recursive_descent::Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
-    REQUIRE(as_str ==
-            "(CLASS_DECL string_value:Main\n"
-            "  (FUNCTION_DECL string_value:f1\n"
-            "    (SUBROUTINE_DESCR\n"
-            "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int))\n"
-            "    (SUBROUTINE_BODY\n"
-            "      (STATEMENT_BLOCK\n"
-            "        (RETURN_STATEMENT\n"
-            "          (EXPRESSION\n"
-            "            (TERM\n"
-            "              (INTEGER_CONSTANT string_value:1))))))))");
+    Expected_t expected = {
+        "(CLASS_DECL string_value:JackTest",
+        "  (CLASSVAR_DECL_BLOCK",
+        "    (CLASSVAR_STATIC_DECL",
+        "      (VARIABLE_NAME string_value:inst1)",
+        "      (VARIABLE_CLASS_TYPE string_value:ClassName))",
+        "    (CLASSVAR_FIELD_DECL",
+        "      (VARIABLE_NAME string_value:var1)",
+        "      (VARIABLE_INTEGER_TYPE)))",
+        "  (METHOD_DECL string_value:sub1",
+        "    (SUBROUTINE_DESCR",
+        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void)",
+        "      (PARAMETER_LIST",
+        "        (PARAMETER_DECL",
+        "          (VARIABLE_NAME string_value:a1)",
+        "          (VARIABLE_INTEGER_TYPE))",
+        "        (PARAMETER_DECL",
+        "          (VARIABLE_NAME string_value:a2)",
+        "          (VARIABLE_INTEGER_TYPE))))",
+        "    (SUBROUTINE_BODY",
+        "      (SUBROUTINEVAR_DECL_BLOCK",
+        "        (SUBROUTINEVAR_DECL",
+        "          (VARIABLE_NAME string_value:v1)",
+        "          (VARIABLE_INTEGER_TYPE))",
+        "        (SUBROUTINEVAR_DECL",
+        "          (VARIABLE_NAME string_value:v2)",
+        "          (VARIABLE_BOOLEAN_TYPE))",
+        "        (SUBROUTINEVAR_DECL",
+        "          (VARIABLE_NAME string_value:v3)",
+        "          (VARIABLE_BOOLEAN_TYPE)))",
+        "      (STATEMENT_BLOCK",
+        "        (RETURN_STATEMENT)))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
   }
-#endif
 
 #if 0
   SECTION("constant void method call")

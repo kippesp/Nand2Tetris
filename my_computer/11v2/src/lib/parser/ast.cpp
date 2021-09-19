@@ -63,6 +63,11 @@ std::string AstNode::to_string(AstNodeType_t t)
 
     case AstNodeType_t::N_CLASSVAR_DECL_BLOCK:         return "CLASSVAR_DECL_BLOCK";
 
+    case AstNodeType_t::N_SUBROUTINEVAR_DECL_BLOCK:    return "SUBROUTINEVAR_DECL_BLOCK";
+    case AstNodeType_t::N_SUBROUTINEVAR_DECL:          return "SUBROUTINEVAR_DECL";
+
+    case AstNodeType_t::N_PARAMETER_DECL:              return "PARAMETER_DECL";
+
     case AstNodeType_t::N_CLASSVAR_STATIC_DECL:        return "CLASSVAR_STATIC_DECL";
     case AstNodeType_t::N_CLASSVAR_FIELD_DECL:         return "CLASSVAR_FIELD_DECL";
     case AstNodeType_t::N_VARIABLE_INTEGER_TYPE:       return "VARIABLE_INTEGER_TYPE";

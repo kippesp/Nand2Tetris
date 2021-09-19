@@ -37,12 +37,10 @@ class testjack {
 }
 )""";
 
-const char* CLASSANDSUBVARS_SRC = R"""(
+const char* CLASSVARS_AND_SUBVARS_SRC = R"""(
 class JackTest {
     static ClassName inst1;
     field int var1;
-    field boolean var2;
-    field char var3, var4;
 
     method void sub1(int a1, int a2) {
         var int v1;
