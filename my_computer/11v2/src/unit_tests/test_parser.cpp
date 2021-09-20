@@ -28,7 +28,6 @@ SCENARIO("Parse tree simple terms")
 
     recursive_descent::Parser parser(tokens);
     const auto& root = parser.parse_let_statement();
-
     std::string as_str = root.get().as_s_expression();
 
     Expected_t expected = {
@@ -214,6 +213,33 @@ SCENARIO("Parse tree simple terms")
         "          (VARIABLE_BOOLEAN_TYPE)))",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT)))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("basic precedence expression")
+  {
+    TextReader R("1 + 2 * 3");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""
+        "(EXPRESSION",
+        "  (MUL_OP",
+        "    (ADD_OP",
+        "      (TERM",
+        "        (INTEGER_CONSTANT string_value:1))",
+        "      (TERM",
+        "        (INTEGER_CONSTANT string_value:2)))",
+        "    (TERM",
+        "      (INTEGER_CONSTANT string_value:4))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
