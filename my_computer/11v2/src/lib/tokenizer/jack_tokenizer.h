@@ -10,15 +10,13 @@
 
 class JackTokenizer {
 public:
-  using Tokens_t = std::vector<JackToken>;
-
   JackTokenizer() = delete;
-  JackTokenizer(const JackTokenizer&) = delete;
-  JackTokenizer& operator=(const JackTokenizer&) = delete;
+  // JackTokenizer(const JackTokenizer&) = delete;
+  // JackTokenizer& operator=(const JackTokenizer&) = delete;
 
   JackTokenizer(TextReader& r) : reader(r) {}
 
-  const Tokens_t& parse_tokens();
+  const Tokens_t parse_tokens();
 
 protected:
   // used to build identifier strings or potential Jack keyword strings
@@ -36,7 +34,11 @@ private:
   // get the token and its associated value
   JackToken get_next_token();
 
-  Tokens_t token_vect;
+  // mirror reference of tokens
+  Tokens_t token_refs;
+
+  // all token allocations (this isn't used directory)
+  std::vector<std::unique_ptr<JackToken>> tokens;
 
   TextReader& reader;
 };

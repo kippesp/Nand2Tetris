@@ -26,16 +26,19 @@ bool JackTokenizer::valid_identifier_char(char ch)
   return r;
 }
 
-const JackTokenizer::Tokens_t& JackTokenizer::parse_tokens()
+const Tokens_t JackTokenizer::parse_tokens()
 {
   for (bool done = false; !done;)
   {
     auto token = get_next_token();
-    token_vect.emplace_back(token);
+
+    auto& added_token = tokens.emplace_back(std::make_unique<JackToken>(token));
+
+    token_refs.emplace_back(*added_token);
     done = (token.value_enum == TokenValue_t::J_EOF);
   }
 
-  return token_vect;
+  return token_refs;
 }
 
 JackToken JackTokenizer::get_next_token()

@@ -10,7 +10,7 @@ using namespace ast;
 
 namespace recursive_descent {
 
-Parser::Parser(JackTokenizer::Tokens_t& tokens)
+Parser::Parser(Tokens_t& tokens)
     : token_iter(tokens.begin()),
       token_iter_end(tokens.end()),
       current_token(*token_iter),
@@ -30,7 +30,9 @@ void Parser::require_token(TokenValue_t start_token, TokenType_t token_type)
        << "Expected " << JackToken::to_string(token_type) << " while parsing "
        << JackToken::to_string(start_token);
 
+#ifndef WIN32
     raise(SIGTRAP);
+#endif
     fatal_error(ss.str());
   }
 }
@@ -45,7 +47,9 @@ void Parser::require_token(TokenValue_t start_token, TokenValue_t token_value)
        << "Expected " << JackToken::to_string(token_value) << " while parsing "
        << JackToken::to_string(start_token);
 
+#ifndef WIN32
     raise(SIGTRAP);
+#endif
     fatal_error(ss.str());
   }
 }

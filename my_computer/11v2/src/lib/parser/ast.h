@@ -94,13 +94,11 @@ public:
   AstNodeValue_t value;
 
   AstNode() = delete;
-  // AstNode(const AstNode&) = delete;
+  AstNode& operator=(const AstNode&) = delete;
 
   AstNode(AstNodeType_t type);
 
   AstNode(const AstNode& my_class) : type(my_class.type) {}
-
-  AstNode& operator=(const AstNode&) = delete;
 
   friend std::ostream& operator<<(std::ostream& os, const AstNode& rhs);
 

@@ -70,7 +70,9 @@ if (${RUN_CLANG_TIDY})
 endif()
 
 # see: https://trac.macports.org/ticket/62426
-set(CMAKE_BUILD_RPATH "/Users/kippesp/usr/opt/llvm-12.0.1/lib")
+if (NOT MSVC)
+    set(CMAKE_BUILD_RPATH "/Users/kippesp/usr/opt/llvm-12.0.1/lib")
+endif()
 
 #add_compile_options(-stdlib=libc++)
 
@@ -137,7 +139,9 @@ if (NOT MSVC)
 endif()
 
 add_compile_options(-D_LIBCPP_DISABLE_AVAILABILITY)
-add_link_options(-L/Users/kippesp/usr/opt/llvm-12.0.1/lib)
+if (NOT MSVC)
+    add_link_options(-L/Users/kippesp/usr/opt/llvm-12.0.1/lib)
+endif()
 
 # For this project, we're not interested in some things
 if (MSVC)

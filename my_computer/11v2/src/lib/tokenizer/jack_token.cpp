@@ -6,13 +6,13 @@
 #include <sstream>
 #include <string>
 
-std::ostream& operator<<(std::ostream& os, const JackToken& rhs)
+std::ostream& operator<<(std::ostream& os, JackTokenCRef rhs)
 {
   os << "token_name: ";
 
-  os << JackToken::to_string(rhs.type) << std::endl;
+  os << JackToken::to_string(rhs.get().type) << std::endl;
   os << "token_value_str: ";
-  os << "<<< " << rhs.value_str << " >>>" << std::endl;
+  os << "<<< " << rhs.get().value_str << " >>>" << std::endl;
 
   return os;
 }

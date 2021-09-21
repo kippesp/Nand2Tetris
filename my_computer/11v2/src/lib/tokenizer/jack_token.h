@@ -64,6 +64,12 @@ using TokenValue_t = enum class TokenValue_s {
   J_RETURN,
 };
 
+class JackToken;
+
+using JackTokenRef = std::reference_wrapper<JackToken>;
+using JackTokenCRef = std::reference_wrapper<const JackToken>;
+using Tokens_t = std::vector<JackTokenCRef>;
+
 class JackToken {
 public:
   JackToken() = default;
@@ -72,7 +78,7 @@ public:
   {
   }
 
-  friend std::ostream& operator<<(std::ostream& os, const JackToken& rhs);
+  friend std::ostream& operator<<(std::ostream& os, JackTokenCRef rhs);
 
   TokenType_t type {TokenType_t::J_UNDEFINED};
   TokenValue_t value_enum {TokenValue_t::J_UNDEFINED};

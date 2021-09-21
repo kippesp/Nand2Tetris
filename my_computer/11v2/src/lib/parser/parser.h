@@ -13,8 +13,7 @@ public:
   Parser(const Parser&) = delete;
   Parser& operator=(const Parser&) = delete;
 
-  // Parser(const JackTokenizer::Tokens_t*);
-  Parser(JackTokenizer::Tokens_t&);
+  Parser(Tokens_t&);
 
   void get_next_token()
   {
@@ -43,14 +42,11 @@ public:
   ast::AstNodeRef parse_return_statement();
   ast::AstNodeRef parse_expression();
 
-  // Returns the root node of the AST
-  // const ast::AstNode& get_ast
-
 private:
   ast::AstTree AST;
 
-  JackTokenizer::Tokens_t::iterator token_iter;
-  JackTokenizer::Tokens_t::iterator token_iter_end;
+  Tokens_t::iterator token_iter;
+  Tokens_t::iterator token_iter_end;
 
   std::reference_wrapper<const JackToken> current_token;
   std::reference_wrapper<const JackToken> peek_token;

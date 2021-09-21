@@ -20,11 +20,11 @@ SCENARIO("Tokenizer baseline checks")
 
     REQUIRE(tokens.size() == expected_parsed_tokens.size());
 
-    REQUIRE(tokens[0].type == TokenType_t::J_SYMBOL);
-    REQUIRE(tokens[0].value_enum == TokenValue_t::J_PLUS);
+    REQUIRE(tokens[0].get().type == TokenType_t::J_SYMBOL);
+    REQUIRE(tokens[0].get().value_enum == TokenValue_t::J_PLUS);
 
-    REQUIRE(tokens[1].type == TokenType_t::J_INTERNAL);
-    REQUIRE(tokens[1].value_enum == TokenValue_t::J_EOF);
+    REQUIRE(tokens[1].get().type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[1].get().value_enum == TokenValue_t::J_EOF);
   }
 }
 
@@ -64,8 +64,8 @@ SCENARIO("Tokenize Jack symbols")
 
     for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE(tokens[i].type == TokenType_t::J_SYMBOL);
-      REQUIRE(tokens[i].value_enum == expected_parsed_tokens[i]);
+      REQUIRE(tokens[i].get().type == TokenType_t::J_SYMBOL);
+      REQUIRE(tokens[i].get().value_enum == expected_parsed_tokens[i]);
     }
   }
 }
@@ -117,8 +117,8 @@ SCENARIO("Tokenize Jack keywords")
 
     for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE(tokens[i].type == TokenType_t::J_KEYWORD);
-      REQUIRE(tokens[i].value_enum == expected_parsed_tokens[i]);
+      REQUIRE(tokens[i].get().type == TokenType_t::J_KEYWORD);
+      REQUIRE(tokens[i].get().value_enum == expected_parsed_tokens[i]);
     }
   }
 }
@@ -137,9 +137,9 @@ SCENARIO("Tokenize integers")
 
     for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE(tokens[i].type == TokenType_t::J_INTEGER_CONSTANT);
-      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE(tokens[i].value_str == expected_parsed_integers[i]);
+      REQUIRE(tokens[i].get().type == TokenType_t::J_INTEGER_CONSTANT);
+      REQUIRE(tokens[i].get().value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].get().value_str == expected_parsed_integers[i]);
     }
   }
 
@@ -155,9 +155,9 @@ SCENARIO("Tokenize integers")
 
     for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE(tokens[i].type == TokenType_t::J_INTEGER_CONSTANT);
-      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE(tokens[i].value_str == expected_parsed_integers[i]);
+      REQUIRE(tokens[i].get().type == TokenType_t::J_INTEGER_CONSTANT);
+      REQUIRE(tokens[i].get().value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].get().value_str == expected_parsed_integers[i]);
     }
   }
 
@@ -170,27 +170,27 @@ SCENARIO("Tokenize integers")
 
     REQUIRE(tokens.size() == 7);
 
-    REQUIRE(tokens[0].type == TokenType_t::J_INTEGER_CONSTANT);
-    REQUIRE(tokens[0].value_str == "10");
+    REQUIRE(tokens[0].get().type == TokenType_t::J_INTEGER_CONSTANT);
+    REQUIRE(tokens[0].get().value_str == "10");
 
-    REQUIRE(tokens[1].type == TokenType_t::J_SYMBOL);
-    REQUIRE(tokens[1].value_enum == TokenValue_t::J_PLUS);
+    REQUIRE(tokens[1].get().type == TokenType_t::J_SYMBOL);
+    REQUIRE(tokens[1].get().value_enum == TokenValue_t::J_PLUS);
 
-    REQUIRE(tokens[2].type == TokenType_t::J_INTEGER_CONSTANT);
-    REQUIRE(tokens[2].value_str == "5");
+    REQUIRE(tokens[2].get().type == TokenType_t::J_INTEGER_CONSTANT);
+    REQUIRE(tokens[2].get().value_str == "5");
 
-    REQUIRE(tokens[3].type == TokenType_t::J_SYMBOL);
-    REQUIRE(tokens[3].value_enum == TokenValue_t::J_ASTERISK);
+    REQUIRE(tokens[3].get().type == TokenType_t::J_SYMBOL);
+    REQUIRE(tokens[3].get().value_enum == TokenValue_t::J_ASTERISK);
 
-    REQUIRE(tokens[4].type == TokenType_t::J_SYMBOL);
-    REQUIRE(tokens[4].value_enum == TokenValue_t::J_MINUS);
+    REQUIRE(tokens[4].get().type == TokenType_t::J_SYMBOL);
+    REQUIRE(tokens[4].get().value_enum == TokenValue_t::J_MINUS);
 
-    REQUIRE(tokens[5].type == TokenType_t::J_INTEGER_CONSTANT);
-    REQUIRE(tokens[5].value_str == "2");
+    REQUIRE(tokens[5].get().type == TokenType_t::J_INTEGER_CONSTANT);
+    REQUIRE(tokens[5].get().value_str == "2");
 
-    REQUIRE(tokens[6].type == TokenType_t::J_INTERNAL);
-    REQUIRE(tokens[6].value_enum == TokenValue_t::J_EOF);
-    REQUIRE(tokens[6].value_str == "( eof )");
+    REQUIRE(tokens[6].get().type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[6].get().value_enum == TokenValue_t::J_EOF);
+    REQUIRE(tokens[6].get().value_str == "( eof )");
   }
 }
 
@@ -209,9 +209,9 @@ SCENARIO("Tokenize identifiers")
 
     for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE(tokens[i].type == TokenType_t::J_IDENTIFIER);
-      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].get().type == TokenType_t::J_IDENTIFIER);
+      REQUIRE(tokens[i].get().value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].get().value_str == expected_parsed_identifiers[i]);
     }
   }
 
@@ -227,9 +227,9 @@ SCENARIO("Tokenize identifiers")
 
     for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE(tokens[i].type == TokenType_t::J_IDENTIFIER);
-      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].get().type == TokenType_t::J_IDENTIFIER);
+      REQUIRE(tokens[i].get().value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].get().value_str == expected_parsed_identifiers[i]);
     }
   }
 
@@ -246,9 +246,9 @@ SCENARIO("Tokenize identifiers")
 
     for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE(tokens[i].type == TokenType_t::J_IDENTIFIER);
-      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].get().type == TokenType_t::J_IDENTIFIER);
+      REQUIRE(tokens[i].get().value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].get().value_str == expected_parsed_identifiers[i]);
     }
   }
 
@@ -261,12 +261,12 @@ SCENARIO("Tokenize identifiers")
 
     REQUIRE(tokens.size() == 3);
 
-    REQUIRE(tokens[0].type == TokenType_t::J_IDENTIFIER);
-    REQUIRE(tokens[0].value_enum == TokenValue_t::J_NON_ENUM);
-    REQUIRE(tokens[0].value_str == "main");
+    REQUIRE(tokens[0].get().type == TokenType_t::J_IDENTIFIER);
+    REQUIRE(tokens[0].get().value_enum == TokenValue_t::J_NON_ENUM);
+    REQUIRE(tokens[0].get().value_str == "main");
 
-    REQUIRE(tokens[1].type == TokenType_t::J_KEYWORD);
-    REQUIRE(tokens[1].value_enum == TokenValue_t::J_CLASS);
+    REQUIRE(tokens[1].get().type == TokenType_t::J_KEYWORD);
+    REQUIRE(tokens[1].get().value_enum == TokenValue_t::J_CLASS);
   }
 }
 
@@ -287,9 +287,9 @@ SCENARIO("Tokenize string")
 
     for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE(tokens[i].type == TokenType_t::J_STRING_CONSTANT);
-      REQUIRE(tokens[i].value_enum == TokenValue_t::J_NON_ENUM);
-      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].get().type == TokenType_t::J_STRING_CONSTANT);
+      REQUIRE(tokens[i].get().value_enum == TokenValue_t::J_NON_ENUM);
+      REQUIRE(tokens[i].get().value_str == expected_parsed_identifiers[i]);
     }
   }
 }
@@ -312,9 +312,9 @@ SCENARIO("Tokenize comments")
 
     for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE(tokens[i].type == TokenType_t::J_INTERNAL);
-      REQUIRE(tokens[i].value_enum == TokenValue_t::J_COMMENT);
-      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].get().type == TokenType_t::J_INTERNAL);
+      REQUIRE(tokens[i].get().value_enum == TokenValue_t::J_COMMENT);
+      REQUIRE(tokens[i].get().value_str == expected_parsed_identifiers[i]);
     }
   }
 
@@ -327,15 +327,15 @@ SCENARIO("Tokenize comments")
 
     REQUIRE(tokens.size() == 4);
 
-    REQUIRE(tokens[0].type == TokenType_t::J_KEYWORD);
-    REQUIRE(tokens[0].value_enum == TokenValue_t::J_CLASS);
+    REQUIRE(tokens[0].get().type == TokenType_t::J_KEYWORD);
+    REQUIRE(tokens[0].get().value_enum == TokenValue_t::J_CLASS);
 
-    REQUIRE(tokens[1].type == TokenType_t::J_SYMBOL);
-    REQUIRE(tokens[1].value_enum == TokenValue_t::J_PLUS);
+    REQUIRE(tokens[1].get().type == TokenType_t::J_SYMBOL);
+    REQUIRE(tokens[1].get().value_enum == TokenValue_t::J_PLUS);
 
-    REQUIRE(tokens[2].type == TokenType_t::J_INTERNAL);
-    REQUIRE(tokens[2].value_str == "// comment1");
-    REQUIRE(tokens[2].value_enum == TokenValue_t::J_COMMENT);
+    REQUIRE(tokens[2].get().type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[2].get().value_str == "// comment1");
+    REQUIRE(tokens[2].get().value_enum == TokenValue_t::J_COMMENT);
   }
 
   SECTION("block comments")
@@ -356,9 +356,9 @@ SCENARIO("Tokenize comments")
 
     for (decltype(tokens.size()) i = 0; i < tokens.size() - 1; i++)
     {
-      REQUIRE(tokens[i].type == TokenType_t::J_INTERNAL);
-      REQUIRE(tokens[i].value_enum == TokenValue_t::J_COMMENT);
-      REQUIRE(tokens[i].value_str == expected_parsed_identifiers[i]);
+      REQUIRE(tokens[i].get().type == TokenType_t::J_INTERNAL);
+      REQUIRE(tokens[i].get().value_enum == TokenValue_t::J_COMMENT);
+      REQUIRE(tokens[i].get().value_str == expected_parsed_identifiers[i]);
     }
   }
 }
@@ -374,13 +374,13 @@ SCENARIO("Tokenizer lexical issues")
 
     REQUIRE(tokens.size() == 2);
 
-    REQUIRE(tokens[0].type == TokenType_t::J_UNDEFINED);
-    REQUIRE(tokens[0].value_str == "/* comment");
-    REQUIRE(tokens[0].value_enum == TokenValue_t::J_NON_ENUM);
+    REQUIRE(tokens[0].get().type == TokenType_t::J_UNDEFINED);
+    REQUIRE(tokens[0].get().value_str == "/* comment");
+    REQUIRE(tokens[0].get().value_enum == TokenValue_t::J_NON_ENUM);
 
-    REQUIRE(tokens[1].type == TokenType_t::J_INTERNAL);
-    REQUIRE(tokens[1].value_enum == TokenValue_t::J_EOF);
-    REQUIRE(tokens[1].value_str == "( eof )");
+    REQUIRE(tokens[1].get().type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[1].get().value_enum == TokenValue_t::J_EOF);
+    REQUIRE(tokens[1].get().value_str == "( eof )");
   }
 
   SECTION("unterminated string")
@@ -392,13 +392,13 @@ SCENARIO("Tokenizer lexical issues")
 
     REQUIRE(tokens.size() == 2);
 
-    REQUIRE(tokens[0].type == TokenType_t::J_UNDEFINED);
-    REQUIRE(tokens[0].value_str == "string ");
-    REQUIRE(tokens[0].value_enum == TokenValue_t::J_NON_ENUM);
+    REQUIRE(tokens[0].get().type == TokenType_t::J_UNDEFINED);
+    REQUIRE(tokens[0].get().value_str == "string ");
+    REQUIRE(tokens[0].get().value_enum == TokenValue_t::J_NON_ENUM);
 
-    REQUIRE(tokens[1].type == TokenType_t::J_INTERNAL);
-    REQUIRE(tokens[1].value_enum == TokenValue_t::J_EOF);
-    REQUIRE(tokens[1].value_str == "( eof )");
+    REQUIRE(tokens[1].get().type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[1].get().value_enum == TokenValue_t::J_EOF);
+    REQUIRE(tokens[1].get().value_str == "( eof )");
   }
 
   SECTION("empty file")
@@ -410,8 +410,8 @@ SCENARIO("Tokenizer lexical issues")
 
     REQUIRE(tokens.size() == 1);
 
-    REQUIRE(tokens[0].type == TokenType_t::J_INTERNAL);
-    REQUIRE(tokens[0].value_enum == TokenValue_t::J_EOF);
-    REQUIRE(tokens[0].value_str == "( eof )");
+    REQUIRE(tokens[0].get().type == TokenType_t::J_INTERNAL);
+    REQUIRE(tokens[0].get().value_enum == TokenValue_t::J_EOF);
+    REQUIRE(tokens[0].get().value_str == "( eof )");
   }
 }

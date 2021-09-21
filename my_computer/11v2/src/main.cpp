@@ -23,14 +23,14 @@ static int inner_main(const CliArgs& cliargs)
     {
       std::cout << "(TOKENS" << std::endl;
 
-      for (const auto& token : tokens)
+      for (auto& token : tokens)
       {
-        if (token.type == TokenType_t::J_INTERNAL)
+        if (token.get().type == TokenType_t::J_INTERNAL)
         {
           continue;
         }
 
-        std::cout << token.to_s_expression() << std::endl;
+        std::cout << token.get().to_s_expression() << std::endl;
       }
 
       std::cout << ")" << std::endl;

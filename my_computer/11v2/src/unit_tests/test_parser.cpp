@@ -218,6 +218,7 @@ SCENARIO("Parse tree simple terms")
     REQUIRE(as_str == expected_str);
   }
 
+#ifdef NEXT
   SECTION("basic precedence expression")
   {
     TextReader R("1 + 2 * 3");
@@ -244,6 +245,7 @@ SCENARIO("Parse tree simple terms")
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
+#endif
 
 #if 0
   SECTION("constant void method call")
