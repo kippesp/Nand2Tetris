@@ -218,6 +218,161 @@ SCENARIO("Parse tree simple terms")
     REQUIRE(as_str == expected_str);
   }
 
+
+
+
+
+
+
+
+
+
+
+
+#ifdef NEXT
+  SECTION("basic precedence expression 1")
+  {
+    TextReader R("1");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""
+        "(EXPRESSION",
+        "  (TERM",
+        "    (INTEGER_CONSTANT string_value:1)))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+#endif
+
+#ifdef NEXT
+  SECTION("basic precedence expression 2")
+  {
+    TextReader R("(1)");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""
+        "(EXPRESSION",
+        "  (TERM",
+        "    (INTEGER_CONSTANT string_value:1)))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+#endif
+
+#ifdef NEXT
+  SECTION("basic precedence expression 3")
+  {
+    TextReader R("1 + 2");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""
+        "(EXPRESSION",
+        "  (ADD_OP",
+        "    (TERM",
+        "      (INTEGER_CONSTANT string_value:1))",
+        "    (TERM",
+        "      (INTEGER_CONSTANT string_value:2))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+#endif
+
+#ifdef NEXT
+  SECTION("basic precedence expression 4")
+  {
+    TextReader R("1 + 2 * 3");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""
+        "(EXPRESSION",
+        "  (ADD_OP",
+        "    (TERM",
+        "      (INTEGER_CONSTANT string_value:1))",
+        "    (MUL_OP",
+        "      (TERM",
+        "        (INTEGER_CONSTANT string_value:2))",
+        "      (TERM",
+        "        (INTEGER_CONSTANT string_value:3)))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+#endif
+
+#ifdef NEXT
+  SECTION("basic precedence expression 5")
+  {
+    TextReader R("(1 + 2) * 3");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""
+        "(EXPRESSION",
+        "  (MUL_OP",
+        "    (ADD_OP",
+        "      (TERM",
+        "        (INTEGER_CONSTANT string_value:1))",
+        "      (TERM",
+        "        (INTEGER_CONSTANT string_value:2)))",
+        "    (TERM",
+        "      (INTEGER_CONSTANT string_value:3))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
 #ifdef NEXT
   SECTION("basic precedence expression")
   {
