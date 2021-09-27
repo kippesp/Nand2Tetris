@@ -25,7 +25,7 @@ static int inner_main(const CliArgs& cliargs)
 
       for (auto& token : tokens)
       {
-        if (token.get().type == TokenType_t::J_INTERNAL)
+        if (token.get().type == TokenType_t::T_INTERNAL)
         {
           continue;
         }

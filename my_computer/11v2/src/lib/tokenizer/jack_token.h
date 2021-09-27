@@ -3,19 +3,21 @@
 #include "util/text_reader.h"
 
 using TokenType_t = enum class TokenType_s {
-  J_UNDEFINED,
-  J_INTERNAL,
+  T_UNDEFINED,
+  T_INTERNAL,
 
-  J_KEYWORD,
-  J_SYMBOL,
-  J_INTEGER_CONSTANT,
-  J_STRING_CONSTANT,
-  J_IDENTIFIER,
+  T_KEYWORD,
+  T_SYMBOL,
+  T_INTEGER_CONSTANT,
+  T_STRING_CONSTANT,
+  T_IDENTIFIER,
 };
 
 using TokenValue_t = enum class TokenValue_s {
   J_UNDEFINED,
-  J_NON_ENUM,
+  J_INTEGER_CONSTANT,
+  J_STRING_CONSTANT,
+  J_IDENTIFIER,
   J_COMMENT,  // comments stored as internal token
   J_EOF,      // end-of-file and end-of-string
 
@@ -80,7 +82,7 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, JackTokenCRef rhs);
 
-  TokenType_t type {TokenType_t::J_UNDEFINED};
+  TokenType_t type {TokenType_t::T_UNDEFINED};
   TokenValue_t value_enum {TokenValue_t::J_UNDEFINED};
   std::string value_str {"UNDEFINED"};  // for integer, string, comments tokens
   size_t line_number;

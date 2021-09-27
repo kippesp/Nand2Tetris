@@ -22,13 +22,13 @@ std::string JackToken::to_string(TokenType_t t)
   switch (t)
   {
     // clang-format off
-    case TokenType_t::J_UNDEFINED:          return "UNDEFINED";
-    case TokenType_t::J_INTERNAL:           return "INTERNAL";
-    case TokenType_t::J_KEYWORD:            return "KEYWORD";
-    case TokenType_t::J_SYMBOL:             return "SYMBOL";
-    case TokenType_t::J_INTEGER_CONSTANT:   return "INTEGER_CONSTANT";
-    case TokenType_t::J_STRING_CONSTANT:    return "STRING_CONSTANT";
-    case TokenType_t::J_IDENTIFIER:         return "IDENTIFIER";
+    case TokenType_t::T_UNDEFINED:          return "UNDEFINED";
+    case TokenType_t::T_INTERNAL:           return "INTERNAL";
+    case TokenType_t::T_KEYWORD:            return "KEYWORD";
+    case TokenType_t::T_SYMBOL:             return "SYMBOL";
+    case TokenType_t::T_INTEGER_CONSTANT:   return "INTEGER_CONSTANT";
+    case TokenType_t::T_STRING_CONSTANT:    return "STRING_CONSTANT";
+    case TokenType_t::T_IDENTIFIER:         return "IDENTIFIER";
       // clang-format on
   }
 
@@ -41,7 +41,9 @@ std::string JackToken::to_string(TokenValue_t v)
   {
     // clang-format off
     case TokenValue_t::J_UNDEFINED:         return "UNDEFINED";
-    case TokenValue_t::J_NON_ENUM:          return "NON_ENUM";
+    case TokenValue_t::J_INTEGER_CONSTANT:  return "INTEGER_CONSTANT";
+    case TokenValue_t::J_STRING_CONSTANT:   return "STRING_CONSTANT";
+    case TokenValue_t::J_IDENTIFIER:        return "IDENTIFIER";
     case TokenValue_t::J_COMMENT:           return "COMMENT";
     case TokenValue_t::J_EOF:               return "EOF";
     case TokenValue_t::J_LEFT_BRACE:        return "LEFT_BRACE";
