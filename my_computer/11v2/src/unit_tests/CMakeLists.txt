@@ -14,6 +14,7 @@ add_executable(${JFCL_TEST_PROJECT_NAME}
     test_reader.cpp
     test_tokenizer.cpp
     test_parser.cpp
+    test_pparser.cpp
 #   test_vmwriter.cpp
    jack_sources.cpp
    jack_sources.h

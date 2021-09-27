@@ -23,7 +23,7 @@ Statements:
 
 <statement>        ::= <let-statement> | <if-statement> | <while-statement> |
                        <do-statement> | <return-statement>
-<let-statement>    ::= "let" (<var-name> | <array-var>) "=" <expression> ";"
+<let-statement>    ::= "let" (<scalar-var> | <array-var>) "=" <expression> ";"
 <if-statement>     ::= "if" "(" <expression ")" "{" {<statement>}* "}"
                        {"else" "{" {<statement>}* "}"}?
 <while-statement>  ::= "while" "(" <expression> ")" "{" {<statement>}* "}"
@@ -32,27 +32,45 @@ Statements:
 
 Expressions:
 
-<expression>       ::= <term> {<binary-op> <term>}*
+<expression>       ::= <term> {<infix-op> <term>}*
 <term>             ::= <integer-constant> | <string-constant> | <keyword-constant> |
-                       <var-name> | <array-var> | <subroutine-call> |
-                       "(" <expression> ")" | <unary-op> <term>
+                       <scalar-var> | <array-var> | <subroutine-call> |
+                       "(" <expression> ")" | <prefix-op> <term>
 <subroutine-call>  ::= <call-site> "(" <expression-list> ")"
 <call-site>        ::= <subroutine-name> |
                        (<class-name> | <var-name>) "." <subroutine-name>
+<scalar-var>       ::= <var-name>
 <array-var>        ::= <var-name> "[" <expression> "]" 
 <expression-list>  ::= {<expression {"," <expression>}*}?
 <keyword-constant> ::= "true" | "false" | "null" | "this"
-<unary-op>         ::= "-" | "~"
-<binary-op>        ::= "*" | "/" |
+<prefix-op>        ::= "-" | "~"
+<infix-op>         ::= "*" | "/" |
                        "+" | "-" |
-                       "<" | ">" |
+                       "<" | ">" | "=" |
                        "&" |
-                       "|" |
-                       "="
+                       "|"
 
-The <unary-op> and <binary-op> operators are listed in precedence order
-from highest to lowest.
+Expressions (recursive descent):
 
-clang-format on
-*/
+source: http://nand2tetris-questions-and-answers-forum.52.s1.nabble.com/Adding-Standard-Operator-Precedence-to-the-Jack-Compiler-td4028444.html
 
+<expression>       ::= <or-expr>
+<or-expr>          ::= <and-expr> {<or-op> <and-expr>}*
+<and-expr>         ::= <cmp-expr> {<and-op> <cmp-expr>}*
+<cmp-expr>         ::= <add-expr> {<cmp-op> <add-expr>}*
+<add-expr>         ::= <mult-expr> {<add-op> <mult-expr>}*
+<mult-expr>        ::= <term> {<mult-op> <term>}*
+<term>             ::= <int-const> | <string-const> | <keyword-const> |
+                       <scalar-var> | <array-var> | <subroutine-call> |
+                       <unary-op> <term>
+<subroutine-call>  ::= <call-site> "(" <expression-list> ")"
+<call-site>        ::= <subroutine-name> |
+                       (<class-name> | <var-name>) "." <subroutine-name>
+<scalar-var>       ::= <var-name>
+<array-var>        ::= <var-name> "[" <expression> "]"
+<or-op>            ::= "|"
+<and-op>           ::= "&"
+<cmp-op>           ::= "<" | ">" | "="
+<add-op>           ::= "+" | "-"
+<mult-op>          ::= "*" | "/"
+<unary-op>         ::= "-" | "~"
