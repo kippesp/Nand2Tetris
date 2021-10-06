@@ -42,6 +42,11 @@ public:
   ast::AstNodeRef parse_return_statement();
 
   ast::AstNodeRef parse_expression();
+  ast::AstNodeRef parse_mult_expr();
+  ast::AstNodeRef parse_term();
+
+  ast::AstNodeRef parse_chained_expr(std::vector<TokenValue_t>,
+                                     ast::AstNodeRef);
 
 private:
   ast::AstTree AST;
@@ -53,7 +58,7 @@ private:
   std::reference_wrapper<const JackToken> peek_token;
 
   ast::AstNode EmptyNode {ast::AstNodeType_t::N_UNDEFINED};
-  ast::AstNodeRef EmptyNodeRef {EmptyNode};
+  const ast::AstNodeRef EmptyNodeRef {EmptyNode};
 };
 
 template <typename T>

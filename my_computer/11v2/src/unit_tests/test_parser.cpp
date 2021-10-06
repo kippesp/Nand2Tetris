@@ -38,6 +38,26 @@ SCENARIO("Parse expressions")
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
+
+  SECTION("simple string")
+  {
+    TextReader R("\"a string\"");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(EXPRESSION",
+        "  (STRING_CONSTANT string_value:a string))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
 }
 
 SCENARIO("Parse tree simple terms")

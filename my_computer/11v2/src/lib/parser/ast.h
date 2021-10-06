@@ -58,7 +58,7 @@ using AstNodeType_t = enum class AstNodeType_s {
   // N_KEYWORD,
   // N_OP,
   // N_RETURN_TYPE,
-  // N_STRING_CONSTANT,
+  N_STRING_CONSTANT,
   // N_SUBROUTINE_CALL,
   // N_SUBROUTINE_CALL_SITE_BINDING,
   N_LOCAL_VAR_DECL_BLOCK,
@@ -73,6 +73,9 @@ using AstNodeType_t = enum class AstNodeType_s {
   // N_VAR_DECL_STATEMENT,
   // N_WHILE_STATEMENT,
 };
+
+// TODO: Better design would be to have AstNode data as a struct with no methods
+// then have class that uses it.
 
 class AstNode;
 

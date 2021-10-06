@@ -541,46 +541,102 @@ ast::AstNodeRef Parser::parse_return_statement()
   return ReturnAst;
 }
 
+//
+// Expression parsers
+//
+
 AstNodeRef Parser::parse_expression()
 {
   AstNodeRef ExpressionAst = create_ast_node(AstNodeType_t::N_EXPRESSION);
 
-  if (current_token.get().value_enum == TokenValue_t::J_TRUE)
+  AstNodeRef TermAst = parse_term();
+
+  ExpressionAst.get().add_child(TermAst);
+
+  return ExpressionAst;
+}
+
+#ifdef LATER
+// AstNodeRef Parser::parse_chained_expr()
+AstNodeRef Parser::parse_chained_expr(
+    std::vector<TokenValue_t> equal_precedence_operators,
+    AstNodeRef left_branch = EmptyNodeRef)
+{
+#if 0
+  AstNodeRef TermAst = EmptyNodeRef;
+
+  AstNodeRef LeftBranchAst = parse_term();
+
+  while ((current_token.get().value_enum == TokenValue_t::J_ASTERISK) ||
+         (current_token.get().value_enum == TokenValue_t::J_DIVIDE))
   {
-    AstNodeRef KeywordConstAst =
-        create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
-    AstNodeRef TrueKeywordAst = create_ast_node(AstNodeType_t::N_TRUE_KEYWORD);
+  }
+#endif
+}
+#endif
 
-    KeywordConstAst.get().add_child(TrueKeywordAst);
-    ExpressionAst.get().add_child(KeywordConstAst);
+// TODO: parse chained expression
+// TODO: constexpr tokens
 
+AstNodeRef Parser::parse_term()
+{
+  AstNodeRef TermAst = EmptyNodeRef;
+
+  // TODO: check old parser here.  can use value better
+
+  if (current_token.get().type == TokenType_t::T_INTEGER_CONSTANT)
+  {
+    TermAst = create_ast_node(AstNodeType_t::N_INTEGER_CONSTANT,
+                              current_token.get().value_str);
     get_next_token();
   }
-  else if (current_token.get().type == TokenType_t::T_INTEGER_CONSTANT)
+  else if (current_token.get().type == TokenType_t::T_STRING_CONSTANT)
   {
-    AstNodeRef IntegerConstAst = create_ast_node(
-        AstNodeType_t::N_INTEGER_CONSTANT, current_token.get().value_str);
-    ExpressionAst.get().add_child(IntegerConstAst);
-
+    TermAst = create_ast_node(AstNodeType_t::N_STRING_CONSTANT,
+                              current_token.get().value_str);
+    get_next_token();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_TRUE)
+  {
+    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
+    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_TRUE_KEYWORD));
+    get_next_token();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_FALSE)
+  {
+    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
+    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_FALSE_KEYWORD));
+    get_next_token();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_NULL)
+  {
+    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
+    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_NULL_KEYWORD));
     get_next_token();
   }
   else if (current_token.get().value_enum == TokenValue_t::J_THIS)
   {
-    AstNodeRef KeywordConstAst =
-        create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
-    AstNodeRef TrueKeywordAst = create_ast_node(AstNodeType_t::N_THIS_KEYWORD);
-
-    KeywordConstAst.get().add_child(TrueKeywordAst);
-    ExpressionAst.get().add_child(KeywordConstAst);
-
+    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
+    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_THIS_KEYWORD));
     get_next_token();
   }
-  else
+
+  // TODO: improve
+  if (TermAst.get().type == EmptyNodeRef.get().type)
   {
-    assert(0 && "expression failed to parse");
+    std::stringstream ss;
+
+    ss << "(TODO) Line #" << current_token.get().line_number << ": "
+       << "Expected TERM token while parsing "
+       << JackToken::to_string(current_token.get().value_enum);
+
+#ifndef WIN32
+    raise(SIGTRAP);
+#endif
+    fatal_error(ss.str());
   }
 
-  return ExpressionAst;
+  return TermAst;
 }
 
 }  // namespace recursive_descent

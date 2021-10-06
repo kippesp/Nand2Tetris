@@ -52,6 +52,8 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_SUBROUTINE_DESCR:            return "SUBROUTINE_DESCR";
 
     case AstNodeType_t::N_KEYWORD_CONSTANT:            return "KEYWORD_CONSTANT";
+    case AstNodeType_t::N_STRING_CONSTANT:             return "STRING_CONSTANT";
+
     case AstNodeType_t::N_TRUE_KEYWORD:                return "TRUE_KEYWORD";
     case AstNodeType_t::N_FALSE_KEYWORD:               return "FALSE_KEYWORD";
     case AstNodeType_t::N_NULL_KEYWORD:                return "NULL_KEYWORD";
