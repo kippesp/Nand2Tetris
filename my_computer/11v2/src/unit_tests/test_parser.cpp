@@ -17,6 +17,29 @@ extern const char* LET_STATEMENT_SRC;
 extern const char* SIMPLE_WHILE_SRC;
 #endif
 
+SCENARIO("Parse expressions")
+{
+  SECTION("simple integer")
+  {
+    TextReader R("1");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(EXPRESSION",
+        "  (INTEGER_CONSTANT string_value:1))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+}
+
 SCENARIO("Parse tree simple terms")
 {
   SECTION("simple let")
@@ -36,9 +59,8 @@ SCENARIO("Parse tree simple terms")
         "  (SCALAR_VAR",
         "    (VARIABLE_NAME string_value:i))",
         "  (EXPRESSION",
-        "    (TERM",
-        "      (KEYWORD_CONSTANT",
-        "        (TRUE_KEYWORD)))))"};
+        "    (KEYWORD_CONSTANT",
+        "      (TRUE_KEYWORD))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -65,8 +87,7 @@ SCENARIO("Parse tree simple terms")
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
         "          (EXPRESSION",
-        "            (TERM",
-        "              (INTEGER_CONSTANT string_value:1))))))))"};
+        "            (INTEGER_CONSTANT string_value:1)))))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -118,9 +139,8 @@ SCENARIO("Parse tree simple terms")
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
         "          (EXPRESSION",
-        "            (TERM",
-        "              (KEYWORD_CONSTANT",
-        "                (THIS_KEYWORD))))))))",
+        "            (KEYWORD_CONSTANT",
+        "              (THIS_KEYWORD)))))))",
         "  (METHOD_DECL string_value:ref",
         "    (SUBROUTINE_DESCR",
         "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int))",
@@ -128,9 +148,8 @@ SCENARIO("Parse tree simple terms")
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
         "          (EXPRESSION",
-        "            (TERM",
-        "              (KEYWORD_CONSTANT",
-        "                (THIS_KEYWORD)))))))))"};
+        "            (KEYWORD_CONSTANT",
+        "              (THIS_KEYWORD))))))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);

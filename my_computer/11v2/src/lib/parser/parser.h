@@ -40,6 +40,7 @@ public:
   ast::AstNodeRef parse_subroutine();
   ast::AstNodeRef parse_let_statement();
   ast::AstNodeRef parse_return_statement();
+
   ast::AstNodeRef parse_expression();
 
 private:
@@ -50,6 +51,9 @@ private:
 
   std::reference_wrapper<const JackToken> current_token;
   std::reference_wrapper<const JackToken> peek_token;
+
+  ast::AstNode EmptyNode {ast::AstNodeType_t::N_UNDEFINED};
+  ast::AstNodeRef EmptyNodeRef {EmptyNode};
 };
 
 template <typename T>

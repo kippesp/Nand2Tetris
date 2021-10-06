@@ -547,41 +547,31 @@ AstNodeRef Parser::parse_expression()
 
   if (current_token.get().value_enum == TokenValue_t::J_TRUE)
   {
-    AstNodeRef TermAst = create_ast_node(AstNodeType_t::N_TERM);
     AstNodeRef KeywordConstAst =
         create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
     AstNodeRef TrueKeywordAst = create_ast_node(AstNodeType_t::N_TRUE_KEYWORD);
 
     KeywordConstAst.get().add_child(TrueKeywordAst);
-    TermAst.get().add_child(KeywordConstAst);
-
-    ExpressionAst.get().add_child(TermAst);
+    ExpressionAst.get().add_child(KeywordConstAst);
 
     get_next_token();
   }
   else if (current_token.get().type == TokenType_t::T_INTEGER_CONSTANT)
   {
-    AstNodeRef TermAst = create_ast_node(AstNodeType_t::N_TERM);
     AstNodeRef IntegerConstAst = create_ast_node(
         AstNodeType_t::N_INTEGER_CONSTANT, current_token.get().value_str);
-
-    TermAst.get().add_child(IntegerConstAst);
-
-    ExpressionAst.get().add_child(TermAst);
+    ExpressionAst.get().add_child(IntegerConstAst);
 
     get_next_token();
   }
   else if (current_token.get().value_enum == TokenValue_t::J_THIS)
   {
-    AstNodeRef TermAst = create_ast_node(AstNodeType_t::N_TERM);
     AstNodeRef KeywordConstAst =
         create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
     AstNodeRef TrueKeywordAst = create_ast_node(AstNodeType_t::N_THIS_KEYWORD);
 
     KeywordConstAst.get().add_child(TrueKeywordAst);
-    TermAst.get().add_child(KeywordConstAst);
-
-    ExpressionAst.get().add_child(TermAst);
+    ExpressionAst.get().add_child(KeywordConstAst);
 
     get_next_token();
   }

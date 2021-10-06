@@ -36,7 +36,7 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_THIS_KEYWORD,
   N_LET_STATEMENT,
   N_SCALAR_VAR,
-  N_TERM,
+  // N_TERM,
   N_VARIABLE_NAME,
 
   N_CLASSVAR_DECL_BLOCK,

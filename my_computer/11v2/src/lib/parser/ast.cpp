@@ -59,7 +59,6 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_LET_STATEMENT:               return "LET_STATEMENT";
     case AstNodeType_t::N_DO_STATEMENT:                return "DO_STATEMENT";
     case AstNodeType_t::N_SCALAR_VAR:                  return "SCALAR_VAR";
-    case AstNodeType_t::N_TERM:                        return "TERM";
     case AstNodeType_t::N_VARIABLE_NAME:               return "VARIABLE_NAME";
 
     case AstNodeType_t::N_CLASSVAR_DECL_BLOCK:         return "CLASSVAR_DECL_BLOCK";
