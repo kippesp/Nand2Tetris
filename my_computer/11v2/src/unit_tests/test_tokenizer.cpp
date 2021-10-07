@@ -389,3 +389,29 @@ SCENARIO("Tokenizer lexical issues")
     REQUIRE(tokens[0].get().value_str == "( eof )");
   }
 }
+
+SCENARIO("Token Comparisons")
+{
+  SECTION("equality/inequality")
+  {
+    TextReader R("+ +\n+ -");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    REQUIRE(tokens[0].get().value_enum == TokenValue_t::J_PLUS);
+    REQUIRE(tokens[1].get().value_enum == TokenValue_t::J_PLUS);
+    REQUIRE(tokens[2].get().value_enum == TokenValue_t::J_PLUS);
+
+    REQUIRE(tokens[0].get() == tokens[0].get());
+    REQUIRE(tokens[0].get() == tokens[1].get());
+    REQUIRE(tokens[0].get() == tokens[2].get());
+    REQUIRE(tokens[1].get() == tokens[2].get());
+
+    REQUIRE(tokens[0].get().line_number == tokens[1].get().line_number);
+    REQUIRE(tokens[0].get().line_number != tokens[2].get().line_number);
+
+    REQUIRE(!(tokens[0].get() == tokens[3].get()));
+    REQUIRE(tokens[0].get() != tokens[3].get());
+  }
+}

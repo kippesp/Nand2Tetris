@@ -31,7 +31,8 @@ const Tokens_t JackTokenizer::parse_tokens()
   {
     auto token = get_next_token();
 
-    auto& added_token = tokens.emplace_back(std::make_unique<JackToken>(token));
+    const auto& added_token =
+        tokens.emplace_back(std::make_unique<JackToken>(token));
 
     token_refs.emplace_back(*added_token);
     done = (token.value_enum == TokenValue_t::J_EOF);

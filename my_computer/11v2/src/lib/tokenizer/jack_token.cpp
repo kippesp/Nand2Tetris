@@ -17,6 +17,16 @@ std::ostream& operator<<(std::ostream& os, JackTokenCRef rhs)
   return os;
 }
 
+bool JackToken::operator==(const JackToken& other) const
+{
+  return ((value_enum == other.value_enum) && (value_str == other.value_str));
+}
+
+bool JackToken::operator!=(const JackToken& other) const
+{
+  return !(*this == other);
+}
+
 std::string JackToken::to_string(TokenValue_t v)
 {
   switch (v)
