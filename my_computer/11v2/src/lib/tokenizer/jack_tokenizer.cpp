@@ -11,7 +11,6 @@ using char_type = TextReader::char_type;
 // convenience structure to build a helper vector
 using TokenDescr_t = struct TokenDescr_s {
   std::string expected_str;
-  TokenType_t token_type;
   TokenValue_t token_value;
   std::string dbg_str;
 };
@@ -51,7 +50,7 @@ JackToken JackTokenizer::get_next_token()
     ch = reader.read();
     if ((ch == -1) || (ch == '\0'))
     {
-      return JackToken(TokenType_t::T_INTERNAL, TokenValue_t::J_EOF, "( eof )",
+      return JackToken(TokenValue_t::J_EOF, "( eof )",
                        reader.get_current_line_number());
     }
 
@@ -75,7 +74,7 @@ JackToken JackTokenizer::get_next_token()
     }
     if (ch == '\0')
     {
-      return JackToken(TokenType_t::T_INTERNAL, TokenValue_t::J_EOF, "( eof )",
+      return JackToken(TokenValue_t::J_EOF, "( eof )",
                        reader.get_current_line_number());
     }
 
@@ -90,11 +89,9 @@ JackToken JackTokenizer::get_next_token()
     // Check for line comments
     token = get_line_comment_token(ch);
 
-    assert(token.type == TokenType_t::T_INTERNAL);
     assert(token.value_enum == TokenValue_t::J_COMMENT);
 
-    if ((token.type == TokenType_t::T_INTERNAL) &&
-        (token.value_enum == TokenValue_t::J_COMMENT))
+    if (token.value_enum == TokenValue_t::J_COMMENT)
     {
       return token;
     }
@@ -106,14 +103,13 @@ JackToken JackTokenizer::get_next_token()
     // Check for block comments
     token = get_block_comment_token(ch);
 
-    if ((token.type == TokenType_t::T_INTERNAL) &&
-        (token.value_enum == TokenValue_t::J_COMMENT))
+    if (token.value_enum == TokenValue_t::J_COMMENT)
     {
       return token;
     }
 
     // An unterminated /* is malformed.
-    assert(token.type == TokenType_t::T_UNDEFINED);
+    assert(token.value_enum == TokenValue_t::J_UNDEFINED);
     return token;
   }
 
@@ -122,13 +118,13 @@ JackToken JackTokenizer::get_next_token()
   {
     token = get_string_token(ch);
 
-    if (token.type == TokenType_t::T_STRING_CONSTANT)
+    if (token.value_enum == TokenValue_t::J_STRING_CONSTANT)
     {
       return token;
     }
 
     // An unterminated " is malformed as is a string containing a newline
-    assert(token.type == TokenType_t::T_UNDEFINED);
+    assert(token.value_enum == TokenValue_t::J_UNDEFINED);
     return token;
   }
 
@@ -137,7 +133,7 @@ JackToken JackTokenizer::get_next_token()
   {
     token = get_integer_token(ch);
 
-    if (token.type == TokenType_t::T_INTEGER_CONSTANT)
+    if (token.value_enum == TokenValue_t::J_INTEGER_CONSTANT)
     {
       return token;
     }
@@ -148,8 +144,29 @@ JackToken JackTokenizer::get_next_token()
   {
     token = get_jack_keyword_or_identifier_token(ch);
 
-    if ((token.type == TokenType_t::T_KEYWORD) ||
-        (token.type == TokenType_t::T_IDENTIFIER))
+    if ((token.value_enum == TokenValue_t::J_CLASS) ||
+        (token.value_enum == TokenValue_t::J_CONSTRUCTOR) ||
+        (token.value_enum == TokenValue_t::J_FUNCTION) ||
+        (token.value_enum == TokenValue_t::J_METHOD) ||
+        (token.value_enum == TokenValue_t::J_FIELD) ||
+        (token.value_enum == TokenValue_t::J_STATIC) ||
+        (token.value_enum == TokenValue_t::J_VAR) ||
+        (token.value_enum == TokenValue_t::J_INT) ||
+        (token.value_enum == TokenValue_t::J_CHAR) ||
+        (token.value_enum == TokenValue_t::J_BOOLEAN) ||
+        (token.value_enum == TokenValue_t::J_VOID) ||
+        (token.value_enum == TokenValue_t::J_TRUE) ||
+        (token.value_enum == TokenValue_t::J_FALSE) ||
+        (token.value_enum == TokenValue_t::J_NULL) ||
+        (token.value_enum == TokenValue_t::J_THIS) ||
+        (token.value_enum == TokenValue_t::J_LET) ||
+        (token.value_enum == TokenValue_t::J_DO) ||
+        (token.value_enum == TokenValue_t::J_IF) ||
+        (token.value_enum == TokenValue_t::J_ELSE) ||
+        (token.value_enum == TokenValue_t::J_WHILE) ||
+        (token.value_enum == TokenValue_t::J_RETURN) ||
+
+        (token.value_enum == TokenValue_t::J_IDENTIFIER))
     {
       return token;
     }
@@ -158,7 +175,7 @@ JackToken JackTokenizer::get_next_token()
   // PARSE FOR JACK SYMBOL
   token = get_symbol_token(ch);
 
-  assert((token.type != TokenType_t::T_UNDEFINED) && "Unhandled case!");
+  assert((token.value_enum != TokenValue_t::J_UNDEFINED) && "Unhandled case!");
 
   return token;
 }
@@ -180,7 +197,7 @@ JackToken JackTokenizer::get_line_comment_token(char ch)
     s << ch;
   }
 
-  return JackToken(TokenType_t::T_INTERNAL, TokenValue_t::J_COMMENT, s.str(),
+  return JackToken(TokenValue_t::J_COMMENT, s.str(),
                    reader.get_current_line_number());
 }
 
@@ -209,13 +226,13 @@ JackToken JackTokenizer::get_block_comment_token(char ch)
     s << ch;
     s << reader.read();
 
-    return JackToken(TokenType_t::T_INTERNAL, TokenValue_t::J_COMMENT, s.str(),
+    return JackToken(TokenValue_t::J_COMMENT, s.str(),
                      reader.get_current_line_number());
   }
 
   // an unterminated block can suck up the entire file and be difficult
   // to identify.
-  return JackToken(TokenType_t::T_UNDEFINED, TokenValue_t::J_UNDEFINED, s.str(),
+  return JackToken(TokenValue_t::J_UNDEFINED, s.str(),
                    reader.get_current_line_number());
 }
 
@@ -248,12 +265,11 @@ JackToken JackTokenizer::get_string_token(char ch)
   {
     ch = reader.read();
 
-    return JackToken(TokenType_t::T_STRING_CONSTANT,
-                     TokenValue_t::J_STRING_CONSTANT, s.str(),
+    return JackToken(TokenValue_t::J_STRING_CONSTANT, s.str(),
                      reader.get_current_line_number());
   }
 
-  return JackToken(TokenType_t::T_UNDEFINED, TokenValue_t::J_UNDEFINED, s.str(),
+  return JackToken(TokenValue_t::J_UNDEFINED, s.str(),
                    reader.get_current_line_number());
 }
 
@@ -276,8 +292,7 @@ JackToken JackTokenizer::get_integer_token(char ch)
     s << ch;
   }
 
-  return JackToken(TokenType_t::T_INTEGER_CONSTANT,
-                   TokenValue_t::J_INTEGER_CONSTANT, s.str(),
+  return JackToken(TokenValue_t::J_INTEGER_CONSTANT, s.str(),
                    reader.get_current_line_number());
 }
 
@@ -303,27 +318,27 @@ JackToken JackTokenizer::get_jack_keyword_or_identifier_token(char ch)
 
   const std::vector<TokenDescr_t> ExpectedKeywords {
       // clang-format off
-      {"do",          TokenType_t::T_KEYWORD, TokenValue_t::J_DO, "do"},
-      {"if",          TokenType_t::T_KEYWORD, TokenValue_t::J_IF, "if"},
-      {"int",         TokenType_t::T_KEYWORD, TokenValue_t::J_INT, "integer"},
-      {"let",         TokenType_t::T_KEYWORD, TokenValue_t::J_LET, "let"},
-      {"var",         TokenType_t::T_KEYWORD, TokenValue_t::J_VAR, "var"},
-      {"char",        TokenType_t::T_KEYWORD, TokenValue_t::J_CHAR, "character"},
-      {"else",        TokenType_t::T_KEYWORD, TokenValue_t::J_ELSE, "else"},
-      {"null",        TokenType_t::T_KEYWORD, TokenValue_t::J_NULL, "null"},
-      {"this",        TokenType_t::T_KEYWORD, TokenValue_t::J_THIS, "this"},
-      {"true",        TokenType_t::T_KEYWORD, TokenValue_t::J_TRUE, "true"},
-      {"void",        TokenType_t::T_KEYWORD, TokenValue_t::J_VOID, "void"},
-      {"class",       TokenType_t::T_KEYWORD, TokenValue_t::J_CLASS, "class"},
-      {"false",       TokenType_t::T_KEYWORD, TokenValue_t::J_FALSE, "false"},
-      {"field",       TokenType_t::T_KEYWORD, TokenValue_t::J_FIELD, "field"},
-      {"while",       TokenType_t::T_KEYWORD, TokenValue_t::J_WHILE, "while"},
-      {"method",      TokenType_t::T_KEYWORD, TokenValue_t::J_METHOD, "method"},
-      {"return",      TokenType_t::T_KEYWORD, TokenValue_t::J_RETURN, "return"},
-      {"static",      TokenType_t::T_KEYWORD, TokenValue_t::J_STATIC, "static"},
-      {"boolean",     TokenType_t::T_KEYWORD, TokenValue_t::J_BOOLEAN, "boolean"},
-      {"function",    TokenType_t::T_KEYWORD, TokenValue_t::J_FUNCTION, "function"},
-      {"constructor", TokenType_t::T_KEYWORD, TokenValue_t::J_CONSTRUCTOR, "constructor"},
+      {"do",          TokenValue_t::J_DO, "do"},
+      {"if",          TokenValue_t::J_IF, "if"},
+      {"int",         TokenValue_t::J_INT, "integer"},
+      {"let",         TokenValue_t::J_LET, "let"},
+      {"var",         TokenValue_t::J_VAR, "var"},
+      {"char",        TokenValue_t::J_CHAR, "character"},
+      {"else",        TokenValue_t::J_ELSE, "else"},
+      {"null",        TokenValue_t::J_NULL, "null"},
+      {"this",        TokenValue_t::J_THIS, "this"},
+      {"true",        TokenValue_t::J_TRUE, "true"},
+      {"void",        TokenValue_t::J_VOID, "void"},
+      {"class",       TokenValue_t::J_CLASS, "class"},
+      {"false",       TokenValue_t::J_FALSE, "false"},
+      {"field",       TokenValue_t::J_FIELD, "field"},
+      {"while",       TokenValue_t::J_WHILE, "while"},
+      {"method",      TokenValue_t::J_METHOD, "method"},
+      {"return",      TokenValue_t::J_RETURN, "return"},
+      {"static",      TokenValue_t::J_STATIC, "static"},
+      {"boolean",     TokenValue_t::J_BOOLEAN, "boolean"},
+      {"function",    TokenValue_t::J_FUNCTION, "function"},
+      {"constructor", TokenValue_t::J_CONSTRUCTOR, "constructor"},
       // clang-format on
   };
 
@@ -332,14 +347,14 @@ JackToken JackTokenizer::get_jack_keyword_or_identifier_token(char ch)
   {
     if (s.str() == kw.expected_str)
     {
-      return JackToken(kw.token_type, kw.token_value, kw.dbg_str,
+      return JackToken(kw.token_value, kw.dbg_str,
                        reader.get_current_line_number());
     }
   }
 
   // Otherwise, its simply an identifier
-  return JackToken(TokenType_t::T_IDENTIFIER, TokenValue_t::J_IDENTIFIER,
-                   s.str(), reader.get_current_line_number());
+  return JackToken(TokenValue_t::J_IDENTIFIER, s.str(),
+                   reader.get_current_line_number());
 }
 
 JackToken JackTokenizer::get_symbol_token(char ch)
@@ -348,25 +363,25 @@ JackToken JackTokenizer::get_symbol_token(char ch)
 
   const std::vector<TokenDescr_t> ExpectedSymbol {
       // clang-format off
-      {"{", TokenType_t::T_SYMBOL, TokenValue_t::J_LEFT_BRACE, "<left_brace>"},
-      {"}", TokenType_t::T_SYMBOL, TokenValue_t::J_RIGHT_BRACE, "<right_brace>"},
-      {"(", TokenType_t::T_SYMBOL, TokenValue_t::J_LEFT_PARENTHESIS, "<left_parenthesis>"},
-      {")", TokenType_t::T_SYMBOL, TokenValue_t::J_RIGHT_PARENTHESIS, "<right_parenthesis>"},
-      {"[", TokenType_t::T_SYMBOL, TokenValue_t::J_LEFT_BRACKET, "<left_bracket>"},
-      {"]", TokenType_t::T_SYMBOL, TokenValue_t::J_RIGHT_BRACKET, "<right_bracket>"},
-      {".", TokenType_t::T_SYMBOL, TokenValue_t::J_PERIOD, "<period>"},
-      {",", TokenType_t::T_SYMBOL, TokenValue_t::J_COMMA, "<comma>"},
-      {";", TokenType_t::T_SYMBOL, TokenValue_t::J_SEMICOLON, "<semicolon>"},
-      {"+", TokenType_t::T_SYMBOL, TokenValue_t::J_PLUS, "<plus>"},
-      {"-", TokenType_t::T_SYMBOL, TokenValue_t::J_MINUS, "<minus>"},
-      {"*", TokenType_t::T_SYMBOL, TokenValue_t::J_ASTERISK, "<asterisk>"},
-      {"/", TokenType_t::T_SYMBOL, TokenValue_t::J_DIVIDE, "<divide>"},
-      {"&", TokenType_t::T_SYMBOL, TokenValue_t::J_AMPERSAND, "<ampersand>"},
-      {"|", TokenType_t::T_SYMBOL, TokenValue_t::J_VBAR, "<vbar>"},
-      {"<", TokenType_t::T_SYMBOL, TokenValue_t::J_LESS_THAN, "<less_than>"},
-      {">", TokenType_t::T_SYMBOL, TokenValue_t::J_GREATER_THAN, "<greater_than>"},
-      {"=", TokenType_t::T_SYMBOL, TokenValue_t::J_EQUAL, "<equal>"},
-      {"~", TokenType_t::T_SYMBOL, TokenValue_t::J_TILDE, "<tilde>"},
+      {"{", TokenValue_t::J_LEFT_BRACE, "<left_brace>"},
+      {"}", TokenValue_t::J_RIGHT_BRACE, "<right_brace>"},
+      {"(", TokenValue_t::J_LEFT_PARENTHESIS, "<left_parenthesis>"},
+      {")", TokenValue_t::J_RIGHT_PARENTHESIS, "<right_parenthesis>"},
+      {"[", TokenValue_t::J_LEFT_BRACKET, "<left_bracket>"},
+      {"]", TokenValue_t::J_RIGHT_BRACKET, "<right_bracket>"},
+      {".", TokenValue_t::J_PERIOD, "<period>"},
+      {",", TokenValue_t::J_COMMA, "<comma>"},
+      {";", TokenValue_t::J_SEMICOLON, "<semicolon>"},
+      {"+", TokenValue_t::J_PLUS, "<plus>"},
+      {"-", TokenValue_t::J_MINUS, "<minus>"},
+      {"*", TokenValue_t::J_ASTERISK, "<asterisk>"},
+      {"/", TokenValue_t::J_DIVIDE, "<divide>"},
+      {"&", TokenValue_t::J_AMPERSAND, "<ampersand>"},
+      {"|", TokenValue_t::J_VBAR, "<vbar>"},
+      {"<", TokenValue_t::J_LESS_THAN, "<less_than>"},
+      {">", TokenValue_t::J_GREATER_THAN, "<greater_than>"},
+      {"=", TokenValue_t::J_EQUAL, "<equal>"},
+      {"~", TokenValue_t::J_TILDE, "<tilde>"},
       // clang-format on
   };
 
@@ -377,7 +392,7 @@ JackToken JackTokenizer::get_symbol_token(char ch)
   {
     if (s == sym.expected_str)
     {
-      return JackToken(sym.token_type, sym.token_value, sym.dbg_str,
+      return JackToken(sym.token_value, sym.dbg_str,
                        reader.get_current_line_number());
     }
   }

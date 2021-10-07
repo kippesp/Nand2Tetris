@@ -10,29 +10,11 @@ std::ostream& operator<<(std::ostream& os, JackTokenCRef rhs)
 {
   os << "token_name: ";
 
-  os << JackToken::to_string(rhs.get().type) << std::endl;
+  os << JackToken::to_string(rhs.get().value_enum) << std::endl;
   os << "token_value_str: ";
   os << "<<< " << rhs.get().value_str << " >>>" << std::endl;
 
   return os;
-}
-
-std::string JackToken::to_string(TokenType_t t)
-{
-  switch (t)
-  {
-    // clang-format off
-    case TokenType_t::T_UNDEFINED:          return "UNDEFINED";
-    case TokenType_t::T_INTERNAL:           return "INTERNAL";
-    case TokenType_t::T_KEYWORD:            return "KEYWORD";
-    case TokenType_t::T_SYMBOL:             return "SYMBOL";
-    case TokenType_t::T_INTEGER_CONSTANT:   return "INTEGER_CONSTANT";
-    case TokenType_t::T_STRING_CONSTANT:    return "STRING_CONSTANT";
-    case TokenType_t::T_IDENTIFIER:         return "IDENTIFIER";
-      // clang-format on
-  }
-
-  assert(0 && "fallthrough");
 }
 
 std::string JackToken::to_string(TokenValue_t v)
@@ -96,8 +78,7 @@ std::string JackToken::to_s_expression() const
 {
   std::stringstream ss;
 
-  ss << "(" << to_string(type);
-  ss << " " << to_string(value_enum);
+  ss << "(" << to_string(value_enum);
   ss << " " << value_str;
   ss << ")";
 

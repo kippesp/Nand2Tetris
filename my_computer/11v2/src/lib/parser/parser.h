@@ -26,7 +26,6 @@ public:
 
   [[noreturn]] void fatal_error(std::string s) { throw std::runtime_error(s); }
 
-  void require_token(TokenValue_t start_token, TokenType_t token_type);
   void require_token(TokenValue_t start_token, TokenValue_t token_value);
 
   // creates an orphaned AST node of the given type and optional value
