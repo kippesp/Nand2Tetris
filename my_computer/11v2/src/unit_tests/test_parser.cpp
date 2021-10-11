@@ -19,7 +19,7 @@ extern const char* SIMPLE_WHILE_SRC;
 
 SCENARIO("Parse expressions")
 {
-  SECTION("simple integer")
+  SECTION("simple term")
   {
     TextReader R("1");
     JackTokenizer T(R);
@@ -34,6 +34,52 @@ SCENARIO("Parse expressions")
         ""  // clang-format sorcery
         "(EXPRESSION",
         "  (INTEGER_CONSTANT string_value:1))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("simple multiply")
+  {
+    TextReader R("1 * 2");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(EXPRESSION",
+        "  (OP_MULTIPLY",
+        "    (INTEGER_CONSTANT string_value:1)",
+        "    (INTEGER_CONSTANT string_value:2)))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("multiply chain")
+  {
+    TextReader R("1 * 2 / 3");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(EXPRESSION",
+        "  (OP_MULTIPLY",
+        "    (INTEGER_CONSTANT string_value:1)",
+        "    (OP_DIVIDE",
+        "      (INTEGER_CONSTANT string_value:2)",
+        "      (INTEGER_CONSTANT string_value:3))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -256,17 +302,7 @@ SCENARIO("Parse tree simple terms")
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
-
-
-
-
-
-
-
-
-
-
-
+}
 
 #ifdef NEXT
   SECTION("basic precedence expression 1")
@@ -639,4 +675,30 @@ SCENARIO("Parse tree simple terms")
             "              (INTEGER_CONSTANT string_value:1))))))))");
   }
 #endif
+
+#if 0
+SCENARIO("Parse utility functions")
+{
+  SECTION("TODO")
+  {
+    auto I = recursive_descent::OperatorPrecedenceChain.begin();
+
+    REQUIRE(*I == recursive_descent::OperatorPrecedence_t::P_OR);
+    I++;
+
+    REQUIRE(*I == recursive_descent::OperatorPrecedence_t::P_AND);
+    I++;
+
+    REQUIRE(*I == recursive_descent::OperatorPrecedence_t::P_CMP);
+    I++;
+
+    REQUIRE(*I == recursive_descent::OperatorPrecedence_t::P_ADD);
+    I++;
+
+    REQUIRE(*I == recursive_descent::OperatorPrecedence_t::P_MUL);
+    I++;
+
+    REQUIRE(I == recursive_descent::OperatorPrecedenceChain.end());
+  }
 }
+#endif

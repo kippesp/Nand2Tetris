@@ -40,15 +40,16 @@ Expressions:
 <call-site>        ::= <subroutine-name> |
                        (<class-name> | <var-name>) "." <subroutine-name>
 <scalar-var>       ::= <var-name>
-<array-var>        ::= <var-name> "[" <expression> "]" 
+<array-var>        ::= <var-name> "[" <expression> "]"
 <expression-list>  ::= {<expression {"," <expression>}*}?
 <keyword-constant> ::= "true" | "false" | "null" | "this"
 <prefix-op>        ::= "-" | "~"
-<infix-op>         ::= "*" | "/" |
-                       "+" | "-" |
-                       "<" | ">" | "=" |
-                       "&" |
-                       "|"
+<infix-op>         ::= <or-op> | <and-op> | <cmp-op> | <add-op> | <mult-op>
+<or-op>            ::= "|"
+<and-op>           ::= "&"
+<cmp-op>           ::= "<" | ">" | "="
+<add-op>           ::= "+" | "-"
+<mult-op>          ::= "*" | "/"
 
 Expressions (recursive descent):
 

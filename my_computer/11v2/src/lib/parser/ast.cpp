@@ -70,6 +70,16 @@ std::string AstNode::to_string(AstNodeType_t t)
 
     case AstNodeType_t::N_PARAMETER_DECL:              return "PARAMETER_DECL";
 
+    case AstNodeType_t::N_OP_MULTIPLY:                 return "OP_MULTIPLY";
+    case AstNodeType_t::N_OP_DIVIDE:                   return "OP_DIVIDE";
+    case AstNodeType_t::N_OP_ADD:                      return "OP_ADD";
+    case AstNodeType_t::N_OP_SUBTRACT:                 return "OP_SUBTRACT";
+    case AstNodeType_t::N_OP_LOGICAL_EQUALS:           return "OP_LOGICAL_EQUALS";
+    case AstNodeType_t::N_OP_LOGICAL_GT:               return "OP_LOGICAL_GT";
+    case AstNodeType_t::N_OP_LOGICAL_LT:               return "OP_LOGICAL_LT";
+    case AstNodeType_t::N_OP_LOGICAL_AND:              return "OP_LOGICAL_AND";
+    case AstNodeType_t::N_OP_LOGICAL_OR:               return "OP_LOGICAL_OR";
+
     case AstNodeType_t::N_CLASSVAR_STATIC_DECL:        return "CLASSVAR_STATIC_DECL";
     case AstNodeType_t::N_CLASSVAR_FIELD_DECL:         return "CLASSVAR_FIELD_DECL";
     case AstNodeType_t::N_VARIABLE_INTEGER_TYPE:       return "VARIABLE_INTEGER_TYPE";
@@ -80,6 +90,11 @@ std::string AstNode::to_string(AstNodeType_t t)
   }
 
   assert(0 && "fallthrough");
+}
+
+bool AstNode::operator==(const AstNode& other) const
+{
+  return this == &other;
 }
 
 std::string AstNode::as_s_expression(const std::string& indent)

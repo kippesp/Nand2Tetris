@@ -42,6 +42,16 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_CLASSVAR_DECL_BLOCK,
   N_PARAMETER_DECL,
 
+  N_OP_MULTIPLY,
+  N_OP_DIVIDE,
+  N_OP_ADD,
+  N_OP_SUBTRACT,
+  N_OP_LOGICAL_EQUALS,
+  N_OP_LOGICAL_GT,
+  N_OP_LOGICAL_LT,
+  N_OP_LOGICAL_AND,
+  N_OP_LOGICAL_OR,
+
   // N_ARRAY_BINDING,
   // N_ARRAY_VAR,
   // N_BINARY_OP,
@@ -95,6 +105,8 @@ public:
   AstNode(AstNodeType_t type);
 
   AstNode(const AstNode& my_class) : type(my_class.type) {}
+
+  bool operator==(const AstNode&) const;
 
   friend std::ostream& operator<<(std::ostream& os, const AstNode& rhs);
 
