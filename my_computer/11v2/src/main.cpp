@@ -2,10 +2,10 @@
 
 #include <iostream>
 
+#include "parser/parser.h"
+#include "tokenizer/jack_tokenizer.h"
 #include "util/cli_args.h"
 #include "util/textfile_reader.h"
-//#include "parser/parse_tree.h"
-#include "tokenizer/jack_tokenizer.h"
 //#include "vmwriter/vmwriter.h"
 
 static int inner_main(const CliArgs& cliargs)
@@ -37,32 +37,30 @@ static int inner_main(const CliArgs& cliargs)
       return 0;
     }
 
-#if 0
     // filter out comment tokens
-    std::vector<const JackToken> filtered_tokens;
+    Tokens_t filtered_tokens;
 
     for (const auto& token : tokens)
     {
-      if (token.value_enum != TokenValue_t::J_COMMENT)
+      if (token.get().value_enum != TokenValue_t::J_COMMENT)
       {
         filtered_tokens.push_back(token);
       }
     }
-#endif
 
-#if 0
-    ParseTree T(filtered_tokens, base_filename);
+    recursive_descent::Parser parser(filtered_tokens);
 
-    auto parsetree_node = T.parse_class();
+    const auto& class_ast = parser.parse_class();
 
     if (cliargs.halt_after_parse_tree_s_expression)
     {
-      stringstream ss;
-      ss << *parsetree_node;
-      cout << T.pprint(ss.str()) << endl;
+      std::stringstream ss;
+      ss << class_ast.get().as_s_expression();
+      std::cout << ss.str() << std::endl;
       return 0;
     }
 
+#if 0
     VmWriter VM(parsetree_node);
     VM.lower_class();
 
@@ -106,7 +104,8 @@ int main(int argc, const char* argv[])
   CliArgs cliargs(argc, argv);
 
   if ((cliargs.inputlist().size() > 1) &&
-      ((cliargs.halt_after_tokenizer || cliargs.halt_after_vmwriter)))
+      ((cliargs.halt_after_tokenizer || cliargs.halt_after_vmwriter ||
+        cliargs.halt_after_parse_tree_s_expression)))
   {
     std::cout << "Output with multiple files not supported." << std::endl;
     return 1;
