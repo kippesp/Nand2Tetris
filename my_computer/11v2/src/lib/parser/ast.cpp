@@ -80,6 +80,12 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_OP_LOGICAL_AND:              return "OP_LOGICAL_AND";
     case AstNodeType_t::N_OP_LOGICAL_OR:               return "OP_LOGICAL_OR";
 
+    case AstNodeType_t::N_SUBROUTINE_CALL:             return "SUBROUTINE_CALL";
+    case AstNodeType_t::N_SUBROUTINE_NAME:             return "SUBROUTINE_NAME";
+    case AstNodeType_t::N_LOCAL_CALL_SITE:             return "LOCAL_CALL_SITE";
+    case AstNodeType_t::N_GLOBAL_CALL_SITE:            return "GLOBAL_CALL_SITE";
+    case AstNodeType_t::N_GLOBAL_BIND_NAME:            return "GLOBAL_BIND_NAME";
+
     case AstNodeType_t::N_CLASSVAR_STATIC_DECL:        return "CLASSVAR_STATIC_DECL";
     case AstNodeType_t::N_CLASSVAR_FIELD_DECL:         return "CLASSVAR_FIELD_DECL";
     case AstNodeType_t::N_VARIABLE_INTEGER_TYPE:       return "VARIABLE_INTEGER_TYPE";

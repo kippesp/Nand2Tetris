@@ -64,14 +64,21 @@ class Test {
 }
 )""";
 
-const char* OBJECT_METHOD_CALL_SRC = R"""(
+const char* JACK_SEVEN_SRC = R"""(
+class Main {
+   function void main() {
+      do Output.printInt(1 + (2 * 3));
+      return;
+   }
+}
+)""";
+
+const char* STRING_TERM_SRC = R"""(
 class Test {
-    function void main() {
-        var MyClass c;
-        let c = MyClass.new();
-        do c.run();
-        return;
-    }
+   function void main() {
+     do Output.printString("Hello");
+     return;
+   }
 }
 )""";
 
@@ -87,12 +94,33 @@ class Main {
 }
 )""";
 
-const char* STRING_TERM_SRC = R"""(
+const char* OBJECT_METHOD_CALL_SRC = R"""(
 class Test {
-   function void main() {
-     do Output.printString("Hello");
-     return;
-   }
+    function void main() {
+        var MyClass c;
+        let c = MyClass.new();
+        do c.run();
+        return;
+    }
+}
+)""";
+
+const char* SIMPLE_IF_SRC = R"""(
+class IfTest {
+    function int f1(int a) {
+        var int r;
+
+        if (a > 50)
+        {
+            let r = 1;
+        }
+        else
+        {
+            let r = a;
+        }
+
+        return r;
+    }
 }
 )""";
 
@@ -116,21 +144,47 @@ class JackTest2 {
 }
 )""";
 
-const char* SIMPLE_IF_SRC = R"""(
-class IfTest {
+const char* NUMERICAL_IF_SRC = R"""(
+class Main {
+  function void main() {
+    if (8191 & 2)
+    {
+      do Output.printInt(1);
+    }
+    else
+    {
+      do Output.printInt(255);
+    }
+
+    return;
+  }
+}
+)""";
+
+const char* LET_STATEMENT_SRC = R"""(
+class Main {
+    function int f1() {
+        var int v1, v2;
+        var bool v3;
+
+        let v1 = 1;
+        let v2 = 1 + -v2;
+        let v3 = true;
+
+        return v1 + Math.pow(v2, 2);
+    }
+}
+)""";
+
+const char* SIMPLE_WHILE_SRC = R"""(
+class WhileTest {
     function int f1(int a) {
-        var int r;
-
-        if (a > 50)
+        while (a > 0)
         {
-            let r = 1;
-        }
-        else
-        {
-            let r = a;
+            let a = a - 1;
         }
 
-        return r;
+        return a;
     }
 }
 )""";
@@ -171,59 +225,5 @@ class Test {
      let a[0] = b[0];
      return;
    }
-}
-)""";
-
-const char* NUMERICAL_IF_SRC = R"""(
-class Main {
-  function void main() {
-    if (8191 & 2)
-    {
-      do Output.printInt(1);
-    }
-    else
-    {
-      do Output.printInt(255);
-    }
-
-    return;
-  }
-}
-)""";
-
-const char* JACK_SEVEN_SRC = R"""(
-class Main {
-   function void main() {
-      do Output.printInt(1 + (2 * 3));
-      return;
-   }
-}
-)""";
-
-const char* LET_STATEMENT_SRC = R"""(
-class Main {
-    function int f1() {
-        var int v1, v2;
-        var bool v3;
-
-        let v1 = 1;
-        let v2 = 1 + -v2;
-        let v3 = true;
-
-        return v1 + Math.pow(v2, 2);
-    }
-}
-)""";
-
-const char* SIMPLE_WHILE_SRC = R"""(
-class WhileTest {
-    function int f1(int a) {
-        while (a > 0)
-        {
-            let a = a - 1;
-        }
-
-        return a;
-    }
 }
 )""";

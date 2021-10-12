@@ -36,7 +36,7 @@ Expressions:
 <term>             ::= <integer-constant> | <string-constant> | <keyword-constant> |
                        <scalar-var> | <array-var> | <subroutine-call> |
                        "(" <expression> ")" | <prefix-op> <term>
-<subroutine-call>  ::= <call-site> "(" <expression-list> ")"
+<subroutine-call>  ::= <call-site> "(" {<expression-list>}? ")"
 <call-site>        ::= <subroutine-name> |
                        (<class-name> | <var-name>) "." <subroutine-name>
 <scalar-var>       ::= <var-name>
@@ -66,7 +66,7 @@ source: http://nand2tetris-questions-and-answers-forum.52.s1.nabble.com/Adding-S
                        "(" <expression> ")" |
                        <prefix-op> <term>
 <keyword-constant> ::= "true" | "false" | "null" | "this"
-<subroutine-call>  ::= <call-site> "(" <expression-list> ")"
+<subroutine-call>  ::= <call-site> "(" {<expression-list>}? ")"
 <call-site>        ::= <subroutine-name> |
                        (<class-name> | <var-name>) "." <subroutine-name>
 <scalar-var>       ::= <var-name>

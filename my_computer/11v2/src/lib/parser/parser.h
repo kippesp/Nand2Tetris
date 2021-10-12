@@ -37,13 +37,18 @@ public:
   ast::AstNodeRef parse_class();
   ast::AstNodeRef parse_classvar_decl_block();
   ast::AstNodeRef parse_subroutine();
-  ast::AstNodeRef parse_let_statement();
-  ast::AstNodeRef parse_return_statement();
+
+  ast::AstNodeRef parse_statement();
+  ast::AstNodeRef parse_subroutine_call();
 
   ast::AstNodeRef parse_expression();
   ast::AstNodeRef parse_term();
 
 private:
+  ast::AstNodeRef parse_let_statement();
+  ast::AstNodeRef parse_do_statement();
+  ast::AstNodeRef parse_return_statement();
+
   ast::AstTree AST;
 
   Tokens_t::iterator token_iter;
@@ -53,6 +58,7 @@ private:
   std::reference_wrapper<const JackToken> peek_token;
 
   // convention to represent an empty leaf
+  const std::unique_ptr<ast::AstNode> EmptyNode;
   const ast::AstNodeRef EmptyNodeRef;
 };
 

@@ -4,22 +4,26 @@
 #include "jack_sources.h"
 
 #if 0
+extern const char* CONST_VOID_METHOD_CALL_SRC;
+extern const char* JACK_SEVEN_SRC;
+
 extern const char* STRING_TERM_SRC;
-extern const char* TWO_SUBS_SRC;
+extern const char* CLASS_METHOD_CALL_SRC);
 extern const char* OBJECT_METHOD_CALL_SRC;
 extern const char* SIMPLE_IF_SRC;
+extern const char* TWO_SUBS_SRC;
+
+extern const char* NUMERICAL_IF_SRC;
+extern const char* LET_STATEMENT_SRC;
+extern const char* SIMPLE_WHILE_SRC;
 extern const char* LHS_ARRAY_ASSIGN_SRC;
 extern const char* RHS_ARRAY_ASSIGN_SRC;
 extern const char* ARRAY_ARRAY_ASSIGN_SRC;
-extern const char* NUMERICAL_IF_SRC;
-extern const char* JACK_SEVEN_SRC;
-extern const char* LET_STATEMENT_SRC;
-extern const char* SIMPLE_WHILE_SRC;
 #endif
 
 SCENARIO("Parse expressions")
 {
-  SECTION("simple term")
+  SECTION("single term")
   {
     TextReader R("1");
     JackTokenizer T(R);
@@ -32,8 +36,26 @@ SCENARIO("Parse expressions")
 
     Expected_t expected = {
         ""  // clang-format sorcery
-        "(EXPRESSION",
-        "  (INTEGER_CONSTANT string_value:1))"};
+        "(INTEGER_CONSTANT string_value:1)"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("single paren term")
+  {
+    TextReader R("((((1))))");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(INTEGER_CONSTANT string_value:1)"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -52,10 +74,9 @@ SCENARIO("Parse expressions")
 
     Expected_t expected = {
         ""  // clang-format sorcery
-        "(EXPRESSION",
-        "  (OP_MULTIPLY",
-        "    (INTEGER_CONSTANT string_value:1)",
-        "    (INTEGER_CONSTANT string_value:2)))"};
+        "(OP_MULTIPLY",
+        "  (INTEGER_CONSTANT string_value:1)",
+        "  (INTEGER_CONSTANT string_value:2))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -74,12 +95,11 @@ SCENARIO("Parse expressions")
 
     Expected_t expected = {
         ""  // clang-format sorcery
-        "(EXPRESSION",
-        "  (OP_MULTIPLY",
-        "    (INTEGER_CONSTANT string_value:1)",
-        "    (OP_DIVIDE",
-        "      (INTEGER_CONSTANT string_value:2)",
-        "      (INTEGER_CONSTANT string_value:3))))"};
+        "(OP_MULTIPLY",
+        "  (INTEGER_CONSTANT string_value:1)",
+        "  (OP_DIVIDE",
+        "    (INTEGER_CONSTANT string_value:2)",
+        "    (INTEGER_CONSTANT string_value:3)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -98,8 +118,125 @@ SCENARIO("Parse expressions")
 
     Expected_t expected = {
         ""  // clang-format sorcery
-        "(EXPRESSION",
-        "  (STRING_CONSTANT string_value:a string))"};
+        "(STRING_CONSTANT string_value:a string)"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+}
+
+SCENARIO("Subroutine calls")
+{
+  SECTION("local call, no parms")
+  {
+    TextReader R("fn()");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_subroutine_call();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(SUBROUTINE_CALL",
+        "  (LOCAL_CALL_SITE",
+        "    (SUBROUTINE_NAME string_value:fn)))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("global call, no parm")
+  {
+    TextReader R("MyClass.fn()");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_subroutine_call();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(SUBROUTINE_CALL",
+        "  (GLOBAL_CALL_SITE",
+        "    (GLOBAL_BIND_NAME string_value:MyClass)",
+        "    (SUBROUTINE_NAME string_value:fn)))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("local call, 1 parm")
+  {
+    TextReader R("fn(1)");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_subroutine_call();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(SUBROUTINE_CALL",
+        "  (LOCAL_CALL_SITE",
+        "    (SUBROUTINE_NAME string_value:fn))",
+        "  (INTEGER_CONSTANT string_value:1))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("local call, 2 parms")
+  {
+    TextReader R("fn(1, 2)");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_subroutine_call();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(SUBROUTINE_CALL",
+        "  (LOCAL_CALL_SITE",
+        "    (SUBROUTINE_NAME string_value:fn))",
+        "  (INTEGER_CONSTANT string_value:1)",
+        "  (INTEGER_CONSTANT string_value:2))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("local call, 2 expression parms")
+  {
+    TextReader R("fn(2*3, 4*5)");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_subroutine_call();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(SUBROUTINE_CALL",
+        "  (LOCAL_CALL_SITE",
+        "    (SUBROUTINE_NAME string_value:fn))",
+        "  (OP_MULTIPLY",
+        "    (INTEGER_CONSTANT string_value:2)",
+        "    (INTEGER_CONSTANT string_value:3))",
+        "  (OP_MULTIPLY",
+        "    (INTEGER_CONSTANT string_value:4)",
+        "    (INTEGER_CONSTANT string_value:5)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -116,7 +253,7 @@ SCENARIO("Parse tree simple terms")
     auto tokens = T.parse_tokens();
 
     recursive_descent::Parser parser(tokens);
-    const auto& root = parser.parse_let_statement();
+    const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
     Expected_t expected = {
@@ -124,9 +261,8 @@ SCENARIO("Parse tree simple terms")
         "(LET_STATEMENT",
         "  (SCALAR_VAR",
         "    (VARIABLE_NAME string_value:i))",
-        "  (EXPRESSION",
-        "    (KEYWORD_CONSTANT",
-        "      (TRUE_KEYWORD))))"};
+        "  (KEYWORD_CONSTANT",
+        "    (TRUE_KEYWORD)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -152,8 +288,7 @@ SCENARIO("Parse tree simple terms")
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
-        "          (EXPRESSION",
-        "            (INTEGER_CONSTANT string_value:1)))))))"};
+        "          (INTEGER_CONSTANT string_value:1))))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -204,18 +339,16 @@ SCENARIO("Parse tree simple terms")
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
-        "          (EXPRESSION",
-        "            (KEYWORD_CONSTANT",
-        "              (THIS_KEYWORD)))))))",
+        "          (KEYWORD_CONSTANT",
+        "            (THIS_KEYWORD))))))",
         "  (METHOD_DECL string_value:ref",
         "    (SUBROUTINE_DESCR",
         "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int))",
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
-        "          (EXPRESSION",
-        "            (KEYWORD_CONSTANT",
-        "              (THIS_KEYWORD))))))))"};
+        "          (KEYWORD_CONSTANT",
+        "            (THIS_KEYWORD)))))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -302,182 +435,7 @@ SCENARIO("Parse tree simple terms")
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
-}
 
-#ifdef NEXT
-  SECTION("basic precedence expression 1")
-  {
-    TextReader R("1");
-    JackTokenizer T(R);
-
-    auto tokens = T.parse_tokens();
-
-    recursive_descent::Parser parser(tokens);
-    const auto& root = parser.parse_expression();
-    std::string as_str = root.get().as_s_expression();
-
-    Expected_t expected = {
-        ""
-        "(EXPRESSION",
-        "  (TERM",
-        "    (INTEGER_CONSTANT string_value:1)))"};
-
-    std::string expected_str = expected_string(expected);
-    REQUIRE(as_str == expected_str);
-  }
-#endif
-
-#ifdef NEXT
-  SECTION("basic precedence expression 2")
-  {
-    TextReader R("(1)");
-    JackTokenizer T(R);
-
-    auto tokens = T.parse_tokens();
-
-    recursive_descent::Parser parser(tokens);
-    const auto& root = parser.parse_expression();
-    std::string as_str = root.get().as_s_expression();
-
-    Expected_t expected = {
-        ""
-        "(EXPRESSION",
-        "  (TERM",
-        "    (INTEGER_CONSTANT string_value:1)))"};
-
-    std::string expected_str = expected_string(expected);
-    REQUIRE(as_str == expected_str);
-  }
-#endif
-
-#ifdef NEXT
-  SECTION("basic precedence expression 3")
-  {
-    TextReader R("1 + 2");
-    JackTokenizer T(R);
-
-    auto tokens = T.parse_tokens();
-
-    recursive_descent::Parser parser(tokens);
-    const auto& root = parser.parse_expression();
-    std::string as_str = root.get().as_s_expression();
-
-    Expected_t expected = {
-        ""
-        "(EXPRESSION",
-        "  (ADD_OP",
-        "    (TERM",
-        "      (INTEGER_CONSTANT string_value:1))",
-        "    (TERM",
-        "      (INTEGER_CONSTANT string_value:2))))"};
-
-    std::string expected_str = expected_string(expected);
-    REQUIRE(as_str == expected_str);
-  }
-#endif
-
-#ifdef NEXT
-  SECTION("basic precedence expression 4")
-  {
-    TextReader R("1 + 2 * 3");
-    JackTokenizer T(R);
-
-    auto tokens = T.parse_tokens();
-
-    recursive_descent::Parser parser(tokens);
-    const auto& root = parser.parse_expression();
-    std::string as_str = root.get().as_s_expression();
-
-    Expected_t expected = {
-        ""
-        "(EXPRESSION",
-        "  (ADD_OP",
-        "    (TERM",
-        "      (INTEGER_CONSTANT string_value:1))",
-        "    (MUL_OP",
-        "      (TERM",
-        "        (INTEGER_CONSTANT string_value:2))",
-        "      (TERM",
-        "        (INTEGER_CONSTANT string_value:3)))))"};
-
-    std::string expected_str = expected_string(expected);
-    REQUIRE(as_str == expected_str);
-  }
-#endif
-
-#ifdef NEXT
-  SECTION("basic precedence expression 5")
-  {
-    TextReader R("(1 + 2) * 3");
-    JackTokenizer T(R);
-
-    auto tokens = T.parse_tokens();
-
-    recursive_descent::Parser parser(tokens);
-    const auto& root = parser.parse_expression();
-    std::string as_str = root.get().as_s_expression();
-
-    Expected_t expected = {
-        ""
-        "(EXPRESSION",
-        "  (MUL_OP",
-        "    (ADD_OP",
-        "      (TERM",
-        "        (INTEGER_CONSTANT string_value:1))",
-        "      (TERM",
-        "        (INTEGER_CONSTANT string_value:2)))",
-        "    (TERM",
-        "      (INTEGER_CONSTANT string_value:3))))"};
-
-    std::string expected_str = expected_string(expected);
-    REQUIRE(as_str == expected_str);
-  }
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-#ifdef NEXT
-  SECTION("basic precedence expression")
-  {
-    TextReader R("1 + 2 * 3");
-    JackTokenizer T(R);
-
-    auto tokens = T.parse_tokens();
-
-    recursive_descent::Parser parser(tokens);
-    const auto& root = parser.parse_expression();
-    std::string as_str = root.get().as_s_expression();
-
-    Expected_t expected = {
-        ""
-        "(EXPRESSION",
-        "  (MUL_OP",
-        "    (ADD_OP",
-        "      (TERM",
-        "        (INTEGER_CONSTANT string_value:1))",
-        "      (TERM",
-        "        (INTEGER_CONSTANT string_value:2)))",
-        "    (TERM",
-        "      (INTEGER_CONSTANT string_value:4))))"};
-
-    std::string expected_str = expected_string(expected);
-    REQUIRE(as_str == expected_str);
-  }
-#endif
-
-#if 0
   SECTION("constant void method call")
   {
     TextReader R(CONST_VOID_METHOD_CALL_SRC);
@@ -488,69 +446,33 @@ SCENARIO("Parse tree simple terms")
     recursive_descent::Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
-    REQUIRE(as_str ==
-        "(CLASS_DECL string_value:Test\n"
+    Expected_t expected = {
+        "(CLASS_DECL string_value:Test",
         "  (METHOD_DECL string_value:draw",
         "    (SUBROUTINE_DESCR",
         "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void))",
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
-        "        (RETURN_STATEMENT))))"
-
+        "        (RETURN_STATEMENT))))",
         "  (METHOD_DECL string_value:run",
         "    (SUBROUTINE_DESCR",
         "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void))",
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
-        "        (SUBROUTINE_CALL",
-        "          (CALL_SITE_BINDING",
-
-        "            (BIND_NAME",
-        "            (SUBROUTINE_NAME",
-
-        "        (RETURN_STATEMENT))))"
-
-        "    (SUBROUTINE_DESCR",
-        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void)",
-        "      (PARAMETER_LIST",
-        "        (PARAMETER_DECL",
-        "          (VARIABLE_NAME string_value:a1)",
-        "          (VARIABLE_INTEGER_TYPE))",
-        "        (PARAMETER_DECL",
-        "          (VARIABLE_NAME string_value:a2)",
-        "          (VARIABLE_INTEGER_TYPE))))",
-        "    (SUBROUTINE_BODY",
-        "      (LOCAL_VAR_DECL_BLOCK",
-        "        (LOCAL_VAR_DECL",
-        "          (VARIABLE_NAME string_value:v1)",
-        "          (VARIABLE_INTEGER_TYPE))",
-        "        (LOCAL_VAR_DECL",
-        "          (VARIABLE_NAME string_value:v2)",
-        "          (VARIABLE_BOOLEAN_TYPE))",
-        "        (LOCAL_VAR_DECL",
-        "          (VARIABLE_NAME string_value:v3)",
-        "          (VARIABLE_BOOLEAN_TYPE)))",
-        "      (STATEMENT_BLOCK",
+        "        (DO_STATEMENT",
+        "          (SUBROUTINE_CALL",
+        "            (LOCAL_CALL_SITE",
+        "              (SUBROUTINE_NAME string_value:draw))))",
         "        (RETURN_STATEMENT)))))"};
 
-
-
-
-
-
-
-
-            "  (FUNCTION_DECL string_value:f1\n"
-            "    (SUBROUTINE_DESCR\n"
-            "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int))\n"
-            "    (SUBROUTINE_BODY\n"
-            "      (STATEMENT_BLOCK\n"
-            "        (RETURN_STATEMENT\n"
-            "          (EXPRESSION\n"
-            "            (TERM\n"
-            "              (INTEGER_CONSTANT string_value:1))))))))");
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
   }
-#endif
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 #if 0
   SECTION("object method call")
@@ -674,31 +596,4 @@ SCENARIO("Parse tree simple terms")
             "            (TERM\n"
             "              (INTEGER_CONSTANT string_value:1))))))))");
   }
-#endif
-
-#if 0
-SCENARIO("Parse utility functions")
-{
-  SECTION("TODO")
-  {
-    auto I = recursive_descent::OperatorPrecedenceChain.begin();
-
-    REQUIRE(*I == recursive_descent::OperatorPrecedence_t::P_OR);
-    I++;
-
-    REQUIRE(*I == recursive_descent::OperatorPrecedence_t::P_AND);
-    I++;
-
-    REQUIRE(*I == recursive_descent::OperatorPrecedence_t::P_CMP);
-    I++;
-
-    REQUIRE(*I == recursive_descent::OperatorPrecedence_t::P_ADD);
-    I++;
-
-    REQUIRE(*I == recursive_descent::OperatorPrecedence_t::P_MUL);
-    I++;
-
-    REQUIRE(I == recursive_descent::OperatorPrecedenceChain.end());
-  }
-}
 #endif

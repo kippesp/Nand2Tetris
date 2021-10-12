@@ -52,6 +52,12 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_OP_LOGICAL_AND,
   N_OP_LOGICAL_OR,
 
+  N_SUBROUTINE_CALL,
+  N_SUBROUTINE_NAME,
+  N_LOCAL_CALL_SITE,
+  N_GLOBAL_CALL_SITE,
+  N_GLOBAL_BIND_NAME,
+
   // N_ARRAY_BINDING,
   // N_ARRAY_VAR,
   // N_BINARY_OP,
@@ -69,8 +75,6 @@ using AstNodeType_t = enum class AstNodeType_s {
   // N_OP,
   // N_RETURN_TYPE,
   N_STRING_CONSTANT,
-  // N_SUBROUTINE_CALL,
-  // N_SUBROUTINE_CALL_SITE_BINDING,
   N_LOCAL_VAR_DECL_BLOCK,
   N_LOCAL_VAR_DECL,
   // N_SUBROUTINE_TYPE,

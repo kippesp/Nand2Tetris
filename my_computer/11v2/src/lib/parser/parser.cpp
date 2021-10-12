@@ -19,8 +19,9 @@ Parser::Parser(Tokens_t& tokens)
       token_iter_end(tokens.end()),
       current_token(*token_iter),
       peek_token(*(++token_iter)),
-      EmptyNodeRef(*(std::make_unique<ast::AstNode>(
-          ast::AstNode {ast::AstNodeType_t::N_UNDEFINED})))
+      EmptyNode(
+          std::make_unique<ast::AstNode>(ast::AstNodeType_t::N_UNDEFINED)),
+      EmptyNodeRef(*EmptyNode)
 {
 }
 
@@ -430,25 +431,14 @@ AstNodeRef Parser::parse_subroutine()
     AstNodeRef StatementBlockAst =
         create_ast_node(AstNodeType_t::N_STATEMENT_BLOCK);
 
+    // TODO: permit no statements to have no block
+
     while (current_token.get().value_enum != TokenValue_t::J_RIGHT_BRACE)
     {
-      if (current_token.get().value_enum == TokenValue_t::J_LET)
-      {
-        AstNodeRef LetAst = parse_let_statement();
-        StatementBlockAst.get().add_child(LetAst);
-      }
-      else if (current_token.get().value_enum == TokenValue_t::J_DO)
-      {
-      }
-      else if (current_token.get().value_enum == TokenValue_t::J_RETURN)
-      {
-        AstNodeRef ReturnAst = parse_return_statement();
-        StatementBlockAst.get().add_child(ReturnAst);
-      }
-      else
-      {
-        assert(0 && "statement required");
-      }
+      AstNodeRef StatementAst = parse_statement();
+      assert((StatementAst.get() != EmptyNodeRef.get()) &&
+             "statement required");
+      StatementBlockAst.get().add_child(StatementAst);
     }
 
     SubroutineBodyAst.get().add_child(StatementBlockAst);
@@ -460,6 +450,28 @@ AstNodeRef Parser::parse_subroutine()
   get_next_token();
 
   return SubrDeclAst.value();
+}
+
+AstNodeRef Parser::parse_statement()
+{
+  std::optional<AstNodeRef> StatementAst;
+
+  if (current_token.get().value_enum == TokenValue_t::J_LET)
+  {
+    StatementAst = parse_let_statement();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_DO)
+  {
+    StatementAst = parse_do_statement();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_RETURN)
+  {
+    StatementAst = parse_return_statement();
+  }
+
+  assert(StatementAst.has_value());
+
+  return StatementAst.value();
 }
 
 AstNodeRef Parser::parse_let_statement()
@@ -502,6 +514,22 @@ AstNodeRef Parser::parse_let_statement()
   return LetAst;
 }
 
+AstNodeRef Parser::parse_do_statement()
+{
+  require_token(current_token.get().value_enum, TokenValue_t::J_DO);
+  get_next_token();
+
+  AstNodeRef call_ast = parse_subroutine_call();
+
+  require_token(current_token.get().value_enum, TokenValue_t::J_SEMICOLON);
+  get_next_token();
+
+  AstNodeRef do_ast = create_ast_node(AstNodeType_t::N_DO_STATEMENT);
+  do_ast.get().add_child(call_ast);
+
+  return do_ast;
+}
+
 AstNodeRef Parser::parse_return_statement()
 {
   const auto start_token = TokenValue_t::J_RETURN;
@@ -520,6 +548,73 @@ AstNodeRef Parser::parse_return_statement()
   get_next_token();
 
   return ReturnAst;
+}
+
+AstNodeRef Parser::parse_subroutine_call()
+{
+  require_token(current_token.get().value_enum, TokenValue_t::J_IDENTIFIER);
+
+  AstNodeRef root_node = create_ast_node(AstNodeType_t::N_SUBROUTINE_CALL);
+
+  if (peek_token.get().value_enum == TokenValue_t::J_PERIOD)
+  {
+    AstNodeRef global_call_node =
+        create_ast_node(AstNodeType_t::N_GLOBAL_CALL_SITE);
+
+    global_call_node.get().add_child(create_ast_node(
+        AstNodeType_t::N_GLOBAL_BIND_NAME, current_token.get().value_str));
+    get_next_token();
+
+    require_token(current_token.get().value_enum, TokenValue_t::J_PERIOD);
+    get_next_token();
+
+    global_call_node.get().add_child(create_ast_node(
+        AstNodeType_t::N_SUBROUTINE_NAME, current_token.get().value_str));
+    get_next_token();
+
+    root_node.get().add_child(global_call_node);
+  }
+  else
+  {
+    AstNodeRef local_call_node =
+        create_ast_node(AstNodeType_t::N_LOCAL_CALL_SITE);
+    local_call_node.get().add_child(create_ast_node(
+        AstNodeType_t::N_SUBROUTINE_NAME, current_token.get().value_str));
+    get_next_token();
+
+    root_node.get().add_child(local_call_node);
+  }
+
+  require_token(current_token.get().value_enum,
+                TokenValue_t::J_LEFT_PARENTHESIS);
+  get_next_token();
+
+  for (bool done = false; !done; /* none */)
+  {
+    if (current_token.get().value_enum == TokenValue_t::J_RIGHT_PARENTHESIS)
+    {
+      done = true;
+      break;
+    }
+
+    AstNodeRef statement_ast = parse_expression();
+
+    if (statement_ast.get() != EmptyNodeRef.get())
+    {
+      root_node.get().add_child(statement_ast);
+    }
+
+    if (current_token.get().value_enum == TokenValue_t::J_COMMA)
+    {
+      get_next_token();
+    }
+  }
+
+  require_token(current_token.get().value_enum,
+                TokenValue_t::J_RIGHT_PARENTHESIS);
+  get_next_token();
+
+  return root_node;
 }
 
 //
@@ -713,16 +808,8 @@ AstNodeRef Parser::parse_expression()
   // parse_expression() starts here
   //
 
-  // root of an expression is (N_EXPRESSION) node
-  AstNodeRef ExpressionAst = create_ast_node(AstNodeType_t::N_EXPRESSION);
-
   // lowest operation precedence group is P_OR
-  AstNodeRef OrExpr = parse_subexpression(OperationGroup_t::P_OR);
-
-  if (OrExpr.get() != EmptyNodeRef.get())
-  {
-    ExpressionAst.get().add_child(OrExpr);
-  }
+  AstNodeRef ExpressionAst = parse_subexpression(OperationGroup_t::P_OR);
 
   return ExpressionAst;
 }
@@ -767,6 +854,17 @@ AstNodeRef Parser::parse_term()
   {
     TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
     TermAst.get().add_child(create_ast_node(AstNodeType_t::N_THIS_KEYWORD));
+    get_next_token();
+  }
+  // TODO: scalar
+  // TODO: array
+  // TODO: subroutine
+  else if (current_token.get().value_enum == TokenValue_t::J_LEFT_PARENTHESIS)
+  {
+    get_next_token();
+    TermAst = parse_expression();
+    require_token(current_token.get().value_enum,
+                  TokenValue_t::J_RIGHT_PARENTHESIS);
     get_next_token();
   }
 
