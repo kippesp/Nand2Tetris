@@ -4,9 +4,6 @@
 #include "jack_sources.h"
 
 #if 0
-extern const char* CONST_VOID_METHOD_CALL_SRC;
-extern const char* JACK_SEVEN_SRC;
-
 extern const char* STRING_TERM_SRC;
 extern const char* CLASS_METHOD_CALL_SRC);
 extern const char* OBJECT_METHOD_CALL_SRC;
@@ -436,7 +433,7 @@ SCENARIO("Parse tree simple terms")
     REQUIRE(as_str == expected_str);
   }
 
-  SECTION("constant void method call")
+  SECTION("local method call")
   {
     TextReader R(CONST_VOID_METHOD_CALL_SRC);
     JackTokenizer T(R);
@@ -465,6 +462,38 @@ SCENARIO("Parse tree simple terms")
         "              (SUBROUTINE_NAME string_value:draw))))",
         "        (RETURN_STATEMENT)))))"};
 
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("global method call")
+  {
+    TextReader R(JACK_SEVEN_SRC);
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_class();
+    std::string as_str = root.get().as_s_expression();
+    Expected_t expected = {
+        "(CLASS_DECL string_value:Main",
+        "  (FUNCTION_DECL string_value:main",
+        "    (SUBROUTINE_DESCR",
+        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void))",
+        "    (SUBROUTINE_BODY",
+        "      (STATEMENT_BLOCK",
+        "        (DO_STATEMENT",
+        "          (SUBROUTINE_CALL",
+        "            (GLOBAL_CALL_SITE",
+        "              (GLOBAL_BIND_NAME string_value:Output)",
+        "              (SUBROUTINE_NAME string_value:printInt))",
+        "            (OP_MULTIPLY",
+        "              (INTEGER_CONSTANT string_value:2)",
+        "              (OP_ADD",
+        "                (INTEGER_CONSTANT string_value:1)",
+        "                (INTEGER_CONSTANT string_value:3)))))",
+        "        (RETURN_STATEMENT)))))"};
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }

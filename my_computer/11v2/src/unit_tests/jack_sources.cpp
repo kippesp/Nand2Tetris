@@ -67,7 +67,7 @@ class Test {
 const char* JACK_SEVEN_SRC = R"""(
 class Main {
    function void main() {
-      do Output.printInt(1 + (2 * 3));
+      do Output.printInt(2 * (1 + 3));
       return;
    }
 }
