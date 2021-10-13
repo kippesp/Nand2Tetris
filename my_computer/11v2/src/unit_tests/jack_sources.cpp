@@ -64,15 +64,6 @@ class Test {
 }
 )""";
 
-const char* JACK_SEVEN_SRC = R"""(
-class Main {
-   function void main() {
-      do Output.printInt(2 * (1 + 3));
-      return;
-   }
-}
-)""";
-
 const char* STRING_TERM_SRC = R"""(
 class Test {
    function void main() {

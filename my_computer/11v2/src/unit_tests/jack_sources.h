@@ -1,4 +1,3 @@
-extern const char* JACK_SEVEN_SRC;
 extern const char* CLASSVAR_SRC;
 extern const char* SINGLE_RETURN_SRC;
 extern const char* CLASSVARS_AND_SUBVARS_SRC;
