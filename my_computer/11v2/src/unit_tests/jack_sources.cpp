@@ -64,15 +64,6 @@ class Test {
 }
 )""";
 
-const char* STRING_TERM_SRC = R"""(
-class Test {
-   function void main() {
-     do Output.printString("Hello");
-     return;
-   }
-}
-)""";
-
 const char* CLASS_METHOD_CALL_SRC = R"""(
 class Main {
     method int mul(int a, b) {
@@ -81,17 +72,6 @@ class Main {
 
     method int f1() {
         return mul(1, 2);
-    }
-}
-)""";
-
-const char* OBJECT_METHOD_CALL_SRC = R"""(
-class Test {
-    function void main() {
-        var MyClass c;
-        let c = MyClass.new();
-        do c.run();
-        return;
     }
 }
 )""";
@@ -177,31 +157,6 @@ class WhileTest {
 
         return a;
     }
-}
-)""";
-
-const char* LHS_ARRAY_ASSIGN_SRC = R"""(
-class Test {
-   function void main() {
-     var Array a;
-     var int b;
-     let b = 5;
-     let a = Array.new(3);
-     let a[2] = b;
-     return;
-   }
-}
-)""";
-
-const char* RHS_ARRAY_ASSIGN_SRC = R"""(
-class Test {
-   function int main() {
-     var Array a;
-     let a = Array.new(2);
-     let a[1] = 5;
-     let a[0] = 6;
-     return a[0];
-   }
 }
 )""";
 

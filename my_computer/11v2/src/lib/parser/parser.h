@@ -40,6 +40,7 @@ public:
 
   ast::AstNodeRef parse_statement();
   ast::AstNodeRef parse_subroutine_call();
+  ast::AstNodeRef parse_variable();
 
   ast::AstNodeRef parse_expression();
   ast::AstNodeRef parse_term();

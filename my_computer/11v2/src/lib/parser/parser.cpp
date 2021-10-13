@@ -70,9 +70,9 @@ AstNodeRef Parser::parse_class()
   if ((current_token.get().value_enum == TokenValue_t::J_STATIC) ||
       (current_token.get().value_enum == TokenValue_t::J_FIELD))
   {
-    AstNodeRef ClassVarDeclBlockAst = parse_classvar_decl_block();
+    AstNodeRef class_vars_block_node = parse_classvar_decl_block();
 
-    ClassAst.get().add_child(ClassVarDeclBlockAst);
+    ClassAst.get().add_child(class_vars_block_node);
   }
 
   while (current_token.get().value_enum != TokenValue_t::J_RIGHT_BRACE)
@@ -90,21 +90,21 @@ AstNodeRef Parser::parse_classvar_decl_block()
 {
   const auto start_token = TokenValue_t::J_CLASS;
 
-  AstNodeRef ClassVarDeclBlockAst =
-      create_ast_node(AstNodeType_t::N_CLASSVAR_DECL_BLOCK);
+  AstNodeRef class_vars_block_node =
+      create_ast_node(AstNodeType_t::N_CLASS_VARIABLES);
 
   while ((current_token.get().value_enum == TokenValue_t::J_STATIC) ||
          (current_token.get().value_enum == TokenValue_t::J_FIELD))
   {
-    AstNodeType_t class_var_scope = AstNodeType_t::N_UNDEFINED;
+    std::string var_scope;
 
     if (current_token.get().value_enum == TokenValue_t::J_STATIC)
     {
-      class_var_scope = AstNodeType_t::N_CLASSVAR_STATIC_DECL;
+      var_scope = "static";
     }
     else if (current_token.get().value_enum == TokenValue_t::J_FIELD)
     {
-      class_var_scope = AstNodeType_t::N_CLASSVAR_FIELD_DECL;
+      var_scope = "field";
     }
     else
     {
@@ -119,44 +119,45 @@ AstNodeRef Parser::parse_classvar_decl_block()
 
     get_next_token();
 
-    std::optional<AstNodeRef> VarTypeAst;
+    std::string var_type;
 
     if (current_token.get().value_enum == TokenValue_t::J_INT)
     {
-      VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_INTEGER_TYPE);
+      var_type = "int";
     }
     else if (current_token.get().value_enum == TokenValue_t::J_CHAR)
     {
-      VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_CHARACTER_TYPE);
+      var_type = "char";
     }
     else if (current_token.get().value_enum == TokenValue_t::J_BOOLEAN)
     {
-      VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_BOOLEAN_TYPE);
+      var_type = "boolean";
     }
     else
     {
       require_token(start_token, TokenValue_t::J_IDENTIFIER);
-      VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_CLASS_TYPE,
-                                   current_token.get().value_str);
+      var_type = current_token.get().value_str;
     }
 
     auto add_def_to_block = [&]() {
       require_token(start_token, TokenValue_t::J_IDENTIFIER);
 
-      AstNodeRef ClassVarDecl = create_ast_node(class_var_scope);
+      AstNodeRef class_var_decl = create_ast_node(
+          AstNodeType_t::N_VARIABLE_DECL, current_token.get().value_str);
 
-      AstNodeRef ClassVarDeclName = create_ast_node(
-          AstNodeType_t::N_VARIABLE_NAME, current_token.get().value_str);
+      class_var_decl.get().add_child(
+          create_ast_node(AstNodeType_t::N_CLASS_VARIABLE_SCOPE, var_scope));
 
-      ClassVarDecl.get().add_child(ClassVarDeclName);
-      ClassVarDecl.get().add_child(VarTypeAst.value());
+      class_var_decl.get().add_child(
+          create_ast_node(AstNodeType_t::N_VARIABLE_TYPE, var_type));
 
-      ClassVarDeclBlockAst.get().add_child(ClassVarDecl);
+      class_vars_block_node.get().add_child(class_var_decl);
       get_next_token();
     };
 
     get_next_token();
     require_token(start_token, TokenValue_t::J_IDENTIFIER);
+
     add_def_to_block();
 
     while (current_token.get().value_enum == TokenValue_t::J_COMMA)
@@ -170,7 +171,7 @@ AstNodeRef Parser::parse_classvar_decl_block()
     get_next_token();
   }
 
-  return ClassVarDeclBlockAst;
+  return class_vars_block_node;
 }
 
 AstNodeRef Parser::parse_subroutine()
@@ -221,29 +222,28 @@ AstNodeRef Parser::parse_subroutine()
 
   if (current_token.get().value_enum == TokenValue_t::J_IDENTIFIER)
   {
-    SubrDeclReturnTypeAst =
-        create_ast_node(AstNodeType_t::N_SUBROUTINE_DECL_RETURN_TYPE,
-                        current_token.get().value_str);
+    SubrDeclReturnTypeAst = create_ast_node(AstNodeType_t::N_RETURN_TYPE,
+                                            current_token.get().value_str);
   }
   else if (current_token.get().value_enum == TokenValue_t::J_INT)
   {
     SubrDeclReturnTypeAst =
-        create_ast_node(AstNodeType_t::N_SUBROUTINE_DECL_RETURN_TYPE, "int");
+        create_ast_node(AstNodeType_t::N_RETURN_TYPE, "int");
   }
   else if (current_token.get().value_enum == TokenValue_t::J_CHAR)
   {
     SubrDeclReturnTypeAst =
-        create_ast_node(AstNodeType_t::N_SUBROUTINE_DECL_RETURN_TYPE, "char");
+        create_ast_node(AstNodeType_t::N_RETURN_TYPE, "char");
   }
   else if (current_token.get().value_enum == TokenValue_t::J_BOOLEAN)
   {
-    SubrDeclReturnTypeAst = create_ast_node(
-        AstNodeType_t::N_SUBROUTINE_DECL_RETURN_TYPE, "boolean");
+    SubrDeclReturnTypeAst =
+        create_ast_node(AstNodeType_t::N_RETURN_TYPE, "boolean");
   }
   else if (current_token.get().value_enum == TokenValue_t::J_VOID)
   {
     SubrDeclReturnTypeAst =
-        create_ast_node(AstNodeType_t::N_SUBROUTINE_DECL_RETURN_TYPE, "void");
+        create_ast_node(AstNodeType_t::N_RETURN_TYPE, "void");
   }
   else
   {
@@ -278,57 +278,58 @@ AstNodeRef Parser::parse_subroutine()
 
   // <subroutine-decl>  ::= ("constructor" | "function" | "method")
   //                        ("void" | <type>) <subroutine-name>
-  //                        "(" <parameter-list> ")" <subroutine-body>
-  //                            \--------------/
+  //                        "(" <input-parameters> ")" <subroutine-body>
+  //                            \----------------/
   //                                    /
   //                                   /
   //          +-----------------------+
-  //         /
-  //        /
-  // /--------------\
-  // <parameter-list>   ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
+  //         /                           +----- N_VARIABLE_DECL
+  //        /                           /
+  // /----------------\        /-----------------\
+  // <input-parameters>   ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
   //       \
-  //        -- N_PARAMETER_LIST
+  //        -- N_INPUT_PARAMETERS
 
   if (current_token.get().value_enum != TokenValue_t::J_RIGHT_PARENTHESIS)
   {
-    AstNodeRef ParamListAst = create_ast_node(AstNodeType_t::N_PARAMETER_LIST);
+    AstNodeRef input_parms_root =
+        create_ast_node(AstNodeType_t::N_INPUT_PARAMETERS);
 
     while (current_token.get().value_enum != TokenValue_t::J_RIGHT_PARENTHESIS)
     {
-      std::optional<AstNodeRef> VarTypeAst;
+      std::optional<AstNodeRef> parm_type_node;
 
       // TODO: pattern is very common
       if (current_token.get().value_enum == TokenValue_t::J_INT)
       {
-        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_INTEGER_TYPE);
+        parm_type_node = create_ast_node(AstNodeType_t::N_VARIABLE_TYPE, "int");
       }
       else if (current_token.get().value_enum == TokenValue_t::J_CHAR)
       {
-        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_CHARACTER_TYPE);
+        parm_type_node =
+            create_ast_node(AstNodeType_t::N_VARIABLE_TYPE, "char");
       }
       else if (current_token.get().value_enum == TokenValue_t::J_BOOLEAN)
       {
-        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_BOOLEAN_TYPE);
+        parm_type_node =
+            create_ast_node(AstNodeType_t::N_VARIABLE_TYPE, "boolean");
       }
       else
       {
         require_token(start_token, TokenValue_t::J_IDENTIFIER);
-        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_CLASS_TYPE,
-                                     current_token.get().value_str);
+        parm_type_node = create_ast_node(AstNodeType_t::N_VARIABLE_TYPE,
+                                         current_token.get().value_str);
       }
 
       get_next_token();
       require_token(start_token, TokenValue_t::J_IDENTIFIER);
 
-      AstNodeRef ParamDeclName =
-          create_ast_node(AstNodeType_t::N_PARAMETER_DECL);
+      AstNodeRef variable_decl_root = create_ast_node(
+          AstNodeType_t::N_VARIABLE_DECL, current_token.get().value_str);
 
-      ParamDeclName.get().add_child(create_ast_node(
-          AstNodeType_t::N_VARIABLE_NAME, current_token.get().value_str));
-      ParamDeclName.get().add_child(VarTypeAst.value());
+      variable_decl_root.get().add_child(parm_type_node.value());
 
-      ParamListAst.get().add_child(ParamDeclName);
+      input_parms_root.get().add_child(variable_decl_root);
 
       get_next_token();
 
@@ -338,7 +339,7 @@ AstNodeRef Parser::parse_subroutine()
       }
     }
 
-    SubrDescrAst.get().add_child(ParamListAst);
+    SubrDescrAst.get().add_child(input_parms_root);
   }
 
   require_token(start_token, TokenValue_t::J_RIGHT_PARENTHESIS);
@@ -350,16 +351,16 @@ AstNodeRef Parser::parse_subroutine()
   //
   // <subroutine-body>  ::= "{" {<var-decl>}* {<statement>}* "}"
   //                            \----------/
-  //                                 / \
-  //                                /   ------- N_LOCAL_VAR_DECL_BLOCK
-  //       +-----------------------+
-  //      /                                 ------ N_LOCAL_VAR_DECL
-  //     /                                 /
-  // /--------\                   /---------------\
+  //                                   \
+  //                                    ------- N_LOCAL_VARIABLES
+  //
+  //                                        ------ N_VARIABLE_DECL
+  //                                       /
+  //                              /---------------\
   // <var-decl>         ::= "var" <type> <var-name> {"," <var-name>}* ";"
-  //                              \----/ \--------/
-  //                                /         \
-  //         N_VARIABLE_XX_TYPE ----           ---- N_VARIABLE_NAME
+  //                              \----/
+  //                                /
+  //            N_VARIABLE_TYPE ----
 
   AstNodeRef SubroutineBodyAst =
       create_ast_node(AstNodeType_t::N_SUBROUTINE_BODY);
@@ -367,7 +368,7 @@ AstNodeRef Parser::parse_subroutine()
   if (current_token.get().value_enum == TokenValue_t::J_VAR)
   {
     AstNodeRef SubroutineVarDeclBlockAst =
-        create_ast_node(AstNodeType_t::N_LOCAL_VAR_DECL_BLOCK);
+        create_ast_node(AstNodeType_t::N_LOCAL_VARIABLES);
 
     while (current_token.get().value_enum == TokenValue_t::J_VAR)
     {
@@ -377,20 +378,20 @@ AstNodeRef Parser::parse_subroutine()
 
       if (current_token.get().value_enum == TokenValue_t::J_INT)
       {
-        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_INTEGER_TYPE);
+        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_TYPE, "int");
       }
       else if (current_token.get().value_enum == TokenValue_t::J_CHAR)
       {
-        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_CHARACTER_TYPE);
+        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_TYPE, "char");
       }
       else if (current_token.get().value_enum == TokenValue_t::J_BOOLEAN)
       {
-        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_BOOLEAN_TYPE);
+        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_TYPE, "boolean");
       }
       else
       {
         require_token(start_token, TokenValue_t::J_IDENTIFIER);
-        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_CLASS_TYPE,
+        VarTypeAst = create_ast_node(AstNodeType_t::N_VARIABLE_TYPE,
                                      current_token.get().value_str);
       }
 
@@ -399,13 +400,9 @@ AstNodeRef Parser::parse_subroutine()
         get_next_token();
         require_token(start_token, TokenValue_t::J_IDENTIFIER);
 
-        AstNodeRef SubroutineVarDeclAst =
-            create_ast_node(AstNodeType_t::N_LOCAL_VAR_DECL);
+        AstNodeRef SubroutineVarDeclAst = create_ast_node(
+            AstNodeType_t::N_VARIABLE_DECL, current_token.get().value_str);
 
-        AstNodeRef VarNameAst = create_ast_node(AstNodeType_t::N_VARIABLE_NAME,
-                                                current_token.get().value_str);
-
-        SubroutineVarDeclAst.get().add_child(VarNameAst);
         SubroutineVarDeclAst.get().add_child(VarTypeAst.value());
 
         SubroutineVarDeclBlockAst.get().add_child(SubroutineVarDeclAst);
@@ -416,7 +413,7 @@ AstNodeRef Parser::parse_subroutine()
       get_next_token();
     }
 
-    SubroutineBodyAst.get().add_child(SubroutineVarDeclBlockAst);
+    SubrDescrAst.get().add_child(SubroutineVarDeclBlockAst);
   }
 
   //
@@ -484,25 +481,9 @@ AstNodeRef Parser::parse_let_statement()
 
   require_token(start_token, TokenValue_t::J_IDENTIFIER);
 
-  // Array variable
-  if (peek_token.get().value_enum == TokenValue_t::J_LEFT_BRACKET)
-  {
-    assert(0 && "Array variable support required");
-  }
-  // Scalar variable
-  else
-  {
-    AstNodeRef ScalarVarAst = create_ast_node(AstNodeType_t::N_SCALAR_VAR);
-    AstNodeRef VarNameAst = create_ast_node(AstNodeType_t::N_VARIABLE_NAME,
-                                            current_token.get().value_str);
+  LetAst.get().add_child(parse_variable());
 
-    ScalarVarAst.get().add_child(VarNameAst);
-    LetAst.get().add_child(ScalarVarAst);
-  }
-
-  get_next_token();
   require_token(start_token, TokenValue_t::J_EQUAL);
-
   get_next_token();
 
   AstNode& ExpressionAst = parse_expression();
@@ -550,9 +531,19 @@ AstNodeRef Parser::parse_return_statement()
   return ReturnAst;
 }
 
+// <subroutine-call>  ::= <call-site> "(" {<expression-list>}? ")"
+// <call-site>        ::= <subroutine-name> |
+//                        (<class-name> | <var-name>) "." <subroutine-name>
+// <subroutine-name>  ::= <identifier>
 AstNodeRef Parser::parse_subroutine_call()
 {
   require_token(current_token.get().value_enum, TokenValue_t::J_IDENTIFIER);
+
+  if ((peek_token.get().value_enum != TokenValue_t::J_PERIOD) &&
+      (peek_token.get().value_enum != TokenValue_t::J_LEFT_PARENTHESIS))
+  {
+    return EmptyNodeRef;
+  }
 
   AstNodeRef root_node = create_ast_node(AstNodeType_t::N_SUBROUTINE_CALL);
 
@@ -615,6 +606,41 @@ AstNodeRef Parser::parse_subroutine_call()
   get_next_token();
 
   return root_node;
+}
+
+// <scalar-var>       ::= <var-name>
+// <array-var>        ::= <var-name> "[" <expression> "]"
+AstNodeRef Parser::parse_variable()
+{
+  require_token(current_token.get().value_enum, TokenValue_t::J_IDENTIFIER);
+
+  AstNodeRef variable_node = EmptyNodeRef;
+
+  if (peek_token.get().value_enum == TokenValue_t::J_LEFT_BRACKET)
+  {
+    variable_node = create_ast_node(AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME,
+                                    current_token.get().value_str);
+    get_next_token();
+
+    require_token(current_token.get().value_enum, TokenValue_t::J_LEFT_BRACKET);
+    get_next_token();
+
+    AstNodeRef subscript_node = parse_expression();
+
+    require_token(current_token.get().value_enum,
+                  TokenValue_t::J_RIGHT_BRACKET);
+    get_next_token();
+
+    variable_node.get().add_child(subscript_node);
+  }
+  else
+  {
+    variable_node = create_ast_node(AstNodeType_t::N_VARIABLE_NAME,
+                                    current_token.get().value_str);
+    get_next_token();
+  }
+
+  return variable_node;
 }
 
 //
@@ -856,9 +882,6 @@ AstNodeRef Parser::parse_term()
     TermAst.get().add_child(create_ast_node(AstNodeType_t::N_THIS_KEYWORD));
     get_next_token();
   }
-  // TODO: scalar
-  // TODO: array
-  // TODO: subroutine
   else if (current_token.get().value_enum == TokenValue_t::J_LEFT_PARENTHESIS)
   {
     get_next_token();
@@ -866,6 +889,40 @@ AstNodeRef Parser::parse_term()
     require_token(current_token.get().value_enum,
                   TokenValue_t::J_RIGHT_PARENTHESIS);
     get_next_token();
+  }
+
+  if ((TermAst.get().type == EmptyNodeRef.get().type) &&
+      (current_token.get().value_enum == TokenValue_t::J_IDENTIFIER))
+  {
+    TermAst = parse_subroutine_call();
+  }
+
+  if ((TermAst.get().type == EmptyNodeRef.get().type) &&
+      (current_token.get().value_enum == TokenValue_t::J_IDENTIFIER))
+  {
+    // array term
+    if (peek_token.get().value_enum == TokenValue_t::J_LEFT_BRACKET)
+    {
+      TermAst = create_ast_node(AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME,
+                                current_token.get().value_str);
+      get_next_token();
+
+      require_token(current_token.get().value_enum,
+                    TokenValue_t::J_LEFT_BRACKET);
+      get_next_token();
+
+      TermAst.get().add_child(parse_expression());
+      require_token(current_token.get().value_enum,
+                    TokenValue_t::J_RIGHT_BRACKET);
+      get_next_token();
+    }
+    // scalar term
+    else
+    {
+      TermAst = create_ast_node(AstNodeType_t::N_VARIABLE_NAME,
+                                current_token.get().value_str);
+      get_next_token();
+    }
   }
 
   // TODO: improve
@@ -878,7 +935,7 @@ AstNodeRef Parser::parse_term()
        << JackToken::to_string(current_token.get().value_enum);
 
 #ifndef WIN32
-    // raise(SIGTRAP);
+    raise(SIGTRAP);
 #endif
     fatal_error(ss.str());
   }

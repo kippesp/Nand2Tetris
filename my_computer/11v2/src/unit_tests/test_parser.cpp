@@ -4,9 +4,6 @@
 #include "jack_sources.h"
 
 #if 0
-extern const char* STRING_TERM_SRC;
-extern const char* CLASS_METHOD_CALL_SRC);
-extern const char* OBJECT_METHOD_CALL_SRC;
 extern const char* SIMPLE_IF_SRC;
 extern const char* TWO_SUBS_SRC;
 
@@ -102,6 +99,31 @@ SCENARIO("Parse expressions")
     REQUIRE(as_str == expected_str);
   }
 
+  SECTION("function call in expression")
+  {
+    TextReader R("1 + Math.square(2)");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(OP_ADD",
+        "  (INTEGER_CONSTANT string_value:1)",
+        "  (SUBROUTINE_CALL",
+        "    (GLOBAL_CALL_SITE",
+        "      (GLOBAL_BIND_NAME string_value:Math)",
+        "      (SUBROUTINE_NAME string_value:square))",
+        "    (INTEGER_CONSTANT string_value:2)))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
   SECTION("simple string")
   {
     TextReader R("\"a string\"");
@@ -120,6 +142,51 @@ SCENARIO("Parse expressions")
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
+
+  SECTION("scalar term")
+  {
+    TextReader R("b * 2");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(OP_MULTIPLY",
+        "  (VARIABLE_NAME string_value:b)",
+        "  (INTEGER_CONSTANT string_value:2))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+#ifdef LATER
+  SECTION("prefix operator")
+  {
+    TextReader R("-1 - 2");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(OP_SUBTRACT",
+        "  (PREFIX_OP_NEGATIVE
+        "    (INTEGER_CONSTANT string_value:1))",
+        "  (INTEGER_CONSTANT string_value:2))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+#endif
 }
 
 SCENARIO("Subroutine calls")
@@ -239,7 +306,7 @@ SCENARIO("Subroutine calls")
     REQUIRE(as_str == expected_str);
   }
 
-  SECTION("global call, expression parms")
+  SECTION("global call, expression parm")
   {
     TextReader R("Output.printInt(2 * (1 + 3))");
     JackTokenizer T(R);
@@ -265,13 +332,36 @@ SCENARIO("Subroutine calls")
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
+
+  SECTION("global call, string parm")
+  {
+    TextReader R("Output.printString(\"Hello\")");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_subroutine_call();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(SUBROUTINE_CALL",
+        "  (GLOBAL_CALL_SITE",
+        "    (GLOBAL_BIND_NAME string_value:Output)",
+        "    (SUBROUTINE_NAME string_value:printString))",
+        "  (STRING_CONSTANT string_value:Hello))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
 }
 
-SCENARIO("Parse tree simple terms")
+SCENARIO("Parse statements")
 {
-  SECTION("simple let")
+  SECTION("let statement")
   {
-    TextReader R("let i = true;");
+    TextReader R("let i = 1 + Math.square(2);");
     JackTokenizer T(R);
 
     auto tokens = T.parse_tokens();
@@ -283,15 +373,69 @@ SCENARIO("Parse tree simple terms")
     Expected_t expected = {
         ""  // clang-format sorcery
         "(LET_STATEMENT",
-        "  (SCALAR_VAR",
-        "    (VARIABLE_NAME string_value:i))",
-        "  (KEYWORD_CONSTANT",
-        "    (TRUE_KEYWORD)))"};
+        "  (VARIABLE_NAME string_value:i)",
+        "  (OP_ADD",
+        "    (INTEGER_CONSTANT string_value:1)",
+        "    (SUBROUTINE_CALL",
+        "      (GLOBAL_CALL_SITE",
+        "        (GLOBAL_BIND_NAME string_value:Math)",
+        "        (SUBROUTINE_NAME string_value:square))",
+        "      (INTEGER_CONSTANT string_value:2))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
 
+  SECTION("let statement, arrays")
+  {
+    TextReader R("let a[0] = b[2 * i];");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_statement();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(LET_STATEMENT",
+        "  (SUBSCRIPTED_VARIABLE_NAME string_value:a",
+        "    (INTEGER_CONSTANT string_value:0))",
+        "  (SUBSCRIPTED_VARIABLE_NAME string_value:b",
+        "    (OP_MULTIPLY",
+        "      (INTEGER_CONSTANT string_value:2)",
+        "      (VARIABLE_NAME string_value:i))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+#ifdef LATER
+  SECTION("if statement")
+  {
+    TextReader R("if (mask = 0) { return 1; } else { return mask * 2; }");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_statement();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(IF_STATEMENT",
+        "      (INTEGER_CONSTANT string_value:1))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+#endif
+}
+
+SCENARIO("Parse tree basics")
+{
   SECTION("single return function")
   {
     TextReader R(SINGLE_RETURN_SRC);
@@ -308,7 +452,7 @@ SCENARIO("Parse tree simple terms")
         "(CLASS_DECL string_value:Main",
         "  (FUNCTION_DECL string_value:f1",
         "    (SUBROUTINE_DESCR",
-        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int))",
+        "      (RETURN_TYPE string_value:int))",
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
@@ -334,7 +478,7 @@ SCENARIO("Parse tree simple terms")
         "(CLASS_DECL string_value:Test",
         "  (METHOD_DECL string_value:f1",
         "    (SUBROUTINE_DESCR",
-        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void))",
+        "      (RETURN_TYPE string_value:void))",
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT)))))"};
@@ -359,7 +503,7 @@ SCENARIO("Parse tree simple terms")
         "(CLASS_DECL string_value:Test",
         "  (CONSTRUCTOR_DECL string_value:new",
         "    (SUBROUTINE_DESCR",
-        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:Test))",
+        "      (RETURN_TYPE string_value:Test))",
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
@@ -367,7 +511,7 @@ SCENARIO("Parse tree simple terms")
         "            (THIS_KEYWORD))))))",
         "  (METHOD_DECL string_value:ref",
         "    (SUBROUTINE_DESCR",
-        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int))",
+        "      (RETURN_TYPE string_value:int))",
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
@@ -392,22 +536,22 @@ SCENARIO("Parse tree simple terms")
     Expected_t expected = {
         ""
         "(CLASS_DECL string_value:testjack",
-        "  (CLASSVAR_DECL_BLOCK",
-        "    (CLASSVAR_STATIC_DECL",
-        "      (VARIABLE_NAME string_value:inst1)",
-        "      (VARIABLE_CLASS_TYPE string_value:ClassName))",
-        "    (CLASSVAR_FIELD_DECL",
-        "      (VARIABLE_NAME string_value:var1)",
-        "      (VARIABLE_INTEGER_TYPE))",
-        "    (CLASSVAR_FIELD_DECL",
-        "      (VARIABLE_NAME string_value:var2)",
-        "      (VARIABLE_BOOLEAN_TYPE))",
-        "    (CLASSVAR_STATIC_DECL",
-        "      (VARIABLE_NAME string_value:var3)",
-        "      (VARIABLE_CHARACTER_TYPE))",
-        "    (CLASSVAR_STATIC_DECL",
-        "      (VARIABLE_NAME string_value:var4)",
-        "      (VARIABLE_CHARACTER_TYPE))))"};
+        "  (CLASS_VARIABLES",
+        "    (VARIABLE_DECL string_value:inst1",
+        "      (CLASS_VARIABLE_SCOPE string_value:static)",
+        "      (VARIABLE_TYPE string_value:ClassName))",
+        "    (VARIABLE_DECL string_value:var1",
+        "      (CLASS_VARIABLE_SCOPE string_value:field)",
+        "      (VARIABLE_TYPE string_value:int))",
+        "    (VARIABLE_DECL string_value:var2",
+        "      (CLASS_VARIABLE_SCOPE string_value:field)",
+        "      (VARIABLE_TYPE string_value:boolean))",
+        "    (VARIABLE_DECL string_value:var3",
+        "      (CLASS_VARIABLE_SCOPE string_value:static)",
+        "      (VARIABLE_TYPE string_value:char))",
+        "    (VARIABLE_DECL string_value:var4",
+        "      (CLASS_VARIABLE_SCOPE string_value:static)",
+        "      (VARIABLE_TYPE string_value:char))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -424,35 +568,31 @@ SCENARIO("Parse tree simple terms")
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
     Expected_t expected = {
+        ""
         "(CLASS_DECL string_value:JackTest",
-        "  (CLASSVAR_DECL_BLOCK",
-        "    (CLASSVAR_STATIC_DECL",
-        "      (VARIABLE_NAME string_value:inst1)",
-        "      (VARIABLE_CLASS_TYPE string_value:ClassName))",
-        "    (CLASSVAR_FIELD_DECL",
-        "      (VARIABLE_NAME string_value:var1)",
-        "      (VARIABLE_INTEGER_TYPE)))",
+        "  (CLASS_VARIABLES",
+        "    (VARIABLE_DECL string_value:inst1",
+        "      (CLASS_VARIABLE_SCOPE string_value:static)",
+        "      (VARIABLE_TYPE string_value:ClassName))",
+        "    (VARIABLE_DECL string_value:var1",
+        "      (CLASS_VARIABLE_SCOPE string_value:field)",
+        "      (VARIABLE_TYPE string_value:int)))",
         "  (METHOD_DECL string_value:sub1",
         "    (SUBROUTINE_DESCR",
-        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void)",
-        "      (PARAMETER_LIST",
-        "        (PARAMETER_DECL",
-        "          (VARIABLE_NAME string_value:a1)",
-        "          (VARIABLE_INTEGER_TYPE))",
-        "        (PARAMETER_DECL",
-        "          (VARIABLE_NAME string_value:a2)",
-        "          (VARIABLE_INTEGER_TYPE))))",
+        "      (RETURN_TYPE string_value:void)",
+        "      (INPUT_PARAMETERS",
+        "        (VARIABLE_DECL string_value:a1",
+        "          (VARIABLE_TYPE string_value:int))",
+        "        (VARIABLE_DECL string_value:a2",
+        "          (VARIABLE_TYPE string_value:int)))",
+        "      (LOCAL_VARIABLES",
+        "        (VARIABLE_DECL string_value:v1",
+        "          (VARIABLE_TYPE string_value:int))",
+        "        (VARIABLE_DECL string_value:v2",
+        "          (VARIABLE_TYPE string_value:boolean))",
+        "        (VARIABLE_DECL string_value:v3",
+        "          (VARIABLE_TYPE string_value:boolean))))",
         "    (SUBROUTINE_BODY",
-        "      (LOCAL_VAR_DECL_BLOCK",
-        "        (LOCAL_VAR_DECL",
-        "          (VARIABLE_NAME string_value:v1)",
-        "          (VARIABLE_INTEGER_TYPE))",
-        "        (LOCAL_VAR_DECL",
-        "          (VARIABLE_NAME string_value:v2)",
-        "          (VARIABLE_BOOLEAN_TYPE))",
-        "        (LOCAL_VAR_DECL",
-        "          (VARIABLE_NAME string_value:v3)",
-        "          (VARIABLE_BOOLEAN_TYPE)))",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT)))))"};
 
@@ -460,7 +600,7 @@ SCENARIO("Parse tree simple terms")
     REQUIRE(as_str == expected_str);
   }
 
-  SECTION("local method call")
+  SECTION("local method call, no parms")
   {
     TextReader R(CONST_VOID_METHOD_CALL_SRC);
     JackTokenizer T(R);
@@ -474,13 +614,13 @@ SCENARIO("Parse tree simple terms")
         "(CLASS_DECL string_value:Test",
         "  (METHOD_DECL string_value:draw",
         "    (SUBROUTINE_DESCR",
-        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void))",
+        "      (RETURN_TYPE string_value:void))",
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT))))",
         "  (METHOD_DECL string_value:run",
         "    (SUBROUTINE_DESCR",
-        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void))",
+        "      (RETURN_TYPE string_value:void))",
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (DO_STATEMENT",
@@ -492,16 +632,11 @@ SCENARIO("Parse tree simple terms")
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
-}
 
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-
-#if 0
-  SECTION("object method call")
+#ifdef LATER
+  SECTION("local method call, two parms")
   {
-    TextReader R(OBJECT_METHOD_CALL_SRC);
+    TextReader R(CLASS_METHOD_CALL_SRC);
     JackTokenizer T(R);
 
     auto tokens = T.parse_tokens();
@@ -509,83 +644,77 @@ SCENARIO("Parse tree simple terms")
     recursive_descent::Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
-    REQUIRE(as_str ==
+    Expected_t expected = {
         "(CLASS_DECL string_value:Main",
         "  (METHOD_DECL string_value:mul",
         "    (SUBROUTINE_DESCR",
-        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int)",
-        "      (PARAMETER_LIST",
-        "        (PARAMETER_DECL",
-        "          (VARIABLE_NAME string_value:a1)",
-        "          (VARIABLE_INTEGER_TYPE))",
-        "        (PARAMETER_DECL",
-        "          (VARIABLE_NAME string_value:b)",
-        "          (VARIABLE_INTEGER_TYPE))))",
+        "      (RETURN_TYPE string_value:int)",
+        "      (VARIABLE_DECL",
+        "        (VARIABLE_NAME string_value:a)",
+        "        (VARIABLE_TYPE string_value:int))",
+        "      (VARIABLE_DECL",
+        "        (VARIABLE_NAME string_value:b)",
+        "        (VARIABLE_TYPE string_value:int)))",
+        "    (SUBROUTINE_BODY",
+        "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
-        "          (EXPRESSION",
-        "            (TERM",
-        "              (INTEGER_CONSTANT string_value:0)))))",
-
-
-
-        "    (SUBROUTINE_BODY",
-        "      (STATEMENT_BLOCK",
-        "        (RETURN_STATEMENT))))"
-
-        "  (METHOD_DECL string_value:run",
+        "          (INTEGER_CONSTANT string_value:0)))))",
+        "  (METHOD_DECL string_value:f1",
         "    (SUBROUTINE_DESCR",
-        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void))",
+        "      (RETURN_TYPE string_value:int))",
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
-        "        (SUBROUTINE_CALL",
-        "          (CALL_SITE_BINDING",
+        "        (RETURN_STATEMENT",
+        "          (SUBROUTINE_CALL",
+        "            (LOCAL_CALL_SITE",
+        "              (SUBROUTINE_NAME string_value:mul))",
+        "            (INTEGER_CONSTANT string_value:1)"
+        "            (INTEGER_CONSTANT string_value:2)))))))"};
 
-        "            (BIND_NAME",
-        "            (SUBROUTINE_NAME",
-
-        "        (RETURN_STATEMENT))))"
-
-        "    (SUBROUTINE_DESCR",
-        "      (SUBROUTINE_DECL_RETURN_TYPE string_value:void)",
-        "      (PARAMETER_LIST",
-        "        (PARAMETER_DECL",
-        "          (VARIABLE_NAME string_value:a1)",
-        "          (VARIABLE_INTEGER_TYPE))",
-        "        (PARAMETER_DECL",
-        "          (VARIABLE_NAME string_value:a2)",
-        "          (VARIABLE_INTEGER_TYPE))))",
-        "    (SUBROUTINE_BODY",
-        "      (LOCAL_VAR_DECL_BLOCK",
-        "        (LOCAL_VAR_DECL",
-        "          (VARIABLE_NAME string_value:v1)",
-        "          (VARIABLE_INTEGER_TYPE))",
-        "        (LOCAL_VAR_DECL",
-        "          (VARIABLE_NAME string_value:v2)",
-        "          (VARIABLE_BOOLEAN_TYPE))",
-        "        (LOCAL_VAR_DECL",
-        "          (VARIABLE_NAME string_value:v3)",
-        "          (VARIABLE_BOOLEAN_TYPE)))",
-        "      (STATEMENT_BLOCK",
-        "        (RETURN_STATEMENT)))))"};
-
-
-
-
-
-
-
-
-            "  (FUNCTION_DECL string_value:f1\n"
-            "    (SUBROUTINE_DESCR\n"
-            "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int))\n"
-            "    (SUBROUTINE_BODY\n"
-            "      (STATEMENT_BLOCK\n"
-            "        (RETURN_STATEMENT\n"
-            "          (EXPRESSION\n"
-            "            (TERM\n"
-            "              (INTEGER_CONSTANT string_value:1))))))))");
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
   }
 #endif
+
+#if 0
+  SECTION("local method call, no parms")
+  {
+    TextReader R(CLASS_METHOD_CALL_SRC);
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_class();
+    std::string as_str = root.get().as_s_expression();
+    Expected_t expected = {
+        "(CLASS_DECL string_value:Test",
+        "  (METHOD_DECL string_value:draw",
+        "    (SUBROUTINE_DESCR",
+        "      (RETURN_TYPE string_value:void))",
+        "    (SUBROUTINE_BODY",
+        "      (STATEMENT_BLOCK",
+        "        (RETURN_STATEMENT))))",
+        "  (METHOD_DECL string_value:run",
+        "    (SUBROUTINE_DESCR",
+        "      (RETURN_TYPE string_value:void))",
+        "    (SUBROUTINE_BODY",
+        "      (STATEMENT_BLOCK",
+        "        (DO_STATEMENT",
+        "          (SUBROUTINE_CALL",
+        "            (LOCAL_CALL_SITE",
+        "              (SUBROUTINE_NAME string_value:draw))))",
+        "        (RETURN_STATEMENT)))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+#endif
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 #if 0
   SECTION("class method call")
@@ -612,7 +741,7 @@ SCENARIO("Parse tree simple terms")
             "(CLASS_DECL string_value:Main\n"
             "  (FUNCTION_DECL string_value:f1\n"
             "    (SUBROUTINE_DESCR\n"
-            "      (SUBROUTINE_DECL_RETURN_TYPE string_value:int))\n"
+            "      (RETURN_TYPE string_value:int))\n"
             "    (SUBROUTINE_BODY\n"
             "      (STATEMENT_BLOCK\n"
             "        (RETURN_STATEMENT\n"

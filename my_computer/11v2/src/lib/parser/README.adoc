@@ -10,8 +10,8 @@ Program Structure:
 <class-var-decl>   ::= ("static" | "field") <type> <var-name> {"," <var-name>}* ";"
 <subroutine-decl>  ::= ("constructor" | "function" | "method")
                        ("void" | <type>) <subroutine-name>
-                       "(" <parameter-list> ")" <subroutine-body>
-<parameter-list>   ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
+                       "(" <input-parameters> ")" <subroutine-body>
+<input-parameters> ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
 <subroutine-body>  ::= "{" {<var-decl>}* {<statement>}* "}"
 <var-decl>         ::= "var" <type> <var-name> {"," <var-name>}* ";"
 <type>             ::= "int" | "char" | "boolean" | <class-name>
