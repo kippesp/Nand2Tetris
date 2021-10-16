@@ -1,0 +1,262 @@
+(CLASS_DECL string_value:Main
+  (FUNCTION_DECL string_value:main
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:void)
+      (LOCAL_VARIABLES
+        (VARIABLE_DECL string_value:a
+          (VARIABLE_TYPE string_value:Array))
+        (VARIABLE_DECL string_value:b
+          (VARIABLE_TYPE string_value:Array))
+        (VARIABLE_DECL string_value:c
+          (VARIABLE_TYPE string_value:Array))))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+        (LET_STATEMENT
+          (VARIABLE_NAME string_value:a)
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Array)
+              (SUBROUTINE_NAME string_value:new))
+            (INTEGER_CONSTANT string_value:10)))
+        (LET_STATEMENT
+          (VARIABLE_NAME string_value:b)
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Array)
+              (SUBROUTINE_NAME string_value:new))
+            (INTEGER_CONSTANT string_value:5)))
+        (LET_STATEMENT
+          (VARIABLE_NAME string_value:c)
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Array)
+              (SUBROUTINE_NAME string_value:new))
+            (INTEGER_CONSTANT string_value:1)))
+        (LET_STATEMENT
+          (SUBSCRIPTED_VARIABLE_NAME string_value:a
+            (INTEGER_CONSTANT string_value:3))
+          (INTEGER_CONSTANT string_value:2))
+        (LET_STATEMENT
+          (SUBSCRIPTED_VARIABLE_NAME string_value:a
+            (INTEGER_CONSTANT string_value:4))
+          (INTEGER_CONSTANT string_value:8))
+        (LET_STATEMENT
+          (SUBSCRIPTED_VARIABLE_NAME string_value:a
+            (INTEGER_CONSTANT string_value:5))
+          (INTEGER_CONSTANT string_value:4))
+        (LET_STATEMENT
+          (SUBSCRIPTED_VARIABLE_NAME string_value:b
+            (SUBSCRIPTED_VARIABLE_NAME string_value:a
+              (INTEGER_CONSTANT string_value:3)))
+          (OP_ADD
+            (SUBSCRIPTED_VARIABLE_NAME string_value:a
+              (INTEGER_CONSTANT string_value:3))
+            (INTEGER_CONSTANT string_value:3)))
+        (LET_STATEMENT
+          (SUBSCRIPTED_VARIABLE_NAME string_value:a
+            (SUBSCRIPTED_VARIABLE_NAME string_value:b
+              (SUBSCRIPTED_VARIABLE_NAME string_value:a
+                (INTEGER_CONSTANT string_value:3))))
+          (OP_MULTIPLY
+            (SUBSCRIPTED_VARIABLE_NAME string_value:a
+              (SUBSCRIPTED_VARIABLE_NAME string_value:a
+                (INTEGER_CONSTANT string_value:5)))
+            (SUBSCRIPTED_VARIABLE_NAME string_value:b
+              (OP_ADD
+                (OP_SUBTRACT
+                  (OP_SUBTRACT
+                    (INTEGER_CONSTANT string_value:7)
+                    (SUBSCRIPTED_VARIABLE_NAME string_value:a
+                      (INTEGER_CONSTANT string_value:3)))
+                  (SUBROUTINE_CALL
+                    (GLOBAL_CALL_SITE
+                      (GLOBAL_BIND_NAME string_value:Main)
+                      (SUBROUTINE_NAME string_value:double))
+                    (INTEGER_CONSTANT string_value:2)))
+                (INTEGER_CONSTANT string_value:1)))))
+        (LET_STATEMENT
+          (SUBSCRIPTED_VARIABLE_NAME string_value:c
+            (INTEGER_CONSTANT string_value:0))
+          (KEYWORD_CONSTANT
+            (NULL_KEYWORD)))
+        (LET_STATEMENT
+          (VARIABLE_NAME string_value:c)
+          (SUBSCRIPTED_VARIABLE_NAME string_value:c
+            (INTEGER_CONSTANT string_value:0)))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printString))
+            (STRING_CONSTANT string_value:Test 1: expected result: 5; actual result: )))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printInt))
+            (SUBSCRIPTED_VARIABLE_NAME string_value:b
+              (INTEGER_CONSTANT string_value:2))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:println))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printString))
+            (STRING_CONSTANT string_value:Test 2: expected result: 40; actual result: )))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printInt))
+            (SUBSCRIPTED_VARIABLE_NAME string_value:a
+              (INTEGER_CONSTANT string_value:5))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:println))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printString))
+            (STRING_CONSTANT string_value:Test 3: expected result: 0; actual result: )))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printInt))
+            (VARIABLE_NAME string_value:c)))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:println))))
+        (LET_STATEMENT
+          (VARIABLE_NAME string_value:c)
+          (KEYWORD_CONSTANT
+            (NULL_KEYWORD)))
+        (IF_STATEMENT
+          (OP_LOGICAL_EQUALS
+            (VARIABLE_NAME string_value:c)
+            (KEYWORD_CONSTANT
+              (NULL_KEYWORD)))
+          (STATEMENT_BLOCK
+            (DO_STATEMENT
+              (SUBROUTINE_CALL
+                (GLOBAL_CALL_SITE
+                  (GLOBAL_BIND_NAME string_value:Main)
+                  (SUBROUTINE_NAME string_value:fill))
+                (VARIABLE_NAME string_value:a)
+                (INTEGER_CONSTANT string_value:10)))
+            (LET_STATEMENT
+              (VARIABLE_NAME string_value:c)
+              (SUBSCRIPTED_VARIABLE_NAME string_value:a
+                (INTEGER_CONSTANT string_value:3)))
+            (LET_STATEMENT
+              (SUBSCRIPTED_VARIABLE_NAME string_value:c
+                (INTEGER_CONSTANT string_value:1))
+              (INTEGER_CONSTANT string_value:33))
+            (LET_STATEMENT
+              (VARIABLE_NAME string_value:c)
+              (SUBSCRIPTED_VARIABLE_NAME string_value:a
+                (INTEGER_CONSTANT string_value:7)))
+            (LET_STATEMENT
+              (SUBSCRIPTED_VARIABLE_NAME string_value:c
+                (INTEGER_CONSTANT string_value:1))
+              (INTEGER_CONSTANT string_value:77))
+            (LET_STATEMENT
+              (VARIABLE_NAME string_value:b)
+              (SUBSCRIPTED_VARIABLE_NAME string_value:a
+                (INTEGER_CONSTANT string_value:3)))
+            (LET_STATEMENT
+              (SUBSCRIPTED_VARIABLE_NAME string_value:b
+                (INTEGER_CONSTANT string_value:1))
+              (OP_ADD
+                (SUBSCRIPTED_VARIABLE_NAME string_value:b
+                  (INTEGER_CONSTANT string_value:1))
+                (SUBSCRIPTED_VARIABLE_NAME string_value:c
+                  (INTEGER_CONSTANT string_value:1)))))
+          (STATEMENT_BLOCK
+            (DO_STATEMENT
+              (SUBROUTINE_CALL
+                (GLOBAL_CALL_SITE
+                  (GLOBAL_BIND_NAME string_value:Output)
+                  (SUBROUTINE_NAME string_value:printString))
+                (STRING_CONSTANT string_value:Test 4: expected result: 77; actual result: )))
+            (DO_STATEMENT
+              (SUBROUTINE_CALL
+                (GLOBAL_CALL_SITE
+                  (GLOBAL_BIND_NAME string_value:Output)
+                  (SUBROUTINE_NAME string_value:printInt))
+                (SUBSCRIPTED_VARIABLE_NAME string_value:c
+                  (INTEGER_CONSTANT string_value:1))))
+            (DO_STATEMENT
+              (SUBROUTINE_CALL
+                (GLOBAL_CALL_SITE
+                  (GLOBAL_BIND_NAME string_value:Output)
+                  (SUBROUTINE_NAME string_value:println))))
+            (DO_STATEMENT
+              (SUBROUTINE_CALL
+                (GLOBAL_CALL_SITE
+                  (GLOBAL_BIND_NAME string_value:Output)
+                  (SUBROUTINE_NAME string_value:printString))
+                (STRING_CONSTANT string_value:Test 5: expected result: 110; actual result: )))
+            (DO_STATEMENT
+              (SUBROUTINE_CALL
+                (GLOBAL_CALL_SITE
+                  (GLOBAL_BIND_NAME string_value:Output)
+                  (SUBROUTINE_NAME string_value:printInt))
+                (SUBSCRIPTED_VARIABLE_NAME string_value:b
+                  (INTEGER_CONSTANT string_value:1))))
+            (DO_STATEMENT
+              (SUBROUTINE_CALL
+                (GLOBAL_CALL_SITE
+                  (GLOBAL_BIND_NAME string_value:Output)
+                  (SUBROUTINE_NAME string_value:println))))
+            (RETURN_STATEMENT))))))
+  (FUNCTION_DECL string_value:double
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:int)
+      (INPUT_PARAMETERS
+        (VARIABLE_DECL string_value:a
+          (VARIABLE_TYPE string_value:int))))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+        (RETURN_STATEMENT
+          (OP_MULTIPLY
+            (VARIABLE_NAME string_value:a)
+            (INTEGER_CONSTANT string_value:2))))))
+  (FUNCTION_DECL string_value:fill
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:void)
+      (INPUT_PARAMETERS
+        (VARIABLE_DECL string_value:a
+          (VARIABLE_TYPE string_value:Array))
+        (VARIABLE_DECL string_value:size
+          (VARIABLE_TYPE string_value:int))))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+        (WHILE_STATEMENT
+          (OP_LOGICAL_GT
+            (VARIABLE_NAME string_value:size)
+            (INTEGER_CONSTANT string_value:0))
+          (STATEMENT_BLOCK
+            (LET_STATEMENT
+              (VARIABLE_NAME string_value:size)
+              (OP_SUBTRACT
+                (VARIABLE_NAME string_value:size)
+                (INTEGER_CONSTANT string_value:1)))
+            (LET_STATEMENT
+              (SUBSCRIPTED_VARIABLE_NAME string_value:a
+                (VARIABLE_NAME string_value:size))
+              (SUBROUTINE_CALL
+                (GLOBAL_CALL_SITE
+                  (GLOBAL_BIND_NAME string_value:Array)
+                  (SUBROUTINE_NAME string_value:new))
+                (INTEGER_CONSTANT string_value:3)))))
+        (RETURN_STATEMENT)))))

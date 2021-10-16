@@ -35,9 +35,6 @@ void Parser::require_token(TokenValue_t start_token, TokenValue_t token_value)
        << "Expected " << JackToken::to_string(token_value) << " while parsing "
        << JackToken::to_string(start_token);
 
-#ifndef WIN32
-    raise(SIGTRAP);
-#endif
     fatal_error(ss.str());
   }
 }
@@ -71,7 +68,6 @@ AstNodeRef Parser::parse_class()
   // <class-var-decl>
   //      ::= ("static" | "field") <type> <var-name> {"," <var-name>}* ";"
 
-  // raise(SIGTRAP);
   if ((current_token.get().value_enum == TokenValue_t::J_STATIC) ||
       (current_token.get().value_enum == TokenValue_t::J_FIELD))
   {
@@ -1066,9 +1062,6 @@ AstNodeRef Parser::parse_term()
        << "Expected TERM token while parsing "
        << JackToken::to_string(current_token.get().value_enum);
 
-#ifndef WIN32
-    raise(SIGTRAP);
-#endif
     fatal_error(ss.str());
   }
 

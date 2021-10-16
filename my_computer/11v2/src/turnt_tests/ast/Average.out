@@ -1,0 +1,71 @@
+(CLASS_DECL string_value:Main
+  (FUNCTION_DECL string_value:main
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:void)
+      (LOCAL_VARIABLES
+        (VARIABLE_DECL string_value:a
+          (VARIABLE_TYPE string_value:Array))
+        (VARIABLE_DECL string_value:length
+          (VARIABLE_TYPE string_value:int))
+        (VARIABLE_DECL string_value:i
+          (VARIABLE_TYPE string_value:int))
+        (VARIABLE_DECL string_value:sum
+          (VARIABLE_TYPE string_value:int))))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+        (LET_STATEMENT
+          (VARIABLE_NAME string_value:length)
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Keyboard)
+              (SUBROUTINE_NAME string_value:readInt))
+            (STRING_CONSTANT string_value:How many numbers? )))
+        (LET_STATEMENT
+          (VARIABLE_NAME string_value:a)
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Array)
+              (SUBROUTINE_NAME string_value:new))
+            (VARIABLE_NAME string_value:length)))
+        (LET_STATEMENT
+          (VARIABLE_NAME string_value:i)
+          (INTEGER_CONSTANT string_value:0))
+        (WHILE_STATEMENT
+          (OP_LOGICAL_LT
+            (VARIABLE_NAME string_value:i)
+            (VARIABLE_NAME string_value:length))
+          (STATEMENT_BLOCK
+            (LET_STATEMENT
+              (SUBSCRIPTED_VARIABLE_NAME string_value:a
+                (VARIABLE_NAME string_value:i))
+              (SUBROUTINE_CALL
+                (GLOBAL_CALL_SITE
+                  (GLOBAL_BIND_NAME string_value:Keyboard)
+                  (SUBROUTINE_NAME string_value:readInt))
+                (STRING_CONSTANT string_value:Enter a number: )))
+            (LET_STATEMENT
+              (VARIABLE_NAME string_value:sum)
+              (OP_ADD
+                (VARIABLE_NAME string_value:sum)
+                (SUBSCRIPTED_VARIABLE_NAME string_value:a
+                  (VARIABLE_NAME string_value:i))))
+            (LET_STATEMENT
+              (VARIABLE_NAME string_value:i)
+              (OP_ADD
+                (VARIABLE_NAME string_value:i)
+                (INTEGER_CONSTANT string_value:1)))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printString))
+            (STRING_CONSTANT string_value:The average is )))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printInt))
+            (OP_DIVIDE
+              (VARIABLE_NAME string_value:sum)
+              (VARIABLE_NAME string_value:length))))
+        (RETURN_STATEMENT)))))
