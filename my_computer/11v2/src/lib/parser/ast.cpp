@@ -81,8 +81,8 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_OP_LOGICAL_AND:              return "OP_LOGICAL_AND";
     case AstNodeType_t::N_OP_LOGICAL_OR:               return "OP_LOGICAL_OR";
 
-    case AstNodeType_t::N_PREFIX_OP_NEGATIVE:          return "PREFIX_OP_NEGATIVE";
-    case AstNodeType_t::N_PREFIX_OP_LOGICAL_NOT:       return "PREFIX_OP_LOGICAL_NOT";
+    case AstNodeType_t::N_OP_PREFIX_NEG:               return "OP_PREFIX_NEG";
+    case AstNodeType_t::N_OP_PREFIX_LOGICAL_NOT:       return "OP_PREFIX_LOGICAL_NOT";
 
     case AstNodeType_t::N_SUBROUTINE_CALL:             return "SUBROUTINE_CALL";
     case AstNodeType_t::N_SUBROUTINE_NAME:             return "SUBROUTINE_NAME";

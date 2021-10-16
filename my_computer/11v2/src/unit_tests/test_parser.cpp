@@ -152,10 +152,9 @@ SCENARIO("Parse expressions")
     REQUIRE(as_str == expected_str);
   }
 
-#if 0
   SECTION("prefix operator")
   {
-    TextReader R("-1 - 2");
+    TextReader R("~(-1 < 0)");
     JackTokenizer T(R);
 
     auto tokens = T.parse_tokens();
@@ -166,15 +165,15 @@ SCENARIO("Parse expressions")
 
     Expected_t expected = {
         ""  // clang-format sorcery
-        "(OP_SUBTRACT",
-        "  (PREFIX_OP_NEGATIVE",
-        "    (INTEGER_CONSTANT string_value:1))",
-        "  (INTEGER_CONSTANT string_value:2))"};
+        "(OP_PREFIX_LOGICAL_NOT",
+        "  (OP_LOGICAL_LT",
+        "    (OP_PREFIX_NEG",
+        "      (INTEGER_CONSTANT string_value:1))",
+        "    (INTEGER_CONSTANT string_value:0)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
-#endif
 }
 
 SCENARIO("Subroutine calls")

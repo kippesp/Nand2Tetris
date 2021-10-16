@@ -54,9 +54,8 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_OP_LOGICAL_LT,
   N_OP_LOGICAL_AND,
   N_OP_LOGICAL_OR,
-
-  N_PREFIX_OP_NEGATIVE,
-  N_PREFIX_OP_LOGICAL_NOT,
+  N_OP_PREFIX_NEG,
+  N_OP_PREFIX_LOGICAL_NOT,
 
   N_SUBROUTINE_CALL,
   N_SUBROUTINE_NAME,
@@ -78,7 +77,6 @@ using AstNodeType_t = enum class AstNodeType_s {
   // N_RETURN_TYPE,
   N_STRING_CONSTANT,
   // N_SUBROUTINE_TYPE,
-  // N_UNARY_OP,
   // N_UNDEFINED,
   // N_VARIABLE_LIST,
   // N_VARIABLE_TYPE,

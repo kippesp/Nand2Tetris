@@ -997,8 +997,7 @@ AstNodeRef Parser::parse_term()
   {
     get_next_token();
     TermAst = parse_expression();
-    require_token(current_token,
-                  TokenValue_t::J_RIGHT_PARENTHESIS);
+    require_token(current_token, TokenValue_t::J_RIGHT_PARENTHESIS);
     get_next_token();
   }
 
@@ -1034,6 +1033,28 @@ AstNodeRef Parser::parse_term()
                                 current_token.get().value_str);
       get_next_token();
     }
+  }
+
+  // <term> ::= ("-" | "~") <term>
+  if ((TermAst.get().type == EmptyNodeRef.get().type) &&
+      (current_token.get().value_enum == TokenValue_t::J_MINUS))
+  {
+    AstNodeRef prefix_neg = create_ast_node(AstNodeType_t::N_OP_PREFIX_NEG);
+    get_next_token();
+    AstNodeRef prefix_term = parse_term();
+    prefix_neg.get().add_child(prefix_term);
+    TermAst = prefix_neg;
+  }
+
+  if ((TermAst.get().type == EmptyNodeRef.get().type) &&
+      (current_token.get().value_enum == TokenValue_t::J_TILDE))
+  {
+    AstNodeRef prefix_not =
+        create_ast_node(AstNodeType_t::N_OP_PREFIX_LOGICAL_NOT);
+    get_next_token();
+    AstNodeRef prefix_term = parse_term();
+    prefix_not.get().add_child(prefix_term);
+    TermAst = prefix_not;
   }
 
   // TODO: improve
