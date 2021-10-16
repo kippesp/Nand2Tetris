@@ -60,6 +60,8 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_THIS_KEYWORD:                return "THIS_KEYWORD";
     case AstNodeType_t::N_LET_STATEMENT:               return "LET_STATEMENT";
     case AstNodeType_t::N_DO_STATEMENT:                return "DO_STATEMENT";
+    case AstNodeType_t::N_WHILE_STATEMENT:             return "WHILE_STATEMENT";
+    case AstNodeType_t::N_IF_STATEMENT:                return "IF_STATEMENT";
 
     case AstNodeType_t::N_CLASS_VARIABLES:             return "CLASS_VARIABLES";
     case AstNodeType_t::N_LOCAL_VARIABLES:             return "LOCAL_VARIABLES";

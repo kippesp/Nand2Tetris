@@ -3,18 +3,6 @@
 #include "common.h"
 #include "jack_sources.h"
 
-#if 0
-extern const char* SIMPLE_IF_SRC;
-extern const char* TWO_SUBS_SRC;
-
-extern const char* NUMERICAL_IF_SRC;
-extern const char* LET_STATEMENT_SRC;
-extern const char* SIMPLE_WHILE_SRC;
-extern const char* LHS_ARRAY_ASSIGN_SRC;
-extern const char* RHS_ARRAY_ASSIGN_SRC;
-extern const char* ARRAY_ARRAY_ASSIGN_SRC;
-#endif
-
 SCENARIO("Parse expressions")
 {
   SECTION("single term")
@@ -164,7 +152,7 @@ SCENARIO("Parse expressions")
     REQUIRE(as_str == expected_str);
   }
 
-#ifdef LATER
+#if 0
   SECTION("prefix operator")
   {
     TextReader R("-1 - 2");
@@ -179,7 +167,7 @@ SCENARIO("Parse expressions")
     Expected_t expected = {
         ""  // clang-format sorcery
         "(OP_SUBTRACT",
-        "  (PREFIX_OP_NEGATIVE
+        "  (PREFIX_OP_NEGATIVE",
         "    (INTEGER_CONSTANT string_value:1))",
         "  (INTEGER_CONSTANT string_value:2))"};
 
@@ -411,7 +399,57 @@ SCENARIO("Parse statements")
     REQUIRE(as_str == expected_str);
   }
 
-#ifdef LATER
+  SECTION("while statement")
+  {
+    TextReader R("while (a > 0) { let a = a - 1; }");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_statement();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""
+        "(WHILE_STATEMENT",
+        "  (OP_LOGICAL_GT",
+        "    (VARIABLE_NAME string_value:a)",
+        "    (INTEGER_CONSTANT string_value:0))",
+        "  (STATEMENT_BLOCK",
+        "    (LET_STATEMENT",
+        "      (VARIABLE_NAME string_value:a)",
+        "      (OP_SUBTRACT",
+        "        (VARIABLE_NAME string_value:a)",
+        "        (INTEGER_CONSTANT string_value:1)))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("while statement, empty body")
+  {
+    TextReader R("while (a > 0) { }");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_statement();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""
+        "(WHILE_STATEMENT",
+        "  (OP_LOGICAL_GT",
+        "    (VARIABLE_NAME string_value:a)",
+        "    (INTEGER_CONSTANT string_value:0))",
+        "  (STATEMENT_BLOCK))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
   SECTION("if statement")
   {
     TextReader R("if (mask = 0) { return 1; } else { return mask * 2; }");
@@ -426,12 +464,47 @@ SCENARIO("Parse statements")
     Expected_t expected = {
         ""  // clang-format sorcery
         "(IF_STATEMENT",
-        "      (INTEGER_CONSTANT string_value:1))))"};
+        "  (OP_LOGICAL_EQUALS",
+        "    (VARIABLE_NAME string_value:mask)",
+        "    (INTEGER_CONSTANT string_value:0))",
+        "  (STATEMENT_BLOCK",
+        "    (RETURN_STATEMENT",
+        "      (INTEGER_CONSTANT string_value:1)))",
+        "  (STATEMENT_BLOCK",
+        "    (RETURN_STATEMENT",
+        "      (OP_MULTIPLY",
+        "        (VARIABLE_NAME string_value:mask)",
+        "        (INTEGER_CONSTANT string_value:2)))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
-#endif
+
+  SECTION("if statement, no else")
+  {
+    TextReader R("if (mask = 0) { return 1; }");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_statement();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(IF_STATEMENT",
+        "  (OP_LOGICAL_EQUALS",
+        "    (VARIABLE_NAME string_value:mask)",
+        "    (INTEGER_CONSTANT string_value:0))",
+        "  (STATEMENT_BLOCK",
+        "    (RETURN_STATEMENT",
+        "      (INTEGER_CONSTANT string_value:1)))",
+        "  (STATEMENT_BLOCK))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
 }
 
 SCENARIO("Parse tree basics")
@@ -632,121 +705,4 @@ SCENARIO("Parse tree basics")
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
-
-#ifdef LATER
-  SECTION("local method call, two parms")
-  {
-    TextReader R(CLASS_METHOD_CALL_SRC);
-    JackTokenizer T(R);
-
-    auto tokens = T.parse_tokens();
-
-    recursive_descent::Parser parser(tokens);
-    const auto& root = parser.parse_class();
-    std::string as_str = root.get().as_s_expression();
-    Expected_t expected = {
-        "(CLASS_DECL string_value:Main",
-        "  (METHOD_DECL string_value:mul",
-        "    (SUBROUTINE_DESCR",
-        "      (RETURN_TYPE string_value:int)",
-        "      (VARIABLE_DECL",
-        "        (VARIABLE_NAME string_value:a)",
-        "        (VARIABLE_TYPE string_value:int))",
-        "      (VARIABLE_DECL",
-        "        (VARIABLE_NAME string_value:b)",
-        "        (VARIABLE_TYPE string_value:int)))",
-        "    (SUBROUTINE_BODY",
-        "      (STATEMENT_BLOCK",
-        "        (RETURN_STATEMENT",
-        "          (INTEGER_CONSTANT string_value:0)))))",
-        "  (METHOD_DECL string_value:f1",
-        "    (SUBROUTINE_DESCR",
-        "      (RETURN_TYPE string_value:int))",
-        "    (SUBROUTINE_BODY",
-        "      (STATEMENT_BLOCK",
-        "        (RETURN_STATEMENT",
-        "          (SUBROUTINE_CALL",
-        "            (LOCAL_CALL_SITE",
-        "              (SUBROUTINE_NAME string_value:mul))",
-        "            (INTEGER_CONSTANT string_value:1)"
-        "            (INTEGER_CONSTANT string_value:2)))))))"};
-
-    std::string expected_str = expected_string(expected);
-    REQUIRE(as_str == expected_str);
-  }
-#endif
-
-#if 0
-  SECTION("local method call, no parms")
-  {
-    TextReader R(CLASS_METHOD_CALL_SRC);
-    JackTokenizer T(R);
-
-    auto tokens = T.parse_tokens();
-
-    recursive_descent::Parser parser(tokens);
-    const auto& root = parser.parse_class();
-    std::string as_str = root.get().as_s_expression();
-    Expected_t expected = {
-        "(CLASS_DECL string_value:Test",
-        "  (METHOD_DECL string_value:draw",
-        "    (SUBROUTINE_DESCR",
-        "      (RETURN_TYPE string_value:void))",
-        "    (SUBROUTINE_BODY",
-        "      (STATEMENT_BLOCK",
-        "        (RETURN_STATEMENT))))",
-        "  (METHOD_DECL string_value:run",
-        "    (SUBROUTINE_DESCR",
-        "      (RETURN_TYPE string_value:void))",
-        "    (SUBROUTINE_BODY",
-        "      (STATEMENT_BLOCK",
-        "        (DO_STATEMENT",
-        "          (SUBROUTINE_CALL",
-        "            (LOCAL_CALL_SITE",
-        "              (SUBROUTINE_NAME string_value:draw))))",
-        "        (RETURN_STATEMENT)))))"};
-
-    std::string expected_str = expected_string(expected);
-    REQUIRE(as_str == expected_str);
-  }
-#endif
 }
-
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-
-#if 0
-  SECTION("class method call")
-  {
-    TextReader R(CLASS_METHOD_CALL_SRC);
-    JackTokenizer T(R);
-
-    auto tokens = T.parse_tokens();
-
-    for (const auto& token : tokens)
-    {
-      if (token.type == TokenType_t::J_INTERNAL)
-      {
-        continue;
-      }
-
-      std::cout << token.to_s_expression() << std::endl;
-    }
-
-    recursive_descent::Parser parser(tokens);
-    const auto& root = parser.parse_class();
-    std::string as_str = root.get().as_s_expression();
-    REQUIRE(as_str ==
-            "(CLASS_DECL string_value:Main\n"
-            "  (FUNCTION_DECL string_value:f1\n"
-            "    (SUBROUTINE_DESCR\n"
-            "      (RETURN_TYPE string_value:int))\n"
-            "    (SUBROUTINE_BODY\n"
-            "      (STATEMENT_BLOCK\n"
-            "        (RETURN_STATEMENT\n"
-            "          (EXPRESSION\n"
-            "            (TERM\n"
-            "              (INTEGER_CONSTANT string_value:1))))))))");
-  }
-#endif

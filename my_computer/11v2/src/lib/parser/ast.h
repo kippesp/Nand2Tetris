@@ -70,8 +70,9 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_CLASS_VARIABLE_SCOPE,
   // N_DELIMITER,
   N_DO_STATEMENT,
+  N_WHILE_STATEMENT,
   // N_EXPRESSION_LIST,
-  // N_IF_STATEMENT,
+  N_IF_STATEMENT,
   // N_KEYWORD,
   // N_OP,
   // N_RETURN_TYPE,
@@ -83,7 +84,6 @@ using AstNodeType_t = enum class AstNodeType_s {
   // N_VARIABLE_TYPE,
   // N_VAR_DECL_BLOCK,
   // N_VAR_DECL_STATEMENT,
-  // N_WHILE_STATEMENT,
 };
 
 // TODO: Better design would be to have AstNode data as a struct with no methods

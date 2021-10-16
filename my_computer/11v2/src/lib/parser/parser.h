@@ -26,7 +26,8 @@ public:
 
   [[noreturn]] void fatal_error(std::string s) { throw std::runtime_error(s); }
 
-  void require_token(TokenValue_t start_token, TokenValue_t token_value);
+  void require_token(TokenValue_t, TokenValue_t);
+  void require_token(JackTokenCRef, TokenValue_t);
 
   // creates an orphaned AST node of the given type and optional value
   ast::AstNodeRef create_ast_node(ast::AstNodeType_t);
@@ -46,17 +47,20 @@ public:
   ast::AstNodeRef parse_term();
 
 private:
+  ast::AstNodeRef parse_inner_statements();
   ast::AstNodeRef parse_let_statement();
   ast::AstNodeRef parse_do_statement();
   ast::AstNodeRef parse_return_statement();
+  ast::AstNodeRef parse_while_statement();
+  ast::AstNodeRef parse_if_statement();
 
   ast::AstTree AST;
 
   Tokens_t::iterator token_iter;
   Tokens_t::iterator token_iter_end;
 
-  std::reference_wrapper<const JackToken> current_token;
-  std::reference_wrapper<const JackToken> peek_token;
+  JackTokenCRef current_token;
+  JackTokenCRef peek_token;
 
   // convention to represent an empty leaf
   const std::unique_ptr<ast::AstNode> EmptyNode;
