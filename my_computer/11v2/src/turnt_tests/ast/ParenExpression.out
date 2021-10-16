@@ -1,13 +1,17 @@
-(N_CLASS_DECL n:ConstSeven
- (N_SUBROUTINE_DECL type:function return:integer name:get_seven
-  (N_PARAMETER_LIST )
-  (N_SUBROUTINE_BODY
-   (N_STATEMENT_BLOCK
-    (N_RETURN_STATEMENT
-     (N_EXPRESSION
-      (N_TERM
-       (N_INTEGER_CONSTANT 7))))))))
-
-
-   -
-7     5
+(CLASS_DECL string_value:ConstSeven
+  (FUNCTION_DECL string_value:get_four
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:int))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+        (RETURN_STATEMENT
+          (OP_MULTIPLY
+            (OP_SUBTRACT
+              (INTEGER_CONSTANT string_value:7)
+              (INTEGER_CONSTANT string_value:5))
+            (OP_DIVIDE
+              (OP_PREFIX_NEG
+                (OP_ADD
+                  (INTEGER_CONSTANT string_value:2)
+                  (INTEGER_CONSTANT string_value:8)))
+              (INTEGER_CONSTANT string_value:5))))))))

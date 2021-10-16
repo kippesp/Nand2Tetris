@@ -1,9 +1,8 @@
 (CLASS_DECL string_value:ConstSeven
   (FUNCTION_DECL string_value:get_seven
     (SUBROUTINE_DESCR
-      (SUBROUTINE_DECL_RETURN_TYPE string_value:int))
+      (RETURN_TYPE string_value:int))
     (SUBROUTINE_BODY
       (STATEMENT_BLOCK
         (RETURN_STATEMENT
-          (EXPRESSION
-            (INTEGER_CONSTANT string_value:7)))))))
+          (INTEGER_CONSTANT string_value:7))))))

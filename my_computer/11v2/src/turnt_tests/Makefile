@@ -1,4 +1,4 @@
-TESTS := tokenizer/*jack
+TESTS := tokenizer/*jack ast/*jack
 
 .PHONY: test
 test:
