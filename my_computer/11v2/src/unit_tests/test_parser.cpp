@@ -87,6 +87,58 @@ SCENARIO("Parse expressions")
     REQUIRE(as_str == expected_str);
   }
 
+  SECTION("long multiply chain")
+  {
+    TextReader R("2 * 3 / 4 * 5 / 6 * 7");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(OP_MULTIPLY",
+        "  (INTEGER_CONSTANT string_value:2)",
+        "  (OP_DIVIDE",
+        "    (INTEGER_CONSTANT string_value:3)",
+        "    (OP_MULTIPLY",
+        "      (INTEGER_CONSTANT string_value:4)",
+        "      (OP_DIVIDE",
+        "        (INTEGER_CONSTANT string_value:5)",
+        "        (OP_MULTIPLY",
+        "          (INTEGER_CONSTANT string_value:6)",
+        "          (INTEGER_CONSTANT string_value:7))))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("3-term add")
+  {
+    TextReader R("1 + 2 - 3");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(OP_ADD",
+        "  (INTEGER_CONSTANT string_value:1)",
+        "  (OP_SUBTRACT",
+        "    (INTEGER_CONSTANT string_value:2)",
+        "    (INTEGER_CONSTANT string_value:3)))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
   SECTION("function call in expression")
   {
     TextReader R("1 + Math.square(2)");
@@ -170,6 +222,29 @@ SCENARIO("Parse expressions")
         "    (OP_PREFIX_NEG",
         "      (INTEGER_CONSTANT string_value:1))",
         "    (INTEGER_CONSTANT string_value:0)))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("3-term statement in parens")
+  {
+    TextReader R("(1 + 2 + 3)");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(OP_ADD",
+        "  (INTEGER_CONSTANT string_value:1)",
+        "  (OP_ADD",
+        "    (INTEGER_CONSTANT string_value:2)",
+        "    (INTEGER_CONSTANT string_value:3)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -393,6 +468,31 @@ SCENARIO("Parse statements")
         "    (OP_MULTIPLY",
         "      (INTEGER_CONSTANT string_value:2)",
         "      (VARIABLE_NAME string_value:i))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("let statement, 3-terms")
+  {
+    TextReader R("let base_address = 1 + 2 + 3;");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_statement();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(LET_STATEMENT",
+        "  (VARIABLE_NAME string_value:base_address)",
+        "  (OP_ADD",
+        "    (INTEGER_CONSTANT string_value:1)",
+        "    (OP_ADD",
+        "      (INTEGER_CONSTANT string_value:2)",
+        "      (INTEGER_CONSTANT string_value:3))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
