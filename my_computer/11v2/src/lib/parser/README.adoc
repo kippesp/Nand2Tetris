@@ -63,8 +63,7 @@ source: http://nand2tetris-questions-and-answers-forum.52.s1.nabble.com/Adding-S
 <mult-expr>        ::= <term> {<mult-op> <term>}*
 <term>             ::= <int-const> | <string-const> | <keyword-const> |
                        <scalar-var> | <array-var> | <subroutine-call> |
-                       "(" <expression> ")" |
-                       <prefix-op> <term>
+                       "(" <expression> ")" | <prefix-op> <term>
 <keyword-constant> ::= "true" | "false" | "null" | "this"
 <subroutine-call>  ::= <call-site> "(" {<expression-list>}? ")"
 <call-site>        ::= <subroutine-name> |

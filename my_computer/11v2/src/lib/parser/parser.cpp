@@ -756,57 +756,74 @@ AstNodeRef Parser::parse_variable()
 
 AstNodeRef Parser::parse_expression()
 {
-  // sub-expression op_group that will be parsed
-  using OperationGroup_t = enum class OperationGroup_s {
+  // sub-expression precedence level that will be parsed
+  using PrecedenceLevel_t = enum class PrecedenceLevel_s {
     P_OR,
     P_AND,
-    P_CMP,
-    P_ADD,
-    P_MUL,
+    P_CMP,  // includes "<", ">", and "="
+    P_ADD,  // includes "+" and "-"
+    P_MUL,  // includes "*" and "/"
     P_TERM
   };
 
-  // retuns the next higher operation group in the precedence chain
-  auto next_in_oper_group =
-      [](const OperationGroup_t& oper_group) -> OperationGroup_t {
-    assert((oper_group != OperationGroup_t::P_TERM) &&
-           "No next operation group after P_TERM");
+  // retuns the next higher precedence level in the precedence chain
+  auto next_in_precedence_level =
+      [](const PrecedenceLevel_t& precedence_level) -> PrecedenceLevel_t {
+    assert((precedence_level != PrecedenceLevel_t::P_TERM) &&
+           "No next precedence level after P_TERM");
 
-    switch (oper_group)
+    switch (precedence_level)
     {
-      case OperationGroup_t::P_OR:
-        return (OperationGroup_t::P_AND);
-      case OperationGroup_t::P_AND:
-        return (OperationGroup_t::P_CMP);
-      case OperationGroup_t::P_CMP:
-        return (OperationGroup_t::P_ADD);
-      case OperationGroup_t::P_ADD:
-        return (OperationGroup_t::P_MUL);
-      case OperationGroup_t::P_MUL:
-        return (OperationGroup_t::P_TERM);
-      case OperationGroup_t::P_TERM:
-        return (OperationGroup_t::P_TERM);
+      case PrecedenceLevel_t::P_OR:
+        return (PrecedenceLevel_t::P_AND);
+      case PrecedenceLevel_t::P_AND:
+        return (PrecedenceLevel_t::P_CMP);
+      case PrecedenceLevel_t::P_CMP:
+        return (PrecedenceLevel_t::P_ADD);
+      case PrecedenceLevel_t::P_ADD:
+        return (PrecedenceLevel_t::P_MUL);
+      case PrecedenceLevel_t::P_MUL:
+        return (PrecedenceLevel_t::P_TERM);
+      case PrecedenceLevel_t::P_TERM:
+        return (PrecedenceLevel_t::P_TERM);
     }
 
-    return (OperationGroup_t::P_TERM);
+    return (PrecedenceLevel_t::P_TERM);
   };
 
-  // tokens that map to each op_group
+  // tokens that map to each operation's precedence level
   using OperationOpMap_t =
-      std::map<OperationGroup_t, const std::unordered_set<TokenValue_t>>;
+      std::map<PrecedenceLevel_t, const std::unordered_set<TokenValue_t>>;
 
   OperationOpMap_t OperationOpMap {
       // clang-format off
-      {OperationGroup_t::P_OR,   {TokenValue_t::J_VBAR}},
-      {OperationGroup_t::P_AND,  {TokenValue_t::J_AMPERSAND}},
-      {OperationGroup_t::P_CMP,  {TokenValue_t::J_LESS_THAN,
-                                  TokenValue_t::J_GREATER_THAN,
-                                  TokenValue_t::J_EQUAL}},
-      {OperationGroup_t::P_ADD,  {TokenValue_t::J_PLUS, TokenValue_t::J_MINUS}},
-      {OperationGroup_t::P_MUL,  {TokenValue_t::J_ASTERISK, TokenValue_t::J_DIVIDE}},
-      {OperationGroup_t::P_TERM, {}},
+      {PrecedenceLevel_t::P_OR,   {TokenValue_t::J_VBAR}},
+      {PrecedenceLevel_t::P_AND,  {TokenValue_t::J_AMPERSAND}},
+      {PrecedenceLevel_t::P_CMP,  {TokenValue_t::J_LESS_THAN,
+                                   TokenValue_t::J_GREATER_THAN,
+                                   TokenValue_t::J_EQUAL}},
+      {PrecedenceLevel_t::P_ADD,  {TokenValue_t::J_PLUS, TokenValue_t::J_MINUS}},
+      {PrecedenceLevel_t::P_MUL,  {TokenValue_t::J_ASTERISK, TokenValue_t::J_DIVIDE}},
+      {PrecedenceLevel_t::P_TERM, {}},
       // clang-format on
   };
+
+  using TokenToAstMap_t = std::map<TokenValue_t, AstNodeType_t>;
+
+  TokenToAstMap_t TokenAstMap {
+      {TokenValue_t::J_DIVIDE, AstNodeType_t::N_OP_DIVIDE},
+      {TokenValue_t::J_ASTERISK, AstNodeType_t::N_OP_MULTIPLY},
+      {TokenValue_t::J_MINUS, AstNodeType_t::N_OP_SUBTRACT},
+      {TokenValue_t::J_PLUS, AstNodeType_t::N_OP_ADD},
+      {TokenValue_t::J_EQUAL, AstNodeType_t::N_OP_LOGICAL_EQUALS},
+      {TokenValue_t::J_GREATER_THAN, AstNodeType_t::N_OP_LOGICAL_GT},
+      {TokenValue_t::J_LESS_THAN, AstNodeType_t::N_OP_LOGICAL_LT},
+      {TokenValue_t::J_AMPERSAND, AstNodeType_t::N_OP_LOGICAL_AND},
+      {TokenValue_t::J_VBAR, AstNodeType_t::N_OP_LOGICAL_OR}};
+
+  std::function<AstNodeRef(const PrecedenceLevel_t&)> parse_subexpression;
+  std::function<AstNodeRef(AstNodeRef, const PrecedenceLevel_t&)>
+      combine_oper_chain;
 
   // Construction of the recursive expression parsers supporting operator
   // precedence grammar.  The <or-expr> definition is shown as an example.
@@ -814,46 +831,50 @@ AstNodeRef Parser::parse_expression()
   // subexpression in the precedence chain.  In the case of <or-expr> this
   // is <and-expr>.
   //
-  //                          recurse with
-  //                     parse_subexpression()
-  //                               /
-  //                              /      recurse with
-  //                             /    parse_oper_chain(LHS)
-  //                            /            /
-  //                    /-------------------/----------\
-  //                               /-------------------\
-  //     <or-expr>  ::= <and-expr> {<or-op> <and-expr>}+    ----+
-  //                    \--------/  \-----/                     |
-  //                        /      \---\---------------/        |
-  //                       /            \     \                 |
-  //                      /              \     \                |
-  //                    LHS               \     -- RHS          |
-  //                                       --- oper_group       |
-  //                                                            |
-  //                    | <and-expr>   <------------------------+  (recursive
-  //                      \--------/                             base case when
-  //                          /                                     <term>)
-  //                         /
-  //                       LHS
 
-  std::function<AstNodeRef(const OperationGroup_t&)> parse_subexpression;
+#if 0
+                                     |- expression_operation
+<or-expr>          ::= <and-expr> {<or-op> <and-expr>}*
+                        |- subexpression_operation |
+                                                   |- subexpression_operation
+
+
+new lambea def:
+  parse_subexpression(operation)
+
+<expression>       ::= <or-expr>
+<or-expr>          ::= <and-expr> {<or-op> <and-expr>}*
+<and-expr>         ::= <cmp-expr> {<and-op> <cmp-expr>}*
+<cmp-expr>         ::= <add-expr> {<cmp-op> <add-expr>}*
+<add-expr>         ::= <mult-expr> {<add-op> <mult-expr>}*
+<mult-expr>        ::= <term> {<mult-op> <term>}*
+<term>             ::= <int-const> | <string-const> | <keyword-const> |
+                       <scalar-var> | <array-var> | <subroutine-call> |
+                       "(" <expression> ")" | <prefix-op> <term>
+#endif
+
+  //                            /
+  //                           /    RHS parse_subexpression(cmp-level)
+  //                          /                \
+  //                    /--------\              \
+  //     <or-expr>  ::= <and-expr> {<or-op> <and-expr>}+
 
   parse_subexpression =
-      [&](const OperationGroup_t& subexpression_oper_group) -> AstNodeRef {
-    std::function<AstNodeRef(AstNodeRef, const OperationGroup_t&)>
-        parse_oper_chain;
-
-    parse_oper_chain = [&](AstNodeRef lhs,
-                           const OperationGroup_t& oper_group) -> AstNodeRef {
-      // operators_in_group - current subexpression's and parse_oper_chain's
+      [&](const PrecedenceLevel_t& subexp_precedence_level) -> AstNodeRef {
+    // combine_oper_chain - builds the RHS chain of operations of the same
+    // precedence level; returns true if lhs updated with additional parsed
+    // nodes, false otherwise
+    combine_oper_chain =
+        [&](AstNodeRef lhs, const PrecedenceLevel_t& prec_level) -> AstNodeRef {
+      // operators_in_level - current subexpression's and parse_oper_chain's
       // equal-precedence operators
-      auto& operators_in_group = OperationOpMap[oper_group];
+      auto& operators_in_level = OperationOpMap[prec_level];
 
-      // if current_token's operation isn't part of our operation group, then
+      // if current_token's operation isn't part of our precedence level, then
       // return
-      if (!operators_in_group.contains(current_token.get().value_enum))
+      if (!operators_in_level.contains(current_token.get().value_enum))
       {
-        return lhs;
+        return EmptyNodeRef;
       }
 
       // consume the operator token at this point so that on the recursive
@@ -861,88 +882,61 @@ AstNodeRef Parser::parse_expression()
       const auto& operator_token = current_token.get().value_enum;
       get_next_token();
 
-      std::optional<AstNodeRef> rhs;
+      AstNodeRef chained_root = create_ast_node(TokenAstMap[operator_token]);
 
-      // parse_oper_chain() recursive base case
-      if (oper_group == OperationGroup_t::P_MUL)
+      chained_root.get().add_child(lhs);
+
+      if (AstNodeRef rhs = parse_subexpression(prec_level);
+          rhs.get() != EmptyNodeRef.get())
       {
-        rhs = parse_subexpression(OperationGroup_t::P_MUL);
-      }
-      else
-      {
-        const OperationGroup_t next_expression_oper_group =
-            next_in_oper_group(oper_group);
-
-        rhs = parse_subexpression(next_expression_oper_group);
-
-        if (rhs.value().get() == EmptyNodeRef.get())
-        {
-          return lhs;
-        }
+        chained_root.get().add_child(rhs);
       }
 
-      std::optional<AstNodeType_t> subexpression_node_type;
-
-      // TODO: convert a mapping
-      if (operator_token == TokenValue_t::J_DIVIDE)
-        subexpression_node_type = AstNodeType_t::N_OP_DIVIDE;
-      else if (operator_token == TokenValue_t::J_ASTERISK)
-        subexpression_node_type = AstNodeType_t::N_OP_MULTIPLY;
-      else if (operator_token == TokenValue_t::J_MINUS)
-        subexpression_node_type = AstNodeType_t::N_OP_SUBTRACT;
-      else if (operator_token == TokenValue_t::J_PLUS)
-        subexpression_node_type = AstNodeType_t::N_OP_ADD;
-      else if (operator_token == TokenValue_t::J_EQUAL)
-        subexpression_node_type = AstNodeType_t::N_OP_LOGICAL_EQUALS;
-      else if (operator_token == TokenValue_t::J_GREATER_THAN)
-        subexpression_node_type = AstNodeType_t::N_OP_LOGICAL_GT;
-      else if (operator_token == TokenValue_t::J_LESS_THAN)
-        subexpression_node_type = AstNodeType_t::N_OP_LOGICAL_LT;
-      else if (operator_token == TokenValue_t::J_AMPERSAND)
-        subexpression_node_type = AstNodeType_t::N_OP_LOGICAL_AND;
-      else if (operator_token == TokenValue_t::J_VBAR)
-        subexpression_node_type = AstNodeType_t::N_OP_LOGICAL_OR;
-
-      AstNodeRef subexpression_tree =
-          create_ast_node(subexpression_node_type.value());
-
-      subexpression_tree.get().add_child(lhs);
-      subexpression_tree.get().add_child(rhs.value());
-
-      return subexpression_tree;
+      return chained_root;
     };  // parse_oper_chain() lambda
 
     //
     // parse_subexpression() starts here
     //
 
-    std::optional<AstNodeRef> lhs;
+    AstNodeRef lhs = EmptyNodeRef;
 
-    // parse_subexpression() recursive base case
-    if (subexpression_oper_group == OperationGroup_t::P_MUL)
+    // recursive base case
+    if (subexp_precedence_level == PrecedenceLevel_t::P_MUL)
     {
       lhs = parse_term();
     }
     else
     {
-      const OperationGroup_t next_subexpression_oper =
-          next_in_oper_group(subexpression_oper_group);
+      const PrecedenceLevel_t next_subexpression_oper =
+          next_in_precedence_level(subexp_precedence_level);
 
       lhs = parse_subexpression(next_subexpression_oper);
     }
 
-    AstNodeRef subexpression_tree =
-        parse_oper_chain(lhs.value(), subexpression_oper_group);
+    for (bool done = false; !done; /* empty */)
+    {
+      AstNodeRef new_lhs = combine_oper_chain(lhs, subexp_precedence_level);
 
-    return subexpression_tree;
-  };  // parse_subexpression() lambda
+      if (new_lhs.get() == EmptyNodeRef.get())
+      {
+        done = true;
+      }
+      else
+      {
+        lhs = new_lhs;
+      }
+    }
+
+    return lhs;
+  };  // parse_subexpression()
 
   //
   // parse_expression() starts here
   //
 
-  // lowest operation precedence group is P_OR
-  AstNodeRef ExpressionAst = parse_subexpression(OperationGroup_t::P_OR);
+  // lowest operation precedence level is P_OR
+  AstNodeRef ExpressionAst = parse_subexpression(PrecedenceLevel_t::P_OR);
 
   return ExpressionAst;
 }
