@@ -18,7 +18,7 @@ SCENARIO("Parse expressions")
 
     Expected_t expected = {
         ""  // clang-format sorcery
-        "(INTEGER_CONSTANT string_value:1)"};
+        "(INTEGER_CONSTANT integer_value:1)"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -37,7 +37,7 @@ SCENARIO("Parse expressions")
 
     Expected_t expected = {
         ""  // clang-format sorcery
-        "(INTEGER_CONSTANT string_value:1)"};
+        "(INTEGER_CONSTANT integer_value:1)"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -57,8 +57,8 @@ SCENARIO("Parse expressions")
     Expected_t expected = {
         ""  // clang-format sorcery
         "(OP_MULTIPLY",
-        "  (INTEGER_CONSTANT string_value:1)",
-        "  (INTEGER_CONSTANT string_value:2))"};
+        "  (INTEGER_CONSTANT integer_value:1)",
+        "  (INTEGER_CONSTANT integer_value:2))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -78,10 +78,10 @@ SCENARIO("Parse expressions")
     Expected_t expected = {
         ""  // clang-format sorcery
         "(OP_MULTIPLY",
-        "  (INTEGER_CONSTANT string_value:1)",
+        "  (INTEGER_CONSTANT integer_value:1)",
         "  (OP_DIVIDE",
-        "    (INTEGER_CONSTANT string_value:2)",
-        "    (INTEGER_CONSTANT string_value:3)))"};
+        "    (INTEGER_CONSTANT integer_value:2)",
+        "    (INTEGER_CONSTANT integer_value:3)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -101,16 +101,16 @@ SCENARIO("Parse expressions")
     Expected_t expected = {
         ""  // clang-format sorcery
         "(OP_MULTIPLY",
-        "  (INTEGER_CONSTANT string_value:2)",
+        "  (INTEGER_CONSTANT integer_value:2)",
         "  (OP_DIVIDE",
-        "    (INTEGER_CONSTANT string_value:3)",
+        "    (INTEGER_CONSTANT integer_value:3)",
         "    (OP_MULTIPLY",
-        "      (INTEGER_CONSTANT string_value:4)",
+        "      (INTEGER_CONSTANT integer_value:4)",
         "      (OP_DIVIDE",
-        "        (INTEGER_CONSTANT string_value:5)",
+        "        (INTEGER_CONSTANT integer_value:5)",
         "        (OP_MULTIPLY",
-        "          (INTEGER_CONSTANT string_value:6)",
-        "          (INTEGER_CONSTANT string_value:7))))))"};
+        "          (INTEGER_CONSTANT integer_value:6)",
+        "          (INTEGER_CONSTANT integer_value:7))))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -130,10 +130,10 @@ SCENARIO("Parse expressions")
     Expected_t expected = {
         ""  // clang-format sorcery
         "(OP_ADD",
-        "  (INTEGER_CONSTANT string_value:1)",
+        "  (INTEGER_CONSTANT integer_value:1)",
         "  (OP_SUBTRACT",
-        "    (INTEGER_CONSTANT string_value:2)",
-        "    (INTEGER_CONSTANT string_value:3)))"};
+        "    (INTEGER_CONSTANT integer_value:2)",
+        "    (INTEGER_CONSTANT integer_value:3)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -153,12 +153,12 @@ SCENARIO("Parse expressions")
     Expected_t expected = {
         ""  // clang-format sorcery
         "(OP_ADD",
-        "  (INTEGER_CONSTANT string_value:1)",
+        "  (INTEGER_CONSTANT integer_value:1)",
         "  (SUBROUTINE_CALL",
         "    (GLOBAL_CALL_SITE",
         "      (GLOBAL_BIND_NAME string_value:Math)",
         "      (SUBROUTINE_NAME string_value:square))",
-        "    (INTEGER_CONSTANT string_value:2)))"};
+        "    (INTEGER_CONSTANT integer_value:2)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -198,7 +198,7 @@ SCENARIO("Parse expressions")
         ""  // clang-format sorcery
         "(OP_MULTIPLY",
         "  (VARIABLE_NAME string_value:b)",
-        "  (INTEGER_CONSTANT string_value:2))"};
+        "  (INTEGER_CONSTANT integer_value:2))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -220,8 +220,8 @@ SCENARIO("Parse expressions")
         "(OP_PREFIX_LOGICAL_NOT",
         "  (OP_LOGICAL_LT",
         "    (OP_PREFIX_NEG",
-        "      (INTEGER_CONSTANT string_value:1))",
-        "    (INTEGER_CONSTANT string_value:0)))"};
+        "      (INTEGER_CONSTANT integer_value:1))",
+        "    (INTEGER_CONSTANT integer_value:0)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -241,10 +241,10 @@ SCENARIO("Parse expressions")
     Expected_t expected = {
         ""  // clang-format sorcery
         "(OP_ADD",
-        "  (INTEGER_CONSTANT string_value:1)",
+        "  (INTEGER_CONSTANT integer_value:1)",
         "  (OP_ADD",
-        "    (INTEGER_CONSTANT string_value:2)",
-        "    (INTEGER_CONSTANT string_value:3)))"};
+        "    (INTEGER_CONSTANT integer_value:2)",
+        "    (INTEGER_CONSTANT integer_value:3)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -312,7 +312,7 @@ SCENARIO("Subroutine calls")
         "(SUBROUTINE_CALL",
         "  (LOCAL_CALL_SITE",
         "    (SUBROUTINE_NAME string_value:fn))",
-        "  (INTEGER_CONSTANT string_value:1))"};
+        "  (INTEGER_CONSTANT integer_value:1))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -334,8 +334,8 @@ SCENARIO("Subroutine calls")
         "(SUBROUTINE_CALL",
         "  (LOCAL_CALL_SITE",
         "    (SUBROUTINE_NAME string_value:fn))",
-        "  (INTEGER_CONSTANT string_value:1)",
-        "  (INTEGER_CONSTANT string_value:2))"};
+        "  (INTEGER_CONSTANT integer_value:1)",
+        "  (INTEGER_CONSTANT integer_value:2))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -358,11 +358,11 @@ SCENARIO("Subroutine calls")
         "  (LOCAL_CALL_SITE",
         "    (SUBROUTINE_NAME string_value:fn))",
         "  (OP_MULTIPLY",
-        "    (INTEGER_CONSTANT string_value:2)",
-        "    (INTEGER_CONSTANT string_value:3))",
+        "    (INTEGER_CONSTANT integer_value:2)",
+        "    (INTEGER_CONSTANT integer_value:3))",
         "  (OP_MULTIPLY",
-        "    (INTEGER_CONSTANT string_value:4)",
-        "    (INTEGER_CONSTANT string_value:5)))"};
+        "    (INTEGER_CONSTANT integer_value:4)",
+        "    (INTEGER_CONSTANT integer_value:5)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -386,10 +386,10 @@ SCENARIO("Subroutine calls")
         "    (GLOBAL_BIND_NAME string_value:Output)",
         "    (SUBROUTINE_NAME string_value:printInt))",
         "  (OP_MULTIPLY",
-        "    (INTEGER_CONSTANT string_value:2)",
+        "    (INTEGER_CONSTANT integer_value:2)",
         "    (OP_ADD",
-        "      (INTEGER_CONSTANT string_value:1)",
-        "      (INTEGER_CONSTANT string_value:3))))"};
+        "      (INTEGER_CONSTANT integer_value:1)",
+        "      (INTEGER_CONSTANT integer_value:3))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -437,12 +437,12 @@ SCENARIO("Parse statements")
         "(LET_STATEMENT",
         "  (VARIABLE_NAME string_value:i)",
         "  (OP_ADD",
-        "    (INTEGER_CONSTANT string_value:1)",
+        "    (INTEGER_CONSTANT integer_value:1)",
         "    (SUBROUTINE_CALL",
         "      (GLOBAL_CALL_SITE",
         "        (GLOBAL_BIND_NAME string_value:Math)",
         "        (SUBROUTINE_NAME string_value:square))",
-        "      (INTEGER_CONSTANT string_value:2))))"};
+        "      (INTEGER_CONSTANT integer_value:2))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -463,10 +463,10 @@ SCENARIO("Parse statements")
         ""  // clang-format sorcery
         "(LET_STATEMENT",
         "  (SUBSCRIPTED_VARIABLE_NAME string_value:a",
-        "    (INTEGER_CONSTANT string_value:0))",
+        "    (INTEGER_CONSTANT integer_value:0))",
         "  (SUBSCRIPTED_VARIABLE_NAME string_value:b",
         "    (OP_MULTIPLY",
-        "      (INTEGER_CONSTANT string_value:2)",
+        "      (INTEGER_CONSTANT integer_value:2)",
         "      (VARIABLE_NAME string_value:i))))"};
 
     std::string expected_str = expected_string(expected);
@@ -489,10 +489,10 @@ SCENARIO("Parse statements")
         "(LET_STATEMENT",
         "  (VARIABLE_NAME string_value:base_address)",
         "  (OP_ADD",
-        "    (INTEGER_CONSTANT string_value:1)",
+        "    (INTEGER_CONSTANT integer_value:1)",
         "    (OP_ADD",
-        "      (INTEGER_CONSTANT string_value:2)",
-        "      (INTEGER_CONSTANT string_value:3))))"};
+        "      (INTEGER_CONSTANT integer_value:2)",
+        "      (INTEGER_CONSTANT integer_value:3))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -514,13 +514,13 @@ SCENARIO("Parse statements")
         "(WHILE_STATEMENT",
         "  (OP_LOGICAL_GT",
         "    (VARIABLE_NAME string_value:a)",
-        "    (INTEGER_CONSTANT string_value:0))",
+        "    (INTEGER_CONSTANT integer_value:0))",
         "  (STATEMENT_BLOCK",
         "    (LET_STATEMENT",
         "      (VARIABLE_NAME string_value:a)",
         "      (OP_SUBTRACT",
         "        (VARIABLE_NAME string_value:a)",
-        "        (INTEGER_CONSTANT string_value:1)))))"};
+        "        (INTEGER_CONSTANT integer_value:1)))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -542,7 +542,7 @@ SCENARIO("Parse statements")
         "(WHILE_STATEMENT",
         "  (OP_LOGICAL_GT",
         "    (VARIABLE_NAME string_value:a)",
-        "    (INTEGER_CONSTANT string_value:0))",
+        "    (INTEGER_CONSTANT integer_value:0))",
         "  (STATEMENT_BLOCK))"};
 
     std::string expected_str = expected_string(expected);
@@ -565,15 +565,15 @@ SCENARIO("Parse statements")
         "(IF_STATEMENT",
         "  (OP_LOGICAL_EQUALS",
         "    (VARIABLE_NAME string_value:mask)",
-        "    (INTEGER_CONSTANT string_value:0))",
+        "    (INTEGER_CONSTANT integer_value:0))",
         "  (STATEMENT_BLOCK",
         "    (RETURN_STATEMENT",
-        "      (INTEGER_CONSTANT string_value:1)))",
+        "      (INTEGER_CONSTANT integer_value:1)))",
         "  (STATEMENT_BLOCK",
         "    (RETURN_STATEMENT",
         "      (OP_MULTIPLY",
         "        (VARIABLE_NAME string_value:mask)",
-        "        (INTEGER_CONSTANT string_value:2)))))"};
+        "        (INTEGER_CONSTANT integer_value:2)))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -595,10 +595,10 @@ SCENARIO("Parse statements")
         "(IF_STATEMENT",
         "  (OP_LOGICAL_EQUALS",
         "    (VARIABLE_NAME string_value:mask)",
-        "    (INTEGER_CONSTANT string_value:0))",
+        "    (INTEGER_CONSTANT integer_value:0))",
         "  (STATEMENT_BLOCK",
         "    (RETURN_STATEMENT",
-        "      (INTEGER_CONSTANT string_value:1)))",
+        "      (INTEGER_CONSTANT integer_value:1)))",
         "  (STATEMENT_BLOCK))"};
 
     std::string expected_str = expected_string(expected);
@@ -628,7 +628,7 @@ SCENARIO("Parse tree basics")
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
-        "          (INTEGER_CONSTANT string_value:1))))))"};
+        "          (INTEGER_CONSTANT integer_value:1))))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);

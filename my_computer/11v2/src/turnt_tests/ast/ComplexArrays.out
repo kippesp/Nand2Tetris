@@ -17,72 +17,72 @@
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Array)
               (SUBROUTINE_NAME string_value:new))
-            (INTEGER_CONSTANT string_value:10)))
+            (INTEGER_CONSTANT integer_value:10)))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:b)
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Array)
               (SUBROUTINE_NAME string_value:new))
-            (INTEGER_CONSTANT string_value:5)))
+            (INTEGER_CONSTANT integer_value:5)))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:c)
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Array)
               (SUBROUTINE_NAME string_value:new))
-            (INTEGER_CONSTANT string_value:1)))
+            (INTEGER_CONSTANT integer_value:1)))
         (LET_STATEMENT
           (SUBSCRIPTED_VARIABLE_NAME string_value:a
-            (INTEGER_CONSTANT string_value:3))
-          (INTEGER_CONSTANT string_value:2))
+            (INTEGER_CONSTANT integer_value:3))
+          (INTEGER_CONSTANT integer_value:2))
         (LET_STATEMENT
           (SUBSCRIPTED_VARIABLE_NAME string_value:a
-            (INTEGER_CONSTANT string_value:4))
-          (INTEGER_CONSTANT string_value:8))
+            (INTEGER_CONSTANT integer_value:4))
+          (INTEGER_CONSTANT integer_value:8))
         (LET_STATEMENT
           (SUBSCRIPTED_VARIABLE_NAME string_value:a
-            (INTEGER_CONSTANT string_value:5))
-          (INTEGER_CONSTANT string_value:4))
+            (INTEGER_CONSTANT integer_value:5))
+          (INTEGER_CONSTANT integer_value:4))
         (LET_STATEMENT
           (SUBSCRIPTED_VARIABLE_NAME string_value:b
             (SUBSCRIPTED_VARIABLE_NAME string_value:a
-              (INTEGER_CONSTANT string_value:3)))
+              (INTEGER_CONSTANT integer_value:3)))
           (OP_ADD
             (SUBSCRIPTED_VARIABLE_NAME string_value:a
-              (INTEGER_CONSTANT string_value:3))
-            (INTEGER_CONSTANT string_value:3)))
+              (INTEGER_CONSTANT integer_value:3))
+            (INTEGER_CONSTANT integer_value:3)))
         (LET_STATEMENT
           (SUBSCRIPTED_VARIABLE_NAME string_value:a
             (SUBSCRIPTED_VARIABLE_NAME string_value:b
               (SUBSCRIPTED_VARIABLE_NAME string_value:a
-                (INTEGER_CONSTANT string_value:3))))
+                (INTEGER_CONSTANT integer_value:3))))
           (OP_MULTIPLY
             (SUBSCRIPTED_VARIABLE_NAME string_value:a
               (SUBSCRIPTED_VARIABLE_NAME string_value:a
-                (INTEGER_CONSTANT string_value:5)))
+                (INTEGER_CONSTANT integer_value:5)))
             (SUBSCRIPTED_VARIABLE_NAME string_value:b
               (OP_ADD
                 (OP_SUBTRACT
                   (OP_SUBTRACT
-                    (INTEGER_CONSTANT string_value:7)
+                    (INTEGER_CONSTANT integer_value:7)
                     (SUBSCRIPTED_VARIABLE_NAME string_value:a
-                      (INTEGER_CONSTANT string_value:3)))
+                      (INTEGER_CONSTANT integer_value:3)))
                   (SUBROUTINE_CALL
                     (GLOBAL_CALL_SITE
                       (GLOBAL_BIND_NAME string_value:Main)
                       (SUBROUTINE_NAME string_value:double))
-                    (INTEGER_CONSTANT string_value:2)))
-                (INTEGER_CONSTANT string_value:1)))))
+                    (INTEGER_CONSTANT integer_value:2)))
+                (INTEGER_CONSTANT integer_value:1)))))
         (LET_STATEMENT
           (SUBSCRIPTED_VARIABLE_NAME string_value:c
-            (INTEGER_CONSTANT string_value:0))
+            (INTEGER_CONSTANT integer_value:0))
           (KEYWORD_CONSTANT
             (NULL_KEYWORD)))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:c)
           (SUBSCRIPTED_VARIABLE_NAME string_value:c
-            (INTEGER_CONSTANT string_value:0)))
+            (INTEGER_CONSTANT integer_value:0)))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
@@ -95,7 +95,7 @@
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:printInt))
             (SUBSCRIPTED_VARIABLE_NAME string_value:b
-              (INTEGER_CONSTANT string_value:2))))
+              (INTEGER_CONSTANT integer_value:2))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
@@ -113,7 +113,7 @@
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:printInt))
             (SUBSCRIPTED_VARIABLE_NAME string_value:a
-              (INTEGER_CONSTANT string_value:5))))
+              (INTEGER_CONSTANT integer_value:5))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
@@ -152,35 +152,35 @@
                   (GLOBAL_BIND_NAME string_value:Main)
                   (SUBROUTINE_NAME string_value:fill))
                 (VARIABLE_NAME string_value:a)
-                (INTEGER_CONSTANT string_value:10)))
+                (INTEGER_CONSTANT integer_value:10)))
             (LET_STATEMENT
               (VARIABLE_NAME string_value:c)
               (SUBSCRIPTED_VARIABLE_NAME string_value:a
-                (INTEGER_CONSTANT string_value:3)))
+                (INTEGER_CONSTANT integer_value:3)))
             (LET_STATEMENT
               (SUBSCRIPTED_VARIABLE_NAME string_value:c
-                (INTEGER_CONSTANT string_value:1))
-              (INTEGER_CONSTANT string_value:33))
+                (INTEGER_CONSTANT integer_value:1))
+              (INTEGER_CONSTANT integer_value:33))
             (LET_STATEMENT
               (VARIABLE_NAME string_value:c)
               (SUBSCRIPTED_VARIABLE_NAME string_value:a
-                (INTEGER_CONSTANT string_value:7)))
+                (INTEGER_CONSTANT integer_value:7)))
             (LET_STATEMENT
               (SUBSCRIPTED_VARIABLE_NAME string_value:c
-                (INTEGER_CONSTANT string_value:1))
-              (INTEGER_CONSTANT string_value:77))
+                (INTEGER_CONSTANT integer_value:1))
+              (INTEGER_CONSTANT integer_value:77))
             (LET_STATEMENT
               (VARIABLE_NAME string_value:b)
               (SUBSCRIPTED_VARIABLE_NAME string_value:a
-                (INTEGER_CONSTANT string_value:3)))
+                (INTEGER_CONSTANT integer_value:3)))
             (LET_STATEMENT
               (SUBSCRIPTED_VARIABLE_NAME string_value:b
-                (INTEGER_CONSTANT string_value:1))
+                (INTEGER_CONSTANT integer_value:1))
               (OP_ADD
                 (SUBSCRIPTED_VARIABLE_NAME string_value:b
-                  (INTEGER_CONSTANT string_value:1))
+                  (INTEGER_CONSTANT integer_value:1))
                 (SUBSCRIPTED_VARIABLE_NAME string_value:c
-                  (INTEGER_CONSTANT string_value:1)))))
+                  (INTEGER_CONSTANT integer_value:1)))))
           (STATEMENT_BLOCK
             (DO_STATEMENT
               (SUBROUTINE_CALL
@@ -194,7 +194,7 @@
                   (GLOBAL_BIND_NAME string_value:Output)
                   (SUBROUTINE_NAME string_value:printInt))
                 (SUBSCRIPTED_VARIABLE_NAME string_value:c
-                  (INTEGER_CONSTANT string_value:1))))
+                  (INTEGER_CONSTANT integer_value:1))))
             (DO_STATEMENT
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
@@ -212,7 +212,7 @@
                   (GLOBAL_BIND_NAME string_value:Output)
                   (SUBROUTINE_NAME string_value:printInt))
                 (SUBSCRIPTED_VARIABLE_NAME string_value:b
-                  (INTEGER_CONSTANT string_value:1))))
+                  (INTEGER_CONSTANT integer_value:1))))
             (DO_STATEMENT
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
@@ -230,7 +230,7 @@
         (RETURN_STATEMENT
           (OP_MULTIPLY
             (VARIABLE_NAME string_value:a)
-            (INTEGER_CONSTANT string_value:2))))))
+            (INTEGER_CONSTANT integer_value:2))))))
   (FUNCTION_DECL string_value:fill
     (SUBROUTINE_DESCR
       (RETURN_TYPE string_value:void)
@@ -244,13 +244,13 @@
         (WHILE_STATEMENT
           (OP_LOGICAL_GT
             (VARIABLE_NAME string_value:size)
-            (INTEGER_CONSTANT string_value:0))
+            (INTEGER_CONSTANT integer_value:0))
           (STATEMENT_BLOCK
             (LET_STATEMENT
               (VARIABLE_NAME string_value:size)
               (OP_SUBTRACT
                 (VARIABLE_NAME string_value:size)
-                (INTEGER_CONSTANT string_value:1)))
+                (INTEGER_CONSTANT integer_value:1)))
             (LET_STATEMENT
               (SUBSCRIPTED_VARIABLE_NAME string_value:a
                 (VARIABLE_NAME string_value:size))
@@ -258,5 +258,5 @@
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Array)
                   (SUBROUTINE_NAME string_value:new))
-                (INTEGER_CONSTANT string_value:3)))))
+                (INTEGER_CONSTANT integer_value:3)))))
         (RETURN_STATEMENT)))))

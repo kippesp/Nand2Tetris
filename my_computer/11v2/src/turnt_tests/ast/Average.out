@@ -29,7 +29,7 @@
             (VARIABLE_NAME string_value:length)))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:i)
-          (INTEGER_CONSTANT string_value:0))
+          (INTEGER_CONSTANT integer_value:0))
         (WHILE_STATEMENT
           (OP_LOGICAL_LT
             (VARIABLE_NAME string_value:i)
@@ -53,7 +53,7 @@
               (VARIABLE_NAME string_value:i)
               (OP_ADD
                 (VARIABLE_NAME string_value:i)
-                (INTEGER_CONSTANT string_value:1)))))
+                (INTEGER_CONSTANT integer_value:1)))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE

@@ -910,8 +910,9 @@ AstNodeRef Parser::parse_term()
 
   if (current_token.get().value_enum == TokenValue_t::J_INTEGER_CONSTANT)
   {
-    TermAst = create_ast_node(AstNodeType_t::N_INTEGER_CONSTANT,
-                              current_token.get().value_str);
+    int int_const = std::stoi(current_token.get().value_str);
+
+    TermAst = create_ast_node(AstNodeType_t::N_INTEGER_CONSTANT, int_const);
     get_next_token();
   }
   else if (current_token.get().value_enum == TokenValue_t::J_STRING_CONSTANT)

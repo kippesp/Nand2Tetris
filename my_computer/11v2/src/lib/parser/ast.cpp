@@ -113,7 +113,7 @@ std::string AstNode::as_s_expression(const std::string& indent)
   }
   else if (const auto i_ptr(std::get_if<int>(&value)); i_ptr)
   {
-    ss << " int_value:" << *i_ptr;
+    ss << " integer_value:" << *i_ptr;
   }
 
   for (const auto& N : child_nodes)
