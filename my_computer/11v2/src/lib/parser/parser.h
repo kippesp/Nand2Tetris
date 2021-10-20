@@ -40,9 +40,9 @@ public:
   ast::AstNodeRef parse_statement();
   ast::AstNodeRef parse_subroutine_call();
   ast::AstNodeRef parse_variable();
+  ast::AstNodeRef parse_term();
 
   ast::AstNodeRef parse_expression();
-  ast::AstNodeRef parse_term();
 
 private:
   ast::AstNodeRef parse_inner_statements();
@@ -51,7 +51,6 @@ private:
   ast::AstNodeRef parse_return_statement();
   ast::AstNodeRef parse_while_statement();
   ast::AstNodeRef parse_if_statement();
-  ast::AstNodeRef parse_type(bool require_identifier = true);
   ast::AstNodeRef parse_type(ast::AstNodeType_t);
 
   ast::AstTree AST;

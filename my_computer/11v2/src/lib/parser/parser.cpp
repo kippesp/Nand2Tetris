@@ -730,6 +730,117 @@ AstNodeRef Parser::parse_type(AstNodeType_t node_type)
   return rtn_type_node;
 }
 
+AstNodeRef Parser::parse_term()
+{
+  AstNodeRef TermAst = EmptyNodeRef;
+
+  if (current_token.get().value_enum == TokenValue_t::J_INTEGER_CONSTANT)
+  {
+    int int_const = std::stoi(current_token.get().value_str);
+
+    TermAst = create_ast_node(AstNodeType_t::N_INTEGER_CONSTANT, int_const);
+    get_next_token();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_STRING_CONSTANT)
+  {
+    TermAst = create_ast_node(AstNodeType_t::N_STRING_CONSTANT,
+                              current_token.get().value_str);
+    get_next_token();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_TRUE)
+  {
+    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
+    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_TRUE_KEYWORD));
+    get_next_token();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_FALSE)
+  {
+    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
+    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_FALSE_KEYWORD));
+    get_next_token();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_NULL)
+  {
+    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
+    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_NULL_KEYWORD));
+    get_next_token();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_THIS)
+  {
+    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
+    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_THIS_KEYWORD));
+    get_next_token();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_LEFT_PARENTHESIS)
+  {
+    get_next_token();
+    TermAst = parse_expression();
+    require_token(current_token, TokenValue_t::J_RIGHT_PARENTHESIS);
+    get_next_token();
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_MINUS)
+  {
+    AstNodeRef prefix_neg = create_ast_node(AstNodeType_t::N_OP_PREFIX_NEG);
+    get_next_token();
+    AstNodeRef prefix_term = parse_term();
+    prefix_neg.get().add_child(prefix_term);
+    TermAst = prefix_neg;
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_TILDE)
+  {
+    AstNodeRef prefix_not =
+        create_ast_node(AstNodeType_t::N_OP_PREFIX_LOGICAL_NOT);
+    get_next_token();
+    AstNodeRef prefix_term = parse_term();
+    prefix_not.get().add_child(prefix_term);
+    TermAst = prefix_not;
+  }
+  else if (current_token.get().value_enum == TokenValue_t::J_IDENTIFIER)
+  {
+    TermAst = parse_subroutine_call();
+
+    if (TermAst.get().type == EmptyNodeRef.get().type)
+    {
+      // array term
+      if (peek_token.get().value_enum == TokenValue_t::J_LEFT_BRACKET)
+      {
+        TermAst = create_ast_node(AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME,
+                                  current_token.get().value_str);
+        get_next_token();
+
+        require_token(current_token.get().value_enum,
+                      TokenValue_t::J_LEFT_BRACKET);
+        get_next_token();
+
+        TermAst.get().add_child(parse_expression());
+        require_token(current_token.get().value_enum,
+                      TokenValue_t::J_RIGHT_BRACKET);
+        get_next_token();
+      }
+      // scalar term
+      else
+      {
+        TermAst = create_ast_node(AstNodeType_t::N_VARIABLE_NAME,
+                                  current_token.get().value_str);
+        get_next_token();
+      }
+    }
+  }
+
+  if (TermAst.get().type == EmptyNodeRef.get().type)
+  {
+    std::stringstream ss;
+
+    ss << "Line #" << current_token.get().line_number << ": "
+       << "Expected TERM token while parsing "
+       << JackToken::to_string(current_token.get().value_enum);
+
+    fatal_error(ss.str());
+  }
+
+  return TermAst;
+}
+
 //
 // Expression parsers
 //
@@ -902,117 +1013,6 @@ AstNodeRef Parser::parse_expression()
   AstNodeRef ExpressionAst = parse_subexpression(PrecedenceLevel_t::P_OR);
 
   return ExpressionAst;
-}
-
-AstNodeRef Parser::parse_term()
-{
-  AstNodeRef TermAst = EmptyNodeRef;
-
-  if (current_token.get().value_enum == TokenValue_t::J_INTEGER_CONSTANT)
-  {
-    int int_const = std::stoi(current_token.get().value_str);
-
-    TermAst = create_ast_node(AstNodeType_t::N_INTEGER_CONSTANT, int_const);
-    get_next_token();
-  }
-  else if (current_token.get().value_enum == TokenValue_t::J_STRING_CONSTANT)
-  {
-    TermAst = create_ast_node(AstNodeType_t::N_STRING_CONSTANT,
-                              current_token.get().value_str);
-    get_next_token();
-  }
-  else if (current_token.get().value_enum == TokenValue_t::J_TRUE)
-  {
-    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
-    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_TRUE_KEYWORD));
-    get_next_token();
-  }
-  else if (current_token.get().value_enum == TokenValue_t::J_FALSE)
-  {
-    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
-    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_FALSE_KEYWORD));
-    get_next_token();
-  }
-  else if (current_token.get().value_enum == TokenValue_t::J_NULL)
-  {
-    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
-    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_NULL_KEYWORD));
-    get_next_token();
-  }
-  else if (current_token.get().value_enum == TokenValue_t::J_THIS)
-  {
-    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
-    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_THIS_KEYWORD));
-    get_next_token();
-  }
-  else if (current_token.get().value_enum == TokenValue_t::J_LEFT_PARENTHESIS)
-  {
-    get_next_token();
-    TermAst = parse_expression();
-    require_token(current_token, TokenValue_t::J_RIGHT_PARENTHESIS);
-    get_next_token();
-  }
-  else if (current_token.get().value_enum == TokenValue_t::J_MINUS)
-  {
-    AstNodeRef prefix_neg = create_ast_node(AstNodeType_t::N_OP_PREFIX_NEG);
-    get_next_token();
-    AstNodeRef prefix_term = parse_term();
-    prefix_neg.get().add_child(prefix_term);
-    TermAst = prefix_neg;
-  }
-  else if (current_token.get().value_enum == TokenValue_t::J_TILDE)
-  {
-    AstNodeRef prefix_not =
-        create_ast_node(AstNodeType_t::N_OP_PREFIX_LOGICAL_NOT);
-    get_next_token();
-    AstNodeRef prefix_term = parse_term();
-    prefix_not.get().add_child(prefix_term);
-    TermAst = prefix_not;
-  }
-  else if (current_token.get().value_enum == TokenValue_t::J_IDENTIFIER)
-  {
-    TermAst = parse_subroutine_call();
-
-    if (TermAst.get().type == EmptyNodeRef.get().type)
-    {
-      // array term
-      if (peek_token.get().value_enum == TokenValue_t::J_LEFT_BRACKET)
-      {
-        TermAst = create_ast_node(AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME,
-                                  current_token.get().value_str);
-        get_next_token();
-
-        require_token(current_token.get().value_enum,
-                      TokenValue_t::J_LEFT_BRACKET);
-        get_next_token();
-
-        TermAst.get().add_child(parse_expression());
-        require_token(current_token.get().value_enum,
-                      TokenValue_t::J_RIGHT_BRACKET);
-        get_next_token();
-      }
-      // scalar term
-      else
-      {
-        TermAst = create_ast_node(AstNodeType_t::N_VARIABLE_NAME,
-                                  current_token.get().value_str);
-        get_next_token();
-      }
-    }
-  }
-
-  if (TermAst.get().type == EmptyNodeRef.get().type)
-  {
-    std::stringstream ss;
-
-    ss << "Line #" << current_token.get().line_number << ": "
-       << "Expected TERM token while parsing "
-       << JackToken::to_string(current_token.get().value_enum);
-
-    fatal_error(ss.str());
-  }
-
-  return TermAst;
 }
 
 }  // namespace recursive_descent
