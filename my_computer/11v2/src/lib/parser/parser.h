@@ -13,6 +13,8 @@ public:
 
   Parser(Tokens_t&);
 
+  void set_left_associative() { left_associative_expressions = true; }
+
   void get_next_token()
   {
     current_token = peek_token;
@@ -54,6 +56,9 @@ private:
   ast::AstNodeRef parse_type(ast::AstNodeType_t);
 
   ast::AstTree AST;
+
+  // support canonical Jack compiler's left associative operator binding
+  bool left_associative_expressions {false};
 
   Tokens_t::iterator token_iter;
   Tokens_t::iterator token_iter_end;

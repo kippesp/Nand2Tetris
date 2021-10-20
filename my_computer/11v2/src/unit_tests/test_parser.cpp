@@ -116,6 +116,95 @@ SCENARIO("Parse expressions")
     REQUIRE(as_str == expected_str);
   }
 
+  SECTION("long expression chain, with precedence")
+  {
+    TextReader R("2 + 3 * 4 - 5 * 6 + 7");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(OP_ADD",
+        "  (INTEGER_CONSTANT integer_value:2)",
+        "  (OP_SUBTRACT",
+        "    (OP_MULTIPLY",
+        "      (INTEGER_CONSTANT integer_value:3)",
+        "      (INTEGER_CONSTANT integer_value:4))",
+        "    (OP_ADD",
+        "      (OP_MULTIPLY",
+        "        (INTEGER_CONSTANT integer_value:5)",
+        "        (INTEGER_CONSTANT integer_value:6))",
+        "      (INTEGER_CONSTANT integer_value:7))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("long expression chain")
+  {
+    TextReader R("2 + 3 * 4 - 5 * 6 + 7, left associative");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    parser.set_left_associative();
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(OP_ADD",
+        "  (INTEGER_CONSTANT integer_value:2)",
+        "  (OP_MULTIPLY",
+        "    (INTEGER_CONSTANT integer_value:3)",
+        "    (OP_SUBTRACT",
+        "      (INTEGER_CONSTANT integer_value:4)",
+        "      (OP_MULTIPLY",
+        "        (INTEGER_CONSTANT integer_value:5)",
+        "        (OP_ADD",
+        "          (INTEGER_CONSTANT integer_value:6)",
+        "          (INTEGER_CONSTANT integer_value:7))))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("long paren expression chain")
+  {
+    TextReader R("2 + (3 * 4) - (5 * 6) + 7, left associative w/parens");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_expression();
+    parser.set_left_associative();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(OP_ADD",
+        "  (INTEGER_CONSTANT integer_value:2)",
+        "  (OP_SUBTRACT",
+        "    (OP_MULTIPLY",
+        "      (INTEGER_CONSTANT integer_value:3)",
+        "      (INTEGER_CONSTANT integer_value:4))",
+        "    (OP_ADD",
+        "      (OP_MULTIPLY",
+        "        (INTEGER_CONSTANT integer_value:5)",
+        "        (INTEGER_CONSTANT integer_value:6))",
+        "      (INTEGER_CONSTANT integer_value:7))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
   SECTION("3-term add")
   {
     TextReader R("1 + 2 - 3");

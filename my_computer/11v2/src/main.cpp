@@ -50,6 +50,9 @@ static int inner_main(const CliArgs& cliargs)
 
     recursive_descent::Parser parser(filtered_tokens);
 
+    // TODO: provide option to control
+    parser.set_left_associative();
+
     const auto& class_ast = parser.parse_class();
 
     if (cliargs.halt_after_parse_tree_s_expression)

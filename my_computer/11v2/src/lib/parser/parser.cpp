@@ -899,6 +899,24 @@ AstNodeRef Parser::parse_expression()
       // clang-format on
   };
 
+  if (left_associative_expressions)
+  {
+    OperationOpMap = OperationOpMap_t {
+        // clang-format off
+        {PrecedenceLevel_t::P_OR,  {}},
+        {PrecedenceLevel_t::P_AND, {}},
+        {PrecedenceLevel_t::P_CMP, {}},
+        {PrecedenceLevel_t::P_ADD, {}},
+        {PrecedenceLevel_t::P_MUL, {TokenValue_t::J_VBAR, TokenValue_t::J_AMPERSAND,
+                                    TokenValue_t::J_LESS_THAN, TokenValue_t::J_GREATER_THAN,
+                                    TokenValue_t::J_EQUAL, TokenValue_t::J_PLUS,
+                                    TokenValue_t::J_MINUS,
+                                    TokenValue_t::J_ASTERISK, TokenValue_t::J_DIVIDE}},
+        {PrecedenceLevel_t::P_TERM, {}},
+        // clang-format on
+    };
+  }
+
   using TokenToAstMap_t = std::map<TokenValue_t, AstNodeType_t>;
 
   TokenToAstMap_t TokenAstMap {
@@ -1009,8 +1027,19 @@ AstNodeRef Parser::parse_expression()
   // parse_expression() starts here
   //
 
-  // lowest operation precedence level is P_OR
-  AstNodeRef ExpressionAst = parse_subexpression(PrecedenceLevel_t::P_OR);
+  AstNodeRef ExpressionAst = EmptyNodeRef;
+
+  if (!left_associative_expressions)
+  {
+    // lowest operation precedence level is P_OR
+    ExpressionAst = parse_subexpression(PrecedenceLevel_t::P_OR);
+  }
+  else
+  {
+    // when not adhering to operator precedence, use P_MUL when internally
+    // is the recursive base case
+    ExpressionAst = parse_subexpression(PrecedenceLevel_t::P_MUL);
+  }
 
   return ExpressionAst;
 }
