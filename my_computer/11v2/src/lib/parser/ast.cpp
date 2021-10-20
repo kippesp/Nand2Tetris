@@ -1,8 +1,7 @@
 #include "ast.h"
 
 #include <cassert>
-
-//#include "parse_tree.h"
+#include <iostream>
 
 namespace ast {
 

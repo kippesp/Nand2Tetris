@@ -1,41 +1,42 @@
 #pragma once
+#include "tokenizer/jack_tokenizer.h"
 
-//#include <memory>
 #include <variant>
 #include <vector>
 
-#include <iostream>
-
 #include <signal.h>
-
-#include "tokenizer/jack_tokenizer.h"
 
 namespace ast {
 
 using AstNodeType_t = enum class AstNodeType_s {
   N_UNDEFINED,
+
   N_CLASS_DECL,
   N_EXPRESSION,
   N_INTEGER_CONSTANT,
   N_RETURN_STATEMENT,
   N_STATEMENT_BLOCK,
-  //
+
   N_FUNCTION_DECL,
   N_METHOD_DECL,
   N_CONSTRUCTOR_DECL,
-  //
+
   N_SUBROUTINE_BODY,
   N_SUBROUTINE_DESCR,
   N_RETURN_TYPE,
   N_INPUT_PARAMETERS,
-  //
+
   N_KEYWORD_CONSTANT,
+  N_STRING_CONSTANT,
+
   N_TRUE_KEYWORD,
   N_FALSE_KEYWORD,
   N_NULL_KEYWORD,
   N_THIS_KEYWORD,
   N_LET_STATEMENT,
-  // N_TERM,
+  N_DO_STATEMENT,
+  N_WHILE_STATEMENT,
+  N_IF_STATEMENT,
 
   N_CLASS_VARIABLES,
   N_LOCAL_VARIABLES,
@@ -54,6 +55,7 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_OP_LOGICAL_LT,
   N_OP_LOGICAL_AND,
   N_OP_LOGICAL_OR,
+
   N_OP_PREFIX_NEG,
   N_OP_PREFIX_LOGICAL_NOT,
 
@@ -63,29 +65,8 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_GLOBAL_CALL_SITE,
   N_GLOBAL_BIND_NAME,
 
-  // N_ARRAY_BINDING,
-  // N_ARRAY_VAR,
-  // N_BINARY_OP,
   N_CLASS_VARIABLE_SCOPE,
-  // N_DELIMITER,
-  N_DO_STATEMENT,
-  N_WHILE_STATEMENT,
-  // N_EXPRESSION_LIST,
-  N_IF_STATEMENT,
-  // N_KEYWORD,
-  // N_OP,
-  // N_RETURN_TYPE,
-  N_STRING_CONSTANT,
-  // N_SUBROUTINE_TYPE,
-  // N_UNDEFINED,
-  // N_VARIABLE_LIST,
-  // N_VARIABLE_TYPE,
-  // N_VAR_DECL_BLOCK,
-  // N_VAR_DECL_STATEMENT,
 };
-
-// TODO: Better design would be to have AstNode data as a struct with no methods
-// then have class that uses it.
 
 class AstNode;
 

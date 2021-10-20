@@ -5,8 +5,6 @@
 
 namespace recursive_descent {
 
-// Builds an AST by parsing the tokenized input
-
 class Parser {
 public:
   Parser() = delete;
@@ -53,6 +51,8 @@ private:
   ast::AstNodeRef parse_return_statement();
   ast::AstNodeRef parse_while_statement();
   ast::AstNodeRef parse_if_statement();
+  ast::AstNodeRef parse_type(bool require_identifier = true);
+  ast::AstNodeRef parse_type(ast::AstNodeType_t);
 
   ast::AstTree AST;
 
