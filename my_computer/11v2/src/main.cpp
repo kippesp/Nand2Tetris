@@ -113,19 +113,15 @@ int main(int argc, const char* argv[])
 
   int rvalue;
 
-#if 0
   try
   {
-#endif
-  rvalue = inner_main(cliargs);
-#if 0
-  } catch (ParseException& e)
+    rvalue = inner_main(cliargs);
+  }
+  catch (std::runtime_error& e)
   {
-    cout << "Parse error: " << e.what() << endl;
-    cout << e.token.to_s_expression() << endl;
+    std::cout << "Error: " << e.what() << std::endl;
     return 1;
   }
-#endif
 
   return rvalue;
 }
