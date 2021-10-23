@@ -66,6 +66,10 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_GLOBAL_BIND_NAME,
 
   N_CLASS_VARIABLE_SCOPE,
+
+  N_METADATA,
+  N_METADATA_KEY,
+  N_METADATA_VALUE,
 };
 
 class AstNode;

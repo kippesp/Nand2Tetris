@@ -90,6 +90,10 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_GLOBAL_BIND_NAME:            return "GLOBAL_BIND_NAME";
 
     case AstNodeType_t::N_CLASS_VARIABLE_SCOPE:        return "CLASS_VARIABLE_SCOPE";
+
+    case AstNodeType_t::N_METADATA:                    return "METADATA";
+    case AstNodeType_t::N_METADATA_KEY:                return "METADATA_KEY";
+    case AstNodeType_t::N_METADATA_VALUE:              return "METADATA_VALUE";
       // clang-format on
   }
 
