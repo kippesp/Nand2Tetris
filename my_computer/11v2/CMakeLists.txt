@@ -139,6 +139,12 @@ if (NOT MSVC)
 endif()
 
 add_compile_options(-D_LIBCPP_DISABLE_AVAILABILITY)
+
+# Version of catch2 being used contains several '__' variables
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_compile_options(-Wno-reserved-identifier)
+endif()
+
 if (NOT MSVC)
     add_link_options(-L/Users/kippesp/usr/opt/llvm-12.0.1/lib)
 endif()
