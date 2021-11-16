@@ -145,9 +145,9 @@ SCENARIO("Parse expressions")
     REQUIRE(as_str == expected_str);
   }
 
-  SECTION("long expression chain")
+  SECTION("long expression chain, left associative")
   {
-    TextReader R("2 + 3 * 4 - 5 * 6 + 7, left associative");
+    TextReader R("2 + 3 * 4 - 5 * 6 + 7");
     JackTokenizer T(R);
 
     auto tokens = T.parse_tokens();
@@ -175,9 +175,9 @@ SCENARIO("Parse expressions")
     REQUIRE(as_str == expected_str);
   }
 
-  SECTION("long paren expression chain")
+  SECTION("long paren expression chain, left associative w/parens")
   {
-    TextReader R("2 + (3 * 4) - (5 * 6) + 7, left associative w/parens");
+    TextReader R("2 + (3 * 4) - (5 * 6) + 7");
     JackTokenizer T(R);
 
     auto tokens = T.parse_tokens();

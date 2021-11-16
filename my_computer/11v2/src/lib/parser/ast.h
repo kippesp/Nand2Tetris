@@ -124,4 +124,5 @@ private:
   std::vector<std::unique_ptr<AstNode>> nodes;
 };
 
+
 }  // namespace ast

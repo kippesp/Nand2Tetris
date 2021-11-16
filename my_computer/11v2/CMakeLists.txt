@@ -70,9 +70,9 @@ if (${RUN_CLANG_TIDY})
 endif()
 
 # see: https://trac.macports.org/ticket/62426
-if (NOT MSVC)
-    set(CMAKE_BUILD_RPATH "/Users/kippesp/usr/opt/llvm-12.0.1/lib")
-endif()
+#if (NOT MSVC)
+#    set(CMAKE_BUILD_RPATH "/Users/kippesp/usr/opt/llvm-12.0.1/lib")
+#endif()
 
 #add_compile_options(-stdlib=libc++)
 
@@ -145,9 +145,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_compile_options(-Wno-reserved-identifier)
 endif()
 
-if (NOT MSVC)
-    add_link_options(-L/Users/kippesp/usr/opt/llvm-12.0.1/lib)
-endif()
+#if (NOT MSVC)
+#    add_link_options(-L/Users/kippesp/usr/opt/llvm-12.0.1/lib)
+#endif()
 
 # For this project, we're not interested in some things
 if (MSVC)
