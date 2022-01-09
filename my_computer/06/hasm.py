@@ -273,7 +273,7 @@ def main():
 
   default_symbols = set(symbols.keys())
 
-  lines = file(filename).read().split('\n')
+  lines = open(filename, 'r').read().split('\n')
   listingLines = []
   statement_no = 0
   for i,line in enumerate(lines):
