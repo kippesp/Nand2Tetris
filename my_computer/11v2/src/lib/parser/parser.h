@@ -46,6 +46,8 @@ public:
 
   ast::AstNodeRef parse_expression();
 
+  const ast::AstTree& get_ast() { return AST; }
+
 private:
   ast::AstNodeRef parse_inner_statements();
   ast::AstNodeRef parse_let_statement();
@@ -65,10 +67,6 @@ private:
 
   JackTokenCRef current_token;
   JackTokenCRef peek_token;
-
-  // convention to represent an empty leaf
-  const std::unique_ptr<ast::AstNode> EmptyNode;
-  const ast::AstNodeRef EmptyNodeRef;
 };
 
 template <typename T>

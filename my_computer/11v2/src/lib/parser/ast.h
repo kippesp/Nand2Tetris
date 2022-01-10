@@ -95,17 +95,19 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, const AstNode& rhs);
 
-  std::string as_s_expression(const std::string& = "");
+  std::string as_s_expression(const std::string& = "") const;
 
   AstNodeRef add_child(AstNodeRef);
 
   static std::string to_string(AstNodeType_t);
 
   // console printer for s-expression tree
-  void dump();
+  void dump() const;
 
   // access the node's children
   std::vector<AstNodeCRef> get_child_nodes() const;
+
+  int num_child_nodes() const { return child_nodes.size(); }
 
 private:
   std::vector<AstNodeRef> child_nodes;
@@ -113,16 +115,31 @@ private:
 
 class AstTree {
 public:
-  AstTree() { nodes.reserve(100); }
+  AstTree()
+      : EmptyNode(
+            std::make_unique<ast::AstNode>(ast::AstNodeType_t::N_UNDEFINED)),
+        EmptyNodeRef(*EmptyNode)
+  {
+    nodes.reserve(100);
+  }
   AstTree(const AstTree&) = delete;
   AstTree& operator=(const AstNode&) = delete;
 
   AstNodeRef add(const AstNode& node);
 
+  const AstNodeRef& get_empty_node_ref() const { return EmptyNodeRef; }
+
+  const AstNodeCRef get_root() const { return *(nodes[0]); };
+
+  AstNodeCRef find_child_node(ast::AstNodeCRef, ast::AstNodeType_t) const;
+
 private:
   // All nodes of the tree with nodes[0] being the root
   std::vector<std::unique_ptr<AstNode>> nodes;
-};
 
+  // convention to represent an empty leaf
+  const std::unique_ptr<AstNode> EmptyNode;
+  const AstNodeRef EmptyNodeRef;
+};
 
 }  // namespace ast

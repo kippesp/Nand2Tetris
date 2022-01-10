@@ -18,10 +18,7 @@ Parser::Parser(Tokens_t& tokens)
     : token_iter(tokens.begin()),
       token_iter_end(tokens.end()),
       current_token(*token_iter),
-      peek_token(*(++token_iter)),
-      EmptyNode(
-          std::make_unique<ast::AstNode>(ast::AstNodeType_t::N_UNDEFINED)),
-      EmptyNodeRef(*EmptyNode)
+      peek_token(*(++token_iter))
 {
 }
 
@@ -120,7 +117,7 @@ AstNodeRef Parser::parse_classvar_decl_block()
 
     AstNodeRef var_type_node = parse_type(AstNodeType_t::N_VARIABLE_TYPE);
 
-    if (var_type_node.get() == EmptyNodeRef.get())
+    if (var_type_node.get() == AST.get_empty_node_ref().get())
     {
       std::stringstream ss;
 
@@ -166,7 +163,7 @@ AstNodeRef Parser::parse_classvar_decl_block()
 AstNodeRef Parser::parse_subroutine()
 {
   auto start_token = TokenValue_t::J_UNDEFINED;
-  AstNodeRef SubrDeclAst = EmptyNodeRef;
+  AstNodeRef SubrDeclAst = AST.get_empty_node_ref();
 
   if (current_token.get().value_enum == TokenValue_t::J_FUNCTION)
   {
@@ -206,11 +203,11 @@ AstNodeRef Parser::parse_subroutine()
   //                               /
   //                     SubrDeclReturnTypeAst
 
-  AstNodeRef SubrDeclReturnTypeAst = EmptyNodeRef;
+  AstNodeRef SubrDeclReturnTypeAst = AST.get_empty_node_ref();
 
   SubrDeclReturnTypeAst = parse_type(AstNodeType_t::N_RETURN_TYPE);
 
-  if (SubrDeclReturnTypeAst.get() == EmptyNodeRef.get())
+  if (SubrDeclReturnTypeAst.get() == AST.get_empty_node_ref().get())
   {
     std::stringstream ss;
 
@@ -262,7 +259,7 @@ AstNodeRef Parser::parse_subroutine()
     {
       AstNodeRef parm_type_node = parse_type(AstNodeType_t::N_VARIABLE_TYPE);
 
-      if (parm_type_node.get() == EmptyNodeRef.get())
+      if (parm_type_node.get() == AST.get_empty_node_ref().get())
       {
         std::stringstream ss;
 
@@ -325,7 +322,7 @@ AstNodeRef Parser::parse_subroutine()
       get_next_token();
       AstNodeRef var_type = parse_type(AstNodeType_t::N_VARIABLE_TYPE);
 
-      if (var_type.get() == EmptyNodeRef.get())
+      if (var_type.get() == AST.get_empty_node_ref().get())
       {
         std::stringstream ss;
 
@@ -378,7 +375,7 @@ AstNodeRef Parser::parse_subroutine()
     while (current_token.get().value_enum != TokenValue_t::J_RIGHT_BRACE)
     {
       AstNodeRef StatementAst = parse_statement();
-      assert((StatementAst.get() != EmptyNodeRef.get()) &&
+      assert((StatementAst.get() != AST.get_empty_node_ref().get()) &&
              "statement required");
       StatementBlockAst.get().add_child(StatementAst);
     }
@@ -404,7 +401,7 @@ AstNodeRef Parser::parse_inner_statements()
   {
     AstNodeRef statement_ast = parse_statement();
 
-    if (statement_ast.get() != EmptyNodeRef.get())
+    if (statement_ast.get() != AST.get_empty_node_ref().get())
     {
       statement_block_root.get().add_child(statement_ast);
     }
@@ -448,7 +445,7 @@ AstNodeRef Parser::parse_statement()
   }
   else
   {
-    return EmptyNodeRef;
+    return AST.get_empty_node_ref();
   }
 }
 
@@ -597,7 +594,7 @@ AstNodeRef Parser::parse_subroutine_call()
   if ((peek_token.get().value_enum != TokenValue_t::J_PERIOD) &&
       (peek_token.get().value_enum != TokenValue_t::J_LEFT_PARENTHESIS))
   {
-    return EmptyNodeRef;
+    return AST.get_empty_node_ref();
   }
 
   AstNodeRef root_node = create_ast_node(AstNodeType_t::N_SUBROUTINE_CALL);
@@ -648,7 +645,7 @@ AstNodeRef Parser::parse_subroutine_call()
 
     AstNodeRef statement_ast = parse_expression();
 
-    if (statement_ast.get() != EmptyNodeRef.get())
+    if (statement_ast.get() != AST.get_empty_node_ref().get())
     {
       call_arguments_node.get().add_child(statement_ast);
     }
@@ -671,7 +668,7 @@ AstNodeRef Parser::parse_variable()
 {
   require_token(current_token, TokenValue_t::J_IDENTIFIER);
 
-  AstNodeRef variable_node = EmptyNodeRef;
+  AstNodeRef variable_node = AST.get_empty_node_ref();
 
   if (peek_token.get().value_enum == TokenValue_t::J_LEFT_BRACKET)
   {
@@ -701,7 +698,7 @@ AstNodeRef Parser::parse_variable()
 
 AstNodeRef Parser::parse_type(AstNodeType_t node_type)
 {
-  AstNodeRef rtn_type_node = EmptyNodeRef;
+  AstNodeRef rtn_type_node = AST.get_empty_node_ref();
 
   if ((node_type == AstNodeType_t::N_RETURN_TYPE) &&
       (current_token.get().value_enum == TokenValue_t::J_VOID))
@@ -726,7 +723,7 @@ AstNodeRef Parser::parse_type(AstNodeType_t node_type)
     rtn_type_node = create_ast_node(node_type, current_token.get().value_str);
   }
 
-  if (rtn_type_node.get() != EmptyNodeRef.get())
+  if (rtn_type_node.get() != AST.get_empty_node_ref().get())
   {
     get_next_token();
   }
@@ -736,7 +733,7 @@ AstNodeRef Parser::parse_type(AstNodeType_t node_type)
 
 AstNodeRef Parser::parse_term()
 {
-  AstNodeRef TermAst = EmptyNodeRef;
+  AstNodeRef TermAst = AST.get_empty_node_ref();
 
   if (current_token.get().value_enum == TokenValue_t::J_INTEGER_CONSTANT)
   {
@@ -803,7 +800,7 @@ AstNodeRef Parser::parse_term()
   {
     TermAst = parse_subroutine_call();
 
-    if (TermAst.get().type == EmptyNodeRef.get().type)
+    if (TermAst.get().type == AST.get_empty_node_ref().get().type)
     {
       // array term
       if (peek_token.get().value_enum == TokenValue_t::J_LEFT_BRACKET)
@@ -831,7 +828,7 @@ AstNodeRef Parser::parse_term()
     }
   }
 
-  if (TermAst.get().type == EmptyNodeRef.get().type)
+  if (TermAst.get().type == AST.get_empty_node_ref().get().type)
   {
     std::stringstream ss;
 
@@ -969,7 +966,7 @@ AstNodeRef Parser::parse_expression()
       // recursive base case - is current_token valid for precedence level?
       if (!operators_in_level.contains(current_token.get().value_enum))
       {
-        return EmptyNodeRef;
+        return AST.get_empty_node_ref();
       }
 
       // consume the operator token at this point so that on the recursive
@@ -982,7 +979,7 @@ AstNodeRef Parser::parse_expression()
       chained_root.get().add_child(lhs);
 
       if (AstNodeRef rhs = parse_subexpression(prec_level);
-          rhs.get() != EmptyNodeRef.get())
+          rhs.get() != AST.get_empty_node_ref().get())
       {
         chained_root.get().add_child(rhs);
       }
@@ -994,7 +991,7 @@ AstNodeRef Parser::parse_expression()
     // parse_subexpression() starts here
     //
 
-    AstNodeRef lhs = EmptyNodeRef;
+    AstNodeRef lhs = AST.get_empty_node_ref();
 
     // recursive base case
     if (subexp_precedence_level == PrecedenceLevel_t::P_MUL)
@@ -1014,7 +1011,7 @@ AstNodeRef Parser::parse_expression()
     {
       AstNodeRef new_lhs = combine_oper_chain(lhs, subexp_precedence_level);
 
-      if (new_lhs.get() == EmptyNodeRef.get())
+      if (new_lhs.get() == AST.get_empty_node_ref().get())
       {
         done = true;
       }
@@ -1031,7 +1028,7 @@ AstNodeRef Parser::parse_expression()
   // parse_expression() starts here
   //
 
-  AstNodeRef ExpressionAst = EmptyNodeRef;
+  AstNodeRef ExpressionAst = AST.get_empty_node_ref();
 
   if (!left_associative_expressions)
   {

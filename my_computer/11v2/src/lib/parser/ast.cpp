@@ -105,7 +105,7 @@ bool AstNode::operator==(const AstNode& other) const
   return this == &other;
 }
 
-std::string AstNode::as_s_expression(const std::string& indent)
+std::string AstNode::as_s_expression(const std::string& indent) const
 {
   std::stringstream ss;
 
@@ -130,7 +130,7 @@ std::string AstNode::as_s_expression(const std::string& indent)
   return ss.str();
 }
 
-void AstNode::dump()
+void AstNode::dump() const
 {
   auto const& output = as_s_expression();
 
@@ -166,6 +166,20 @@ AstNodeRef AstTree::add(const AstNode& node)
   */
   auto& added_node = nodes.emplace_back(std::make_unique<AstNode>(node));
   return *added_node;
+}
+
+AstNodeCRef AstTree::find_child_node(ast::AstNodeCRef node,
+                                     ast::AstNodeType_t type) const
+{
+  for (auto& node : node.get().get_child_nodes())
+  {
+    if (node.get().type == type)
+    {
+      return node;
+    }
+  }
+
+  return get_empty_node_ref().get();
 }
 
 }  // namespace ast
