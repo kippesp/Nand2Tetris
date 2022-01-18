@@ -22,6 +22,9 @@ add_executable(${JFCL_TEST_PROJECT_NAME}
 target_include_directories(${JFCL_TEST_PROJECT_NAME} PRIVATE ../lib)
 target_link_libraries(${JFCL_TEST_PROJECT_NAME} ${JFCL_TEST_PROJECT_NAME}_main jfclmain)
 
+set_target_properties(${JFCL_TEST_PROJECT_NAME} PROPERTIES FOLDER testing)
+set_target_properties(${JFCL_TEST_PROJECT_NAME}_main PROPERTIES FOLDER testing)
+
 # TODO: This has a problem where if the PCH source header is later changed,
 # the compile will fail if 'make clean' isn't issued.
 

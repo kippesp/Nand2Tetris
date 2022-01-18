@@ -13,3 +13,4 @@ add_library(${LIBRARY_TARGET_NAME} ${${LIBRARY_TARGET_NAME}_SRCS})
 
 # TODO: PRIVATE works too.
 target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC tokenizer parser vmwriter)
+set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES FOLDER libs)

@@ -12,3 +12,4 @@ set(${LIBRARY_TARGET_NAME}_SRCS
 add_library(${LIBRARY_TARGET_NAME} ${${LIBRARY_TARGET_NAME}_SRCS})
 
 target_include_directories(${LIBRARY_TARGET_NAME} PRIVATE ..)
+set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES FOLDER libs)
