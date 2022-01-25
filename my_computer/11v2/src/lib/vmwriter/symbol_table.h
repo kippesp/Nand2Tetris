@@ -80,7 +80,7 @@ private:
   struct StorageClassIndicies_s {
     int argument_var;
     int local_var;
-  } next_storage_class_index{0, 0};
+  } next_storage_class_index {0, 0};
 };
 
 class Symbol {

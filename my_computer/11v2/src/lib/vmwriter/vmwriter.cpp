@@ -1,8 +1,8 @@
 #include <queue>
 
-#include "vmwriter/vmwriter.h"
 #include "class_descr.h"
 #include "semantic_exception.h"
+#include "vmwriter/vmwriter.h"
 
 #include <signal.h>
 
