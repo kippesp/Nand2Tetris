@@ -89,8 +89,6 @@ public:
 
   AstNode(AstNodeType_t type);
 
-  AstNode(const AstNode& my_class) : type(my_class.type) {}
-
   bool operator==(const AstNode&) const;
 
   friend std::ostream& operator<<(std::ostream& os, const AstNode& rhs);
