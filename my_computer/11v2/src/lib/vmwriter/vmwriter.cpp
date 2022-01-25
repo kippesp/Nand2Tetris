@@ -62,7 +62,11 @@ T VmWriter::get_ast_node_value(AstNodeCRef node)
     return *s_ptr;
   }
 
-  throw SemanticException("Found child node's value is not of correct type");
+  stringstream ss;
+  ss << "Found child node's value is not of correct type:\n";
+  ss << node.get();
+
+  throw SemanticException(ss.str());
 }
 
 void VmWriter::lower_class(AstNodeCRef root)
@@ -234,13 +238,56 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
 
   AstNodeCRef expression_root = expression_parent_root.get_child_nodes()[0];
 
-  return "push constant 1\n";
-
   queue<const AstNodeCRef> worklist;
 
-  // <expression> ::= <term> {<op> <term>}*
-  for (auto node : expression_root.get().get_child_nodes())
+  function<void(AstNodeCRef)> visit_fn;
+
+  visit_fn = [&](AstNodeCRef new_node) {
+    if (new_node.get().num_child_nodes() == 0)
+    {
+      worklist.push(new_node);
+    }
+    else
+    {
+      for (auto& next_node : new_node.get().get_child_nodes())
+      {
+        visit_fn(next_node);
+      }
+
+      worklist.push(new_node);
+    }
+  };
+
+  // build DFS node queue the expression tree
+  visit_fn(expression_root);
+
+  while (!worklist.empty())
   {
+    auto& node = worklist.front();
+    auto& node_type = node.get().type;
+
+    if (node_type == AstNodeType_t::N_INTEGER_CONSTANT)
+    {
+      auto int_value = get_ast_node_value<int>(node);
+
+      if (int_value > 0x7fff)
+      {
+        stringstream ss;
+        ss << "Integer constant out of range.  **" << int_value << "** > 32767";
+        throw SemanticException(ss.str());
+      }
+
+      if (int_value < 0)
+        throw SemanticException("Unexpected encountered negative number");
+
+      lowered_vm << "push constant " << int_value << endl;
+    }
+    else
+    {
+      throw SemanticException("expression fallthrough");
+    }
+
+    worklist.pop();
   }
 
   return "";

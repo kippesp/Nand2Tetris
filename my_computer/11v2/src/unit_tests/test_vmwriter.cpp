@@ -13,22 +13,6 @@ SCENARIO("VMWriter Statements")
   SECTION("Single return statement")
   {
     TextReader R(SINGLE_RETURN_SRC);
-#if 0
-class Main {
-    function int f1() {
-        return 1;
-    }
-}
-
-(CLASS_DECL string_value:Main
-  (FUNCTION_DECL string_value:f1
-    (SUBROUTINE_DESCR
-      (RETURN_TYPE string_value:int))
-    (SUBROUTINE_BODY
-      (STATEMENT_BLOCK
-        (RETURN_STATEMENT
-          (INTEGER_CONSTANT integer_value:1))))))
-#endif
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
@@ -36,7 +20,6 @@ class Main {
     parser.parse_class();
 
     VmWriter::VmWriter VM(parser.get_ast());
-    // VM.dump_ast();
     VM.lower_module();
 
     REQUIRE(VM.get_lowered_vm() ==
@@ -65,6 +48,7 @@ class Test {
     REQUIRE(parsetree_node);
 
     VmWriter VM(parsetree_node);
+    VM.dump_ast();
     VM.lower_class();
 
     REQUIRE(VM.class_name == "Test");
