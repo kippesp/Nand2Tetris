@@ -28,6 +28,19 @@ class Test {
 }
 )""";
 
+const char* CONST_VOID_METHOD_CALL_SRC = R"""(
+class Test {
+   method void draw() {
+      return;
+   }
+
+   method void run() {
+      do draw();
+      return;
+   }
+}
+)""";
+
 const char* CLASSVAR_SRC = R"""(
 class testjack {
     static ClassName inst1;
@@ -48,19 +61,6 @@ class JackTest {
 
         return;
     }
-}
-)""";
-
-const char* CONST_VOID_METHOD_CALL_SRC = R"""(
-class Test {
-   method void draw() {
-      return;
-   }
-
-   method void run() {
-      do draw();
-      return;
-   }
 }
 )""";
 

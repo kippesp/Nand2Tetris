@@ -290,6 +290,16 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
       // AST shouldn't have been designed to have this node.  It convey nothing
       // and its child has already been lowered.
     }
+    else if (node_type == AstNodeType_t::N_THIS_KEYWORD)
+    {
+      if (subroutine_descr.get_root().get().type ==
+          AstNodeType_t::N_FUNCTION_DECL)
+      {
+        throw SemanticException("'this' keyword not permitted in functions");
+      }
+
+      lowered_vm << "push pointer 0" << endl;
+    }
     // TODO: ???
     else if (false)
     {

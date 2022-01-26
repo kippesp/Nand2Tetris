@@ -124,6 +124,33 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+  SECTION("Simple Constructor")
+  {
+    TextReader R(SIMPLE_CONST_SRC);
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function Test.new 0\n"
+            "push constant 0\n"
+            "call Memory.alloc 1\n"
+            "pop pointer 0\n"
+            "push pointer 0\n"
+            "return\n"
+            "function Test.ref 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push pointer 0\n"
+            "return\n");
+  }
+
 #if 0
   SECTION("Compile Seven test program")
   {
@@ -288,36 +315,6 @@ SCENARIO("VMWriter Statements")
             "goto WHILE_BEGIN_0\n"
             "label WHILE_END_0\n"
             "push argument 0\n"
-            "return\n");
-  }
-
-  SECTION("Simple Constructor")
-  {
-    strcpy(R.buffer, SIMPLE_CONST_SRC);
-
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
-
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
-
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
-
-    REQUIRE(VM.class_name == "Test");
-
-    REQUIRE(VM.lowered_vm.str() ==
-            "function Test.new 0\n"
-            "push constant 0\n"
-            "call Memory.alloc 1\n"
-            "pop pointer 0\n"
-            "push pointer 0\n"
-            "return\n"
-            "function Test.ref 0\n"
-            "push argument 0\n"
-            "pop pointer 0\n"
-            "push pointer 0\n"
             "return\n");
   }
 
