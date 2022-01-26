@@ -132,13 +132,13 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
   SubroutineDescr& subroutine_descr =
       class_descr.add_subroutine(subroutine_name, return_type, root).get();
 
+  // raise(SIGTRAP);
+
   // For class methods, add the implicit argument "this" representing the class
   if (root.type == AstNodeType_t::N_METHOD_DECL)
   {
     subroutine_descr.add_symbol("this", "argument", class_descr.get_name());
   }
-
-  // std::function<void(ast::AstNodeCRef)> build_dfs_nodes;
 
   // Helper function to add to subroutine's symbol table
   auto add_symbol = [&](ast::AstNodeType_t node_type) -> void {
@@ -365,32 +365,39 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
                                      ? lower_expression(subroutine_descr, root)
                                      : "";
 
-  if (subroutine_descr.get_root().get() == AstNodeType_t::N_FUNCTION_DECL)
+  auto subroutine_type = subroutine_descr.get_root().get().type;
+  auto subroutine_return_type = subroutine_descr.get_return_type();
+  bool is_void_return = false;
+
+  if (auto return_type_ptr =
+          get_if<SymbolTable::BasicType_t>(&subroutine_return_type);
+      return_type_ptr)
   {
-    if (auto return_type_ptr = get_if<SymbolTable::BasicType_t>(
-            &subroutine_descr.get_return_type());
-        return_type_ptr)
+    is_void_return = (*return_type_ptr == SymbolTable::BasicType_t::T_VOID);
+  }
+
+  if (is_void_return)
+  {
+    if ((subroutine_type == AstNodeType_t::N_FUNCTION_DECL) ||
+        (subroutine_type == AstNodeType_t::N_METHOD_DECL))
     {
-      if (*return_type_ptr != SymbolTable::BasicType_t::T_VOID)
+      if (lowered_expression_vm != "")
       {
-        // TODO: ?? Check return is of void type
+        throw SemanticException(
+            "Function/method declared void but returning non-void");
       }
 
-      lowered_vm << "push constant 0 " << endl;
-      lowered_vm << "return" << endl;
-    }
-  }
-  else
-  {
-    lowered_vm << lowered_expression_vm;
-
-    if (subroutine_descr.get_root().get() == AstNodeType_t::N_METHOD_DECL)
-    {
       lowered_vm << "push constant 0" << endl;
+      lowered_vm << "return" << endl;
+      return;
     }
 
-    lowered_vm << "return" << endl;
+    assert(subroutine_type == AstNodeType_t::N_CONSTRUCTOR_DECL);
+
+    throw SemanticException("Constructor declared as void");
   }
+
+  lowered_vm << lowered_expression_vm << "return" << endl;
 }
 
 }  // namespace VmWriter

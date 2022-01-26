@@ -39,10 +39,10 @@ public:
     return rvalue;
   }
 
-  void add_symbol(const std::string& symbol_name, const std::string& type,
-                  const std::string& storage_class)
+  void add_symbol(const std::string& symbol_name, const std::string& scope,
+                  const std::string& symbol_type)
   {
-    symbol_table.add_symbol(symbol_name, type, storage_class);
+    symbol_table.add_symbol(symbol_name, scope, symbol_type);
   }
 
   const ClassSymbolTable& get_symbol_table() const { return symbol_table; }

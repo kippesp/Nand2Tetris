@@ -49,8 +49,8 @@ public:
 
   ClassSymbolTable();
 
-  void add_symbol(std::string name, std::string type,
-                  std::string storage_class);
+  void add_symbol(const std::string& symbol_name, const std::string& scope,
+                  const std::string& symbol_type);
 
   int num_fields() const { return next_storage_class_index.field_var; }
 
@@ -69,8 +69,8 @@ public:
 
   SubroutineSymbolTable() : SymbolTable(ScopeLevel_t::SUBROUTINE) {}
 
-  void add_symbol(std::string name, std::string type,
-                  std::string storage_class);
+  void add_symbol(const std::string& symbol_name, const std::string& scope,
+                  const std::string& symbol_type);
 
   int num_locals() const { return next_storage_class_index.local_var; }
 

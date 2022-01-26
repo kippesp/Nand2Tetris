@@ -40,8 +40,8 @@ public:
     return return_type;
   }
 
-  void add_symbol(std::string arg_name, const std::string scope,
-                  const std::string class_name)
+  void add_symbol(const std::string& arg_name, const std::string& scope,
+                  const std::string& class_name)
   {
     symbol_table.add_symbol(arg_name, scope, class_name);
   }

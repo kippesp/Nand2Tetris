@@ -38,15 +38,18 @@ SymbolTable::VariableType_t SymbolTable::variable_type_from_string(
 
 ClassSymbolTable::ClassSymbolTable() : SymbolTable(ScopeLevel_t::CLASS) {}
 
-void ClassSymbolTable::add_symbol(std::string name, std::string type,
-                                  std::string storage_class_in)
+void ClassSymbolTable::add_symbol(const std::string& symbol_name,
+                                  const std::string& storage_class_str,
+                                  const std::string& symbol_type_str)
 {
-  if ((storage_class_in != "static") && (storage_class_in != "field"))
+  if ((storage_class_str != "static") && (storage_class_str != "field"))
   {
-    throw SemanticException("Class variable must be 'static' or 'field'", name);
+    throw SemanticException(
+        "Class variable storage class must be 'static' or 'field'",
+        symbol_name);
   }
 
-  StorageClass_t storage_class = (storage_class_in == "static")
+  StorageClass_t storage_class = (storage_class_str == "static")
                                      ? StorageClass_t::S_STATIC
                                      : StorageClass_t::S_FIELD;
 
@@ -65,27 +68,29 @@ void ClassSymbolTable::add_symbol(std::string name, std::string type,
       assert(0 && "fall through");
   }
 
-  VariableType_t variable_type = variable_type_from_string(type);
+  VariableType_t symbol_type = variable_type_from_string(symbol_type_str);
 
-  if (symbols.find(name) != symbols.end())
+  if (symbols.find(symbol_name) != symbols.end())
   {
-    throw SemanticException("Class variable already defined", name);
+    throw SemanticException("Class variable already defined", symbol_name);
   }
 
-  symbols[name] = SymbolDescr_t(ScopeLevel_t::CLASS, variable_type,
-                                storage_class, variable_index);
+  symbols[symbol_name] = SymbolDescr_t(ScopeLevel_t::CLASS, symbol_type,
+                                       storage_class, variable_index);
 }
 
-void SubroutineSymbolTable::add_symbol(std::string name, std::string type,
-                                       std::string storage_class_in)
+void SubroutineSymbolTable::add_symbol(const std::string& symbol_name,
+                                       const std::string& storage_class_str,
+                                       const std::string& symbol_type_str)
 {
-  if ((storage_class_in != "argument") && (storage_class_in != "local"))
+  if ((storage_class_str != "argument") && (storage_class_str != "local"))
   {
-    throw SemanticException("Subroutine variable must be 'argument' or 'local'",
-                            name);
+    throw SemanticException(
+        "Subroutine variable storage class must be 'argument' or 'local'",
+        symbol_name);
   }
 
-  StorageClass_t storage_class = (storage_class_in == "argument")
+  StorageClass_t storage_class = (storage_class_str == "argument")
                                      ? StorageClass_t::S_ARGUMENT
                                      : StorageClass_t::S_LOCAL;
 
@@ -104,13 +109,13 @@ void SubroutineSymbolTable::add_symbol(std::string name, std::string type,
       assert(0 && "fall through");
   }
 
-  VariableType_t variable_type = variable_type_from_string(type);
+  VariableType_t symbol_type = variable_type_from_string(symbol_type_str);
 
-  if (symbols.find(name) != symbols.end())
+  if (symbols.find(symbol_name) != symbols.end())
   {
-    throw SemanticException("Subroutine variable already defined", name);
+    throw SemanticException("Subroutine variable already defined", symbol_name);
   }
 
-  symbols[name] = SymbolDescr_t(ScopeLevel_t::SUBROUTINE, variable_type,
-                                storage_class, variable_index);
+  symbols[symbol_name] = SymbolDescr_t(ScopeLevel_t::SUBROUTINE, symbol_type,
+                                       storage_class, variable_index);
 }

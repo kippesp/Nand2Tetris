@@ -103,25 +103,9 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
-#if 0
   SECTION("Void Method return")
   {
     TextReader R(VOID_RETURN_SRC);
-#if 0
-class Test {
-   method void f1() {
-      return;
-   }
-}
-
-(CLASS_DECL string_value:Test
-  (METHOD_DECL string_value:f1
-    (SUBROUTINE_DESCR
-      (RETURN_TYPE string_value:void))
-    (SUBROUTINE_BODY
-      (STATEMENT_BLOCK
-        (RETURN_STATEMENT)))))
-#endif
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
@@ -129,7 +113,7 @@ class Test {
     parser.parse_class();
 
     VmWriter::VmWriter VM(parser.get_ast());
-    VM.dump_ast();
+    // VM.dump_ast();
     VM.lower_module();
 
     REQUIRE(VM.get_lowered_vm() ==
@@ -139,7 +123,6 @@ class Test {
             "push constant 0\n"
             "return\n");
   }
-#endif
 
 #if 0
   SECTION("Compile Seven test program")
