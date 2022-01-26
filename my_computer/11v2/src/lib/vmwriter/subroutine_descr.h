@@ -1,6 +1,7 @@
 #pragma once
 
 // #include <iostream>
+#include <optional>
 
 #include "parser/ast.h"
 #include "semantic_exception.h"

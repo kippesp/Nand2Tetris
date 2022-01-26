@@ -105,7 +105,7 @@ public:
   // access the node's children
   std::vector<AstNodeCRef> get_child_nodes() const;
 
-  int num_child_nodes() const { return child_nodes.size(); }
+  int num_child_nodes() const { return static_cast<int>(child_nodes.size()); }
 
 private:
   std::vector<AstNodeRef> child_nodes;
@@ -127,7 +127,7 @@ public:
 
   const AstNodeRef& get_empty_node_ref() const { return EmptyNodeRef; }
 
-  const AstNodeCRef get_root() const { return *(nodes[0]); };
+  AstNodeCRef get_root() const { return *(nodes[0]); };
 
   AstNodeCRef find_child_node(ast::AstNodeCRef, ast::AstNodeType_t) const;
 

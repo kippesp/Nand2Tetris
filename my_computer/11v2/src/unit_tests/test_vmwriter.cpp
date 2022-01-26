@@ -5,7 +5,6 @@
 
 #include "common.h"
 #include "jack_sources.h"
-//#include "parser/parse_tree.h"
 #include "vmwriter/vmwriter.h"
 
 SCENARIO("VMWriter Statements")
@@ -20,6 +19,7 @@ SCENARIO("VMWriter Statements")
     parser.parse_class();
 
     VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
     VM.lower_module();
 
     REQUIRE(VM.get_lowered_vm() ==
@@ -28,39 +28,120 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+  SECTION("Single return expressions")
+  {
+    TextReader R(SINGLE_RETURN_EXPRESSIONS_SRC);
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function MathExp.f1 0\n"
+            "push constant 1\n"
+            "push constant 2\n"
+            "add\n"
+            "push constant 3\n"
+            "add\n"
+            "push constant 4\n"
+            "add\n"
+            "push constant 5\n"
+            "add\n"
+            "return\n"
+            "function MathExp.f2 0\n"
+            "push constant 1\n"
+            "push constant 2\n"
+            "push constant 3\n"
+            "call Math.divide 2\n"
+            "add\n"
+            "push constant 4\n"
+            "push constant 5\n"
+            "call Math.multiply 2\n"
+            "sub\n"
+            "return\n"
+            "function MathExp.f3 0\n"
+            "push constant 2\n"
+            "neg\n"
+            "return\n"
+            "function MathExp.f4 0\n"
+            "push constant 3\n"
+            "not\n"
+            "return\n"
+            "function MathExp.f5 0\n"
+            "push constant 0\n"
+            "not\n"
+            "push constant 0\n"
+            "not\n"
+            "push constant 0\n"
+            "not\n"
+            "and\n"
+            "or\n"
+            "return\n"
+            "function MathExp.f6 0\n"
+            "push constant 5\n"
+            "push constant 6\n"
+            "eq\n"
+            "return\n"
+            "function MathExp.f7 0\n"
+            "push constant 0\n"
+            "not\n"
+            "not\n"
+            "return\n"
+            "function MathExp.f8 0\n"
+            "push constant 2\n"
+            "push constant 1\n"
+            "gt\n"
+            "push constant 1\n"
+            "push constant 2\n"
+            "lt\n"
+            "and\n"
+            "return\n");
+  }
+
 #if 0
   SECTION("Void Method return")
   {
-    strcpy(R.buffer, VOID_RETURN_SRC);
+    TextReader R(VOID_RETURN_SRC);
 #if 0
 class Test {
    method void f1() {
       return;
    }
 }
+
+(CLASS_DECL string_value:Test
+  (METHOD_DECL string_value:f1
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:void))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+        (RETURN_STATEMENT)))))
 #endif
 
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
 
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
-
-    VmWriter VM(parsetree_node);
+    VmWriter::VmWriter VM(parser.get_ast());
     VM.dump_ast();
-    VM.lower_class();
+    VM.lower_module();
 
-    REQUIRE(VM.class_name == "Test");
-
-    REQUIRE(VM.lowered_vm.str() ==
+    REQUIRE(VM.get_lowered_vm() ==
             "function Test.f1 0\n"
             "push argument 0\n"
             "pop pointer 0\n"
             "push constant 0\n"
             "return\n");
   }
+#endif
 
+#if 0
   SECTION("Compile Seven test program")
   {
     strcpy(R.buffer, JACK_SEVEN_SRC);

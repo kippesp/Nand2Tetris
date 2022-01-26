@@ -63,3 +63,39 @@ class Test {
    }
 }
 )""";
+
+const char* SINGLE_RETURN_EXPRESSIONS_SRC = R"""(
+class MathExp {
+    function int f1() {
+        return (((1 + 2) + 3) + 4) + 5;
+    }
+
+    function int f2() {
+        return (1 + (2 / 3)) - (4 * 5);
+    }
+
+    function int f3() {
+        return -2;
+    }
+
+    function int f4() {
+        return ~3;
+    }
+
+    function bool f5() {
+        return (true | (true & true));
+    }
+
+    function bool f6() {
+        return 5 = 6;
+    }
+
+    function bool f7() {
+        return ~true;
+    }
+
+    function bool f8() {
+        return (2 > 1) & (1 < 2);
+    }
+}
+)""";

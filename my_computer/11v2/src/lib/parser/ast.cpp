@@ -98,6 +98,8 @@ std::string AstNode::to_string(AstNodeType_t t)
   }
 
   assert(0 && "fallthrough");
+
+  return "";
 }
 
 bool AstNode::operator==(const AstNode& other) const

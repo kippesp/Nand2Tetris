@@ -30,8 +30,8 @@ public:
 
   using ClassType_t = std::string;
   using VariableType_t = std::variant<std::monostate, BasicType_t, ClassType_t>;
-  using SymbolDescr_t = std::tuple<ScopeLevel_t, VariableType_t, StorageClass_t,
-                                   int, VariableType_t>;
+  using SymbolDescr_t =
+      std::tuple<ScopeLevel_t, VariableType_t, StorageClass_t, int>;
 
   virtual ~SymbolTable() = default;
 

@@ -1,3 +1,4 @@
+#include <functional>
 #include <queue>
 
 #include "class_descr.h"
@@ -36,7 +37,7 @@ T VmWriter::get_ast_node_value(AstNodeCRef node, AstNodeType_t node_type)
 
   if (ast_node.get() == EmptyNodeRef.get())
   {
-    raise(SIGTRAP);
+    // raise(SIGTRAP);
     throw SemanticException("Expected node type not found in child nodes");
   }
 
@@ -53,7 +54,7 @@ T VmWriter::get_ast_node_value(AstNodeCRef node)
 {
   if (node.get() == EmptyNodeRef.get())
   {
-    raise(SIGTRAP);
+    // raise(SIGTRAP);
     throw SemanticException("Expected node type not found in child nodes");
   }
 
@@ -238,7 +239,7 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
 
   AstNodeCRef expression_root = expression_parent_root.get_child_nodes()[0];
 
-  queue<const AstNodeCRef> worklist;
+  queue<AstNodeCRef> worklist;
 
   function<void(AstNodeCRef)> visit_fn;
 
@@ -261,10 +262,12 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
   // build DFS node queue the expression tree
   visit_fn(expression_root);
 
-  while (!worklist.empty())
+  while (worklist.size() > 0)
   {
     auto& node = worklist.front();
     auto& node_type = node.get().type;
+
+    worklist.pop();
 
     if (node_type == AstNodeType_t::N_INTEGER_CONSTANT)
     {
@@ -282,12 +285,74 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
 
       lowered_vm << "push constant " << int_value << endl;
     }
+    else if (node_type == AstNodeType_t::N_KEYWORD_CONSTANT)
+    {
+      // AST shouldn't have been designed to have this node.  It convey nothing
+      // and its child has already been lowered.
+    }
+    // TODO: ???
+    else if (false)
+    {
+      throw SemanticException("Should not be here");
+    }
+    // handle operators
     else
     {
-      throw SemanticException("expression fallthrough");
-    }
+      string operator_vm;
 
-    worklist.pop();
+      switch (node_type)
+      {
+        case AstNodeType_t::N_OP_MULTIPLY:
+          lowered_vm << "call Math.multiply 2" << endl;
+          break;
+        case AstNodeType_t::N_OP_DIVIDE:
+          lowered_vm << "call Math.divide 2" << endl;
+          break;
+        case AstNodeType_t::N_OP_ADD:
+          lowered_vm << "add" << endl;
+          break;
+        case AstNodeType_t::N_OP_SUBTRACT:
+          lowered_vm << "sub" << endl;
+          break;
+        case AstNodeType_t::N_OP_LOGICAL_EQUALS:
+          lowered_vm << "eq" << endl;
+          break;
+        case AstNodeType_t::N_OP_LOGICAL_GT:
+          lowered_vm << "gt" << endl;
+          break;
+        case AstNodeType_t::N_OP_LOGICAL_LT:
+          lowered_vm << "lt" << endl;
+          break;
+        case AstNodeType_t::N_OP_LOGICAL_AND:
+          lowered_vm << "and" << endl;
+          break;
+        case AstNodeType_t::N_OP_LOGICAL_OR:
+          lowered_vm << "or" << endl;
+          break;
+        case AstNodeType_t::N_OP_PREFIX_NEG:
+          lowered_vm << "neg" << endl;
+          break;
+        case AstNodeType_t::N_OP_PREFIX_LOGICAL_NOT:
+          lowered_vm << "not" << endl;
+          break;
+        case AstNodeType_t::N_TRUE_KEYWORD:
+          lowered_vm << "push constant 0" << endl;
+          lowered_vm << "not" << endl;
+          break;
+        case AstNodeType_t::N_FALSE_KEYWORD:
+          lowered_vm << "push constant 0" << endl;
+          break;
+        default:
+        {
+          // throw SemanticException("expression fallthrough");
+          // raise(SIGTRAP);
+          stringstream ss;
+          ss << "expression fallthrough:\n";
+          ss << node.get();
+          throw SemanticException(ss.str());
+        }
+      }
+    }
   }
 
   return "";
