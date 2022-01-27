@@ -37,12 +37,21 @@ private:
   void lower_statement_block(ast::AstNodeCRef);
   std::string lower_expression(SubroutineDescr&, const ast::AstNode&);
   void lower_return_statement(SubroutineDescr&, const ast::AstNode&);
+  void lower_subroutine_call(SubroutineDescr&, const ast::AstNode&);
 
   template <typename T>
-  T get_ast_node_value(ast::AstNodeCRef, ast::AstNodeType_t);
+  const T& get_ast_node_value(ast::AstNodeCRef, ast::AstNodeType_t);
 
   template <typename T>
-  T get_ast_node_value(ast::AstNodeCRef node);
+  const T& get_ast_node_value(ast::AstNodeCRef node);
+
+#if 0
+  template <typename T>
+  T get_ast_node_value(const ast::AstNode& node)
+  {
+    return get_ast_node_value<T>(ast::AstNodeCRef(node));
+  }
+#endif
 
   Program program;
 

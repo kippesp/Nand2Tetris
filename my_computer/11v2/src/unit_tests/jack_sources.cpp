@@ -41,6 +41,20 @@ class Test {
 }
 )""";
 
+const char* CONST_VOID_METHOD_CALL_GLOBAL_SRC = R"""(
+class Test {
+   method void draw(bool a, bool b) {
+      do Screen.setColor(a & b);
+      return;
+   }
+
+   method void run() {
+      do draw(true, true);
+      return;
+   }
+}
+)""";
+
 const char* CLASSVAR_SRC = R"""(
 class testjack {
     static ClassName inst1;

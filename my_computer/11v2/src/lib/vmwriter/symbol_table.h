@@ -43,6 +43,21 @@ private:
   ScopeLevel_t scope_level;
 };
 
+class Symbol {
+public:
+  Symbol(const SymbolTable::SymbolDescr_t& s)
+      : scope_level(get<0>(s)),
+        variable_type(get<1>(s)),
+        storage_class(get<2>(s)),
+        index(get<3>(s))
+  {
+  }
+  const SymbolTable::ScopeLevel_t scope_level;
+  const SymbolTable::VariableType_t variable_type;
+  const SymbolTable::StorageClass_t storage_class;
+  const int index;
+};
+
 class ClassSymbolTable : public SymbolTable {
 public:
   virtual ~ClassSymbolTable() = default;
@@ -81,20 +96,4 @@ private:
     int argument_var;
     int local_var;
   } next_storage_class_index {0, 0};
-};
-
-class Symbol {
-public:
-  Symbol(SymbolTable::SymbolDescr_t s)
-      : scope_level(get<0>(s)),
-        type(get<1>(s)),
-        storage_class(get<2>(s)),
-        index(get<3>(s))
-  {
-  }
-
-  const SymbolTable::ScopeLevel_t scope_level;
-  const SymbolTable::VariableType_t type;
-  const SymbolTable::StorageClass_t storage_class;
-  const int index;
 };

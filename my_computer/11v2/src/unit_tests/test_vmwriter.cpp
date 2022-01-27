@@ -151,6 +151,75 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+  SECTION("Local method call")
+  {
+    TextReader R(CONST_VOID_METHOD_CALL_SRC);
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function Test.draw 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push constant 0\n"
+            "return\n"
+            "function Test.run 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push pointer 0\n"
+            "call Test.draw 1\n"
+            "pop temp 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+
+#if LATER
+  SECTION("Global method call w/parms")
+  {
+    TextReader R(CONST_VOID_METHOD_CALL_GLOBAL_SRC);
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function Test.draw 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push argument 1\n"
+            "push argument 2\n"
+            "and\n"
+            "call Screen.setColor 1\n"
+            "pop temp 0\n"
+            "push constant 0\n"
+            "return\n"
+            "function Test.run 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push pointer 0\n"
+            "push constant 0\n"
+            "not\n"
+            "push constant 0\n"
+            "not\n"
+            "call Test.draw 3\n"
+            "pop temp 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+#endif
+
 #if 0
   SECTION("Compile Seven test program")
   {

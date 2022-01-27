@@ -18,7 +18,7 @@ int SubroutineDescr::num_fields() const
 
 optional<Symbol> SubroutineDescr::find_symbol(std::string symbol_name)
 {
-  // Search subroutine symbols
+  // Search subroutine symbols (this hides any def in the class)
   if (auto symbol = symbol_table.symbols.find(symbol_name);
       symbol != symbol_table.symbols.end())
   {

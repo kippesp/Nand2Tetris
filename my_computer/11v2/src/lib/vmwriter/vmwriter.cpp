@@ -31,7 +31,7 @@ void VmWriter::lower_module()
 // Helper function to find and return the value of type T of the the first node
 // of type `node_type` among the child nodes of `node`.
 template <typename T>
-T VmWriter::get_ast_node_value(AstNodeCRef node, AstNodeType_t node_type)
+const T& VmWriter::get_ast_node_value(AstNodeCRef node, AstNodeType_t node_type)
 {
   AstNodeCRef ast_node = module_ast.find_child_node(node, node_type);
 
@@ -50,7 +50,7 @@ T VmWriter::get_ast_node_value(AstNodeCRef node, AstNodeType_t node_type)
 }
 
 template <typename T>
-T VmWriter::get_ast_node_value(AstNodeCRef node)
+const T& VmWriter::get_ast_node_value(AstNodeCRef node)
 {
   if (node.get() == EmptyNodeRef.get())
   {
@@ -72,7 +72,7 @@ T VmWriter::get_ast_node_value(AstNodeCRef node)
 
 void VmWriter::lower_class(AstNodeCRef root)
 {
-  auto class_name = get_ast_node_value<std::string>(root);
+  auto& class_name = get_ast_node_value<std::string>(root);
   ClassDescr& class_descr = program.add_class(class_name, root);
 
   // Add any class variables to the class symbol table
@@ -87,10 +87,10 @@ void VmWriter::lower_class(AstNodeCRef root)
         throw SemanticException("Expected class variable decl node");
       }
 
-      auto variable_name = get_ast_node_value<std::string>(node);
-      auto variable_scope = get_ast_node_value<std::string>(
+      auto& variable_name = get_ast_node_value<std::string>(node);
+      auto& variable_scope = get_ast_node_value<std::string>(
           node, AstNodeType_t::N_CLASS_VARIABLE_SCOPE);
-      auto variable_type =
+      auto& variable_type =
           get_ast_node_value<std::string>(node, AstNodeType_t::N_VARIABLE_TYPE);
 
       class_descr.add_symbol(variable_name, variable_scope, variable_type);
@@ -123,7 +123,7 @@ void VmWriter::lower_class(AstNodeCRef root)
 //
 void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
 {
-  auto subroutine_name = get_ast_node_value<std::string>(root);
+  auto& subroutine_name = get_ast_node_value<std::string>(root);
   const AstNode& DescrNode =
       module_ast.find_child_node(root, AstNodeType_t::N_SUBROUTINE_DESCR).get();
   auto return_type = SymbolTable::variable_type_from_string(
@@ -153,8 +153,8 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
           throw SemanticException("Expected subroutine input param decl node");
         }
 
-        auto variable_name = get_ast_node_value<std::string>(node);
-        auto variable_type = get_ast_node_value<std::string>(
+        auto& variable_name = get_ast_node_value<std::string>(node);
+        auto& variable_type = get_ast_node_value<std::string>(
             node, AstNodeType_t::N_VARIABLE_TYPE);
 
         subroutine_descr.add_symbol(
@@ -210,7 +210,8 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
         throw SemanticException("statement not implemented");
         break;
       case AstNodeType_t::N_DO_STATEMENT:
-        throw SemanticException("statement not implemented");
+        lower_subroutine_call(subroutine_descr, node);
+        lowered_vm << "pop temp 0" << endl;
         break;
       case AstNodeType_t::N_WHILE_STATEMENT:
         throw SemanticException("statement not implemented");
@@ -408,6 +409,130 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
   }
 
   lowered_vm << lowered_expression_vm << "return" << endl;
+}
+
+void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
+                                     const AstNode& root)
+{
+  assert(root.type == AstNodeType_t::N_DO_STATEMENT);
+  assert(root.num_child_nodes() == 1);
+
+  auto& call_site_parent = root.get_child_nodes()[0].get();
+  assert(call_site_parent.type == AstNodeType_t::N_SUBROUTINE_CALL);
+
+  auto& call_site = call_site_parent.get_child_nodes()[0].get();
+  assert((call_site.type == AstNodeType_t::N_LOCAL_CALL_SITE) ||
+         (call_site.type == AstNodeType_t::N_GLOBAL_CALL_SITE));
+
+  stringstream call_site_bind_name;
+
+  // number of arguments the subroutine takes and are pushed to the stack
+  size_t call_site_args = 0;
+
+  ///////
+  // Lower call-site binding
+
+  // Handle local calls into the current object's method.
+  //    // Example:
+  //    // The current class has a method, add(int)
+  //    do let my_local_var = add(1);
+  if (call_site.type == AstNodeType_t::N_LOCAL_CALL_SITE)
+  {
+    // If the symbol table has the 'this' variable, we're in a class method
+    if (auto this_symbol = subroutine_descr.find_symbol("this");
+        this_symbol.has_value())
+    {
+      lowered_vm << "push pointer 0" << endl;
+      call_site_args++;
+
+      if (auto symbol_type_ptr =
+              get_if<SymbolTable::ClassType_t>(&this_symbol->variable_type);
+          symbol_type_ptr)
+      {
+        call_site_bind_name << *symbol_type_ptr << ".";
+      }
+      else
+      {
+        assert(symbol_type_ptr && "Expected ClassType_t");
+      }
+    }
+    else
+    {
+      // TODO: not here: call_site_bind_name << sub_name << ".";
+    }
+  }
+  // Handle global calls into another object's method or class's constructor.
+  //    // has a method, set(int)
+  //    // has a constructor, new()
+  //    var MyClass my_local_var;
+  //
+  //    // a global call site constructor call
+  //    let my_local_var = MyClass.new();
+  //
+  //    // a global call site method call
+  //    my_local_var.add(1);
+  else if (call_site.type == AstNodeType_t::N_GLOBAL_CALL_SITE)
+  {
+    auto& global_bind_name = get_ast_node_value<string>(
+        call_site, AstNodeType_t::N_GLOBAL_BIND_NAME);
+
+    // Is this a locally defined object's METHOD where the global-bind-name is
+    // found in the symbol table.
+    if (auto global_bind_var = subroutine_descr.find_symbol(global_bind_name);
+        global_bind_var.has_value())
+    {
+    }
+    // No, the global-bind-name name must be a class name to another module
+    // (possibly this module which is handled the same)
+    else
+    {
+      // TODO lower
+    }
+  }
+  else
+  {
+    cout << call_site << endl;
+    throw SemanticException("Unexpected fall through");
+  }
+
+  auto& call_site_subroutine_name =
+      get_ast_node_value<string>(call_site, AstNodeType_t::N_SUBROUTINE_NAME);
+  call_site_bind_name << call_site_subroutine_name;
+
+  ///////
+  //
+
+  // TODO: Lower all of the 
+  // assert(call_site_parent.num_child_nodes() == 1);
+
+#if 0
+(CLASS_DECL string_value:Test
+  (METHOD_DECL string_value:draw
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:void))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+        (RETURN_STATEMENT))))
+  (METHOD_DECL string_value:run
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:void))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (LOCAL_CALL_SITE
+              (SUBROUTINE_NAME string_value:draw))))
+        (RETURN_STATEMENT)))))
+
+alternative:
+"           (GLOBAL_CALL_SITE",
+"             (GLOBAL_BIND_NAME string_value:MyClass)",
+"             (SUBROUTINE_NAME string_value:fn)))"};
+#endif
+
+  lowered_vm << "call " << call_site_bind_name.str() << " " << call_site_args
+             << endl;
 }
 
 }  // namespace VmWriter
