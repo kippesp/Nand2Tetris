@@ -36,12 +36,12 @@ Expressions:
 <term>             ::= <integer-constant> | <string-constant> | <keyword-constant> |
                        <scalar-var> | <array-var> | <subroutine-call> |
                        "(" <expression> ")" | <prefix-op> <term>
-<subroutine-call>  ::= <call-site> "(" {<expression-list>}? ")"
+<subroutine-call>  ::= <call-site> "(" {<call-argument>}? ")"
 <call-site>        ::= <subroutine-name> |
                        (<class-name> | <var-name>) "." <subroutine-name>
 <scalar-var>       ::= <var-name>
 <array-var>        ::= <var-name> "[" <expression> "]"
-<expression-list>  ::= {<expression {"," <expression>}*}?
+<call-arguments>   ::= {<expression {"," <expression>}*}?
 <keyword-constant> ::= "true" | "false" | "null" | "this"
 <prefix-op>        ::= "-" | "~"
 <infix-op>         ::= <or-op> | <and-op> | <cmp-op> | <add-op> | <mult-op>
@@ -65,7 +65,7 @@ source: http://nand2tetris-questions-and-answers-forum.52.s1.nabble.com/Adding-S
                        <scalar-var> | <array-var> | <subroutine-call> |
                        "(" <expression> ")" | <prefix-op> <term>
 <keyword-constant> ::= "true" | "false" | "null" | "this"
-<subroutine-call>  ::= <call-site> "(" {<expression-list>}? ")"
+<subroutine-call>  ::= <call-site> "(" {<call-arguments>}? ")"
 <call-site>        ::= <subroutine-name> |
                        (<class-name> | <var-name>) "." <subroutine-name>
 <scalar-var>       ::= <var-name>

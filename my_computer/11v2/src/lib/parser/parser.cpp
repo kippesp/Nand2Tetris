@@ -586,7 +586,7 @@ AstNodeRef Parser::parse_if_statement()
   return if_ast;
 }
 
-// <subroutine-call>  ::= <call-site> "(" {<expression-list>}? ")"
+// <subroutine-call>  ::= <call-site> "(" {<call-arguments>}? ")"
 // <call-site>        ::= <subroutine-name> |
 //                        (<class-name> | <var-name>) "." <subroutine-name>
 // <subroutine-name>  ::= <identifier>
@@ -634,6 +634,10 @@ AstNodeRef Parser::parse_subroutine_call()
   require_token(current_token, TokenValue_t::J_LEFT_PARENTHESIS);
   get_next_token();
 
+  AstNodeRef call_arguments_node =
+      create_ast_node(AstNodeType_t::N_CALL_ARGUMENTS);
+  root_node.get().add_child(call_arguments_node);
+
   for (bool done = false; !done; /* none */)
   {
     if (current_token.get().value_enum == TokenValue_t::J_RIGHT_PARENTHESIS)
@@ -646,7 +650,7 @@ AstNodeRef Parser::parse_subroutine_call()
 
     if (statement_ast.get() != EmptyNodeRef.get())
     {
-      root_node.get().add_child(statement_ast);
+      call_arguments_node.get().add_child(statement_ast);
     }
 
     if (current_token.get().value_enum == TokenValue_t::J_COMMA)

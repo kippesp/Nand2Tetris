@@ -12,7 +12,6 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_UNDEFINED,
 
   N_CLASS_DECL,
-  N_EXPRESSION,
   N_INTEGER_CONSTANT,
   N_RETURN_STATEMENT,
   N_STATEMENT_BLOCK,
@@ -25,6 +24,7 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_SUBROUTINE_DESCR,
   N_RETURN_TYPE,
   N_INPUT_PARAMETERS,
+  N_CALL_ARGUMENTS,
 
   N_KEYWORD_CONSTANT,
   N_STRING_CONSTANT,

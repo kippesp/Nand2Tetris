@@ -36,7 +36,6 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_UNDEFINED:                   return "UNDEFINED";
 
     case AstNodeType_t::N_CLASS_DECL:                  return "CLASS_DECL";
-    case AstNodeType_t::N_EXPRESSION:                  return "EXPRESSION";
     case AstNodeType_t::N_INTEGER_CONSTANT:            return "INTEGER_CONSTANT";
     case AstNodeType_t::N_RETURN_STATEMENT:            return "RETURN_STATEMENT";
     case AstNodeType_t::N_STATEMENT_BLOCK:             return "STATEMENT_BLOCK";
@@ -49,6 +48,7 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_SUBROUTINE_DESCR:            return "SUBROUTINE_DESCR";
     case AstNodeType_t::N_RETURN_TYPE:                 return "RETURN_TYPE";
     case AstNodeType_t::N_INPUT_PARAMETERS:            return "INPUT_PARAMETERS";
+    case AstNodeType_t::N_CALL_ARGUMENTS:              return "CALL_ARGUMENTS";
 
     case AstNodeType_t::N_KEYWORD_CONSTANT:            return "KEYWORD_CONSTANT";
     case AstNodeType_t::N_STRING_CONSTANT:             return "STRING_CONSTANT";

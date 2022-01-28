@@ -247,7 +247,8 @@ SCENARIO("Parse expressions")
         "    (GLOBAL_CALL_SITE",
         "      (GLOBAL_BIND_NAME string_value:Math)",
         "      (SUBROUTINE_NAME string_value:square))",
-        "    (INTEGER_CONSTANT integer_value:2)))"};
+        "    (CALL_ARGUMENTS",
+        "      (INTEGER_CONSTANT integer_value:2))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -357,7 +358,8 @@ SCENARIO("Subroutine calls")
         ""  // clang-format sorcery
         "(SUBROUTINE_CALL",
         "  (LOCAL_CALL_SITE",
-        "    (SUBROUTINE_NAME string_value:fn)))"};
+        "    (SUBROUTINE_NAME string_value:fn))",
+        "  (CALL_ARGUMENTS))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -379,7 +381,8 @@ SCENARIO("Subroutine calls")
         "(SUBROUTINE_CALL",
         "  (GLOBAL_CALL_SITE",
         "    (GLOBAL_BIND_NAME string_value:MyClass)",
-        "    (SUBROUTINE_NAME string_value:fn)))"};
+        "    (SUBROUTINE_NAME string_value:fn))",
+        "  (CALL_ARGUMENTS))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -401,7 +404,8 @@ SCENARIO("Subroutine calls")
         "(SUBROUTINE_CALL",
         "  (LOCAL_CALL_SITE",
         "    (SUBROUTINE_NAME string_value:fn))",
-        "  (INTEGER_CONSTANT integer_value:1))"};
+        "  (CALL_ARGUMENTS",
+        "    (INTEGER_CONSTANT integer_value:1)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -423,8 +427,9 @@ SCENARIO("Subroutine calls")
         "(SUBROUTINE_CALL",
         "  (LOCAL_CALL_SITE",
         "    (SUBROUTINE_NAME string_value:fn))",
-        "  (INTEGER_CONSTANT integer_value:1)",
-        "  (INTEGER_CONSTANT integer_value:2))"};
+        "  (CALL_ARGUMENTS",
+        "    (INTEGER_CONSTANT integer_value:1)",
+        "    (INTEGER_CONSTANT integer_value:2)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -446,12 +451,13 @@ SCENARIO("Subroutine calls")
         "(SUBROUTINE_CALL",
         "  (LOCAL_CALL_SITE",
         "    (SUBROUTINE_NAME string_value:fn))",
-        "  (OP_MULTIPLY",
-        "    (INTEGER_CONSTANT integer_value:2)",
-        "    (INTEGER_CONSTANT integer_value:3))",
-        "  (OP_MULTIPLY",
-        "    (INTEGER_CONSTANT integer_value:4)",
-        "    (INTEGER_CONSTANT integer_value:5)))"};
+        "  (CALL_ARGUMENTS",
+        "    (OP_MULTIPLY",
+        "      (INTEGER_CONSTANT integer_value:2)",
+        "      (INTEGER_CONSTANT integer_value:3))",
+        "    (OP_MULTIPLY",
+        "      (INTEGER_CONSTANT integer_value:4)",
+        "      (INTEGER_CONSTANT integer_value:5))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -474,11 +480,12 @@ SCENARIO("Subroutine calls")
         "  (GLOBAL_CALL_SITE",
         "    (GLOBAL_BIND_NAME string_value:Output)",
         "    (SUBROUTINE_NAME string_value:printInt))",
-        "  (OP_MULTIPLY",
-        "    (INTEGER_CONSTANT integer_value:2)",
-        "    (OP_ADD",
-        "      (INTEGER_CONSTANT integer_value:1)",
-        "      (INTEGER_CONSTANT integer_value:3))))"};
+        "  (CALL_ARGUMENTS",
+        "    (OP_MULTIPLY",
+        "      (INTEGER_CONSTANT integer_value:2)",
+        "      (OP_ADD",
+        "        (INTEGER_CONSTANT integer_value:1)",
+        "        (INTEGER_CONSTANT integer_value:3)))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -501,7 +508,8 @@ SCENARIO("Subroutine calls")
         "  (GLOBAL_CALL_SITE",
         "    (GLOBAL_BIND_NAME string_value:Output)",
         "    (SUBROUTINE_NAME string_value:printString))",
-        "  (STRING_CONSTANT string_value:Hello))"};
+        "  (CALL_ARGUMENTS",
+        "    (STRING_CONSTANT string_value:Hello)))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -531,7 +539,8 @@ SCENARIO("Parse statements")
         "      (GLOBAL_CALL_SITE",
         "        (GLOBAL_BIND_NAME string_value:Math)",
         "        (SUBROUTINE_NAME string_value:square))",
-        "      (INTEGER_CONSTANT integer_value:2))))"};
+        "      (CALL_ARGUMENTS",
+        "        (INTEGER_CONSTANT integer_value:2)))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -689,6 +698,86 @@ SCENARIO("Parse statements")
         "    (RETURN_STATEMENT",
         "      (INTEGER_CONSTANT integer_value:1)))",
         "  (STATEMENT_BLOCK))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("do statement (local), no parms")
+  {
+    TextReader R("do local_run();");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_statement();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(DO_STATEMENT",
+        "  (SUBROUTINE_CALL",
+        "    (LOCAL_CALL_SITE",
+        "      (SUBROUTINE_NAME string_value:local_run))",
+        "    (CALL_ARGUMENTS)))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("do statement, one arg")
+  {
+    TextReader R("do MyClass.run(true);");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_statement();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(DO_STATEMENT",
+        "  (SUBROUTINE_CALL",
+        "    (GLOBAL_CALL_SITE",
+        "      (GLOBAL_BIND_NAME string_value:MyClass)",
+        "      (SUBROUTINE_NAME string_value:run))",
+        "    (CALL_ARGUMENTS",
+        "      (KEYWORD_CONSTANT",
+        "        (TRUE_KEYWORD)))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("do statement, multiple args")
+  {
+    TextReader R("do MyClass.run(1, 2 + (3 * 4));");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_statement();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(DO_STATEMENT",
+        "  (SUBROUTINE_CALL",
+        "    (GLOBAL_CALL_SITE",
+        "      (GLOBAL_BIND_NAME string_value:MyClass)",
+        "      (SUBROUTINE_NAME string_value:run))",
+        "    (CALL_ARGUMENTS",
+        "      (INTEGER_CONSTANT integer_value:1)",
+        "      (OP_ADD",
+        "        (INTEGER_CONSTANT integer_value:2)",
+        "        (OP_MULTIPLY",
+        "          (INTEGER_CONSTANT integer_value:3)",
+        "          (INTEGER_CONSTANT integer_value:4))))))",
+    };
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -872,6 +961,7 @@ SCENARIO("Parse tree basics")
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
     Expected_t expected = {
+        ""
         "(CLASS_DECL string_value:Test",
         "  (METHOD_DECL string_value:draw",
         "    (SUBROUTINE_DESCR",
@@ -887,7 +977,8 @@ SCENARIO("Parse tree basics")
         "        (DO_STATEMENT",
         "          (SUBROUTINE_CALL",
         "            (LOCAL_CALL_SITE",
-        "              (SUBROUTINE_NAME string_value:draw))))",
+        "              (SUBROUTINE_NAME string_value:draw))",
+        "            (CALL_ARGUMENTS)))",
         "        (RETURN_STATEMENT)))))"};
 
     std::string expected_str = expected_string(expected);
