@@ -17,21 +17,24 @@
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Array)
               (SUBROUTINE_NAME string_value:new))
-            (INTEGER_CONSTANT integer_value:10)))
+            (CALL_ARGUMENTS
+              (INTEGER_CONSTANT integer_value:10))))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:b)
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Array)
               (SUBROUTINE_NAME string_value:new))
-            (INTEGER_CONSTANT integer_value:5)))
+            (CALL_ARGUMENTS
+              (INTEGER_CONSTANT integer_value:5))))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:c)
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Array)
               (SUBROUTINE_NAME string_value:new))
-            (INTEGER_CONSTANT integer_value:1)))
+            (CALL_ARGUMENTS
+              (INTEGER_CONSTANT integer_value:1))))
         (LET_STATEMENT
           (SUBSCRIPTED_VARIABLE_NAME string_value:a
             (INTEGER_CONSTANT integer_value:3))
@@ -72,13 +75,13 @@
                     (GLOBAL_CALL_SITE
                       (GLOBAL_BIND_NAME string_value:Main)
                       (SUBROUTINE_NAME string_value:double))
-                    (INTEGER_CONSTANT integer_value:2)))
+                    (CALL_ARGUMENTS
+                      (INTEGER_CONSTANT integer_value:2))))
                 (INTEGER_CONSTANT integer_value:1)))))
         (LET_STATEMENT
           (SUBSCRIPTED_VARIABLE_NAME string_value:c
             (INTEGER_CONSTANT integer_value:0))
-          (KEYWORD_CONSTANT
-            (NULL_KEYWORD)))
+          (NULL_KEYWORD))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:c)
           (SUBSCRIPTED_VARIABLE_NAME string_value:c
@@ -88,71 +91,79 @@
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:printString))
-            (STRING_CONSTANT string_value:Test 1: expected result: 5; actual result: )))
+            (CALL_ARGUMENTS
+              (STRING_CONSTANT string_value:Test 1: expected result: 5; actual result: ))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:printInt))
-            (SUBSCRIPTED_VARIABLE_NAME string_value:b
-              (INTEGER_CONSTANT integer_value:2))))
+            (CALL_ARGUMENTS
+              (SUBSCRIPTED_VARIABLE_NAME string_value:b
+                (INTEGER_CONSTANT integer_value:2)))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
-              (SUBROUTINE_NAME string_value:println))))
+              (SUBROUTINE_NAME string_value:println))
+            (CALL_ARGUMENTS)))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:printString))
-            (STRING_CONSTANT string_value:Test 2: expected result: 40; actual result: )))
+            (CALL_ARGUMENTS
+              (STRING_CONSTANT string_value:Test 2: expected result: 40; actual result: ))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:printInt))
-            (SUBSCRIPTED_VARIABLE_NAME string_value:a
-              (INTEGER_CONSTANT integer_value:5))))
+            (CALL_ARGUMENTS
+              (SUBSCRIPTED_VARIABLE_NAME string_value:a
+                (INTEGER_CONSTANT integer_value:5)))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
-              (SUBROUTINE_NAME string_value:println))))
+              (SUBROUTINE_NAME string_value:println))
+            (CALL_ARGUMENTS)))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:printString))
-            (STRING_CONSTANT string_value:Test 3: expected result: 0; actual result: )))
+            (CALL_ARGUMENTS
+              (STRING_CONSTANT string_value:Test 3: expected result: 0; actual result: ))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:printInt))
-            (VARIABLE_NAME string_value:c)))
+            (CALL_ARGUMENTS
+              (VARIABLE_NAME string_value:c))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
-              (SUBROUTINE_NAME string_value:println))))
+              (SUBROUTINE_NAME string_value:println))
+            (CALL_ARGUMENTS)))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:c)
-          (KEYWORD_CONSTANT
-            (NULL_KEYWORD)))
+          (NULL_KEYWORD))
         (IF_STATEMENT
           (OP_LOGICAL_EQUALS
             (VARIABLE_NAME string_value:c)
-            (KEYWORD_CONSTANT
-              (NULL_KEYWORD)))
+            (NULL_KEYWORD))
           (STATEMENT_BLOCK
             (DO_STATEMENT
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Main)
                   (SUBROUTINE_NAME string_value:fill))
-                (VARIABLE_NAME string_value:a)
-                (INTEGER_CONSTANT integer_value:10)))
+                (CALL_ARGUMENTS
+                  (VARIABLE_NAME string_value:a)
+                  (INTEGER_CONSTANT integer_value:10))))
             (LET_STATEMENT
               (VARIABLE_NAME string_value:c)
               (SUBSCRIPTED_VARIABLE_NAME string_value:a
@@ -187,37 +198,43 @@
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Output)
                   (SUBROUTINE_NAME string_value:printString))
-                (STRING_CONSTANT string_value:Test 4: expected result: 77; actual result: )))
+                (CALL_ARGUMENTS
+                  (STRING_CONSTANT string_value:Test 4: expected result: 77; actual result: ))))
             (DO_STATEMENT
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Output)
                   (SUBROUTINE_NAME string_value:printInt))
-                (SUBSCRIPTED_VARIABLE_NAME string_value:c
-                  (INTEGER_CONSTANT integer_value:1))))
+                (CALL_ARGUMENTS
+                  (SUBSCRIPTED_VARIABLE_NAME string_value:c
+                    (INTEGER_CONSTANT integer_value:1)))))
             (DO_STATEMENT
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Output)
-                  (SUBROUTINE_NAME string_value:println))))
+                  (SUBROUTINE_NAME string_value:println))
+                (CALL_ARGUMENTS)))
             (DO_STATEMENT
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Output)
                   (SUBROUTINE_NAME string_value:printString))
-                (STRING_CONSTANT string_value:Test 5: expected result: 110; actual result: )))
+                (CALL_ARGUMENTS
+                  (STRING_CONSTANT string_value:Test 5: expected result: 110; actual result: ))))
             (DO_STATEMENT
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Output)
                   (SUBROUTINE_NAME string_value:printInt))
-                (SUBSCRIPTED_VARIABLE_NAME string_value:b
-                  (INTEGER_CONSTANT integer_value:1))))
+                (CALL_ARGUMENTS
+                  (SUBSCRIPTED_VARIABLE_NAME string_value:b
+                    (INTEGER_CONSTANT integer_value:1)))))
             (DO_STATEMENT
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Output)
-                  (SUBROUTINE_NAME string_value:println))))
+                  (SUBROUTINE_NAME string_value:println))
+                (CALL_ARGUMENTS)))
             (RETURN_STATEMENT))))))
   (FUNCTION_DECL string_value:double
     (SUBROUTINE_DESCR
@@ -258,5 +275,6 @@
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Array)
                   (SUBROUTINE_NAME string_value:new))
-                (INTEGER_CONSTANT integer_value:3)))))
+                (CALL_ARGUMENTS
+                  (INTEGER_CONSTANT integer_value:3))))))
         (RETURN_STATEMENT)))))

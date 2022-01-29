@@ -19,14 +19,16 @@
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Keyboard)
               (SUBROUTINE_NAME string_value:readInt))
-            (STRING_CONSTANT string_value:How many numbers? )))
+            (CALL_ARGUMENTS
+              (STRING_CONSTANT string_value:How many numbers? ))))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:a)
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Array)
               (SUBROUTINE_NAME string_value:new))
-            (VARIABLE_NAME string_value:length)))
+            (CALL_ARGUMENTS
+              (VARIABLE_NAME string_value:length))))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:i)
           (INTEGER_CONSTANT integer_value:0))
@@ -42,7 +44,8 @@
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Keyboard)
                   (SUBROUTINE_NAME string_value:readInt))
-                (STRING_CONSTANT string_value:Enter a number: )))
+                (CALL_ARGUMENTS
+                  (STRING_CONSTANT string_value:Enter a number: ))))
             (LET_STATEMENT
               (VARIABLE_NAME string_value:sum)
               (OP_ADD
@@ -59,13 +62,15 @@
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:printString))
-            (STRING_CONSTANT string_value:The average is )))
+            (CALL_ARGUMENTS
+              (STRING_CONSTANT string_value:The average is ))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:printInt))
-            (OP_DIVIDE
-              (VARIABLE_NAME string_value:sum)
-              (VARIABLE_NAME string_value:length))))
+            (CALL_ARGUMENTS
+              (OP_DIVIDE
+                (VARIABLE_NAME string_value:sum)
+                (VARIABLE_NAME string_value:length)))))
         (RETURN_STATEMENT)))))

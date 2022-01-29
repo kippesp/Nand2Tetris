@@ -33,7 +33,8 @@
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Screen)
-              (SUBROUTINE_NAME string_value:clearScreen))))
+              (SUBROUTINE_NAME string_value:clearScreen))
+            (CALL_ARGUMENTS)))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:batWidth)
           (INTEGER_CONSTANT integer_value:50))
@@ -43,55 +44,60 @@
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Bat)
               (SUBROUTINE_NAME string_value:new))
-            (INTEGER_CONSTANT integer_value:230)
-            (INTEGER_CONSTANT integer_value:229)
-            (VARIABLE_NAME string_value:batWidth)
-            (INTEGER_CONSTANT integer_value:7)))
+            (CALL_ARGUMENTS
+              (INTEGER_CONSTANT integer_value:230)
+              (INTEGER_CONSTANT integer_value:229)
+              (VARIABLE_NAME string_value:batWidth)
+              (INTEGER_CONSTANT integer_value:7))))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:ball)
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Ball)
               (SUBROUTINE_NAME string_value:new))
-            (INTEGER_CONSTANT integer_value:253)
-            (INTEGER_CONSTANT integer_value:222)
-            (INTEGER_CONSTANT integer_value:0)
-            (INTEGER_CONSTANT integer_value:511)
-            (INTEGER_CONSTANT integer_value:0)
-            (INTEGER_CONSTANT integer_value:229)))
+            (CALL_ARGUMENTS
+              (INTEGER_CONSTANT integer_value:253)
+              (INTEGER_CONSTANT integer_value:222)
+              (INTEGER_CONSTANT integer_value:0)
+              (INTEGER_CONSTANT integer_value:511)
+              (INTEGER_CONSTANT integer_value:0)
+              (INTEGER_CONSTANT integer_value:229))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:ball)
               (SUBROUTINE_NAME string_value:setDestination))
-            (INTEGER_CONSTANT integer_value:400)
-            (INTEGER_CONSTANT integer_value:0)))
+            (CALL_ARGUMENTS
+              (INTEGER_CONSTANT integer_value:400)
+              (INTEGER_CONSTANT integer_value:0))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Screen)
               (SUBROUTINE_NAME string_value:drawRectangle))
-            (INTEGER_CONSTANT integer_value:0)
-            (INTEGER_CONSTANT integer_value:238)
-            (INTEGER_CONSTANT integer_value:511)
-            (INTEGER_CONSTANT integer_value:240)))
+            (CALL_ARGUMENTS
+              (INTEGER_CONSTANT integer_value:0)
+              (INTEGER_CONSTANT integer_value:238)
+              (INTEGER_CONSTANT integer_value:511)
+              (INTEGER_CONSTANT integer_value:240))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:moveCursor))
-            (INTEGER_CONSTANT integer_value:22)
-            (INTEGER_CONSTANT integer_value:0)))
+            (CALL_ARGUMENTS
+              (INTEGER_CONSTANT integer_value:22)
+              (INTEGER_CONSTANT integer_value:0))))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Output)
               (SUBROUTINE_NAME string_value:printString))
-            (STRING_CONSTANT string_value:Score: 0)))
+            (CALL_ARGUMENTS
+              (STRING_CONSTANT string_value:Score: 0))))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:exit)
-          (KEYWORD_CONSTANT
-            (FALSE_KEYWORD)))
+          (FALSE_KEYWORD))
         (LET_STATEMENT
           (VARIABLE_NAME string_value:score)
           (INTEGER_CONSTANT integer_value:0))
@@ -102,8 +108,7 @@
           (VARIABLE_NAME string_value:lastWall)
           (INTEGER_CONSTANT integer_value:0))
         (RETURN_STATEMENT
-          (KEYWORD_CONSTANT
-            (THIS_KEYWORD))))))
+          (THIS_KEYWORD)))))
   (METHOD_DECL string_value:dispose
     (SUBROUTINE_DESCR
       (RETURN_TYPE string_value:void))
@@ -113,18 +118,20 @@
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:bat)
-              (SUBROUTINE_NAME string_value:dispose))))
+              (SUBROUTINE_NAME string_value:dispose))
+            (CALL_ARGUMENTS)))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:ball)
-              (SUBROUTINE_NAME string_value:dispose))))
+              (SUBROUTINE_NAME string_value:dispose))
+            (CALL_ARGUMENTS)))
         (DO_STATEMENT
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:Memory)
               (SUBROUTINE_NAME string_value:deAlloc))
-            (KEYWORD_CONSTANT
+            (CALL_ARGUMENTS
               (THIS_KEYWORD))))
         (RETURN_STATEMENT))))
   (FUNCTION_DECL string_value:newInstance
@@ -137,7 +144,8 @@
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:PongGame)
-              (SUBROUTINE_NAME string_value:new))))
+              (SUBROUTINE_NAME string_value:new))
+            (CALL_ARGUMENTS)))
         (RETURN_STATEMENT))))
   (FUNCTION_DECL string_value:getInstance
     (SUBROUTINE_DESCR
@@ -171,22 +179,26 @@
                   (SUBROUTINE_CALL
                     (GLOBAL_CALL_SITE
                       (GLOBAL_BIND_NAME string_value:Keyboard)
-                      (SUBROUTINE_NAME string_value:keyPressed))))
+                      (SUBROUTINE_NAME string_value:keyPressed))
+                    (CALL_ARGUMENTS)))
                 (DO_STATEMENT
                   (SUBROUTINE_CALL
                     (GLOBAL_CALL_SITE
                       (GLOBAL_BIND_NAME string_value:bat)
-                      (SUBROUTINE_NAME string_value:move))))
+                      (SUBROUTINE_NAME string_value:move))
+                    (CALL_ARGUMENTS)))
                 (DO_STATEMENT
                   (SUBROUTINE_CALL
                     (LOCAL_CALL_SITE
-                      (SUBROUTINE_NAME string_value:moveBall))))
+                      (SUBROUTINE_NAME string_value:moveBall))
+                    (CALL_ARGUMENTS)))
                 (DO_STATEMENT
                   (SUBROUTINE_CALL
                     (GLOBAL_CALL_SITE
                       (GLOBAL_BIND_NAME string_value:Sys)
                       (SUBROUTINE_NAME string_value:wait))
-                    (INTEGER_CONSTANT integer_value:50)))))
+                    (CALL_ARGUMENTS
+                      (INTEGER_CONSTANT integer_value:50))))))
             (IF_STATEMENT
               (OP_LOGICAL_EQUALS
                 (VARIABLE_NAME string_value:key)
@@ -197,7 +209,8 @@
                     (GLOBAL_CALL_SITE
                       (GLOBAL_BIND_NAME string_value:bat)
                       (SUBROUTINE_NAME string_value:setDirection))
-                    (INTEGER_CONSTANT integer_value:1))))
+                    (CALL_ARGUMENTS
+                      (INTEGER_CONSTANT integer_value:1)))))
               (STATEMENT_BLOCK
                 (IF_STATEMENT
                   (OP_LOGICAL_EQUALS
@@ -209,7 +222,8 @@
                         (GLOBAL_CALL_SITE
                           (GLOBAL_BIND_NAME string_value:bat)
                           (SUBROUTINE_NAME string_value:setDirection))
-                        (INTEGER_CONSTANT integer_value:2))))
+                        (CALL_ARGUMENTS
+                          (INTEGER_CONSTANT integer_value:2)))))
                   (STATEMENT_BLOCK
                     (IF_STATEMENT
                       (OP_LOGICAL_EQUALS
@@ -218,8 +232,7 @@
                       (STATEMENT_BLOCK
                         (LET_STATEMENT
                           (VARIABLE_NAME string_value:exit)
-                          (KEYWORD_CONSTANT
-                            (TRUE_KEYWORD))))
+                          (TRUE_KEYWORD)))
                       (STATEMENT_BLOCK))))))
             (WHILE_STATEMENT
               (OP_LOGICAL_AND
@@ -235,22 +248,26 @@
                   (SUBROUTINE_CALL
                     (GLOBAL_CALL_SITE
                       (GLOBAL_BIND_NAME string_value:Keyboard)
-                      (SUBROUTINE_NAME string_value:keyPressed))))
+                      (SUBROUTINE_NAME string_value:keyPressed))
+                    (CALL_ARGUMENTS)))
                 (DO_STATEMENT
                   (SUBROUTINE_CALL
                     (GLOBAL_CALL_SITE
                       (GLOBAL_BIND_NAME string_value:bat)
-                      (SUBROUTINE_NAME string_value:move))))
+                      (SUBROUTINE_NAME string_value:move))
+                    (CALL_ARGUMENTS)))
                 (DO_STATEMENT
                   (SUBROUTINE_CALL
                     (LOCAL_CALL_SITE
-                      (SUBROUTINE_NAME string_value:moveBall))))
+                      (SUBROUTINE_NAME string_value:moveBall))
+                    (CALL_ARGUMENTS)))
                 (DO_STATEMENT
                   (SUBROUTINE_CALL
                     (GLOBAL_CALL_SITE
                       (GLOBAL_BIND_NAME string_value:Sys)
                       (SUBROUTINE_NAME string_value:wait))
-                    (INTEGER_CONSTANT integer_value:50)))))))
+                    (CALL_ARGUMENTS
+                      (INTEGER_CONSTANT integer_value:50))))))))
         (IF_STATEMENT
           (VARIABLE_NAME string_value:exit)
           (STATEMENT_BLOCK
@@ -259,14 +276,16 @@
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Output)
                   (SUBROUTINE_NAME string_value:moveCursor))
-                (INTEGER_CONSTANT integer_value:10)
-                (INTEGER_CONSTANT integer_value:27)))
+                (CALL_ARGUMENTS
+                  (INTEGER_CONSTANT integer_value:10)
+                  (INTEGER_CONSTANT integer_value:27))))
             (DO_STATEMENT
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:Output)
                   (SUBROUTINE_NAME string_value:printString))
-                (STRING_CONSTANT string_value:Game Over))))
+                (CALL_ARGUMENTS
+                  (STRING_CONSTANT string_value:Game Over)))))
           (STATEMENT_BLOCK
             (RETURN_STATEMENT))))))
   (METHOD_DECL string_value:moveBall
@@ -290,7 +309,8 @@
           (SUBROUTINE_CALL
             (GLOBAL_CALL_SITE
               (GLOBAL_BIND_NAME string_value:ball)
-              (SUBROUTINE_NAME string_value:move))))
+              (SUBROUTINE_NAME string_value:move))
+            (CALL_ARGUMENTS)))
         (IF_STATEMENT
           (OP_LOGICAL_AND
             (OP_LOGICAL_GT
@@ -312,25 +332,29 @@
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:bat)
-                  (SUBROUTINE_NAME string_value:getLeft))))
+                  (SUBROUTINE_NAME string_value:getLeft))
+                (CALL_ARGUMENTS)))
             (LET_STATEMENT
               (VARIABLE_NAME string_value:batRight)
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:bat)
-                  (SUBROUTINE_NAME string_value:getRight))))
+                  (SUBROUTINE_NAME string_value:getRight))
+                (CALL_ARGUMENTS)))
             (LET_STATEMENT
               (VARIABLE_NAME string_value:ballLeft)
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:ball)
-                  (SUBROUTINE_NAME string_value:getLeft))))
+                  (SUBROUTINE_NAME string_value:getLeft))
+                (CALL_ARGUMENTS)))
             (LET_STATEMENT
               (VARIABLE_NAME string_value:ballRight)
               (SUBROUTINE_CALL
                 (GLOBAL_CALL_SITE
                   (GLOBAL_BIND_NAME string_value:ball)
-                  (SUBROUTINE_NAME string_value:getRight))))
+                  (SUBROUTINE_NAME string_value:getRight))
+                (CALL_ARGUMENTS)))
             (IF_STATEMENT
               (OP_LOGICAL_EQUALS
                 (VARIABLE_NAME string_value:wall)
@@ -382,7 +406,8 @@
                         (GLOBAL_CALL_SITE
                           (GLOBAL_BIND_NAME string_value:bat)
                           (SUBROUTINE_NAME string_value:setWidth))
-                        (VARIABLE_NAME string_value:batWidth)))
+                        (CALL_ARGUMENTS
+                          (VARIABLE_NAME string_value:batWidth))))
                     (LET_STATEMENT
                       (VARIABLE_NAME string_value:score)
                       (OP_ADD
@@ -393,14 +418,16 @@
                         (GLOBAL_CALL_SITE
                           (GLOBAL_BIND_NAME string_value:Output)
                           (SUBROUTINE_NAME string_value:moveCursor))
-                        (INTEGER_CONSTANT integer_value:22)
-                        (INTEGER_CONSTANT integer_value:7)))
+                        (CALL_ARGUMENTS
+                          (INTEGER_CONSTANT integer_value:22)
+                          (INTEGER_CONSTANT integer_value:7))))
                     (DO_STATEMENT
                       (SUBROUTINE_CALL
                         (GLOBAL_CALL_SITE
                           (GLOBAL_BIND_NAME string_value:Output)
                           (SUBROUTINE_NAME string_value:printInt))
-                        (VARIABLE_NAME string_value:score))))
+                        (CALL_ARGUMENTS
+                          (VARIABLE_NAME string_value:score)))))
                   (STATEMENT_BLOCK)))
               (STATEMENT_BLOCK
                 (DO_STATEMENT
@@ -408,6 +435,7 @@
                     (GLOBAL_CALL_SITE
                       (GLOBAL_BIND_NAME string_value:ball)
                       (SUBROUTINE_NAME string_value:bounce))
-                    (VARIABLE_NAME string_value:bouncingDirection))))))
+                    (CALL_ARGUMENTS
+                      (VARIABLE_NAME string_value:bouncingDirection)))))))
           (STATEMENT_BLOCK
             (RETURN_STATEMENT)))))))
