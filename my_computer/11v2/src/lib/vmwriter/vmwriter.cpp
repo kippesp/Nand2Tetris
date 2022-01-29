@@ -211,6 +211,7 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
         break;
       case AstNodeType_t::N_DO_STATEMENT:
         lower_subroutine_call(subroutine_descr, node);
+	// throw away call-ed subroutine's return value
         lowered_vm << "pop temp 0" << endl;
         break;
       case AstNodeType_t::N_WHILE_STATEMENT:
@@ -284,10 +285,59 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
 
       lowered_vm << "push pointer 0" << endl;
     }
-    // TODO: ???
-    else if (false)
+    else if (node_type == AstNodeType_t::N_VARIABLE_NAME)
     {
-      throw SemanticException("Should not be here");
+      auto& bind_var_name = get_ast_node_value<string>(node);
+
+      if (auto bind_var = subroutine_descr.find_symbol(bind_var_name);
+          bind_var.has_value())
+      {
+        string stack_name;
+
+        switch (bind_var->scope_level)
+        {
+          case SymbolTable::ScopeLevel_t::CLASS:
+            switch (bind_var->storage_class)
+            {
+              case SymbolTable::StorageClass_t::S_STATIC:
+                stack_name = "static";
+                break;
+              case SymbolTable::StorageClass_t::S_FIELD:
+                stack_name = "this";
+                break;
+              default:
+                assert(0 && "invalid storage class for CLASS");
+                throw SemanticException("invalid storage class for CLASS");
+            }
+
+            break;
+          case SymbolTable::ScopeLevel_t::SUBROUTINE:
+            switch (bind_var->storage_class)
+            {
+              case SymbolTable::StorageClass_t::S_ARGUMENT:
+                stack_name = "argument";
+                break;
+              case SymbolTable::StorageClass_t::S_LOCAL:
+                stack_name = "local";
+                break;
+              default:
+                assert(0 && "invalid storage class for SUBROUTINE");
+                throw SemanticException("invalid storage class for SUBROUTINE");
+            }
+
+            break;
+        }
+
+        lowered_vm << "push " << stack_name << " " << bind_var->index << endl;
+      }
+      else
+      {
+        throw SemanticException("Symbol not found:", bind_var_name);
+      }
+    }
+    else if (node_type == AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME)
+    {
+      assert(0 && "array lowering not implemented");
     }
     // handle operators
     else
@@ -445,6 +495,7 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
     else
     {
       // TODO: not here: call_site_bind_name << sub_name << ".";
+      assert(0 && "Here 1");
     }
   }
   // Handle global calls into another object's method or class's constructor.
@@ -464,15 +515,26 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
 
     // Is this a locally defined object's METHOD where the global-bind-name is
     // found in the symbol table.
-    if (auto global_bind_var = subroutine_descr.find_symbol(global_bind_name);
-        global_bind_var.has_value())
+    if (auto bind_var = subroutine_descr.find_symbol(global_bind_name);
+        bind_var.has_value())
     {
+      assert(0 && "Here 2");
     }
-    // No, the global-bind-name name must be a class name to another module
+    // No, the global-bind-name name must be a class name into another module
     // (possibly this module which is handled the same)
     else
     {
-      // TODO lower
+      // TODO: I think at this point we could be calling a function, method, or
+      // constructor.  Need to think through why this works.
+
+      // auto subroutine_type = subroutine_descr.get_root().get().type;
+      // assert(subroutine_type == AstNodeType_t::N_CONSTRUCTOR_DECL);
+
+      // provide 'this' pointer to internal method call
+      // lowered_vm << "push pointer 0" << endl;
+      // call_site_args++;
+
+      call_site_bind_name << global_bind_name << ".";
     }
   }
   else
@@ -491,31 +553,18 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
   // TODO: Lower all of the 
   // assert(call_site_parent.num_child_nodes() == 1);
 
-#if 0
-(CLASS_DECL string_value:Test
-  (METHOD_DECL string_value:draw
-    (SUBROUTINE_DESCR
-      (RETURN_TYPE string_value:void))
-    (SUBROUTINE_BODY
-      (STATEMENT_BLOCK
-        (RETURN_STATEMENT))))
-  (METHOD_DECL string_value:run
-    (SUBROUTINE_DESCR
-      (RETURN_TYPE string_value:void))
-    (SUBROUTINE_BODY
-      (STATEMENT_BLOCK
 
-        (DO_STATEMENT
-          (SUBROUTINE_CALL
-            (LOCAL_CALL_SITE
-              (SUBROUTINE_NAME string_value:draw))))
-        (RETURN_STATEMENT)))))
+  const auto& call_args_node =
+      module_ast
+          .find_child_node(call_site_parent, AstNodeType_t::N_CALL_ARGUMENTS)
+          .get();
+  assert(call_args_node != EmptyNodeRef.get());
 
-alternative:
-"           (GLOBAL_CALL_SITE",
-"             (GLOBAL_BIND_NAME string_value:MyClass)",
-"             (SUBROUTINE_NAME string_value:fn)))"};
-#endif
+  for (auto& node : call_args_node.get_child_nodes())
+  {
+    lower_expression(subroutine_descr, node.get());
+    call_site_args++;
+  }
 
   lowered_vm << "call " << call_site_bind_name.str() << " " << call_site_args
              << endl;

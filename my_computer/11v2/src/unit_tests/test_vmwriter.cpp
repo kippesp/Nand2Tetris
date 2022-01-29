@@ -180,7 +180,6 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
-#if 0
   SECTION("Global method call w/parms")
   {
     TextReader R(CONST_VOID_METHOD_CALL_GLOBAL_SRC);
@@ -191,7 +190,7 @@ SCENARIO("VMWriter Statements")
     parser.parse_class();
 
     VmWriter::VmWriter VM(parser.get_ast());
-    VM.dump_ast();
+    // VM.dump_ast();
     VM.lower_module();
 
     REQUIRE(VM.get_lowered_vm() ==
@@ -218,7 +217,6 @@ SCENARIO("VMWriter Statements")
             "push constant 0\n"
             "return\n");
   }
-#endif
 
 #if 0
   SECTION("Compile Seven test program")
