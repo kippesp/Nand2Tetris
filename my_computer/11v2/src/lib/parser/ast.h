@@ -26,7 +26,6 @@ using AstNodeType_t = enum class AstNodeType_s {
   N_INPUT_PARAMETERS,
   N_CALL_ARGUMENTS,
 
-  N_KEYWORD_CONSTANT,
   N_STRING_CONSTANT,
 
   N_TRUE_KEYWORD,

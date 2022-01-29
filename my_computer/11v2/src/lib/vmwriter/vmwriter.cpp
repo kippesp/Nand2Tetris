@@ -286,11 +286,6 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
 
       lowered_vm << "push constant " << int_value << endl;
     }
-    else if (node_type == AstNodeType_t::N_KEYWORD_CONSTANT)
-    {
-      // AST shouldn't have been designed to have this node.  It convey nothing
-      // and its child has already been lowered.
-    }
     else if (node_type == AstNodeType_t::N_THIS_KEYWORD)
     {
       if (subroutine_descr.get_root().get().type ==

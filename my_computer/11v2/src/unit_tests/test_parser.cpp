@@ -745,8 +745,7 @@ SCENARIO("Parse statements")
         "      (GLOBAL_BIND_NAME string_value:MyClass)",
         "      (SUBROUTINE_NAME string_value:run))",
         "    (CALL_ARGUMENTS",
-        "      (KEYWORD_CONSTANT",
-        "        (TRUE_KEYWORD)))))"};
+        "      (TRUE_KEYWORD))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -857,16 +856,14 @@ SCENARIO("Parse tree basics")
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
-        "          (KEYWORD_CONSTANT",
-        "            (THIS_KEYWORD))))))",
+        "          (THIS_KEYWORD)))))",
         "  (METHOD_DECL string_value:ref",
         "    (SUBROUTINE_DESCR",
         "      (RETURN_TYPE string_value:int))",
         "    (SUBROUTINE_BODY",
         "      (STATEMENT_BLOCK",
         "        (RETURN_STATEMENT",
-        "          (KEYWORD_CONSTANT",
-        "            (THIS_KEYWORD)))))))"};
+        "          (THIS_KEYWORD))))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);

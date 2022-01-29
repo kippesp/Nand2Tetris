@@ -750,26 +750,22 @@ AstNodeRef Parser::parse_term()
   }
   else if (current_token.get().value_enum == TokenValue_t::J_TRUE)
   {
-    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
-    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_TRUE_KEYWORD));
+    TermAst = create_ast_node(AstNodeType_t::N_TRUE_KEYWORD);
     get_next_token();
   }
   else if (current_token.get().value_enum == TokenValue_t::J_FALSE)
   {
-    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
-    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_FALSE_KEYWORD));
+    TermAst = create_ast_node(AstNodeType_t::N_FALSE_KEYWORD);
     get_next_token();
   }
   else if (current_token.get().value_enum == TokenValue_t::J_NULL)
   {
-    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
-    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_NULL_KEYWORD));
+    TermAst = create_ast_node(AstNodeType_t::N_NULL_KEYWORD);
     get_next_token();
   }
   else if (current_token.get().value_enum == TokenValue_t::J_THIS)
   {
-    TermAst = create_ast_node(AstNodeType_t::N_KEYWORD_CONSTANT);
-    TermAst.get().add_child(create_ast_node(AstNodeType_t::N_THIS_KEYWORD));
+    TermAst = create_ast_node(AstNodeType_t::N_THIS_KEYWORD);
     get_next_token();
   }
   else if (current_token.get().value_enum == TokenValue_t::J_LEFT_PARENTHESIS)

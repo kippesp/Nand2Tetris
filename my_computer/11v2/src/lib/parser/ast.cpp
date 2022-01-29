@@ -50,7 +50,6 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_INPUT_PARAMETERS:            return "INPUT_PARAMETERS";
     case AstNodeType_t::N_CALL_ARGUMENTS:              return "CALL_ARGUMENTS";
 
-    case AstNodeType_t::N_KEYWORD_CONSTANT:            return "KEYWORD_CONSTANT";
     case AstNodeType_t::N_STRING_CONSTANT:             return "STRING_CONSTANT";
 
     case AstNodeType_t::N_TRUE_KEYWORD:                return "TRUE_KEYWORD";
