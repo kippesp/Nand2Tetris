@@ -180,7 +180,7 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
-#if LATER
+#if 0
   SECTION("Global method call w/parms")
   {
     TextReader R(CONST_VOID_METHOD_CALL_GLOBAL_SRC);

@@ -204,7 +204,7 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
     switch (node.get().type)
     {
       case AstNodeType_t::N_RETURN_STATEMENT:
-        lower_return_statement(subroutine_descr, node.get());
+        lower_return_statement(subroutine_descr, node);
         break;
       case AstNodeType_t::N_LET_STATEMENT:
         throw SemanticException("statement not implemented");
@@ -226,20 +226,8 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
 }
 
 string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
-                                  const AstNode& expression_parent_root)
+                                  const AstNode& expression_root)
 {
-  if (expression_parent_root.num_child_nodes() == 0)
-  {
-    throw SemanticException("statement node has no children");
-  }
-
-  if (expression_parent_root.num_child_nodes() > 1)
-  {
-    throw SemanticException("statement node has multiple children");
-  }
-
-  AstNodeCRef expression_root = expression_parent_root.get_child_nodes()[0];
-
   queue<AstNodeCRef> worklist;
 
   function<void(AstNodeCRef)> visit_fn;
@@ -367,9 +355,12 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
 void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
                                       const AstNode& root)
 {
-  string lowered_expression_vm = (root.num_child_nodes() > 0)
-                                     ? lower_expression(subroutine_descr, root)
-                                     : "";
+  assert((root.num_child_nodes() == 0) || (root.num_child_nodes() == 1));
+
+  string lowered_expression_vm =
+      (root.num_child_nodes() > 0)
+          ? lower_expression(subroutine_descr, root.get_child_nodes()[0].get())
+          : "";
 
   auto subroutine_type = subroutine_descr.get_root().get().type;
   auto subroutine_return_type = subroutine_descr.get_return_type();
