@@ -981,4 +981,57 @@ SCENARIO("Parse tree basics")
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
   }
+
+  SECTION("Global function as call argument")
+  {
+    TextReader R(STATIC_CLASS_SRC);
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_class();
+    std::string as_str = root.get().as_s_expression();
+    Expected_t expected = {
+        ""
+        "(CLASS_DECL string_value:Main",
+        "  (FUNCTION_DECL string_value:Res",
+        "    (SUBROUTINE_DESCR",
+        "      (RETURN_TYPE string_value:int))",
+        "    (SUBROUTINE_BODY",
+        "      (STATEMENT_BLOCK",
+        "        (DO_STATEMENT",
+        "          (SUBROUTINE_CALL",
+        "            (GLOBAL_CALL_SITE",
+        "              (GLOBAL_BIND_NAME string_value:Output)",
+        "              (SUBROUTINE_NAME string_value:printInt))",
+        "            (CALL_ARGUMENTS",
+        "              (SUBROUTINE_CALL",
+        "                (GLOBAL_CALL_SITE",
+        "                  (GLOBAL_BIND_NAME string_value:Main)",
+        "                  (SUBROUTINE_NAME string_value:Res))",
+        "                (CALL_ARGUMENTS)))))",
+        "        (RETURN_STATEMENT",
+        "          (SUBROUTINE_CALL",
+        "            (GLOBAL_CALL_SITE",
+        "              (GLOBAL_BIND_NAME string_value:Math)",
+        "              (SUBROUTINE_NAME string_value:multiply))",
+        "            (CALL_ARGUMENTS",
+        "              (INTEGER_CONSTANT integer_value:2)",
+        "              (INTEGER_CONSTANT integer_value:7)))))))",
+        "  (FUNCTION_DECL string_value:main",
+        "    (SUBROUTINE_DESCR",
+        "      (RETURN_TYPE string_value:int))",
+        "    (SUBROUTINE_BODY",
+        "      (STATEMENT_BLOCK",
+        "        (RETURN_STATEMENT",
+        "          (SUBROUTINE_CALL",
+        "            (GLOBAL_CALL_SITE",
+        "              (GLOBAL_BIND_NAME string_value:Math)",
+        "              (SUBROUTINE_NAME string_value:Res))",
+        "            (CALL_ARGUMENTS)))))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
 }

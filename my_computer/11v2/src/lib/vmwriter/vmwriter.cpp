@@ -210,9 +210,19 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
         throw SemanticException("statement not implemented");
         break;
       case AstNodeType_t::N_DO_STATEMENT:
-        lower_subroutine_call(subroutine_descr, node);
-	// throw away call-ed subroutine's return value
-        lowered_vm << "pop temp 0" << endl;
+        {
+          assert(node.get().num_child_nodes() == 1);
+          auto& call_site_parent = node.get().get_child_nodes()[0].get();
+
+          if (call_site_parent.type != AstNodeType_t::N_SUBROUTINE_CALL)
+          {
+            throw SemanticException("Subroutine call expected following DO");
+          }
+
+          lower_subroutine_call(subroutine_descr, call_site_parent);
+          // throw away call-ed subroutine's return value
+          lowered_vm << "pop temp 0" << endl;
+        }
         break;
       case AstNodeType_t::N_WHILE_STATEMENT:
         throw SemanticException("statement not implemented");
@@ -234,7 +244,8 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
   function<void(AstNodeCRef)> visit_fn;
 
   visit_fn = [&](AstNodeCRef new_node) {
-    if (new_node.get().num_child_nodes() == 0)
+    if ((new_node.get().num_child_nodes() == 0) ||
+        (new_node.get().type == AstNodeType_t::N_SUBROUTINE_CALL))
     {
       worklist.push(new_node);
     }
@@ -334,6 +345,10 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
       {
         throw SemanticException("Symbol not found:", bind_var_name);
       }
+    }
+    else if (node_type == AstNodeType_t::N_SUBROUTINE_CALL)
+    {
+      lower_subroutine_call(subroutine_descr, node);
     }
     else if (node_type == AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME)
     {
@@ -450,13 +465,7 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
 void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
                                      const AstNode& root)
 {
-  assert(root.type == AstNodeType_t::N_DO_STATEMENT);
-  assert(root.num_child_nodes() == 1);
-
-  auto& call_site_parent = root.get_child_nodes()[0].get();
-  assert(call_site_parent.type == AstNodeType_t::N_SUBROUTINE_CALL);
-
-  auto& call_site = call_site_parent.get_child_nodes()[0].get();
+  auto& call_site = root.get_child_nodes()[0].get();
   assert((call_site.type == AstNodeType_t::N_LOCAL_CALL_SITE) ||
          (call_site.type == AstNodeType_t::N_GLOBAL_CALL_SITE));
 
@@ -550,14 +559,11 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
   ///////
   //
 
-  // TODO: Lower all of the 
-  // assert(call_site_parent.num_child_nodes() == 1);
-
+  // TODO: Lower all of the
+  // assert(root.num_child_nodes() == 1);
 
   const auto& call_args_node =
-      module_ast
-          .find_child_node(call_site_parent, AstNodeType_t::N_CALL_ARGUMENTS)
-          .get();
+      module_ast.find_child_node(root, AstNodeType_t::N_CALL_ARGUMENTS).get();
   assert(call_args_node != EmptyNodeRef.get());
 
   for (auto& node : call_args_node.get_child_nodes())

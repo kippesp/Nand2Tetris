@@ -218,6 +218,33 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+  SECTION("Global function as call argument, VM")
+  {
+    TextReader R(STATIC_CLASS_SRC);
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function Main.Res 0\n"
+            "call Main.Res 0\n"
+            "call Output.printInt 1\n"
+            "pop temp 0\n"
+            "push constant 2\n"
+            "push constant 7\n"
+            "call Math.multiply 2\n"
+            "return\n"
+            "function Main.main 0\n"
+            "call Math.Res 0\n"
+            "return\n");
+  }
+
 #if 0
   SECTION("Compile Seven test program")
   {

@@ -126,3 +126,17 @@ class MathExp {
     }
 }
 )""";
+
+// Prints 14 twice
+const char* STATIC_CLASS_SRC = R"""(
+class Main {
+  function int Res() {
+     do Output.printInt(Main.Res());
+     return Math.multiply(2, 7);
+  }
+
+  function int main() {
+     return Math.Res();
+  }
+}
+)""";
