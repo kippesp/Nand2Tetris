@@ -245,24 +245,30 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
-#if 0
-  SECTION("Compile Seven test program")
+  SECTION("Valid static class")
   {
-    strcpy(R.buffer, JACK_SEVEN_SRC);
+    Expected_t program_in = {
+        ""  // clang-format sorcery
+        "class Main {",
+        "   function void main() {",
+        "      do Output.printInt(1 + (2 * 3));",
+        "      return;",
+        "   }",
+        "}",
+        ""};
+    std::string expected_str = expected_string(program_in);
+    TextReader R(expected_str.data());
 
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
 
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
 
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
-
-    REQUIRE(VM.class_name == "Main");
-
-    REQUIRE(VM.lowered_vm.str() ==
+    REQUIRE(VM.get_lowered_vm() ==
             "function Main.main 0\n"
             "push constant 1\n"
             "push constant 2\n"
@@ -275,6 +281,44 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+  SECTION("Vars check")
+  {
+    Expected_t program_in = {
+        ""  // clang-format sorcery
+        "class Test {",
+        "    static ClassName inst1;",
+        "    field int var1;",
+        "    field boolean var2;",
+        " ",
+        "    method void sub1(int a1, int a2) {",
+        "        var int v1;",
+        "        var boolean v2, v3;",
+        " ",
+        "        return;",
+        "    }",
+        "}"};
+    std::string expected_str = expected_string(program_in);
+    TextReader R(expected_str.data());
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function Test.sub1 3"
+            "push argument 0"
+            "pop pointer 0"
+            "push constant 0"
+            "return"
+            "");
+  }
+
+#if 0
   SECTION("Let statement")
   {
     strcpy(R.buffer, LET_STATEMENT_SRC);
