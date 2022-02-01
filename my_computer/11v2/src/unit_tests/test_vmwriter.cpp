@@ -367,6 +367,42 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+  SECTION("Object method call")
+  {
+    Expected_t program_in = {
+        ""  // clang-format sorcery
+        "class Test {",
+        "    function void main() {",
+        "        var MyClass c;",
+        "        let c = MyClass.new();",
+        "        do c.run();",
+        "        return;",
+        "    }",
+        "}",
+        ""};
+    std::string expected_str = expected_string(program_in);
+    TextReader R(expected_str.data());
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function Test.main 1\n"
+            "call MyClass.new 0\n"
+            "pop local 0\n"
+            "push local 0\n"
+            "call MyClass.run 1\n"
+            "pop temp 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+
 #if 0
   SECTION("Class method call")
   {
@@ -466,33 +502,6 @@ SCENARIO("VMWriter Statements")
             "goto WHILE_BEGIN_0\n"
             "label WHILE_END_0\n"
             "push argument 0\n"
-            "return\n");
-  }
-
-  SECTION("Method Call From Constructor")
-  {
-    strcpy(R.buffer, OBJECT_METHOD_CALL_SRC);
-
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
-
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
-
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
-
-    REQUIRE(VM.class_name == "Test");
-
-    REQUIRE(VM.lowered_vm.str() ==
-            "function Test.main 1\n"
-            "call MyClass.new 0\n"
-            "pop local 0\n"
-            "push local 0\n"
-            "call MyClass.run 1\n"
-            "pop temp 0\n"
-            "push constant 0\n"
             "return\n");
   }
 

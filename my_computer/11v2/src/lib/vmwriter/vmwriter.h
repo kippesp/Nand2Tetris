@@ -28,6 +28,8 @@ public:
 
 private:
   using SymbolLoweringLocations_t = struct SymbolLoweringLocations {
+    SymbolTable::ScopeLevel_t scope_level;
+    SymbolTable::VariableType_t variable_type {};
     std::string stack_name {};
     int symbol_index {};
   };
@@ -49,6 +51,9 @@ private:
   // VM stack name and stack index
   std::optional<SymbolLoweringLocations_t> get_symbol_lowering_locations(
       SubroutineDescr&, const ast::AstNode&);
+
+  std::optional<SymbolLoweringLocations_t> get_symbol_lowering_locations(
+      SubroutineDescr&, const std::string&);
 
   template <typename T>
   const T& get_ast_node_value(ast::AstNodeCRef, ast::AstNodeType_t);

@@ -33,7 +33,7 @@ public:
   SubroutineDescr(ClassDescrRef, std::string, SymbolTable::VariableType_t,
                   ast::AstNodeCRef);
 
-  const ast::AstNodeCRef get_root() const { return root; }
+  const ast::AstNode& get_root() const { return root.get(); }
   const std::string& get_name() const { return name; }
   const SymbolTable::VariableType_t& get_return_type() const
   {
