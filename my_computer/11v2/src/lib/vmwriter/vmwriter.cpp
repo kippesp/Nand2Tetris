@@ -75,40 +75,41 @@ void VmWriter::lower_class(AstNodeCRef root)
   auto& class_name = get_ast_node_value<std::string>(root);
   ClassDescr& class_descr = program.add_class(class_name, root);
 
-  // Add any class variables to the class symbol table
-  if (AstNodeCRef class_variables_block =
-          module_ast.find_child_node(root, AstNodeType_t::N_CLASS_VARIABLES);
-      class_variables_block.get() != EmptyNodeRef.get())
+  for (auto& node : root.get().get_child_nodes())
   {
-    for (auto& node : class_variables_block.get().get_child_nodes())
+    auto node_type = node.get().type;
+
+    // Add any class variables to the class symbol table
+    if (node_type == AstNodeType_t::N_CLASS_VARIABLES)
     {
-      if (node.get().type != AstNodeType_t::N_VARIABLE_DECL)
+      for (auto& var_node : node.get().get_child_nodes())
       {
-        throw SemanticException("Expected class variable decl node");
+        assert(node.get().num_child_nodes() > 0);
+
+        if (var_node.get().type != AstNodeType_t::N_VARIABLE_DECL)
+        {
+          throw SemanticException("Expected class variable decl node");
+        }
+
+        auto& variable_name = get_ast_node_value<std::string>(var_node);
+        auto& variable_scope = get_ast_node_value<std::string>(
+            var_node, AstNodeType_t::N_CLASS_VARIABLE_SCOPE);
+        auto& variable_type = get_ast_node_value<std::string>(
+            var_node, AstNodeType_t::N_VARIABLE_TYPE);
+
+        class_descr.add_symbol(variable_name, variable_scope, variable_type);
       }
-
-      auto& variable_name = get_ast_node_value<std::string>(node);
-      auto& variable_scope = get_ast_node_value<std::string>(
-          node, AstNodeType_t::N_CLASS_VARIABLE_SCOPE);
-      auto& variable_type =
-          get_ast_node_value<std::string>(node, AstNodeType_t::N_VARIABLE_TYPE);
-
-      class_descr.add_symbol(variable_name, variable_scope, variable_type);
     }
-  }
-
-  auto child_nodes = root.get().get_child_nodes();
-  for (auto& node : child_nodes)
-  {
-    switch (node.get().type)
+    else if ((node_type == AstNodeType_t::N_FUNCTION_DECL) ||
+             (node_type == AstNodeType_t::N_METHOD_DECL) ||
+             (node_type == AstNodeType_t::N_CONSTRUCTOR_DECL))
     {
-      case AstNodeType_t::N_FUNCTION_DECL:
-      case AstNodeType_t::N_METHOD_DECL:
-      case AstNodeType_t::N_CONSTRUCTOR_DECL:
-        lower_subroutine(class_descr, node.get());
-        break;
-      default:
-        throw SemanticException("Expected a subroutine declaration");
+      lower_subroutine(class_descr, node.get());
+    }
+    else
+    {
+      cout << node.get() << endl;
+      throw SemanticException("Unexpected node");
     }
   }
 }

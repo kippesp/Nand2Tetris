@@ -306,15 +306,15 @@ SCENARIO("VMWriter Statements")
     parser.parse_class();
 
     VmWriter::VmWriter VM(parser.get_ast());
-    VM.dump_ast();
+    // VM.dump_ast();
     VM.lower_module();
 
     REQUIRE(VM.get_lowered_vm() ==
-            "function Test.sub1 3"
-            "push argument 0"
-            "pop pointer 0"
-            "push constant 0"
-            "return"
+            "function Test.sub1 3\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push constant 0\n"
+            "return\n"
             "");
   }
 
