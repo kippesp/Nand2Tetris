@@ -6,7 +6,7 @@
 #include "tokenizer/jack_tokenizer.h"
 #include "util/cli_args.h"
 #include "util/textfile_reader.h"
-//#include "vmwriter/vmwriter.h"
+#include "vmwriter/vmwriter.h"
 
 static int inner_main(const CliArgs& cliargs)
 {
@@ -53,31 +53,31 @@ static int inner_main(const CliArgs& cliargs)
     // TODO: provide option to control
     parser.set_left_associative();
 
-    const auto& class_ast = parser.parse_class();
+    const auto& class_ast = parser.parse_class().get();
 
     if (cliargs.halt_after_parse_tree_s_expression)
     {
       std::stringstream ss;
-      ss << class_ast.get().as_s_expression();
+      ss << class_ast.as_s_expression();
       std::cout << ss.str() << std::endl;
       return 0;
     }
 
-#if 0
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
+    VmWriter::VmWriter VM(parser.get_ast());
+    VM.lower_module();
 
     if (cliargs.halt_after_vmwriter)
     {
-      cout << VM.lowered_vm.str();
+      std::cout << VM.get_lowered_vm();
       return 0;
     }
 
-    ofstream ofile(output_filename);
+#if 0
+    std::ofstream ofile(output_filename);
 
     if (!ofile)
     {
-      cout << "Failed to open output file, " << output_filename << endl;
+      std::cout << "Failed to open output file, " << output_filename << std::endl;
       return -1;
     }
 
