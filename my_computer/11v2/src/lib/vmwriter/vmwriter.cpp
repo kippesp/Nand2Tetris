@@ -70,6 +70,61 @@ const T& VmWriter::get_ast_node_value(AstNodeCRef node)
   throw SemanticException(ss.str());
 }
 
+optional<VmWriter::SymbolLoweringLocations_t>
+VmWriter::get_symbol_lowering_locations(SubroutineDescr& subroutine_descr,
+                                        const AstNode& node)
+{
+  SymbolLoweringLocations_t rvalue;
+
+  assert(node.type == AstNodeType_t::N_VARIABLE_NAME);
+
+  auto& var_name = get_ast_node_value<string>(node);
+
+  if (auto bind_var = subroutine_descr.find_symbol(var_name);
+      bind_var.has_value())
+  {
+    switch (bind_var->scope_level)
+    {
+      case SymbolTable::ScopeLevel_t::CLASS:
+        switch (bind_var->storage_class)
+        {
+          case SymbolTable::StorageClass_t::S_STATIC:
+            rvalue.stack_name = "static";
+            break;
+          case SymbolTable::StorageClass_t::S_FIELD:
+            rvalue.stack_name = "this";
+            break;
+          default:
+            assert(0 && "invalid storage class for CLASS");
+            throw SemanticException("invalid storage class for CLASS");
+        }
+
+        break;
+      case SymbolTable::ScopeLevel_t::SUBROUTINE:
+        switch (bind_var->storage_class)
+        {
+          case SymbolTable::StorageClass_t::S_ARGUMENT:
+            rvalue.stack_name = "argument";
+            break;
+          case SymbolTable::StorageClass_t::S_LOCAL:
+            rvalue.stack_name = "local";
+            break;
+          default:
+            assert(0 && "invalid storage class for SUBROUTINE");
+            throw SemanticException("invalid storage class for SUBROUTINE");
+        }
+
+        break;
+    }
+
+    rvalue.symbol_index = bind_var->index;
+
+    return rvalue;
+  }
+
+  return std::nullopt;
+}
+
 void VmWriter::lower_class(AstNodeCRef root)
 {
   auto& class_name = get_ast_node_value<std::string>(root);
@@ -208,7 +263,7 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
         lower_return_statement(subroutine_descr, node);
         break;
       case AstNodeType_t::N_LET_STATEMENT:
-        throw SemanticException("statement not implemented");
+        lower_let_statement(subroutine_descr, node);
         break;
       case AstNodeType_t::N_DO_STATEMENT:
         {
@@ -226,10 +281,10 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
         }
         break;
       case AstNodeType_t::N_WHILE_STATEMENT:
-        throw SemanticException("statement not implemented");
+        throw SemanticException("WHILE statement not implemented");
         break;
       case AstNodeType_t::N_IF_STATEMENT:
-        throw SemanticException("statement not implemented");
+        throw SemanticException("IF statement not implemented");
         break;
       default:
         throw SemanticException("fallthrough");
@@ -299,52 +354,20 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
     }
     else if (node_type == AstNodeType_t::N_VARIABLE_NAME)
     {
-      auto& bind_var_name = get_ast_node_value<string>(node);
+      auto sym_locs = get_symbol_lowering_locations(subroutine_descr, node);
 
-      if (auto bind_var = subroutine_descr.find_symbol(bind_var_name);
-          bind_var.has_value())
+      if (sym_locs.has_value())
       {
-        string stack_name;
+        auto& sym = sym_locs.value();
 
-        switch (bind_var->scope_level)
-        {
-          case SymbolTable::ScopeLevel_t::CLASS:
-            switch (bind_var->storage_class)
-            {
-              case SymbolTable::StorageClass_t::S_STATIC:
-                stack_name = "static";
-                break;
-              case SymbolTable::StorageClass_t::S_FIELD:
-                stack_name = "this";
-                break;
-              default:
-                assert(0 && "invalid storage class for CLASS");
-                throw SemanticException("invalid storage class for CLASS");
-            }
-
-            break;
-          case SymbolTable::ScopeLevel_t::SUBROUTINE:
-            switch (bind_var->storage_class)
-            {
-              case SymbolTable::StorageClass_t::S_ARGUMENT:
-                stack_name = "argument";
-                break;
-              case SymbolTable::StorageClass_t::S_LOCAL:
-                stack_name = "local";
-                break;
-              default:
-                assert(0 && "invalid storage class for SUBROUTINE");
-                throw SemanticException("invalid storage class for SUBROUTINE");
-            }
-
-            break;
-        }
-
-        lowered_vm << "push " << stack_name << " " << bind_var->index << endl;
+        lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
+                   << endl;
       }
       else
       {
-        throw SemanticException("Symbol not found:", bind_var_name);
+        auto& bind_var_name = get_ast_node_value<string>(node);
+        throw SemanticException("Symbol not found in expression:",
+                                bind_var_name);
       }
     }
     else if (node_type == AstNodeType_t::N_SUBROUTINE_CALL)
@@ -403,14 +426,14 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
           lowered_vm << "push constant 0" << endl;
           break;
         default:
-        {
-          // throw SemanticException("expression fallthrough");
-          // raise(SIGTRAP);
-          stringstream ss;
-          ss << "expression fallthrough:\n";
-          ss << node.get();
-          throw SemanticException(ss.str());
-        }
+          {
+            // throw SemanticException("expression fallthrough");
+            // raise(SIGTRAP);
+            stringstream ss;
+            ss << "expression fallthrough:\n";
+            ss << node.get();
+            throw SemanticException(ss.str());
+          }
       }
     }
   }
@@ -461,6 +484,39 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
   }
 
   lowered_vm << lowered_expression_vm << "return" << endl;
+}
+
+void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
+                                   const ast::AstNode& root)
+{
+  assert(root.num_child_nodes() == 2);
+
+  auto& lh_bind_node = root.get_child_nodes()[0].get();
+  auto& rhs_node = root.get_child_nodes()[1].get();
+
+  lower_expression(subroutine_descr, rhs_node);
+
+  if (lh_bind_node.type == AstNodeType_t::N_VARIABLE_NAME)
+  {
+    auto sym_locs =
+        get_symbol_lowering_locations(subroutine_descr, lh_bind_node);
+
+    if (sym_locs.has_value())
+    {
+      auto& sym = sym_locs.value();
+
+      lowered_vm << "pop " << sym.stack_name << " " << sym.symbol_index << endl;
+    }
+    else
+    {
+      auto& bind_var_name = get_ast_node_value<string>(lh_bind_node);
+      throw SemanticException("Symbol not found in LET:", bind_var_name);
+    }
+  }
+  else
+  {
+    throw SemanticException("need array support");
+  }
 }
 
 void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,

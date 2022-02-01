@@ -27,6 +27,11 @@ public:
   std::string get_lowered_vm() const { return lowered_vm.str(); }
 
 private:
+  using SymbolLoweringLocations_t = struct SymbolLoweringLocations {
+    std::string stack_name {};
+    int symbol_index {};
+  };
+
   const ast::AstTree& module_ast;
   ast::AstNodeCRef module_root;
 
@@ -37,7 +42,13 @@ private:
   void lower_statement_block(ast::AstNodeCRef);
   std::string lower_expression(SubroutineDescr&, const ast::AstNode&);
   void lower_return_statement(SubroutineDescr&, const ast::AstNode&);
+  void lower_let_statement(SubroutineDescr&, const ast::AstNode&);
   void lower_subroutine_call(SubroutineDescr&, const ast::AstNode&);
+
+  // Helper to find symbol in symbol table and construct the approprate
+  // VM stack name and stack index
+  std::optional<SymbolLoweringLocations_t> get_symbol_lowering_locations(
+      SubroutineDescr&, const ast::AstNode&);
 
   template <typename T>
   const T& get_ast_node_value(ast::AstNodeCRef, ast::AstNodeType_t);

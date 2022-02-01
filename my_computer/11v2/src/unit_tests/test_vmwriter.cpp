@@ -318,24 +318,36 @@ SCENARIO("VMWriter Statements")
             "");
   }
 
-#if 0
   SECTION("Let statement")
   {
-    strcpy(R.buffer, LET_STATEMENT_SRC);
+    Expected_t program_in = {
+        ""  // clang-format sorcery
+        "class Main {",
+        "    function int f1() {",
+        "        var int v1, v2;",
+        "        var bool v3;",
+        " ",
+        "        let v1 = 1;",
+        "        let v2 = 1 + -v2;",
+        "        let v3 = true;",
+        " ",
+        "        return v1 + Math.pow(v2, 2);",
+        "    }",
+        "}",
+        ""};
+    std::string expected_str = expected_string(program_in);
+    TextReader R(expected_str.data());
 
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
 
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
 
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
-
-    REQUIRE(VM.class_name == "Main");
-
-    REQUIRE(VM.lowered_vm.str() ==
+    REQUIRE(VM.get_lowered_vm() ==
             "function Main.f1 3\n"
             "push constant 1\n"
             "pop local 0\n"
@@ -355,6 +367,7 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+#if 0
   SECTION("Class method call")
   {
     strcpy(R.buffer, CLASS_METHOD_CALL_SRC);
