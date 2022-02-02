@@ -16,6 +16,11 @@ int SubroutineDescr::num_fields() const
   return class_descr.get().get_symbol_table().num_fields();
 }
 
+const std::string& SubroutineDescr::get_class_name() const
+{
+  return class_descr.get().get_name();
+}
+
 optional<Symbol> SubroutineDescr::find_symbol(std::string symbol_name)
 {
   // Search subroutine symbols (this hides any def in the class)

@@ -35,6 +35,7 @@ public:
 
   const ast::AstNode& get_root() const { return root.get(); }
   const std::string& get_name() const { return name; }
+  const std::string& get_class_name() const;
   const SymbolTable::VariableType_t& get_return_type() const
   {
     return return_type;

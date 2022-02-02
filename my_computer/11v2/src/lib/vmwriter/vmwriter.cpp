@@ -592,7 +592,7 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
       assert(0 && "Unexpected fallthrough");
     }
   }
-  // Otherwise, this is either a CONSTRUCTOR or FUNNCTION
+  // Otherwise, this is either a CONSTRUCTOR or FUNCTION
   else
   {
     assert((subroutine_type == AstNodeType_t::N_CONSTRUCTOR_DECL) ||
@@ -601,7 +601,10 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
     // LOCAL METHOD CALL
     if (call_site.type == AstNodeType_t::N_LOCAL_CALL_SITE)
     {
-      assert(0 && "Local call in static subroutine");
+      // Handle call: subroutine()
+      lowered_vm << "push pointer 0" << endl;
+      call_site_args++;
+      call_site_bind_name << subroutine_descr.get_class_name() << ".";
     }
     // GLOBAL METHOD CALL
     else if (call_site.type == AstNodeType_t::N_GLOBAL_CALL_SITE)

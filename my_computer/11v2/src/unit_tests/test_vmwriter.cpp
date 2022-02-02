@@ -403,6 +403,95 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+  SECTION("Local method call from constructor")
+  {
+    Expected_t program_in = {
+        ""  // clang-format sorcery
+        "class Test {",
+        "   field int a;",
+        " ",
+        "   constructor Test new() {",
+        "      do draw();",
+        "      return this;",
+        "   }",
+        "   method void draw() {",
+        "      return;",
+        "   }",
+        "}",
+        ""};
+    std::string expected_str = expected_string(program_in);
+    TextReader R(expected_str.data());
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function Test.new 0\n"
+            "push constant 1\n"
+            "call Memory.alloc 1\n"
+            "pop pointer 0\n"
+            "push pointer 0\n"
+            "call Test.draw 1\n"
+            "pop temp 0\n"
+            "push pointer 0\n"
+            "return\n"
+            "function Test.draw 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+
+#if LATER
+  SECTION("Simple while loop")
+  {
+    Expected_t program_in = {
+        ""  // clang-format sorcery
+        "class Test {",
+        "    function int f1(int a) {",
+        "        while (a > 0) { let a = a - 1; }",
+        "        return a;",
+        "    }",
+        "}",
+        ""};
+    std::string expected_str = expected_string(program_in);
+    TextReader R(expected_str.data());
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function WhileTest.f1 0\n"
+            "label WHILE_BEGIN_0\n"
+            "push argument 0\n"
+            "push constant 0\n"
+            "gt\n"
+            "if-goto WHILE_TRUE_0\n"
+            "goto WHILE_END_0\n"
+            "label WHILE_TRUE_0\n"
+            "push argument 0\n"
+            "push constant 1\n"
+            "sub\n"
+            "pop argument 0\n"
+            "goto WHILE_BEGIN_0\n"
+            "label WHILE_END_0\n"
+            "push argument 0\n"
+            "return\n");
+  }
+#endif
+
 #if 0
   SECTION("Class method call")
   {
@@ -467,74 +556,6 @@ SCENARIO("VMWriter Statements")
             "pop local 0\n"
             "label IF_END_0\n"
             "push local 0\n"
-            "return\n");
-  }
-
-  SECTION("WHILE structure")
-  {
-    strcpy(R.buffer, SIMPLE_WHILE_SRC);
-
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
-
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
-
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
-
-    REQUIRE(VM.class_name == "WhileTest");
-
-    REQUIRE(VM.lowered_vm.str() ==
-            "function WhileTest.f1 0\n"
-            "label WHILE_BEGIN_0\n"
-            "push argument 0\n"
-            "push constant 0\n"
-            "gt\n"
-            "if-goto WHILE_TRUE_0\n"
-            "goto WHILE_END_0\n"
-            "label WHILE_TRUE_0\n"
-            "push argument 0\n"
-            "push constant 1\n"
-            "sub\n"
-            "pop argument 0\n"
-            "goto WHILE_BEGIN_0\n"
-            "label WHILE_END_0\n"
-            "push argument 0\n"
-            "return\n");
-  }
-
-  SECTION("Method Call From Constructor")
-  {
-    strcpy(R.buffer, CONST_METHOD_CALL_SRC);
-
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
-
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
-
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
-
-    REQUIRE(VM.class_name == "Test");
-
-    REQUIRE(VM.lowered_vm.str() ==
-            "function Test.new 0\n"
-            "push constant 1\n"
-            "call Memory.alloc 1\n"
-            "pop pointer 0\n"
-            "push pointer 0\n"
-            "call Test.draw 1\n"
-            "pop temp 0\n"
-            "push pointer 0\n"
-            "return\n"
-            "function Test.draw 0\n"
-            "push argument 0\n"
-            "pop pointer 0\n"
-            "push constant 0\n"
             "return\n");
   }
 
