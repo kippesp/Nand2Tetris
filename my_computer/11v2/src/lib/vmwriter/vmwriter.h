@@ -41,10 +41,11 @@ private:
 
   void lower_class(ast::AstNodeCRef);
   void lower_subroutine(ClassDescr&, const ast::AstNode&);
-  void lower_statement_block(ast::AstNodeCRef);
+  void lower_statement_block(SubroutineDescr&, const ast::AstNode&);
   std::string lower_expression(SubroutineDescr&, const ast::AstNode&);
   void lower_return_statement(SubroutineDescr&, const ast::AstNode&);
   void lower_let_statement(SubroutineDescr&, const ast::AstNode&);
+  void lower_while_statement(SubroutineDescr&, const ast::AstNode&);
   void lower_subroutine_call(SubroutineDescr&, const ast::AstNode&);
 
   // Helper to find symbol in symbol table and construct the approprate

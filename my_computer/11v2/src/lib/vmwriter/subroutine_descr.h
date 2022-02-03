@@ -20,6 +20,9 @@ class SubroutineDescr {
   SubroutineSymbolTable symbol_table;
   SymbolTable::VariableType_t return_type;
 
+  // counter for if-else and while control statements
+  int structured_control_id {0};
+
 public:
   SubroutineDescr() = delete;
   SubroutineDescr(const SubroutineDescr&) = delete;
@@ -51,4 +54,6 @@ public:
   int num_fields() const;
 
   std::optional<Symbol> find_symbol(std::string);
+
+  int get_next_structured_control_id() { return structured_control_id++; }
 };

@@ -448,7 +448,6 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
-#if LATER
   SECTION("Simple while loop")
   {
     Expected_t program_in = {
@@ -469,11 +468,11 @@ SCENARIO("VMWriter Statements")
     parser.parse_class();
 
     VmWriter::VmWriter VM(parser.get_ast());
-    VM.dump_ast();
+    // VM.dump_ast();
     VM.lower_module();
 
     REQUIRE(VM.get_lowered_vm() ==
-            "function WhileTest.f1 0\n"
+            "function Test.f1 0\n"
             "label WHILE_BEGIN_0\n"
             "push argument 0\n"
             "push constant 0\n"
@@ -490,7 +489,6 @@ SCENARIO("VMWriter Statements")
             "push argument 0\n"
             "return\n");
   }
-#endif
 
 #if 0
   SECTION("IF-ELSE structure")

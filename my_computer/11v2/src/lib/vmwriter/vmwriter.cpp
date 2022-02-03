@@ -178,14 +178,46 @@ void VmWriter::lower_class(AstNodeCRef root)
   }
 }
 
-// Handle subroutine node types
-//
-// N_FUNCTION_DECL
-//
-// N_METHOD_DECL
-//
-// N_CONSTRUCTOR_DECL
-//
+void VmWriter::lower_statement_block(SubroutineDescr& subroutine_descr,
+                                     const AstNode& root)
+{
+  for (auto& node : root.get_child_nodes())
+  {
+    switch (node.get().type)
+    {
+      case AstNodeType_t::N_RETURN_STATEMENT:
+        lower_return_statement(subroutine_descr, node);
+        break;
+      case AstNodeType_t::N_LET_STATEMENT:
+        lower_let_statement(subroutine_descr, node);
+        break;
+      case AstNodeType_t::N_DO_STATEMENT:
+        {
+          assert(node.get().num_child_nodes() == 1);
+          auto& call_site_parent = node.get().get_child_nodes()[0].get();
+
+          if (call_site_parent.type != AstNodeType_t::N_SUBROUTINE_CALL)
+          {
+            throw SemanticException("Subroutine call expected following DO");
+          }
+
+          lower_subroutine_call(subroutine_descr, call_site_parent);
+          // throw away call-ed subroutine's return value
+          lowered_vm << "pop temp 0" << endl;
+        }
+        break;
+      case AstNodeType_t::N_WHILE_STATEMENT:
+        lower_while_statement(subroutine_descr, node);
+        break;
+      case AstNodeType_t::N_IF_STATEMENT:
+        throw SemanticException("IF statement not implemented");
+        break;
+      default:
+        throw SemanticException("fallthrough");
+    }
+  }
+}
+
 void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
 {
   auto& subroutine_name = get_ast_node_value<std::string>(root);
@@ -264,41 +296,7 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
   AstNodeCRef StatementBlockNode =
       module_ast.find_child_node(BodyNode, AstNodeType_t::N_STATEMENT_BLOCK);
 
-  for (auto& node : StatementBlockNode.get().get_child_nodes())
-  {
-    switch (node.get().type)
-    {
-      case AstNodeType_t::N_RETURN_STATEMENT:
-        lower_return_statement(subroutine_descr, node);
-        break;
-      case AstNodeType_t::N_LET_STATEMENT:
-        lower_let_statement(subroutine_descr, node);
-        break;
-      case AstNodeType_t::N_DO_STATEMENT:
-        {
-          assert(node.get().num_child_nodes() == 1);
-          auto& call_site_parent = node.get().get_child_nodes()[0].get();
-
-          if (call_site_parent.type != AstNodeType_t::N_SUBROUTINE_CALL)
-          {
-            throw SemanticException("Subroutine call expected following DO");
-          }
-
-          lower_subroutine_call(subroutine_descr, call_site_parent);
-          // throw away call-ed subroutine's return value
-          lowered_vm << "pop temp 0" << endl;
-        }
-        break;
-      case AstNodeType_t::N_WHILE_STATEMENT:
-        throw SemanticException("WHILE statement not implemented");
-        break;
-      case AstNodeType_t::N_IF_STATEMENT:
-        throw SemanticException("IF statement not implemented");
-        break;
-      default:
-        throw SemanticException("fallthrough");
-    }
-  }
+  lower_statement_block(subroutine_descr, StatementBlockNode.get());
 }
 
 string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
@@ -526,6 +524,26 @@ void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
   {
     throw SemanticException("need array support");
   }
+}
+
+void VmWriter::lower_while_statement(SubroutineDescr& subroutine_descr,
+                                     const ast::AstNode& root)
+{
+  assert(root.num_child_nodes() == 2);
+
+  const auto LOOP_ID = subroutine_descr.get_next_structured_control_id();
+
+  const auto& expression_node = root.get_child_nodes()[0].get();
+  const auto& statement_block_node = root.get_child_nodes()[1].get();
+
+  lowered_vm << "label WHILE_BEGIN_" << LOOP_ID << endl;
+  lower_expression(subroutine_descr, expression_node);
+  lowered_vm << "if-goto WHILE_TRUE_" << LOOP_ID << endl;
+  lowered_vm << "goto WHILE_END_" << LOOP_ID << endl;
+  lowered_vm << "label WHILE_TRUE_" << LOOP_ID << endl;
+  lower_statement_block(subroutine_descr, statement_block_node);
+  lowered_vm << "goto WHILE_BEGIN_" << LOOP_ID << endl;
+  lowered_vm << "label WHILE_END_" << LOOP_ID << endl;
 }
 
 void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
