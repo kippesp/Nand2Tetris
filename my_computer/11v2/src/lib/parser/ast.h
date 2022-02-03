@@ -126,7 +126,7 @@ public:
 
   const AstNodeRef& get_empty_node_ref() const { return EmptyNodeRef; }
 
-  AstNodeCRef get_root() const { return *(nodes[0]); };
+  AstNodeCRef get_root() const { return *(nodes[0]); }
 
   AstNodeCRef find_child_node(ast::AstNodeCRef, ast::AstNodeType_t) const;
 

@@ -35,7 +35,7 @@ public:
 
   virtual ~SymbolTable() = default;
 
-  SymbolTable(ScopeLevel_t scope_level) : scope_level(scope_level) {}
+  SymbolTable(ScopeLevel_t scope_level_) : scope_level(scope_level_) {}
 
   static VariableType_t variable_type_from_string(std::string);
 

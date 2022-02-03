@@ -3,6 +3,6 @@
 using namespace std;
 using namespace ast;
 
-ClassDescr::ClassDescr(string name, AstNodeCRef root) : root(root), name(name)
+ClassDescr::ClassDescr(string name_, AstNodeCRef root_) : root(root_), name(name_)
 {
 }
