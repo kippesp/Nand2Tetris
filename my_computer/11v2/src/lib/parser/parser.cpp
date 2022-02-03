@@ -166,17 +166,14 @@ AstNodeRef Parser::parse_subroutine()
 
   if (current_token.get().value_enum == TokenValue_t::J_FUNCTION)
   {
-    TokenValue_t::J_FUNCTION;
     SubrDeclAst = create_ast_node(AstNodeType_t::N_FUNCTION_DECL);
   }
   else if (current_token.get().value_enum == TokenValue_t::J_METHOD)
   {
-    TokenValue_t::J_METHOD;
     SubrDeclAst = create_ast_node(AstNodeType_t::N_METHOD_DECL);
   }
   else if (current_token.get().value_enum == TokenValue_t::J_CONSTRUCTOR)
   {
-    TokenValue_t::J_CONSTRUCTOR;
     SubrDeclAst = create_ast_node(AstNodeType_t::N_CONSTRUCTOR_DECL);
   }
   else

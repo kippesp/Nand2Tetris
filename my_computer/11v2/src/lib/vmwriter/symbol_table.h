@@ -35,12 +35,9 @@ public:
 
   virtual ~SymbolTable() = default;
 
-  SymbolTable(ScopeLevel_t scope_level_) : scope_level(scope_level_) {}
+  SymbolTable() {}
 
   static VariableType_t variable_type_from_string(std::string);
-
-private:
-  ScopeLevel_t scope_level;
 };
 
 class Symbol {
@@ -82,7 +79,7 @@ class SubroutineSymbolTable : public SymbolTable {
 public:
   virtual ~SubroutineSymbolTable() = default;
 
-  SubroutineSymbolTable() : SymbolTable(ScopeLevel_t::SUBROUTINE) {}
+  SubroutineSymbolTable() : SymbolTable() {}
 
   void add_symbol(const std::string& symbol_name, const std::string& scope,
                   const std::string& symbol_type);

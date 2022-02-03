@@ -36,7 +36,7 @@ SymbolTable::VariableType_t SymbolTable::variable_type_from_string(
   return variable_type;
 }
 
-ClassSymbolTable::ClassSymbolTable() : SymbolTable(ScopeLevel_t::CLASS) {}
+ClassSymbolTable::ClassSymbolTable() : SymbolTable() {}
 
 void ClassSymbolTable::add_symbol(const std::string& symbol_name,
                                   const std::string& storage_class_str,
