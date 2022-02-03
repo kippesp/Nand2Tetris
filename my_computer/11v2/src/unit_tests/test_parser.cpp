@@ -1064,7 +1064,7 @@ SCENARIO("Parse tree basics")
         "          (STATEMENT_BLOCK",
         "            (LET_STATEMENT",
         "              (VARIABLE_NAME string_value:r)",
-        "              (INTEGER_CONSTANT integer_value:1)))",
+        "              (INTEGER_CONSTANT integer_value:2)))",
         "          (STATEMENT_BLOCK",
         "            (LET_STATEMENT",
         "              (VARIABLE_NAME string_value:r)",

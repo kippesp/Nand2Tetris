@@ -450,17 +450,7 @@ SCENARIO("VMWriter Statements")
 
   SECTION("Simple while loop")
   {
-    Expected_t program_in = {
-        ""  // clang-format sorcery
-        "class Test {",
-        "    function int f1(int a) {",
-        "        while (a > 0) { let a = a - 1; }",
-        "        return a;",
-        "    }",
-        "}",
-        ""};
-    std::string expected_str = expected_string(program_in);
-    TextReader R(expected_str.data());
+    TextReader R(SIMPLE_WHILE_SRC);
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
@@ -472,7 +462,7 @@ SCENARIO("VMWriter Statements")
     VM.lower_module();
 
     REQUIRE(VM.get_lowered_vm() ==
-            "function Test.f1 0\n"
+            "function WhileTest.f1 0\n"
             "label WHILE_BEGIN_0\n"
             "push argument 0\n"
             "push constant 0\n"
@@ -490,24 +480,20 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
-#if 0
   SECTION("IF-ELSE structure")
   {
-    strcpy(R.buffer, SIMPLE_IF_SRC);
+    TextReader R(SIMPLE_IF_SRC);
 
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
 
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
 
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
-
-    REQUIRE(VM.class_name == "IfTest");
-
-    REQUIRE(VM.lowered_vm.str() ==
+    REQUIRE(VM.get_lowered_vm() ==
             "function IfTest.f1 1\n"
             "push argument 0\n"
             "push constant 50\n"
@@ -518,13 +504,23 @@ SCENARIO("VMWriter Statements")
             "pop local 0\n"
             "goto IF_END_0\n"
             "label IF_TRUE_0\n"
-            "push constant 1\n"
+            "push constant 2\n"
             "pop local 0\n"
             "label IF_END_0\n"
+            "push argument 0\n"
+            "push constant 60\n"
+            "gt\n"
+            "if-goto IF_TRUE_1\n"
+            "goto IF_END_1\n"
+            "label IF_TRUE_1\n"
+            "push constant 1\n"
+            "pop local 0\n"
+            "label IF_END_1\n"
             "push local 0\n"
             "return\n");
   }
 
+#if 0
   SECTION("LHS Array Assignment")
   {
     strcpy(R.buffer, LHS_ARRAY_ASSIGN_SRC);

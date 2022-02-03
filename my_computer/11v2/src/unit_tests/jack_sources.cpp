@@ -161,7 +161,7 @@ class IfTest {
 
         if (a > 50)
         {
-            let r = 1;
+            let r = 2;
         }
         else
         {

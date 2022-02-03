@@ -46,6 +46,7 @@ private:
   void lower_return_statement(SubroutineDescr&, const ast::AstNode&);
   void lower_let_statement(SubroutineDescr&, const ast::AstNode&);
   void lower_while_statement(SubroutineDescr&, const ast::AstNode&);
+  void lower_if_statement(SubroutineDescr&, const ast::AstNode&);
   void lower_subroutine_call(SubroutineDescr&, const ast::AstNode&);
 
   // Helper to find symbol in symbol table and construct the approprate

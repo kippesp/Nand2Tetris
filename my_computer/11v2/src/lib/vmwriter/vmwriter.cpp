@@ -210,7 +210,7 @@ void VmWriter::lower_statement_block(SubroutineDescr& subroutine_descr,
         lower_while_statement(subroutine_descr, node);
         break;
       case AstNodeType_t::N_IF_STATEMENT:
-        throw SemanticException("IF statement not implemented");
+        lower_if_statement(subroutine_descr, node);
         break;
       default:
         throw SemanticException("fallthrough");
@@ -544,6 +544,46 @@ void VmWriter::lower_while_statement(SubroutineDescr& subroutine_descr,
   lower_statement_block(subroutine_descr, statement_block_node);
   lowered_vm << "goto WHILE_BEGIN_" << LOOP_ID << endl;
   lowered_vm << "label WHILE_END_" << LOOP_ID << endl;
+}
+
+void VmWriter::lower_if_statement(SubroutineDescr& subroutine_descr,
+                                  const ast::AstNode& root)
+{
+  assert((root.num_child_nodes() == 2) || (root.num_child_nodes() == 3));
+
+  bool has_else = false;
+  if (root.num_child_nodes() == 3)
+  {
+    has_else = true;
+  }
+
+  const auto ID = subroutine_descr.get_next_structured_control_id();
+
+  const auto& expression_node = root.get_child_nodes()[0].get();
+  const auto& true_statement_block_node = root.get_child_nodes()[1].get();
+
+  lower_expression(subroutine_descr, expression_node);
+
+  if (has_else)
+  {
+    const auto& false_statement_block_node = root.get_child_nodes()[2].get();
+
+    lowered_vm << "if-goto IF_TRUE_" << ID << endl;
+    lowered_vm << "label IF_FALSE_" << ID << endl;
+    lower_statement_block(subroutine_descr, false_statement_block_node);
+    lowered_vm << "goto IF_END_" << ID << endl;
+    lowered_vm << "label IF_TRUE_" << ID << endl;
+    lower_statement_block(subroutine_descr, true_statement_block_node);
+    lowered_vm << "label IF_END_" << ID << endl;
+  }
+  else
+  {
+    lowered_vm << "if-goto IF_TRUE_" << ID << endl;
+    lowered_vm << "goto IF_END_" << ID << endl;
+    lowered_vm << "label IF_TRUE_" << ID << endl;
+    lower_statement_block(subroutine_descr, true_statement_block_node);
+    lowered_vm << "label IF_END_" << ID << endl;
+  }
 }
 
 void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
