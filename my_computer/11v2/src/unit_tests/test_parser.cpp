@@ -696,8 +696,7 @@ SCENARIO("Parse statements")
         "    (INTEGER_CONSTANT integer_value:0))",
         "  (STATEMENT_BLOCK",
         "    (RETURN_STATEMENT",
-        "      (INTEGER_CONSTANT integer_value:1)))",
-        "  (STATEMENT_BLOCK))"};
+        "      (INTEGER_CONSTANT integer_value:1))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
@@ -1030,6 +1029,56 @@ SCENARIO("Parse tree basics")
         "              (GLOBAL_BIND_NAME string_value:Math)",
         "              (SUBROUTINE_NAME string_value:Res))",
         "            (CALL_ARGUMENTS)))))))"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+  }
+
+  SECTION("Single and double-block IF statements")
+  {
+    TextReader R(SIMPLE_IF_SRC);
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    recursive_descent::Parser parser(tokens);
+    const auto& root = parser.parse_class();
+    std::string as_str = root.get().as_s_expression();
+    Expected_t expected = {
+        "(CLASS_DECL string_value:IfTest",
+        "  (FUNCTION_DECL string_value:f1",
+        "    (SUBROUTINE_DESCR",
+        "      (RETURN_TYPE string_value:int)",
+        "      (INPUT_PARAMETERS",
+        "        (VARIABLE_DECL string_value:a",
+        "          (VARIABLE_TYPE string_value:int)))",
+        "      (LOCAL_VARIABLES",
+        "        (VARIABLE_DECL string_value:r",
+        "          (VARIABLE_TYPE string_value:int))))",
+        "    (SUBROUTINE_BODY",
+        "      (STATEMENT_BLOCK",
+        "        (IF_STATEMENT",
+        "          (OP_LOGICAL_GT",
+        "            (VARIABLE_NAME string_value:a)",
+        "            (INTEGER_CONSTANT integer_value:50))",
+        "          (STATEMENT_BLOCK",
+        "            (LET_STATEMENT",
+        "              (VARIABLE_NAME string_value:r)",
+        "              (INTEGER_CONSTANT integer_value:1)))",
+        "          (STATEMENT_BLOCK",
+        "            (LET_STATEMENT",
+        "              (VARIABLE_NAME string_value:r)",
+        "              (VARIABLE_NAME string_value:a))))",
+        "        (IF_STATEMENT",
+        "          (OP_LOGICAL_GT",
+        "            (VARIABLE_NAME string_value:a)",
+        "            (INTEGER_CONSTANT integer_value:60))",
+        "          (STATEMENT_BLOCK",
+        "            (LET_STATEMENT",
+        "              (VARIABLE_NAME string_value:r)",
+        "              (INTEGER_CONSTANT integer_value:1))))",
+        "        (RETURN_STATEMENT",
+        "          (VARIABLE_NAME string_value:r))))))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);

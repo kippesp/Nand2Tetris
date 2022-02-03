@@ -571,10 +571,6 @@ AstNodeRef Parser::parse_if_statement()
     require_token(current_token, TokenValue_t::J_RIGHT_BRACE);
     get_next_token();
   }
-  else
-  {
-    if_ast.get().add_child(parse_inner_statements());
-  }
 
   return if_ast;
 }

@@ -191,51 +191,50 @@
                 (SUBSCRIPTED_VARIABLE_NAME string_value:b
                   (INTEGER_CONSTANT integer_value:1))
                 (SUBSCRIPTED_VARIABLE_NAME string_value:c
-                  (INTEGER_CONSTANT integer_value:1)))))
-          (STATEMENT_BLOCK
-            (DO_STATEMENT
-              (SUBROUTINE_CALL
-                (GLOBAL_CALL_SITE
-                  (GLOBAL_BIND_NAME string_value:Output)
-                  (SUBROUTINE_NAME string_value:printString))
-                (CALL_ARGUMENTS
-                  (STRING_CONSTANT string_value:Test 4: expected result: 77; actual result: ))))
-            (DO_STATEMENT
-              (SUBROUTINE_CALL
-                (GLOBAL_CALL_SITE
-                  (GLOBAL_BIND_NAME string_value:Output)
-                  (SUBROUTINE_NAME string_value:printInt))
-                (CALL_ARGUMENTS
-                  (SUBSCRIPTED_VARIABLE_NAME string_value:c
-                    (INTEGER_CONSTANT integer_value:1)))))
-            (DO_STATEMENT
-              (SUBROUTINE_CALL
-                (GLOBAL_CALL_SITE
-                  (GLOBAL_BIND_NAME string_value:Output)
-                  (SUBROUTINE_NAME string_value:println))
-                (CALL_ARGUMENTS)))
-            (DO_STATEMENT
-              (SUBROUTINE_CALL
-                (GLOBAL_CALL_SITE
-                  (GLOBAL_BIND_NAME string_value:Output)
-                  (SUBROUTINE_NAME string_value:printString))
-                (CALL_ARGUMENTS
-                  (STRING_CONSTANT string_value:Test 5: expected result: 110; actual result: ))))
-            (DO_STATEMENT
-              (SUBROUTINE_CALL
-                (GLOBAL_CALL_SITE
-                  (GLOBAL_BIND_NAME string_value:Output)
-                  (SUBROUTINE_NAME string_value:printInt))
-                (CALL_ARGUMENTS
-                  (SUBSCRIPTED_VARIABLE_NAME string_value:b
-                    (INTEGER_CONSTANT integer_value:1)))))
-            (DO_STATEMENT
-              (SUBROUTINE_CALL
-                (GLOBAL_CALL_SITE
-                  (GLOBAL_BIND_NAME string_value:Output)
-                  (SUBROUTINE_NAME string_value:println))
-                (CALL_ARGUMENTS)))
-            (RETURN_STATEMENT))))))
+                  (INTEGER_CONSTANT integer_value:1))))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printString))
+            (CALL_ARGUMENTS
+              (STRING_CONSTANT string_value:Test 4: expected result: 77; actual result: ))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printInt))
+            (CALL_ARGUMENTS
+              (SUBSCRIPTED_VARIABLE_NAME string_value:c
+                (INTEGER_CONSTANT integer_value:1)))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:println))
+            (CALL_ARGUMENTS)))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printString))
+            (CALL_ARGUMENTS
+              (STRING_CONSTANT string_value:Test 5: expected result: 110; actual result: ))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printInt))
+            (CALL_ARGUMENTS
+              (SUBSCRIPTED_VARIABLE_NAME string_value:b
+                (INTEGER_CONSTANT integer_value:1)))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:println))
+            (CALL_ARGUMENTS)))
+        (RETURN_STATEMENT))))
   (FUNCTION_DECL string_value:double
     (SUBROUTINE_DESCR
       (RETURN_TYPE string_value:int)

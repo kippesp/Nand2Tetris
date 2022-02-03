@@ -140,3 +140,40 @@ class Main {
   }
 }
 )""";
+
+const char* SIMPLE_WHILE_SRC = R"""(
+class WhileTest {
+    function int f1(int a) {
+        while (a > 0)
+        {
+            let a = a - 1;
+        }
+
+        return a;
+    }
+}
+)""";
+
+const char* SIMPLE_IF_SRC = R"""(
+class IfTest {
+    function int f1(int a) {
+        var int r;
+
+        if (a > 50)
+        {
+            let r = 1;
+        }
+        else
+        {
+            let r = a;
+        }
+
+        if (a > 60)
+        {
+            let r = 1;
+        }
+
+        return r;
+    }
+}
+)""";

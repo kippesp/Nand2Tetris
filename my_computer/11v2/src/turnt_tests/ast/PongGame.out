@@ -232,8 +232,7 @@
                       (STATEMENT_BLOCK
                         (LET_STATEMENT
                           (VARIABLE_NAME string_value:exit)
-                          (TRUE_KEYWORD)))
-                      (STATEMENT_BLOCK))))))
+                          (TRUE_KEYWORD))))))))
             (WHILE_STATEMENT
               (OP_LOGICAL_AND
                 (OP_PREFIX_LOGICAL_NOT
@@ -285,9 +284,8 @@
                   (GLOBAL_BIND_NAME string_value:Output)
                   (SUBROUTINE_NAME string_value:printString))
                 (CALL_ARGUMENTS
-                  (STRING_CONSTANT string_value:Game Over)))))
-          (STATEMENT_BLOCK
-            (RETURN_STATEMENT))))))
+                  (STRING_CONSTANT string_value:Game Over))))))
+        (RETURN_STATEMENT))))
   (METHOD_DECL string_value:moveBall
     (SUBROUTINE_DESCR
       (RETURN_TYPE string_value:void)
@@ -394,8 +392,7 @@
                           (STATEMENT_BLOCK
                             (LET_STATEMENT
                               (VARIABLE_NAME string_value:bouncingDirection)
-                              (INTEGER_CONSTANT integer_value:1)))
-                          (STATEMENT_BLOCK))))
+                              (INTEGER_CONSTANT integer_value:1))))))
                     (LET_STATEMENT
                       (VARIABLE_NAME string_value:batWidth)
                       (OP_SUBTRACT
@@ -427,15 +424,12 @@
                           (GLOBAL_BIND_NAME string_value:Output)
                           (SUBROUTINE_NAME string_value:printInt))
                         (CALL_ARGUMENTS
-                          (VARIABLE_NAME string_value:score)))))
-                  (STATEMENT_BLOCK)))
-              (STATEMENT_BLOCK
-                (DO_STATEMENT
-                  (SUBROUTINE_CALL
-                    (GLOBAL_CALL_SITE
-                      (GLOBAL_BIND_NAME string_value:ball)
-                      (SUBROUTINE_NAME string_value:bounce))
-                    (CALL_ARGUMENTS
-                      (VARIABLE_NAME string_value:bouncingDirection)))))))
-          (STATEMENT_BLOCK
-            (RETURN_STATEMENT)))))))
+                          (VARIABLE_NAME string_value:score))))))))
+            (DO_STATEMENT
+              (SUBROUTINE_CALL
+                (GLOBAL_CALL_SITE
+                  (GLOBAL_BIND_NAME string_value:ball)
+                  (SUBROUTINE_NAME string_value:bounce))
+                (CALL_ARGUMENTS
+                  (VARIABLE_NAME string_value:bouncingDirection))))))
+        (RETURN_STATEMENT)))))

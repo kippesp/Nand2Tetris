@@ -7,3 +7,5 @@ extern const char* CONST_VOID_METHOD_CALL_SRC;
 extern const char* CONST_VOID_METHOD_CALL_GLOBAL_SRC;
 extern const char* SINGLE_RETURN_EXPRESSIONS_SRC;
 extern const char* STATIC_CLASS_SRC;
+extern const char* SIMPLE_WHILE_SRC;
+extern const char* SIMPLE_IF_SRC;
