@@ -1,0 +1,31 @@
+function Main.test 1
+push constant 43
+call SubroutineCalls.new 1
+pop local 0
+push local 0
+call SubroutineCalls.get_object_id 1
+call Output.printInt 1
+pop temp 0
+call SubroutineCalls.get_common_class_id 0
+call Output.printInt 1
+pop temp 0
+push constant 0
+return
+function Main.main 0
+push constant 142
+call SubroutineCalls.init 1
+pop temp 0
+push constant 42
+call SubroutineCalls.new 1
+pop static 0
+push static 0
+call SubroutineCalls.get_object_id 1
+call Output.printInt 1
+pop temp 0
+call SubroutineCalls.get_common_class_id 0
+call Output.printInt 1
+pop temp 0
+call Main.test 0
+pop temp 0
+push constant 0
+return

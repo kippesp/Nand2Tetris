@@ -1,0 +1,23 @@
+function SubroutineCalls.new 0
+push constant 1
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 0
+push pointer 0
+return
+function SubroutineCalls.get_object_id 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function SubroutineCalls.get_common_class_id 0
+push static 0
+return
+function SubroutineCalls.init 0
+push constant 800
+push argument 0
+add
+pop static 0
+push constant 0
+return
