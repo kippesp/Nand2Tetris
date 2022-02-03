@@ -1,0 +1,26 @@
+class SubroutineCalls {
+  field int object_id;
+  static int common_class_id;
+
+  constructor SubroutineCalls new(int val) {
+    let object_id = val;
+
+    return this;
+  }
+
+  method int get_object_id()
+  {
+    return object_id;
+  }
+
+  function int get_common_class_id()
+  {
+    return common_class_id;
+  }
+
+  function void init(int val) {
+    let common_class_id = 800 + val;
+
+    return;
+  }
+}

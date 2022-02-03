@@ -1,0 +1,26 @@
+class Main {
+  static SubroutineCalls instance;
+
+  function void test() {
+    var SubroutineCalls instance2;
+
+    let instance2 = SubroutineCalls.new(43);
+    do Output.printInt(instance2.get_object_id());
+    do Output.printInt(SubroutineCalls.get_common_class_id());  // 941
+
+    return;
+  }
+
+  function void main() {
+    do SubroutineCalls.init(142);
+
+    let instance = SubroutineCalls.new(42);
+    do Output.printInt(instance.get_object_id()); // 42
+
+    do Output.printInt(SubroutineCalls.get_common_class_id());  // 941
+
+    do Main.test(); // 43
+
+    return;
+  }
+}
