@@ -169,10 +169,10 @@ AstNodeRef AstTree::add(const AstNode& node)
   return *added_node;
 }
 
-AstNodeCRef AstTree::find_child_node(ast::AstNodeCRef node,
+AstNodeCRef AstTree::find_child_node(ast::AstNodeCRef root,
                                      ast::AstNodeType_t type) const
 {
-  for (auto& node : node.get().get_child_nodes())
+  for (auto& node : root.get().get_child_nodes())
   {
     if (node.get().type == type)
     {

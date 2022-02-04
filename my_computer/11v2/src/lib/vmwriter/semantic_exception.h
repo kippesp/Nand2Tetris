@@ -12,5 +12,5 @@ public:
 
   const std::string description;
 
-  virtual const char* what() const noexcept { return description.data(); }
+  const char* what() const noexcept override;
 };

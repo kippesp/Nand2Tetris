@@ -31,8 +31,6 @@ public:
   // move constructor
   SubroutineDescr(SubroutineDescr&&) = default;
 
-  virtual ~SubroutineDescr() = default;
-
   SubroutineDescr(ClassDescrRef, std::string, SymbolTable::VariableType_t,
                   ast::AstNodeCRef);
 

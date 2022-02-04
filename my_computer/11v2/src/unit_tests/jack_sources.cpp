@@ -55,19 +55,6 @@ class Test {
 }
 )""";
 
-// TODO: Work through different call examples
-// Calls to methods/functions/constructor
-// from method/function/contructor
-
-const char* CONSTRUCTOR_CALL_GLOBAL_SRC = R"""(
-class Wrapper {
-   constructor Wrapper new(int a) {
-      do Array.new(a);
-      return this;
-   }
-}
-)""";
-
 const char* CLASSVAR_SRC = R"""(
 class testjack {
     static ClassName inst1;

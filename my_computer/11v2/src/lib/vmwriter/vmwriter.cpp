@@ -85,7 +85,8 @@ VmWriter::get_symbol_lowering_locations(SubroutineDescr& subroutine_descr,
           case SymbolTable::StorageClass_t::S_FIELD:
             rvalue.stack_name = "this";
             break;
-          default:
+          case SymbolTable::StorageClass_t::S_ARGUMENT:
+          case SymbolTable::StorageClass_t::S_LOCAL:
             assert(0 && "invalid storage class for CLASS");
             throw SemanticException("invalid storage class for CLASS");
         }
@@ -100,7 +101,8 @@ VmWriter::get_symbol_lowering_locations(SubroutineDescr& subroutine_descr,
           case SymbolTable::StorageClass_t::S_LOCAL:
             rvalue.stack_name = "local";
             break;
-          default:
+          case SymbolTable::StorageClass_t::S_STATIC:
+          case SymbolTable::StorageClass_t::S_FIELD:
             assert(0 && "invalid storage class for SUBROUTINE");
             throw SemanticException("invalid storage class for SUBROUTINE");
         }
@@ -177,37 +179,39 @@ void VmWriter::lower_statement_block(SubroutineDescr& subroutine_descr,
 {
   for (auto& node : root.get_child_nodes())
   {
-    switch (node.get().type)
+    if (node.get().type == AstNodeType_t::N_RETURN_STATEMENT)
     {
-      case AstNodeType_t::N_RETURN_STATEMENT:
-        lower_return_statement(subroutine_descr, node);
-        break;
-      case AstNodeType_t::N_LET_STATEMENT:
+      lower_return_statement(subroutine_descr, node);
+    }
+    else if (node.get().type == AstNodeType_t::N_LET_STATEMENT)
+    {
         lower_let_statement(subroutine_descr, node);
-        break;
-      case AstNodeType_t::N_DO_STATEMENT:
-        {
-          assert(node.get().num_child_nodes() == 1);
-          auto& call_site_parent = node.get().get_child_nodes()[0].get();
+    }
+    else if (node.get().type == AstNodeType_t::N_DO_STATEMENT)
+    {
+      assert(node.get().num_child_nodes() == 1);
+      auto& call_site_parent = node.get().get_child_nodes()[0].get();
 
-          if (call_site_parent.type != AstNodeType_t::N_SUBROUTINE_CALL)
-          {
-            throw SemanticException("Subroutine call expected following DO");
-          }
+      if (call_site_parent.type != AstNodeType_t::N_SUBROUTINE_CALL)
+      {
+        throw SemanticException("Subroutine call expected following DO");
+      }
 
-          lower_subroutine_call(subroutine_descr, call_site_parent);
-          // throw away call-ed subroutine's return value
-          lowered_vm << "pop temp 0" << endl;
-        }
-        break;
-      case AstNodeType_t::N_WHILE_STATEMENT:
-        lower_while_statement(subroutine_descr, node);
-        break;
-      case AstNodeType_t::N_IF_STATEMENT:
-        lower_if_statement(subroutine_descr, node);
-        break;
-      default:
-        throw SemanticException("fallthrough");
+      lower_subroutine_call(subroutine_descr, call_site_parent);
+      // throw away call-ed subroutine's return value
+      lowered_vm << "pop temp 0" << endl;
+    }
+    else if (node.get().type == AstNodeType_t::N_WHILE_STATEMENT)
+    {
+      lower_while_statement(subroutine_descr, node);
+    }
+    else if (node.get().type == AstNodeType_t::N_IF_STATEMENT)
+    {
+      lower_if_statement(subroutine_descr, node);
+    }
+    else
+    {
+      throw SemanticException("fallthrough");
     }
   }
 }
@@ -410,7 +414,7 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
       lowered_vm << "call String.new 1" << endl;
       for (auto ch : str)
       {
-        lowered_vm << "push constant " << (int)ch << endl;
+        lowered_vm << "push constant " << static_cast<int>(ch) << endl;
         lowered_vm << "call String.appendChar 2" << endl;
       }
     }
@@ -419,60 +423,71 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
     {
       string operator_vm;
 
-      switch (node_type)
+      if (node_type == AstNodeType_t::N_OP_MULTIPLY)
       {
-        case AstNodeType_t::N_OP_MULTIPLY:
-          lowered_vm << "call Math.multiply 2" << endl;
-          break;
-        case AstNodeType_t::N_OP_DIVIDE:
-          lowered_vm << "call Math.divide 2" << endl;
-          break;
-        case AstNodeType_t::N_OP_ADD:
-          lowered_vm << "add" << endl;
-          break;
-        case AstNodeType_t::N_OP_SUBTRACT:
-          lowered_vm << "sub" << endl;
-          break;
-        case AstNodeType_t::N_OP_LOGICAL_EQUALS:
-          lowered_vm << "eq" << endl;
-          break;
-        case AstNodeType_t::N_OP_LOGICAL_GT:
-          lowered_vm << "gt" << endl;
-          break;
-        case AstNodeType_t::N_OP_LOGICAL_LT:
-          lowered_vm << "lt" << endl;
-          break;
-        case AstNodeType_t::N_OP_LOGICAL_AND:
-          lowered_vm << "and" << endl;
-          break;
-        case AstNodeType_t::N_OP_LOGICAL_OR:
-          lowered_vm << "or" << endl;
-          break;
-        case AstNodeType_t::N_OP_PREFIX_NEG:
-          lowered_vm << "neg" << endl;
-          break;
-        case AstNodeType_t::N_OP_PREFIX_LOGICAL_NOT:
-          lowered_vm << "not" << endl;
-          break;
-        case AstNodeType_t::N_TRUE_KEYWORD:
-          lowered_vm << "push constant 0" << endl;
-          lowered_vm << "not" << endl;
-          break;
-        case AstNodeType_t::N_FALSE_KEYWORD:
-          lowered_vm << "push constant 0" << endl;
-          break;
-        case AstNodeType_t::N_NULL_KEYWORD:
-          lowered_vm << "push constant 0" << endl;
-          break;
-        default:
-          {
-            // throw SemanticException("expression fallthrough");
-            // raise(SIGTRAP);
-            stringstream ss;
-            ss << "expression fallthrough:\n";
-            ss << node.get();
-            throw SemanticException(ss.str());
-          }
+        lowered_vm << "call Math.multiply 2" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_OP_DIVIDE)
+      {
+        lowered_vm << "call Math.divide 2" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_OP_ADD)
+      {
+        lowered_vm << "add" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_OP_SUBTRACT)
+      {
+        lowered_vm << "sub" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_OP_LOGICAL_EQUALS)
+      {
+        lowered_vm << "eq" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_OP_LOGICAL_GT)
+      {
+        lowered_vm << "gt" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_OP_LOGICAL_LT)
+      {
+        lowered_vm << "lt" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_OP_LOGICAL_AND)
+      {
+        lowered_vm << "and" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_OP_LOGICAL_OR)
+      {
+        lowered_vm << "or" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_OP_PREFIX_NEG)
+      {
+        lowered_vm << "neg" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_OP_PREFIX_LOGICAL_NOT)
+      {
+        lowered_vm << "not" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_TRUE_KEYWORD)
+      {
+        lowered_vm << "push constant 0" << endl;
+        lowered_vm << "not" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_FALSE_KEYWORD)
+      {
+        lowered_vm << "push constant 0" << endl;
+      }
+      else if (node_type == AstNodeType_t::N_NULL_KEYWORD)
+      {
+        lowered_vm << "push constant 0" << endl;
+      }
+      else
+      {
+        // throw SemanticException("expression fallthrough");
+        // raise(SIGTRAP);
+        stringstream ss;
+        ss << "expression fallthrough:\n";
+        ss << node.get();
+        throw SemanticException(ss.str());
       }
     }
   }
@@ -708,12 +723,13 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
             call_site, AstNodeType_t::N_GLOBAL_BIND_NAME);
 
         // TODO: This code is duplicated
+        // TODO: Refactor this area
         // Handle call: local_var.subroutine()
-        if (auto symbol_alloc = get_symbol_lowering_locations(subroutine_descr,
-                                                              global_bind_name);
-            symbol_alloc.has_value())
+        if (auto symbol_alloc_ = get_symbol_lowering_locations(
+                subroutine_descr, global_bind_name);
+            symbol_alloc_.has_value())
         {
-          auto& sym = symbol_alloc.value();
+          auto& sym = symbol_alloc_.value();
 
           call_site_args++;
           lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
@@ -786,9 +802,6 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
       else
       {
         // Handle call: ClassName.subroutine()
-        auto& global_bind_name = get_ast_node_value<string>(
-            call_site, AstNodeType_t::N_GLOBAL_BIND_NAME);
-
         call_site_bind_name << global_bind_name << ".";
       }
     }

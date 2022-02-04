@@ -33,8 +33,6 @@ public:
   using SymbolDescr_t =
       std::tuple<ScopeLevel_t, VariableType_t, StorageClass_t, int>;
 
-  virtual ~SymbolTable() = default;
-
   SymbolTable() {}
 
   static VariableType_t variable_type_from_string(std::string);
@@ -57,8 +55,6 @@ public:
 
 class ClassSymbolTable : public SymbolTable {
 public:
-  virtual ~ClassSymbolTable() = default;
-
   ClassSymbolTable();
 
   void add_symbol(const std::string& symbol_name, const std::string& scope,
@@ -77,8 +73,6 @@ private:
 
 class SubroutineSymbolTable : public SymbolTable {
 public:
-  virtual ~SubroutineSymbolTable() = default;
-
   SubroutineSymbolTable() : SymbolTable() {}
 
   void add_symbol(const std::string& symbol_name, const std::string& scope,

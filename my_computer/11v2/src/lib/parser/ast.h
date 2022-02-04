@@ -84,7 +84,6 @@ public:
   AstNodeValue_t value;
 
   AstNode() = delete;
-  AstNode& operator=(const AstNode&) = delete;
 
   AstNode(AstNodeType_t type);
 

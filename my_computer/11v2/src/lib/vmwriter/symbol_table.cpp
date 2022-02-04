@@ -42,13 +42,6 @@ void ClassSymbolTable::add_symbol(const std::string& symbol_name,
                                   const std::string& storage_class_str,
                                   const std::string& symbol_type_str)
 {
-  if ((storage_class_str != "static") && (storage_class_str != "field"))
-  {
-    throw SemanticException(
-        "Class variable storage class must be 'static' or 'field'",
-        symbol_name);
-  }
-
   StorageClass_t storage_class = (storage_class_str == "static")
                                      ? StorageClass_t::S_STATIC
                                      : StorageClass_t::S_FIELD;
@@ -63,9 +56,11 @@ void ClassSymbolTable::add_symbol(const std::string& symbol_name,
     case StorageClass_t::S_FIELD:
       variable_index = next_storage_class_index.field_var++;
       break;
-    default:
-      variable_index = -1;
-      assert(0 && "fall through");
+    case StorageClass_t::S_ARGUMENT:
+      throw SemanticException(
+          "Storage class 'argument' not permitted in class");
+    case StorageClass_t::S_LOCAL:
+      throw SemanticException("Storage class 'var' not permitted in class");
   }
 
   VariableType_t symbol_type = variable_type_from_string(symbol_type_str);
@@ -104,9 +99,12 @@ void SubroutineSymbolTable::add_symbol(const std::string& symbol_name,
     case StorageClass_t::S_LOCAL:
       variable_index = next_storage_class_index.local_var++;
       break;
-    default:
-      variable_index = -1;
-      assert(0 && "fall through");
+    case StorageClass_t::S_STATIC:
+      throw SemanticException(
+          "Storage class 'static' not permitted in subroutines");
+    case StorageClass_t::S_FIELD:
+      throw SemanticException(
+          "Storage class 'field' not permitted in subroutines");
   }
 
   VariableType_t symbol_type = variable_type_from_string(symbol_type_str);

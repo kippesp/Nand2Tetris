@@ -13,9 +13,7 @@ public:
   Program(const Program&) = delete;
   Program& operator=(const Program&) = delete;
 
-  virtual ~Program() = default;
-
-  Program() : name("") {}
+  Program() {}
 
   ClassDescr& add_class(std::string class_name, ast::AstNodeCRef class_node)
   {
@@ -27,7 +25,7 @@ public:
 
 private:
   // program name
-  std::string name;
+  std::string name{};
 
   std::vector<ClassDescr> classes;
 };

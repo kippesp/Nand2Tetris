@@ -22,8 +22,6 @@ public:
   // move constructor
   ClassDescr(ClassDescr&&) = default;
 
-  virtual ~ClassDescr() = default;
-
   ClassDescr(std::string, ast::AstNodeCRef);
 
   const std::string& get_name() const { return name; }

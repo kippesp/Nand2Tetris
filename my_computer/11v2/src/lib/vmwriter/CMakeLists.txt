@@ -9,6 +9,7 @@ set(${LIBRARY_TARGET_NAME}_SRCS
     vmwriter.h
 
     class_descr.cpp
+    semantic_exception.cpp
     subroutine_descr.cpp
     symbol_table.cpp
     vmwriter.cpp

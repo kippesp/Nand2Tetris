@@ -4,10 +4,13 @@
 using namespace std;
 using namespace ast;
 
-SubroutineDescr::SubroutineDescr(ClassDescrRef class_descr, string name,
-                                 SymbolTable::VariableType_t return_type,
-                                 AstNodeCRef root)
-    : class_descr(class_descr), root(root), name(name), return_type(return_type)
+SubroutineDescr::SubroutineDescr(ClassDescrRef class_descr_, string name_,
+                                 SymbolTable::VariableType_t return_type_,
+                                 AstNodeCRef root_)
+    : class_descr(class_descr_),
+      root(root_),
+      name(name_),
+      return_type(return_type_)
 {
 }
 

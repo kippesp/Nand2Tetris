@@ -11,8 +11,6 @@ public:
   VmWriter(const VmWriter&) = delete;
   VmWriter& operator=(const VmWriter&) = delete;
 
-  virtual ~VmWriter() = default;
-
   VmWriter(const ast::AstTree& ast_tree)
       : module_ast(ast_tree),
         module_root(ast_tree.get_root()),
