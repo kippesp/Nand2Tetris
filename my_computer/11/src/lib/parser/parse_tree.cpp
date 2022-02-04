@@ -198,9 +198,7 @@ shared_ptr<ParseTreeNonTerminal> ParseTree::parse_class()
   {
     if (base_filename != "%")  // special internal value to skip this check
     {
-      if (base_filename.compare(
-              base_filename.length() - class_name_token.value_str.length(),
-              class_name_token.value_str.length(), class_name_token.value_str))
+      if (base_filename != class_name_token.value_str)
       {
         throw ParseException("class name not the same as the file",
                              class_name_token);

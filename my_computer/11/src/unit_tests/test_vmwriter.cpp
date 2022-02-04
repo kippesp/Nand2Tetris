@@ -375,10 +375,8 @@ SCENARIO("VMWriter Statements")
     VmWriter VM(parsetree_node);
     VM.lower_class();
 
-    REQUIRE(VM.class_name == "IfTest");
-
     REQUIRE(VM.lowered_vm.str() ==
-            "function IfTest.f1 1\n"
+            "function Test.f1 1\n"
             "push argument 0\n"
             "push constant 50\n"
             "gt\n"
@@ -388,9 +386,18 @@ SCENARIO("VMWriter Statements")
             "pop local 0\n"
             "goto IF_END_0\n"
             "label IF_TRUE_0\n"
-            "push constant 1\n"
+            "push constant 2\n"
             "pop local 0\n"
             "label IF_END_0\n"
+            "push argument 0\n"
+            "push constant 60\n"
+            "gt\n"
+            "if-goto IF_TRUE_1\n"
+            "goto IF_END_1\n"
+            "label IF_TRUE_1\n"
+            "push constant 1\n"
+            "pop local 0\n"
+            "label IF_END_1\n"
             "push local 0\n"
             "return\n");
   }

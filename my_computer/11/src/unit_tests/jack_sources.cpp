@@ -86,17 +86,22 @@ class Main {
 )""";
 
 const char* SIMPLE_IF_SRC = R"""(
-class IfTest {
+class Test {
     function int f1(int a) {
         var int r;
 
         if (a > 50)
         {
-            let r = 1;
+            let r = 2;
         }
         else
         {
             let r = a;
+        }
+
+        if (a > 60)
+        {
+            let r = 1;
         }
 
         return r;

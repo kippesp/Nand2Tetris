@@ -23,7 +23,7 @@ public:
 
   // variable types
   typedef enum class BasicType_s {
-    T_INT,
+    T_INT,  // 16-bit 2's complement
     T_CHAR,
     T_BOOLEAN,
     T_VOID,
