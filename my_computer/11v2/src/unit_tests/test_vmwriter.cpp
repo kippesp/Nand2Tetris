@@ -218,6 +218,47 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+  SECTION("Object global method call")
+  {
+    Expected_t program_in = {
+        ""  // clang-format sorcery
+        "class Test {",
+        "   field Square square;",
+        " ",
+        "   method void dispose() {",
+        "      do square.check(1);",
+        "      do square.dispose();",
+        "      return;",
+        "   }",
+        "}",
+        ""};
+    std::string expected_str = expected_string(program_in);
+    TextReader R(expected_str.data());
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function Test.dispose 0\n"
+            "push argument 0\n"
+            "pop pointer 0\n"
+            "push this 0\n"
+            "push constant 1\n"
+            "call Square.check 2\n"
+            "pop temp 0\n"
+            "push this 0\n"
+            "call Square.dispose 1\n"
+            "pop temp 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+
   SECTION("Global function as call argument, VM")
   {
     TextReader R(STATIC_CLASS_SRC);

@@ -8,10 +8,6 @@
 
 #include <signal.h>
 
-// #include <functional>
-
-// #include <iostream>
-
 using namespace std;
 using namespace ast;
 
@@ -38,7 +34,6 @@ const T& VmWriter::get_ast_node_value(AstNodeCRef node, AstNodeType_t node_type)
 
   if (ast_node.get() == EmptyNodeRef.get())
   {
-    // raise(SIGTRAP);
     throw SemanticException("Expected node type not found in child nodes");
   }
 
@@ -55,7 +50,6 @@ const T& VmWriter::get_ast_node_value(AstNodeCRef node)
 {
   if (node.get() == EmptyNodeRef.get())
   {
-    // raise(SIGTRAP);
     throw SemanticException("Expected node type not found in child nodes");
   }
 
@@ -384,7 +378,6 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
     else if (node_type == AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME)
     {
       auto& rh_bind_var_name = get_ast_node_value<string>(node);
-      auto& subscript_expression_node = node.get().get_child_nodes()[0].get();
 
       // array subscript was previously lowered as a worklist item
 
@@ -677,7 +670,7 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
     // LOCAL METHOD CALL
     if (call_site.type == AstNodeType_t::N_LOCAL_CALL_SITE)
     {
-      // Handle call: subroutine()
+      // Handle call: subroutine(), this pointer
       lowered_vm << "push pointer 0" << endl;
       call_site_args++;
 
@@ -711,7 +704,33 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
         auto& global_bind_name = get_ast_node_value<string>(
             call_site, AstNodeType_t::N_GLOBAL_BIND_NAME);
 
-        call_site_bind_name << global_bind_name << ".";
+        // TODO: This code is duplicated
+        // Handle call: local_var.subroutine()
+        if (auto symbol_alloc = get_symbol_lowering_locations(subroutine_descr,
+                                                              global_bind_name);
+            symbol_alloc.has_value())
+        {
+          auto& sym = symbol_alloc.value();
+
+          call_site_args++;
+          lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
+                     << endl;
+
+          if (auto class_type_ptr =
+                  get_if<SymbolTable::ClassType_t>(&sym.variable_type);
+              class_type_ptr)
+          {
+            call_site_bind_name << *class_type_ptr << ".";
+          }
+          else
+          {
+            assert(0 && "Expected ClassType_t");
+          }
+        }
+        else
+        {
+          call_site_bind_name << global_bind_name << ".";
+        }
       }
     }
     else
