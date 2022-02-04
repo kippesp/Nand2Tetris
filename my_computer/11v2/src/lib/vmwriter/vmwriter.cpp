@@ -461,6 +461,9 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
         case AstNodeType_t::N_FALSE_KEYWORD:
           lowered_vm << "push constant 0" << endl;
           break;
+        case AstNodeType_t::N_NULL_KEYWORD:
+          lowered_vm << "push constant 0" << endl;
+          break;
         default:
           {
             // throw SemanticException("expression fallthrough");

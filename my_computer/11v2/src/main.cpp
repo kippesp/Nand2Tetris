@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include <fstream>
 #include <iostream>
 
 #include "parser/parser.h"
@@ -72,7 +73,6 @@ static int inner_main(const CliArgs& cliargs)
       return 0;
     }
 
-#if 0
     std::ofstream ofile(output_filename);
 
     if (!ofile)
@@ -81,9 +81,8 @@ static int inner_main(const CliArgs& cliargs)
       return -1;
     }
 
-    ofile << VM.lowered_vm.str();
+    ofile << VM.get_lowered_vm();
     ofile.close();
-#endif
   }
 
   return 0;

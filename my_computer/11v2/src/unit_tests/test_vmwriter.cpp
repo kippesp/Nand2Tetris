@@ -521,6 +521,38 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+  SECTION("NULL assignment")
+  {
+    Expected_t program_in = {
+        ""  // clang-format sorcery
+        "class Test {",
+        "    function void test() {",
+        "        var Array a;",
+        "        let a = null;",
+        "        return;",
+        "    }",
+        "}",
+        ""};
+    std::string expected_str = expected_string(program_in);
+    TextReader R(expected_str.data());
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function Test.test 1\n"
+            "push constant 0\n"
+            "pop local 0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+
   SECTION("IF-ELSE structure")
   {
     TextReader R(SIMPLE_IF_SRC);
