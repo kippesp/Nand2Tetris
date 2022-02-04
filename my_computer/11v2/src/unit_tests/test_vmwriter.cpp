@@ -520,6 +520,58 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+  SECTION("Numerical IF")
+  {
+    Expected_t program_in = {
+        ""  // clang-format sorcery
+        "class Main {",
+        "  function void main() {",
+        "    if (8191 & 2)",
+        "    {",
+        "      do Output.printInt(1);",
+        "    }",
+        "    else",
+        "    {",
+        "      do Output.printInt(255);",
+        "    }",
+        " ",
+        "    return;",
+        "  }",
+        "}",
+        "",
+        ""};
+    std::string expected_str = expected_string(program_in);
+    TextReader R(expected_str.data());
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
+
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
+
+    REQUIRE(VM.get_lowered_vm() ==
+            "function Main.main 0\n"
+            "push constant 8191\n"
+            "push constant 2\n"
+            "and\n"
+            "if-goto IF_TRUE_0\n"
+            "label IF_FALSE_0\n"
+            "push constant 255\n"
+            "call Output.printInt 1\n"
+            "pop temp 0\n"
+            "goto IF_END_0\n"
+            "label IF_TRUE_0\n"
+            "push constant 1\n"
+            "call Output.printInt 1\n"
+            "pop temp 0\n"
+            "label IF_END_0\n"
+            "push constant 0\n"
+            "return\n");
+  }
+
   SECTION("LHS Array Assignment")
   {
     Expected_t program_in = {
@@ -626,24 +678,35 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
-#if 0
   SECTION("Array-Array assignment")
   {
-    strcpy(R.buffer, ARRAY_ARRAY_ASSIGN_SRC);
+    Expected_t program_in = {
+        ""  // clang-format sorcery
+        "class Test {",
+        "   function void main() {",
+        "     var Array a;",
+        "     var Array b;",
+        "     let a = Array.new(1);",
+        "     let b = Array.new(1);",
+        "     let b[0] = 5;",
+        "     let a[0] = b[0];",
+        "     return;",
+        "   }",
+        "}",
+        ""};
+    std::string expected_str = expected_string(program_in);
+    TextReader R(expected_str.data());
 
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
 
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
 
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
-
-    REQUIRE(VM.class_name == "Test");
-
-    REQUIRE(VM.lowered_vm.str() ==
+    REQUIRE(VM.get_lowered_vm() ==
             "function Test.main 2\n"
             "push constant 1\n"
             "call Array.new 1\n"
@@ -673,21 +736,18 @@ SCENARIO("VMWriter Statements")
 
   SECTION("String term")
   {
-    strcpy(R.buffer, STRING_TERM_SRC);
+    TextReader R(STRING_TERM_SRC);
 
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
 
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
 
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
-
-    REQUIRE(VM.class_name == "Test");
-
-    REQUIRE(VM.lowered_vm.str() ==
+    REQUIRE(VM.get_lowered_vm() ==
             "function Test.main 0\n"
             "push constant 5\n"
             "call String.new 1\n"
@@ -706,41 +766,4 @@ SCENARIO("VMWriter Statements")
             "push constant 0\n"
             "return\n");
   }
-
-  SECTION("Numerical IF")
-  {
-    strcpy(R.buffer, NUMERICAL_IF_SRC);
-
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
-
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
-
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
-
-    REQUIRE(VM.class_name == "Main");
-
-    REQUIRE(VM.lowered_vm.str() ==
-            "function Main.main 0\n"
-            "push constant 8191\n"
-            "push constant 2\n"
-            "and\n"
-            "if-goto IF_TRUE_0\n"
-            "label IF_FALSE_0\n"
-            "push constant 255\n"
-            "call Output.printInt 1\n"
-            "pop temp 0\n"
-            "goto IF_END_0\n"
-            "label IF_TRUE_0\n"
-            "push constant 1\n"
-            "call Output.printInt 1\n"
-            "pop temp 0\n"
-            "label IF_END_0\n"
-            "push constant 0\n"
-            "return\n");
-  }
-#endif
 }

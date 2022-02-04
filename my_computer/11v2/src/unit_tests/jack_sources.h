@@ -9,3 +9,4 @@ extern const char* SINGLE_RETURN_EXPRESSIONS_SRC;
 extern const char* STATIC_CLASS_SRC;
 extern const char* SIMPLE_WHILE_SRC;
 extern const char* SIMPLE_IF_SRC;
+extern const char* STRING_TERM_SRC;

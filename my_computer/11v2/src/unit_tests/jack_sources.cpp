@@ -177,3 +177,12 @@ class IfTest {
     }
 }
 )""";
+
+const char* STRING_TERM_SRC = R"""(
+class Test {
+   function void main() {
+     do Output.printString("Hello");
+     return;
+   }
+}
+)""";

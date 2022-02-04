@@ -409,6 +409,18 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
       lowered_vm << "pop pointer 1" << endl;
       lowered_vm << "push that 0" << endl;
     }
+    else if (node_type == AstNodeType_t::N_STRING_CONSTANT)
+    {
+      auto& str = get_ast_node_value<string>(node);
+
+      lowered_vm << "push constant " << str.length() << endl;
+      lowered_vm << "call String.new 1" << endl;
+      for (auto ch : str)
+      {
+        lowered_vm << "push constant " << (int)ch << endl;
+        lowered_vm << "call String.appendChar 2" << endl;
+      }
+    }
     // handle operators
     else
     {
