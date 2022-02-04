@@ -520,9 +520,37 @@ void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
       throw SemanticException("Symbol not found in LET:", bind_var_name);
     }
   }
+  else if (lh_bind_node.type == AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME)
+  {
+    auto& lh_bind_var_name = get_ast_node_value<string>(lh_bind_node);
+    auto& subscript_expression_node = lh_bind_node.get_child_nodes()[0].get();
+
+    lower_expression(subroutine_descr, subscript_expression_node);
+
+    auto sym_locs =
+        get_symbol_lowering_locations(subroutine_descr, lh_bind_node);
+
+    // TODO: this code has duplicates
+    if (sym_locs.has_value())
+    {
+      auto& sym = sym_locs.value();
+
+      lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
+                 << endl;
+    }
+    else
+    {
+      throw SemanticException("Symbol not found in expression:",
+                              lh_bind_var_name);
+    }
+
+    lowered_vm << "add" << endl;
+    lowered_vm << "pop pointer 1" << endl;
+    lowered_vm << "pop that 0" << endl;
+  }
   else
   {
-    throw SemanticException("need array support");
+    assert(0 && "fallthrough");
   }
 }
 
