@@ -567,24 +567,33 @@ SCENARIO("VMWriter Statements")
     );
   }
 
-#if 0
   SECTION("RHS Array Assignment")
   {
-    strcpy(R.buffer, RHS_ARRAY_ASSIGN_SRC);
+    Expected_t program_in = {
+        ""  // clang-format sorcery
+        "class Test {",
+        "   function int main() {",
+        "     var Array a;",
+        "     let a = Array.new(2);",
+        "     let a[1] = 5;",
+        "     let a[0] = 6;",
+        "     return a[1];",
+        "   }",
+        "}",
+        ""};
+    std::string expected_str = expected_string(program_in);
+    TextReader R(expected_str.data());
 
-    JackTokenizer Tokenizer(R);
-    auto tokens = Tokenizer.parse_tokens();
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    recursive_descent::Parser parser(tokens);
+    parser.parse_class();
 
-    ParseTree T(ParseTreeNodeType_t::P_UNDEFINED, tokens);
-    auto parsetree_node = T.parse_class();
-    REQUIRE(parsetree_node);
+    VmWriter::VmWriter VM(parser.get_ast());
+    // VM.dump_ast();
+    VM.lower_module();
 
-    VmWriter VM(parsetree_node);
-    VM.lower_class();
-
-    REQUIRE(VM.class_name == "Test");
-
-    REQUIRE(VM.lowered_vm.str() ==
+    REQUIRE(VM.get_lowered_vm() ==
             "function Test.main 1\n"
             "push constant 2\n"
             "call Array.new 1\n"
@@ -608,8 +617,8 @@ SCENARIO("VMWriter Statements")
             "pop pointer 1\n"
             "pop that 0\n"
             //
-            // a[0]
-            "push constant 0\n"
+            // a[1]
+            "push constant 1\n"
             "push local 0\n"
             "add\n"
             "pop pointer 1\n"
@@ -617,6 +626,7 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 
+#if 0
   SECTION("Array-Array assignment")
   {
     strcpy(R.buffer, ARRAY_ARRAY_ASSIGN_SRC);

@@ -383,7 +383,31 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
     }
     else if (node_type == AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME)
     {
-      assert(0 && "array lowering not implemented");
+      auto& rh_bind_var_name = get_ast_node_value<string>(node);
+      auto& subscript_expression_node = node.get().get_child_nodes()[0].get();
+
+      // array subscript was previously lowered as a worklist item
+
+      auto sym_locs =
+          get_symbol_lowering_locations(subroutine_descr, node.get());
+
+      // TODO: this code has duplicates
+      if (sym_locs.has_value())
+      {
+        auto& sym = sym_locs.value();
+
+        lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
+                   << endl;
+      }
+      else
+      {
+        throw SemanticException("Symbol not found in expression:",
+                                rh_bind_var_name);
+      }
+
+      lowered_vm << "add" << endl;
+      lowered_vm << "pop pointer 1" << endl;
+      lowered_vm << "push that 0" << endl;
     }
     // handle operators
     else
@@ -453,11 +477,6 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
 {
   assert((root.num_child_nodes() == 0) || (root.num_child_nodes() == 1));
 
-  string lowered_expression_vm =
-      (root.num_child_nodes() > 0)
-          ? lower_expression(subroutine_descr, root.get_child_nodes()[0].get())
-          : "";
-
   auto subroutine_type = subroutine_descr.get_root().type;
   auto subroutine_return_type = subroutine_descr.get_return_type();
   bool is_void_return = false;
@@ -474,10 +493,9 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
     if ((subroutine_type == AstNodeType_t::N_FUNCTION_DECL) ||
         (subroutine_type == AstNodeType_t::N_METHOD_DECL))
     {
-      if (lowered_expression_vm != "")
+      if (root.num_child_nodes() > 0)
       {
-        throw SemanticException(
-            "Function/method declared void but returning non-void");
+        throw SemanticException("Void subroutine returning non-void");
       }
 
       lowered_vm << "push constant 0" << endl;
@@ -489,8 +507,18 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
 
     throw SemanticException("Constructor declared as void");
   }
+  else
+  {
+    if (root.num_child_nodes() == 0)
+    {
+      throw SemanticException("Non-void subroutine returning void");
+    }
 
-  lowered_vm << lowered_expression_vm << "return" << endl;
+    auto& expression_node = root.get_child_nodes()[0].get();
+
+    lower_expression(subroutine_descr, expression_node);
+    lowered_vm << "return" << endl;
+  }
 }
 
 void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
