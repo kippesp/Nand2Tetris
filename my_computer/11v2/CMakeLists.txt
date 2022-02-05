@@ -78,7 +78,10 @@ endif()
 
 #add_compile_options(-stdlib=libc++)
 #add_link_options(-stdlib=libc++ -lc++abi)
-#set(CMAKE_BUILD_RPATH "/Users/kippesp/usr/opt/llvm-13.0.1/lib")
+
+# Use this with new tools
+#set(CMAKE_BUILD_RPATH "/Users/kippesp/usr/opt/llvm-13.0.1-test/lib")
+#add_link_options(-L/Users/kippesp/usr/opt/llvm-13.0.1-test/lib)
 
 # cmake 3.13
 # TODO: target link options
