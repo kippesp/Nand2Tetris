@@ -17,6 +17,7 @@ public:
 
   char_type read();
   char_type peek();
+  char_type peek2();
   bool eof() { return cursor_pos >= raw_buffer.size(); }
   size_t num_lines() { return contents.size(); }
 

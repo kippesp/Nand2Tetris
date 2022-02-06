@@ -244,7 +244,9 @@ JackToken JackTokenizer::get_string_token(char ch)
   // implementation will restrict this to a more convenient ASCII minus
   // newline, double quote, and null.
 
-  auto valid_string_char = [](char c) {
+  auto valid_string_char = [&](char c) {
+    if ((c == '\\') && (reader.peek2() == '"'))
+      return true;
     return (c != '\n') && (c != '\0') && (c != '"');
   };
 
@@ -255,6 +257,11 @@ JackToken JackTokenizer::get_string_token(char ch)
   for (reader.peek(); valid_string_char(reader.peek()); reader.peek())
   {
     ch = reader.read();
+    if ((ch == '\\') && (reader.peek() == '"'))
+    {
+      // Un-delimit quotes: \"
+      ch = reader.read();
+    }
     s << ch;
   }
 

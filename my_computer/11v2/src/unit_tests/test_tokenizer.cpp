@@ -276,6 +276,22 @@ SCENARIO("Tokenize string")
       REQUIRE(tokens[i].get().value_str == expected_parsed_identifiers[i]);
     }
   }
+
+  SECTION("quoting strings")
+  {
+    std::string input_string = R":(("What is \" wrong \" here?")):";
+    TextReader R(input_string.data());
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    REQUIRE(tokens.size() == 4);
+
+    REQUIRE(tokens[0].get().value_enum == TokenValue_t::J_LEFT_PARENTHESIS);
+    REQUIRE(tokens[1].get().value_enum == TokenValue_t::J_STRING_CONSTANT);
+    REQUIRE(tokens[2].get().value_enum == TokenValue_t::J_RIGHT_PARENTHESIS);
+    REQUIRE(tokens[1].get().value_str == R":(What is " wrong " here?):");
+  }
 }
 
 SCENARIO("Tokenize comments")

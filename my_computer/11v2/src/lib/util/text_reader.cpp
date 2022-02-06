@@ -33,6 +33,15 @@ TextReader::char_type TextReader::peek()
   return '\0';
 }
 
+TextReader::char_type TextReader::peek2()
+{
+  if (cursor_pos + 1 <= raw_buffer.length())
+  {
+    return raw_buffer[cursor_pos + 1];
+  }
+  return '\0';
+}
+
 void TextReader::init_buffer(const char* buf)
 {
   std::stringstream ss_line;
