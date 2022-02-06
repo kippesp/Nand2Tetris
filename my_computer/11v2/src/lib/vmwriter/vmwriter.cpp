@@ -617,9 +617,8 @@ void VmWriter::lower_while_statement(SubroutineDescr& subroutine_descr,
 
   lowered_vm << "label WHILE_BEGIN_" << LOOP_ID << endl;
   lower_expression(subroutine_descr, expression_node);
-  lowered_vm << "if-goto WHILE_TRUE_" << LOOP_ID << endl;
-  lowered_vm << "goto WHILE_END_" << LOOP_ID << endl;
-  lowered_vm << "label WHILE_TRUE_" << LOOP_ID << endl;
+  lowered_vm << "not" << endl;
+  lowered_vm << "if-goto WHILE_END_" << LOOP_ID << endl;
   lower_statement_block(subroutine_descr, statement_block_node);
   lowered_vm << "goto WHILE_BEGIN_" << LOOP_ID << endl;
   lowered_vm << "label WHILE_END_" << LOOP_ID << endl;
