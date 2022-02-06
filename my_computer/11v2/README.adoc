@@ -63,11 +63,20 @@ target for the AST.
 == Changes to the 11v2 Parser
 
 The v1 parser created a hybrid parse tree and AST tree.  This hybrid data
-structure created complications in the VM lowering code where extending this
-to future targets was deemed impractical.  The 11v2 input to the VM lowering
-section is more of a traditional AST structure.  The Parser is now smarter
-about generalizing code elements into more useful AST nodes.  See the
-modified Jack grammar in xref:src/lib/parser/README.adoc.
+structure created complications in the VM lowering code where extending this to
+future targets was deemed impractical.  Additionally, the internal node
+structure of the hybrid tree used specialized classes for terminal and
+non-terminal nodes--in other words, a node either has children nodes or
+doesn't.  The new AST has only a single AstNode class.
+
+The 11v2 input to the VM lowering section is more of a traditional AST
+structure where the Jack language semantics are better described.  For
+example, the class and subroutine variable declariations are structured
+within the AST under their N_CLASS_VARIABLES and N_LOCAL_VARIABLES subtrees,
+respectively.
+
+The Parser is now smarter about generalizing code elements into more useful AST
+nodes.  See the modified Jack grammar in xref:src/lib/parser/README.adoc.
 
 The new Parser no longer makes such heavy use of unique pointers and
 std::variant which made the v1 VM lowering logic tedious to implement and
