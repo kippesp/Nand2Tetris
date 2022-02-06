@@ -277,20 +277,26 @@ SCENARIO("Tokenize string")
     }
   }
 
-  SECTION("quoting strings")
+  SECTION("strings with delimited characters")
   {
     std::string input_string = R":(("What is \" wrong \" here?")):";
+    input_string += R":(("This \\ is odd")):";
     TextReader R(input_string.data());
     JackTokenizer T(R);
 
     auto tokens = T.parse_tokens();
 
-    REQUIRE(tokens.size() == 4);
+    REQUIRE(tokens.size() == 7);
 
     REQUIRE(tokens[0].get().value_enum == TokenValue_t::J_LEFT_PARENTHESIS);
     REQUIRE(tokens[1].get().value_enum == TokenValue_t::J_STRING_CONSTANT);
     REQUIRE(tokens[2].get().value_enum == TokenValue_t::J_RIGHT_PARENTHESIS);
     REQUIRE(tokens[1].get().value_str == R":(What is " wrong " here?):");
+
+    REQUIRE(tokens[3].get().value_enum == TokenValue_t::J_LEFT_PARENTHESIS);
+    REQUIRE(tokens[4].get().value_enum == TokenValue_t::J_STRING_CONSTANT);
+    REQUIRE(tokens[5].get().value_enum == TokenValue_t::J_RIGHT_PARENTHESIS);
+    REQUIRE(tokens[4].get().value_str == R":(This \ is odd):");
   }
 }
 

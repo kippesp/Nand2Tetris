@@ -247,6 +247,8 @@ JackToken JackTokenizer::get_string_token(char ch)
   auto valid_string_char = [&](char c) {
     if ((c == '\\') && (reader.peek2() == '"'))
       return true;
+    if ((c == '\\') && (reader.peek2() == '\\'))
+      return true;
     return (c != '\n') && (c != '\0') && (c != '"');
   };
 
@@ -259,7 +261,10 @@ JackToken JackTokenizer::get_string_token(char ch)
     ch = reader.read();
     if ((ch == '\\') && (reader.peek() == '"'))
     {
-      // Un-delimit quotes: \"
+      ch = reader.read();
+    }
+    if ((ch == '\\') && (reader.peek() == '\\'))
+    {
       ch = reader.read();
     }
     s << ch;
