@@ -1,0 +1,53 @@
+class Main {
+  function int test_while() {
+    var int idx, count;
+
+    let count = 100;
+    let idx = 0;
+
+    while (~idx)
+    {
+      let count = count - 1;
+      let idx = idx + 1;
+    }
+
+    return count;
+  }
+
+  function void main() {
+    var int rvalue;
+
+    let rvalue = Main.test_while();
+
+    if (rvalue = 99)
+    {
+      do Output.printString("WHILE pass: ");
+      do Output.printInt(rvalue);
+    }
+    else
+    {
+      do Output.printString("WHILE fail: ");
+      do Output.printInt(rvalue);
+    }
+
+    do Output.println();
+
+    if (5)
+    {
+      if (0)
+      {
+        do Output.printString("IF fail");
+      }
+      else
+      {
+        do Output.printString("IF pass");
+      }
+    }
+    else
+    {
+      do Output.printString("IF fail");
+    }
+
+    return;
+  }
+}
