@@ -1,6 +1,40 @@
 = Jack Front End Compiler (jfcl) - part 2
 
-Nand2Tetris project #11 to convert .jack files to .vm Jack virtual machine files.
+Nand2Tetris project #11 to convert .jack files to .vm Jack virtual machine
+files.
+
+This follow-on version of jfcl, 11v2, is functionally equivalent to the initial
+version, xref:../11/README.adoc, while making the following improvements by
+
+- re-implementing the parser with a rework of the AST,
+- incorporated true operator precedence using a recursive decent parser,
+- re-implementing the vmwriter,
+- refactoring the file i/o classes,
+- correcting some VM lowering corner cases to better support some Jack programs
+  observed in the wild.
+
+The goal of 11v2 is to achieve an AST structure that can be shared with multiple
+targets lowered by the FE compiler.  Currently, only the Hack virtual machine
+target is supported.
+
+== Why Refactor/Reimplement the Previous jfcl?
+
+Well, we had this thing called a pandemic....
+
+Originally with v1, I thought I would have a parse tree and then create from
+that an AST.  This turned out to be so boring and tedious that I was left with
+an odd parse tree with some abstract syntax elements.  I also used v1 to
+explore more modern c++11 and c++17 constructions and made some poor decisions.
+Several of the c++ choices were revisited in 11v2 by using
+std::reference_wrapper and using std::vector as the backing store, and not
+making such heavy use of std::variant.
+
+I also thought I'd incorporate operator precedence using the Pratt parsing
+techniques, but abandoned this in favor of extending the existing recursive
+descent design.
+
+Another reason is I might extend this project by adding an additional
+target for the AST.
 
 == Usage
 
@@ -21,37 +55,200 @@ Nand2Tetris project #11 to convert .jack files to .vm Jack virtual machine files
     jfcl
 
     +-----------+      +---------------+      +----------+      +--------+
-    |           |      |  Parser       |      |          |      |        |
-    | Tokenizer |----->|  (semantic    |----->| VmWriter |----->|  .vm   |
-    |           |      |   parse tree) |      |          |      |        |
+    |           |      |               |      |          |      |        |
+    | Tokenizer |----->|  Parser (AST) |----->| VmWriter |----->|  .vm   |
+    |           |      |               |      |          |      |        |
     +-----------+      +---------------+      +----------+      +--------+
 
-== Implementation Notes
+== Changes to the 11v2 Parser
 
-The tokenized input is parsed into an augmented parse tree that is less useful
-than an AST but does succeed in the VmWriter implementation when compared to
-the N2T class recursive descent parser.  One might describe it as a semantic
-parse tree since it identifies language elements such as array elements,
-expression lists, and such.
+The v1 parser created a hybrid parse tree and AST tree.  This hybrid data
+structure created complications in the VM lowering code where extending this
+to future targets was deemed impractical.  The 11v2 input to the VM lowering
+section is more of a traditional AST structure.  The Parser is now smarter
+about generalizing code elements into more useful AST nodes.  See the
+modified Jack grammar in xref:src/lib/parser/README.adoc.
 
-The tree implementation is tedious to work with and requires unnatural casting
-and overly relies on dynamic casting.  C++17 variants were introduced with the
-class and subroutine types (static, field, local, and argument), but the usage
-pattern is cumbersome.
+The new Parser no longer makes such heavy use of unique pointers and
+std::variant which made the v1 VM lowering logic tedious to implement and
+difficult to follow.  The v1 hybrid parse tree also contained numerous,
+structurally irrelevant nodes that had to be ignored and skipped over.
 
-Tree construction doesn't lend itself to implementing a DFS algorithm and thus
-requires a variation of re-implementing the basic code flow of the parser.
+Expression nodes are constructed with c-style operator precedence.  A
+command-line option is available to turn operator precedence off.  This
+is not recommended since expressions like (2 * 3) / 4 + 2 would produce
+results different from the Jack reference implementation.
 
-The file and directory handling logic was implemented twice in order to compile
-across Windows, Linux, and MacOS.
+== Changes to the 11v2 VM Writer
 
-== Building
+The VM Writer was re-implemented to support the redesigned AST.  This
+portion of the code is smaller
 
-The C++17 filesystem library (in the cli library) was incorporated and found to
-be supported with newer compiler and library implementations.  For
-configurations where support is an issue, a legacy cli implementation can be enabled by
-specifying the following flag during cmake configuration:
+Expressions are now parsed using DFS
 
-    -DUSE_LEGACY_CLIARGS=1
+== Changes to the 11v2 Tests
 
-Project 11 was tested on macos, linux, and MSVS 2019.
+All code, except main.cpp, is unit tested with Catch2 (single header
+implementation).  The VM Writer tests are class-level tests and no longer
+examine the internal data structures.
+
+Additional turnt tests are capable of whole-program lowering tests on
+supported platforms.
+
+=== Example #1 Jack, HelloWorld program
+
+This example shows the improved structure to the AST.
+
+[source]
+----
+class Main {
+  static int a_number;
+
+  function void run(int N, int unused) {
+    do Output.printString("Hello from Nand");
+    do Output.printInt(N);
+    do Output.printString("Tetris!");
+  }
+  function void main() {
+    var int nine;
+    var int unused;
+
+    let nine = -1;
+    let a_number = 3;
+    let a_number = -1 + nine / a_number;
+
+    do Main.run(a_number, unused);
+    return;
+  }
+}
+----
+
+==== HelloWorld AST
+
+[source]
+----
+(CLASS_DECL string_value:Main
+  (CLASS_VARIABLES
+    (VARIABLE_DECL string_value:a_number
+      (CLASS_VARIABLE_SCOPE string_value:static)
+      (VARIABLE_TYPE string_value:int)))
+  (FUNCTION_DECL string_value:run
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:void)
+      (INPUT_PARAMETERS
+        (VARIABLE_DECL string_value:N
+          (VARIABLE_TYPE string_value:int))
+        (VARIABLE_DECL string_value:unused
+          (VARIABLE_TYPE string_value:int))))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printString))
+            (CALL_ARGUMENTS
+              (STRING_CONSTANT string_value:Hello from Nand))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printInt))
+            (CALL_ARGUMENTS
+              (VARIABLE_NAME string_value:N))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Output)
+              (SUBROUTINE_NAME string_value:printString))
+            (CALL_ARGUMENTS
+              (STRING_CONSTANT string_value:Tetris!)))))))
+  (FUNCTION_DECL string_value:main
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:void)
+      (LOCAL_VARIABLES
+        (VARIABLE_DECL string_value:nine
+          (VARIABLE_TYPE string_value:int))
+        (VARIABLE_DECL string_value:unused
+          (VARIABLE_TYPE string_value:int))))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+        (LET_STATEMENT
+          (VARIABLE_NAME string_value:nine)
+          (OP_PREFIX_NEG
+            (INTEGER_CONSTANT integer_value:1)))
+        (LET_STATEMENT
+          (VARIABLE_NAME string_value:a_number)
+          (INTEGER_CONSTANT integer_value:3))
+        (LET_STATEMENT
+          (VARIABLE_NAME string_value:a_number)
+          (OP_ADD
+            (OP_PREFIX_NEG
+              (INTEGER_CONSTANT integer_value:1))
+            (OP_DIVIDE
+              (VARIABLE_NAME string_value:nine)
+              (VARIABLE_NAME string_value:a_number))))
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (GLOBAL_CALL_SITE
+              (GLOBAL_BIND_NAME string_value:Main)
+              (SUBROUTINE_NAME string_value:run))
+            (CALL_ARGUMENTS
+              (VARIABLE_NAME string_value:a_number)
+              (VARIABLE_NAME string_value:unused))))
+        (RETURN_STATEMENT)))))
+----
+
+=== Example #2 A Jack Class
+
+This example shows other improved structures to the AST.
+
+[source]
+----
+class MyClass {
+  method void run(int N, int unused) {
+    return;
+  }
+
+  method void my_method(int a_var_1, int a_var_2) {
+    do run(a_var_1, a_var_2);
+    return;
+  }
+}
+----
+
+==== MyClass AST
+
+[source]
+----
+(CLASS_DECL string_value:MyClass
+  (METHOD_DECL string_value:run
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:void)
+      (INPUT_PARAMETERS
+        (VARIABLE_DECL string_value:N
+          (VARIABLE_TYPE string_value:int))
+        (VARIABLE_DECL string_value:unused
+          (VARIABLE_TYPE string_value:int))))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+        (RETURN_STATEMENT))))
+  (METHOD_DECL string_value:my_method
+    (SUBROUTINE_DESCR
+      (RETURN_TYPE string_value:void)
+      (INPUT_PARAMETERS
+        (VARIABLE_DECL string_value:a_var_1
+          (VARIABLE_TYPE string_value:int))
+        (VARIABLE_DECL string_value:a_var_2
+          (VARIABLE_TYPE string_value:int))))
+    (SUBROUTINE_BODY
+      (STATEMENT_BLOCK
+        (DO_STATEMENT
+          (SUBROUTINE_CALL
+            (LOCAL_CALL_SITE
+              (SUBROUTINE_NAME string_value:run))
+            (CALL_ARGUMENTS
+              (VARIABLE_NAME string_value:a_var_1)
+              (VARIABLE_NAME string_value:a_var_2))))
+        (RETURN_STATEMENT)))))
+----
