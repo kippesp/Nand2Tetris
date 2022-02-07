@@ -46,13 +46,14 @@ private:
   void lower_while_statement(SubroutineDescr&, const ast::AstNode&);
   void lower_if_statement(SubroutineDescr&, const ast::AstNode&);
   void lower_subroutine_call(SubroutineDescr&, const ast::AstNode&);
+  void lower_var(SubroutineDescr&, const ast::AstNode&);
 
   // Helper to find symbol in symbol table and construct the approprate
   // VM stack name and stack index
-  std::optional<SymbolLoweringLocations_t> get_symbol_lowering_locations(
+  std::optional<SymbolLoweringLocations_t> get_symbol_alloc_info(
       SubroutineDescr&, const ast::AstNode&);
 
-  std::optional<SymbolLoweringLocations_t> get_symbol_lowering_locations(
+  std::optional<SymbolLoweringLocations_t> get_symbol_alloc_info(
       SubroutineDescr&, const std::string&);
 
   template <typename T>

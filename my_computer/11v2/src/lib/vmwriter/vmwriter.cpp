@@ -65,9 +65,16 @@ const T& VmWriter::get_ast_node_value(AstNodeCRef node)
   throw SemanticException(ss.str());
 }
 
-optional<VmWriter::SymbolLoweringLocations_t>
-VmWriter::get_symbol_lowering_locations(SubroutineDescr& subroutine_descr,
-                                        const string& symbol_name)
+optional<VmWriter::SymbolLoweringLocations_t> VmWriter::get_symbol_alloc_info(
+    SubroutineDescr& subroutine_descr, const AstNode& node)
+{
+  auto& var_name = get_ast_node_value<string>(node);
+
+  return get_symbol_alloc_info(subroutine_descr, var_name);
+}
+
+optional<VmWriter::SymbolLoweringLocations_t> VmWriter::get_symbol_alloc_info(
+    SubroutineDescr& subroutine_descr, const string& symbol_name)
 {
   SymbolLoweringLocations_t rvalue;
 
@@ -118,16 +125,6 @@ VmWriter::get_symbol_lowering_locations(SubroutineDescr& subroutine_descr,
   }
 
   return std::nullopt;
-}
-
-// TODO: maybe better name get_symbol_alloc_info
-optional<VmWriter::SymbolLoweringLocations_t>
-VmWriter::get_symbol_lowering_locations(SubroutineDescr& subroutine_descr,
-                                        const AstNode& node)
-{
-  auto& var_name = get_ast_node_value<string>(node);
-
-  return get_symbol_lowering_locations(subroutine_descr, var_name);
 }
 
 void VmWriter::lower_class(AstNodeCRef root)
@@ -226,8 +223,6 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
 
   SubroutineDescr& subroutine_descr =
       class_descr.add_subroutine(subroutine_name, return_type, root).get();
-
-  // raise(SIGTRAP);
 
   // For class methods, add the implicit argument "this" representing the class
   if (root.type == AstNodeType_t::N_METHOD_DECL)
@@ -358,22 +353,7 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
     }
     else if (node_type == AstNodeType_t::N_VARIABLE_NAME)
     {
-      auto sym_locs = get_symbol_lowering_locations(subroutine_descr, node);
-
-      // TODO: this code has duplicates
-      if (sym_locs.has_value())
-      {
-        auto& sym = sym_locs.value();
-
-        lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
-                   << endl;
-      }
-      else
-      {
-        auto& bind_var_name = get_ast_node_value<string>(node);
-        throw SemanticException("Symbol not found in expression:",
-                                bind_var_name);
-      }
+      lower_var(subroutine_descr, node);
     }
     else if (node_type == AstNodeType_t::N_SUBROUTINE_CALL)
     {
@@ -381,26 +361,7 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
     }
     else if (node_type == AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME)
     {
-      auto& rh_bind_var_name = get_ast_node_value<string>(node);
-
-      // array subscript was previously lowered as a worklist item
-
-      auto sym_locs =
-          get_symbol_lowering_locations(subroutine_descr, node.get());
-
-      // TODO: this code has duplicates
-      if (sym_locs.has_value())
-      {
-        auto& sym = sym_locs.value();
-
-        lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
-                   << endl;
-      }
-      else
-      {
-        throw SemanticException("Symbol not found in expression:",
-                                rh_bind_var_name);
-      }
+      lower_var(subroutine_descr, node);
 
       lowered_vm << "add" << endl;
       lowered_vm << "pop pointer 1" << endl;
@@ -482,8 +443,6 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
       }
       else
       {
-        // throw SemanticException("expression fallthrough");
-        // raise(SIGTRAP);
         stringstream ss;
         ss << "expression fallthrough:\n";
         ss << node.get();
@@ -493,6 +452,25 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
   }
 
   return "";
+}
+
+void VmWriter::lower_var(SubroutineDescr& subroutine_descr,
+                         const ast::AstNode& node)
+{
+  auto symbol_alloc = get_symbol_alloc_info(subroutine_descr, node);
+
+  if (symbol_alloc.has_value())
+  {
+    auto& symbol = symbol_alloc.value();
+
+    lowered_vm << "push " << symbol.stack_name << " " << symbol.symbol_index
+               << endl;
+  }
+  else
+  {
+    auto& bind_var_name = get_ast_node_value<string>(node);
+    throw SemanticException("Symbol not found:", bind_var_name);
+  }
 }
 
 void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
@@ -556,8 +534,7 @@ void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
 
   if (lh_bind_node.type == AstNodeType_t::N_VARIABLE_NAME)
   {
-    auto sym_locs =
-        get_symbol_lowering_locations(subroutine_descr, lh_bind_node);
+    auto sym_locs = get_symbol_alloc_info(subroutine_descr, lh_bind_node);
 
     if (sym_locs.has_value())
     {
@@ -573,27 +550,10 @@ void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
   }
   else if (lh_bind_node.type == AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME)
   {
-    auto& lh_bind_var_name = get_ast_node_value<string>(lh_bind_node);
     auto& subscript_expression_node = lh_bind_node.get_child_nodes()[0].get();
 
     lower_expression(subroutine_descr, subscript_expression_node);
-
-    auto sym_locs =
-        get_symbol_lowering_locations(subroutine_descr, lh_bind_node);
-
-    // TODO: this code has duplicates
-    if (sym_locs.has_value())
-    {
-      auto& sym = sym_locs.value();
-
-      lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
-                 << endl;
-    }
-    else
-    {
-      throw SemanticException("Symbol not found in expression:",
-                              lh_bind_var_name);
-    }
+    lower_var(subroutine_descr, lh_bind_node);
 
     lowered_vm << "add" << endl;
     lowered_vm << "pop pointer 1" << endl;
@@ -706,7 +666,7 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
     else if (call_site.type == AstNodeType_t::N_GLOBAL_CALL_SITE)
     {
       // Handle call: local_var.subroutine()
-      if (auto symbol_alloc = get_symbol_lowering_locations(
+      if (auto symbol_alloc = get_symbol_alloc_info(
               subroutine_descr,
               module_ast
                   .find_child_node(call_site, AstNodeType_t::N_SUBROUTINE_NAME)
@@ -721,11 +681,9 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
         auto& global_bind_name = get_ast_node_value<string>(
             call_site, AstNodeType_t::N_GLOBAL_BIND_NAME);
 
-        // TODO: This code is duplicated
-        // TODO: Refactor this area
         // Handle call: local_var.subroutine()
-        if (auto symbol_alloc_ = get_symbol_lowering_locations(
-                subroutine_descr, global_bind_name);
+        if (auto symbol_alloc_ =
+                get_symbol_alloc_info(subroutine_descr, global_bind_name);
             symbol_alloc_.has_value())
         {
           auto& sym = symbol_alloc_.value();
@@ -778,7 +736,7 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
 
       // Handle call: local_var.subroutine()
       if (auto symbol_alloc =
-              get_symbol_lowering_locations(subroutine_descr, global_bind_name);
+              get_symbol_alloc_info(subroutine_descr, global_bind_name);
           symbol_alloc.has_value())
       {
         auto& sym = symbol_alloc.value();
