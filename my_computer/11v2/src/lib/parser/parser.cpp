@@ -241,10 +241,10 @@ AstNodeRef Parser::parse_subroutine()
   //          +-----------------------+
   //         /                           +----- N_VARIABLE_DECL
   //        /                           /
-  // /----------------\        /-----------------\
+  // /----------------\        /-----------------/
   // <input-parameters>   ::= {(<type> <var-name>) {"," <type> <var-name>}*}?
-  //       \
-  //        -- N_INPUT_PARAMETERS
+  //       |
+  //       +-- N_INPUT_PARAMETERS
 
   if (current_token.get().value_enum != TokenValue_t::J_RIGHT_PARENTHESIS)
   {
@@ -294,12 +294,12 @@ AstNodeRef Parser::parse_subroutine()
   //
   // <subroutine-body>  ::= "{" {<var-decl>}* {<statement>}* "}"
   //                            \----------/
-  //                                   \
-  //                                    ------- N_LOCAL_VARIABLES
+  //                                   |
+  //                                   +------- N_LOCAL_VARIABLES
   //
   //                                        ------ N_VARIABLE_DECL
   //                                       /
-  //                              /---------------\
+  //                              /---------------/
   // <var-decl>         ::= "var" <type> <var-name> {"," <var-name>}* ";"
   //                              \----/
   //                                /
@@ -933,8 +933,8 @@ AstNodeRef Parser::parse_expression()
   //               parse_subexpression(and-level)
   //                            /
   //                           /      parse_subexpression(and-level)
-  //                          /                \
-  //                    /--------\              \
+  //                          /                 |
+  //                    /--------\              |
   //     <or-expr>  ::= <and-expr> {<or-op> <and-expr>}+
   //                               \------------------/
   //                                        /

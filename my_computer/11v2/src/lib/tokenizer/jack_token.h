@@ -1,3 +1,4 @@
+#include <functional>
 #include <string>
 
 #include "util/text_reader.h"
