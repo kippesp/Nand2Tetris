@@ -82,6 +82,7 @@ std::string JackToken::to_string(TokenValue_t v)
   }
 
   assert(0 && "fallthrough");
+  return "POISON";
 }
 
 std::string JackToken::to_s_expression() const
