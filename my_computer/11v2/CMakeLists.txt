@@ -126,21 +126,15 @@ if (NOT MSVC)
     else()
     endif()
 
-    # support c++17 filesystem
-    if (USE_LEGACY_CLIARGS)
-        # Used with older configs
-        add_compile_options(-DLEGACY_CLIARGS)
-    else()
-        if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-            if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
-                message(FATAL_ERROR
-                    "Limited std::filesystem support with current compiler configuration; "
-                    "either use a newer version of clang, gcc, or current clang "
-                    "with -DLEGACY_CLIARGS specified")
-            else()
-                #add_compile_options(-stdlib=libc++)
-                #add_link_options(-stdlib=libc++ -lc++abi)
-            endif()
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+            message(FATAL_ERROR
+                "Limited std::filesystem support with current compiler configuration; "
+                "either use a newer version of clang, gcc, or current clang "
+                "with -DLEGACY_CLIARGS specified")
+        else()
+            #add_compile_options(-stdlib=libc++)
+            #add_link_options(-stdlib=libc++ -lc++abi)
         endif()
     endif()
 endif()

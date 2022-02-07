@@ -8,7 +8,6 @@ set(${LIBRARY_TARGET_NAME}_SRCS
     symbol_table.h
     vmwriter.h
 
-    class_descr.cpp
     semantic_exception.cpp
     subroutine_descr.cpp
     symbol_table.cpp

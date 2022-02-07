@@ -22,7 +22,10 @@ public:
   // move constructor
   ClassDescr(ClassDescr&&) = default;
 
-  ClassDescr(std::string, ast::AstNodeCRef);
+  ClassDescr(std::string name_, ast::AstNodeCRef root_)
+      : root(root_), name(name_)
+  {
+  }
 
   const std::string& get_name() const { return name; }
 

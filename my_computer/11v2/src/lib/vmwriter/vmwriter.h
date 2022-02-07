@@ -61,14 +61,6 @@ private:
   template <typename T>
   const T& get_ast_node_value(ast::AstNodeCRef node);
 
-#if 0
-  template <typename T>
-  T get_ast_node_value(const ast::AstNode& node)
-  {
-    return get_ast_node_value<T>(ast::AstNodeCRef(node));
-  }
-#endif
-
   Program program;
 
   std::stringstream lowered_vm;

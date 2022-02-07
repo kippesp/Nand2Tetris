@@ -11,8 +11,6 @@
 class JackTokenizer {
 public:
   JackTokenizer() = delete;
-  // JackTokenizer(const JackTokenizer&) = delete;
-  // JackTokenizer& operator=(const JackTokenizer&) = delete;
 
   JackTokenizer(TextReader& r) : reader(r) {}
 
