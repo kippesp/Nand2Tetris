@@ -17,6 +17,8 @@ struct CliArgs {
   bool halt_after_parse_tree_s_expression {false};
   bool halt_after_vmwriter {false};
 
+  bool disable_precedence_parsing {false};
+
 private:
   filelist_t filelist;
 };

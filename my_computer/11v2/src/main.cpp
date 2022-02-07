@@ -51,8 +51,10 @@ static int inner_main(const CliArgs& cliargs)
 
     recursive_descent::Parser parser(filtered_tokens);
 
-    // TODO: provide option to control
-    //parser.set_left_associative();
+    if (cliargs.disable_precedence_parsing)
+    {
+      parser.set_left_associative();
+    }
 
     const auto& class_ast = parser.parse_class().get();
 

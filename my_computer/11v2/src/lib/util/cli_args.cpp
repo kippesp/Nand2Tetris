@@ -48,6 +48,16 @@ CliArgs::CliArgs(int argc, const char* argv[])
       i++;
       continue;
     }
+
+    // -r - disable new operator precedence parsing (not recommended)
+    //      Use this mainly to check if parens should be added to ambiguous
+    //      expressions
+    if ((argv[i][0] == '-') && (argv[i][1] == 'r') && (argv[i][2] == '\0'))
+    {
+      disable_precedence_parsing = true;
+      i++;
+      continue;
+    }
   }
 
   bool isDirectory = false;
@@ -107,7 +117,7 @@ void CliArgs::show_usage()
   std::cout << "SYNOPSIS:\n\n";
   std::cout << "  jfcl -h" << std::endl;
   std::cout << "  jfcl [-t|-p|-w] FILENAME.jack" << std::endl;
-  std::cout << "  jfcl DIRECTORY|FILENAME.jack" << std::endl;
+  std::cout << "  jfcl [-r] DIRECTORY|FILENAME.jack" << std::endl;
 }
 
 void CliArgs::show_help()
@@ -133,6 +143,10 @@ void CliArgs::show_help()
   std::cout << "\n  ";
   std::cout << std::setw(24) << std::left << "-w";
   std::cout << "Display VM Writer output and halt";
+
+  std::cout << "\n  ";
+  std::cout << std::setw(24) << std::left << "-r";
+  std::cout << "Disable new operator precedence parsing";
 
   std::cout << std::endl;
 }
