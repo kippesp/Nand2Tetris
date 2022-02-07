@@ -9,10 +9,15 @@ the overall course.
 
 Requires the addition of the upstream distributions files:
 
-  - nand2tetris/projects
-  - nand2tetris/tools/
+- nand2tetris/projects
+- nand2tetris/tools/
 
 The two halves of the course are kept in separated branches:
 
-    - part1 - the hardware
-    - part2 - the software
+- part1 - the hardware
+- part2 - the software
+
+2022 Update to part 11, Jack to VM compiler
+
+- re-implemented as 11v2; see its corresponding
+  [README](my_computer/11v2/README.adoc)
