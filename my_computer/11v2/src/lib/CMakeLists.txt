@@ -1,7 +1,7 @@
 set(LIBRARY_TARGET_NAME jfclmain)
 
 set(${LIBRARY_TARGET_NAME}_SRCS
-    empty.cpp
+    jfcl.cpp
 )
 
 add_subdirectory(util)
@@ -10,6 +10,7 @@ add_subdirectory(parser)
 add_subdirectory(vmwriter)
 
 add_library(${LIBRARY_TARGET_NAME} ${${LIBRARY_TARGET_NAME}_SRCS})
+target_include_directories(${LIBRARY_TARGET_NAME} PRIVATE .)
 
 # TODO: PRIVATE works too.
 #target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC util)
