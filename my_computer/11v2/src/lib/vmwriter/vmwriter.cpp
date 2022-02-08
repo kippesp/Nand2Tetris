@@ -9,9 +9,8 @@
 #include <signal.h>
 
 using namespace std;
-using namespace ast;
 
-namespace VmWriter {
+namespace jfcl {
 
 void VmWriter::lower_module()
 {
@@ -231,7 +230,7 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
   }
 
   // Helper function to add to subroutine's symbol table
-  auto add_symbol = [&](ast::AstNodeType_t node_type) -> void {
+  auto add_symbol = [&](AstNodeType_t node_type) -> void {
     if (const AstNode& VariablesNode =
             module_ast.find_child_node(DescrNode, node_type).get();
         VariablesNode != EmptyNodeRef.get())
@@ -454,8 +453,7 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
   return "";
 }
 
-void VmWriter::lower_var(SubroutineDescr& subroutine_descr,
-                         const ast::AstNode& node)
+void VmWriter::lower_var(SubroutineDescr& subroutine_descr, const AstNode& node)
 {
   auto symbol_alloc = get_symbol_alloc_info(subroutine_descr, node);
 
@@ -523,7 +521,7 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
 }
 
 void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
-                                   const ast::AstNode& root)
+                                   const AstNode& root)
 {
   assert(root.num_child_nodes() == 2);
 
@@ -566,7 +564,7 @@ void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
 }
 
 void VmWriter::lower_while_statement(SubroutineDescr& subroutine_descr,
-                                     const ast::AstNode& root)
+                                     const AstNode& root)
 {
   assert(root.num_child_nodes() == 2);
 
@@ -585,7 +583,7 @@ void VmWriter::lower_while_statement(SubroutineDescr& subroutine_descr,
 }
 
 void VmWriter::lower_if_statement(SubroutineDescr& subroutine_descr,
-                                  const ast::AstNode& root)
+                                  const AstNode& root)
 {
   assert((root.num_child_nodes() == 2) || (root.num_child_nodes() == 3));
 
@@ -788,4 +786,4 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
              << endl;
 }
 
-}  // namespace VmWriter
+}  // namespace jfcl

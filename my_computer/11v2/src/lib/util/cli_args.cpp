@@ -10,6 +10,8 @@
 #include <iostream>
 #include <string>
 
+namespace jfcl {
+
 enum class RunMode { unknown, file, directory };
 
 CliArgs::CliArgs(int argc, const char* argv[])
@@ -150,3 +152,5 @@ void CliArgs::show_help()
 
   std::cout << std::endl;
 }
+
+}  // namespace jfcl

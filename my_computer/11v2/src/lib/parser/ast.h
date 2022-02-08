@@ -6,7 +6,7 @@
 
 #include <signal.h>
 
-namespace ast {
+namespace jfcl {
 
 using AstNodeType_t = enum class AstNodeType_s {
   N_UNDEFINED,
@@ -112,8 +112,7 @@ private:
 class AstTree {
 public:
   AstTree()
-      : EmptyNode(
-            std::make_unique<ast::AstNode>(ast::AstNodeType_t::N_UNDEFINED)),
+      : EmptyNode(std::make_unique<AstNode>(AstNodeType_t::N_UNDEFINED)),
         EmptyNodeRef(*EmptyNode)
   {
     nodes.reserve(100);
@@ -127,7 +126,7 @@ public:
 
   AstNodeCRef get_root() const { return *(nodes[0]); }
 
-  AstNodeCRef find_child_node(ast::AstNodeCRef, ast::AstNodeType_t) const;
+  AstNodeCRef find_child_node(AstNodeCRef, AstNodeType_t) const;
 
 private:
   // All nodes of the tree with nodes[0] being the root
@@ -138,4 +137,4 @@ private:
   const AstNodeRef EmptyNodeRef;
 };
 
-}  // namespace ast
+}  // namespace jfcl

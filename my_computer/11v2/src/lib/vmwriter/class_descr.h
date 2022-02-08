@@ -4,13 +4,15 @@
 #include "subroutine_descr.h"
 #include "symbol_table.h"
 
+namespace jfcl {
+
 class ClassDescr;
 using ClassDescrRef = std::reference_wrapper<ClassDescr>;
 
 // Provides the class definition such as class name, class symbol table, and
 // subroutine definition references.
 class ClassDescr {
-  const ast::AstNodeCRef root;
+  const AstNodeCRef root;
   std::vector<SubroutineDescr> subroutines;
   const std::string name;
 
@@ -22,16 +24,13 @@ public:
   // move constructor
   ClassDescr(ClassDescr&&) = default;
 
-  ClassDescr(std::string name_, ast::AstNodeCRef root_)
-      : root(root_), name(name_)
-  {
-  }
+  ClassDescr(std::string name_, AstNodeCRef root_) : root(root_), name(name_) {}
 
   const std::string& get_name() const { return name; }
 
   SubroutineDescrRef add_subroutine(std::string subroutine_name,
                                     SymbolTable::VariableType_t return_type,
-                                    ast::AstNodeCRef subroutine_node)
+                                    AstNodeCRef subroutine_node)
   {
     subroutines.emplace_back(
         SubroutineDescr(*this, subroutine_name, return_type, subroutine_node));
@@ -50,3 +49,5 @@ public:
 
   ClassSymbolTable symbol_table;
 };
+
+}  // namespace jfcl

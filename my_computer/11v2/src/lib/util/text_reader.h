@@ -9,6 +9,8 @@
 #include <string_view>
 #include <vector>
 
+namespace jfcl {
+
 class TextReader {
 public:
   using char_type = int8_t;
@@ -49,3 +51,5 @@ protected:
   size_t cursor_pos {0};
   size_t current_line_number {1};
 };
+
+}  // namespace jfcl

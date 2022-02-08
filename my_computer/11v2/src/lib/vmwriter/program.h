@@ -7,6 +7,8 @@
 #include "class_descr.h"
 #include "parser/ast.h"
 
+namespace jfcl {
+
 // Program stores the class descriptors
 class Program {
 public:
@@ -15,7 +17,7 @@ public:
 
   Program() {}
 
-  ClassDescr& add_class(std::string class_name, ast::AstNodeCRef class_node)
+  ClassDescr& add_class(std::string class_name, AstNodeCRef class_node)
   {
     classes.emplace_back(ClassDescr(class_name, class_node));
 
@@ -29,3 +31,5 @@ private:
 
   std::vector<ClassDescr> classes;
 };
+
+}  // namespace jfcl

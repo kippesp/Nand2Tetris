@@ -9,6 +9,8 @@
 #include "util/textfile_reader.h"
 #include "vmwriter/vmwriter.h"
 
+using namespace jfcl;
+
 static int inner_main(const CliArgs& cliargs)
 {
   for (const auto& f : cliargs.inputlist())
@@ -49,7 +51,7 @@ static int inner_main(const CliArgs& cliargs)
       }
     }
 
-    recursive_descent::Parser parser(filtered_tokens);
+    Parser parser(filtered_tokens);
 
     if (cliargs.disable_precedence_parsing)
     {
@@ -66,7 +68,7 @@ static int inner_main(const CliArgs& cliargs)
       return 0;
     }
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    jfcl::VmWriter VM(parser.get_ast());
     VM.lower_module();
 
     if (cliargs.halt_after_vmwriter)

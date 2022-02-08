@@ -10,9 +10,7 @@
 
 #include <signal.h>
 
-using namespace ast;
-
-namespace recursive_descent {
+namespace jfcl {
 
 Parser::Parser(Tokens_t& tokens)
     : token_iter(tokens.begin()),
@@ -1033,4 +1031,4 @@ AstNodeRef Parser::parse_expression()
   return ExpressionAst;
 }
 
-}  // namespace recursive_descent
+}  // namespace jfcl

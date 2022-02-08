@@ -3,7 +3,7 @@
 #include "parser/ast.h"
 #include "program.h"
 
-namespace VmWriter {
+namespace jfcl {
 
 class VmWriter {
 public:
@@ -11,7 +11,7 @@ public:
   VmWriter(const VmWriter&) = delete;
   VmWriter& operator=(const VmWriter&) = delete;
 
-  VmWriter(const ast::AstTree& ast_tree)
+  VmWriter(const AstTree& ast_tree)
       : module_ast(ast_tree),
         module_root(ast_tree.get_root()),
         EmptyNodeRef(module_ast.get_empty_node_ref().get())
@@ -32,39 +32,39 @@ private:
     int symbol_index {};
   };
 
-  const ast::AstTree& module_ast;
-  ast::AstNodeCRef module_root;
+  const AstTree& module_ast;
+  AstNodeCRef module_root;
 
-  ast::AstNodeCRef EmptyNodeRef;
+  AstNodeCRef EmptyNodeRef;
 
-  void lower_class(ast::AstNodeCRef);
-  void lower_subroutine(ClassDescr&, const ast::AstNode&);
-  void lower_statement_block(SubroutineDescr&, const ast::AstNode&);
-  std::string lower_expression(SubroutineDescr&, const ast::AstNode&);
-  void lower_return_statement(SubroutineDescr&, const ast::AstNode&);
-  void lower_let_statement(SubroutineDescr&, const ast::AstNode&);
-  void lower_while_statement(SubroutineDescr&, const ast::AstNode&);
-  void lower_if_statement(SubroutineDescr&, const ast::AstNode&);
-  void lower_subroutine_call(SubroutineDescr&, const ast::AstNode&);
-  void lower_var(SubroutineDescr&, const ast::AstNode&);
+  void lower_class(AstNodeCRef);
+  void lower_subroutine(ClassDescr&, const AstNode&);
+  void lower_statement_block(SubroutineDescr&, const AstNode&);
+  std::string lower_expression(SubroutineDescr&, const AstNode&);
+  void lower_return_statement(SubroutineDescr&, const AstNode&);
+  void lower_let_statement(SubroutineDescr&, const AstNode&);
+  void lower_while_statement(SubroutineDescr&, const AstNode&);
+  void lower_if_statement(SubroutineDescr&, const AstNode&);
+  void lower_subroutine_call(SubroutineDescr&, const AstNode&);
+  void lower_var(SubroutineDescr&, const AstNode&);
 
   // Helper to find symbol in symbol table and construct the approprate
   // VM stack name and stack index
   std::optional<SymbolLoweringLocations_t> get_symbol_alloc_info(
-      SubroutineDescr&, const ast::AstNode&);
+      SubroutineDescr&, const AstNode&);
 
   std::optional<SymbolLoweringLocations_t> get_symbol_alloc_info(
       SubroutineDescr&, const std::string&);
 
   template <typename T>
-  const T& get_ast_node_value(ast::AstNodeCRef, ast::AstNodeType_t);
+  const T& get_ast_node_value(AstNodeCRef, AstNodeType_t);
 
   template <typename T>
-  const T& get_ast_node_value(ast::AstNodeCRef node);
+  const T& get_ast_node_value(AstNodeCRef node);
 
   Program program;
 
   std::stringstream lowered_vm;
 };
 
-}  // namespace VmWriter
+}  // namespace jfcl

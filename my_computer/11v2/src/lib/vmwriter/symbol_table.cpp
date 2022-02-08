@@ -5,7 +5,8 @@
 #include "symbol_table.h"
 
 using namespace std;
-using namespace ast;
+
+namespace jfcl {
 
 SymbolTable::VariableType_t SymbolTable::variable_type_from_string(
     std::string in_type)
@@ -117,3 +118,5 @@ void SubroutineSymbolTable::add_symbol(const std::string& symbol_name,
   symbols[symbol_name] = SymbolDescr_t(ScopeLevel_t::SUBROUTINE, symbol_type,
                                        storage_class, variable_index);
 }
+
+}  // namespace jfcl

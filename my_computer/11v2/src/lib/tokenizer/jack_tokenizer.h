@@ -8,6 +8,8 @@
 #include "jack_token.h"
 #include "util/text_reader.h"
 
+namespace jfcl {
+
 class JackTokenizer {
 public:
   JackTokenizer() = delete;
@@ -40,3 +42,5 @@ private:
 
   TextReader& reader;
 };
+
+}  // namespace jfcl

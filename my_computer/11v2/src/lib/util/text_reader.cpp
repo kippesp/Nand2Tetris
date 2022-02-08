@@ -3,6 +3,8 @@
 #include <exception>
 #include <sstream>
 
+namespace jfcl {
+
 TextReader::char_type TextReader::read()
 {
   TextReader::char_type ch;
@@ -81,3 +83,5 @@ TextReader::TextReader(const char* buf)
 {
   init_buffer(buf);
 }
+
+}  // namespace jfcl

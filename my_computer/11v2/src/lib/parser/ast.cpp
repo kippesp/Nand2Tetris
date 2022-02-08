@@ -3,7 +3,7 @@
 #include <cassert>
 #include <iostream>
 
-namespace ast {
+namespace jfcl {
 
 std::ostream& operator<<(std::ostream& os, const AstNode& rhs)
 {
@@ -169,8 +169,7 @@ AstNodeRef AstTree::add(const AstNode& node)
   return *added_node;
 }
 
-AstNodeCRef AstTree::find_child_node(ast::AstNodeCRef root,
-                                     ast::AstNodeType_t type) const
+AstNodeCRef AstTree::find_child_node(AstNodeCRef root, AstNodeType_t type) const
 {
   for (auto& node : root.get().get_child_nodes())
   {
@@ -183,4 +182,4 @@ AstNodeCRef AstTree::find_child_node(ast::AstNodeCRef root,
   return get_empty_node_ref().get();
 }
 
-}  // namespace ast
+}  // namespace jfcl

@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+using namespace jfcl;
+
 SCENARIO("Simple Text Handling")
 {
   SECTION("One Line w/no EOL")

@@ -6,6 +6,8 @@
 #include <sstream>
 #include <string>
 
+namespace jfcl {
+
 using char_type = TextReader::char_type;
 
 // convenience structure to build a helper vector
@@ -412,3 +414,5 @@ JackToken JackTokenizer::get_symbol_token(char ch)
 
   return token;
 }
+
+}  // namespace jfcl

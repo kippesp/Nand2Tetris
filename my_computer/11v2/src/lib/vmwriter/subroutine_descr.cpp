@@ -2,7 +2,8 @@
 #include "class_descr.h"
 
 using namespace std;
-using namespace ast;
+
+namespace jfcl {
 
 SubroutineDescr::SubroutineDescr(ClassDescrRef class_descr_, string name_,
                                  SymbolTable::VariableType_t return_type_,
@@ -42,3 +43,5 @@ optional<Symbol> SubroutineDescr::find_symbol(std::string symbol_name)
 
   return std::nullopt;
 }
+
+}  // namespace jfcl

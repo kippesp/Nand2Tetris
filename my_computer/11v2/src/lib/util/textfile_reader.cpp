@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <sstream>
 
+namespace jfcl {
+
 TextFileReader::TextFileReader(const char* filename)
 {
   FILE* fd = fopen(filename, "r");
@@ -20,3 +22,5 @@ TextFileReader::TextFileReader(const char* filename)
 
   init_buffer(ss.str().data());
 }
+
+}  // namespace jfcl

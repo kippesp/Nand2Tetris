@@ -3,6 +3,8 @@
 #include "common.h"
 #include "jack_sources.h"
 
+using namespace jfcl;
+
 SCENARIO("Parse expressions")
 {
   SECTION("single term")
@@ -12,7 +14,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -31,7 +33,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -50,7 +52,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -71,7 +73,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -94,7 +96,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -123,7 +125,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -152,7 +154,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.set_left_associative();
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
@@ -182,7 +184,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     parser.set_left_associative();
     std::string as_str = root.get().as_s_expression();
@@ -212,7 +214,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -235,7 +237,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -261,7 +263,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -280,7 +282,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -301,7 +303,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -324,7 +326,7 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -350,7 +352,7 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -372,7 +374,7 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -395,7 +397,7 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -418,7 +420,7 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -442,7 +444,7 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -470,7 +472,7 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -498,7 +500,7 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -525,7 +527,7 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -553,7 +555,7 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -578,7 +580,7 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -603,7 +605,7 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -631,7 +633,7 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -654,7 +656,7 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -684,7 +686,7 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -709,7 +711,7 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -732,7 +734,7 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -757,7 +759,7 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -791,7 +793,7 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
 
@@ -817,7 +819,7 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
 
@@ -842,7 +844,7 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
 
@@ -875,7 +877,7 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
 
@@ -910,7 +912,7 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
     Expected_t expected = {
@@ -953,7 +955,7 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
     Expected_t expected = {
@@ -988,7 +990,7 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
     Expected_t expected = {
@@ -1041,7 +1043,7 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     const auto& root = parser.parse_class();
     std::string as_str = root.get().as_s_expression();
     Expected_t expected = {

@@ -5,6 +5,8 @@
 
 #include "parser/ast.h"
 
+namespace jfcl {
+
 class SymbolTable {
 public:
   typedef enum class ScopeLevel_s {
@@ -88,3 +90,5 @@ private:
     int local_var;
   } next_storage_class_index {0, 0};
 };
+
+}  // namespace jfcl

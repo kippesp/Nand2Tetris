@@ -6,6 +6,8 @@
 #include "semantic_exception.h"
 #include "symbol_table.h"
 
+namespace jfcl {
+
 class SubroutineDescr;
 using SubroutineDescrRef = std::reference_wrapper<SubroutineDescr>;
 
@@ -14,7 +16,7 @@ using ClassDescrRef = std::reference_wrapper<ClassDescr>;
 
 class SubroutineDescr {
   ClassDescrRef class_descr;
-  const ast::AstNodeCRef root;
+  const AstNodeCRef root;
   const std::string name;
   SubroutineSymbolTable symbol_table;
   SymbolTable::VariableType_t return_type;
@@ -31,9 +33,9 @@ public:
   SubroutineDescr(SubroutineDescr&&) = default;
 
   SubroutineDescr(ClassDescrRef, std::string, SymbolTable::VariableType_t,
-                  ast::AstNodeCRef);
+                  AstNodeCRef);
 
-  const ast::AstNode& get_root() const { return root.get(); }
+  const AstNode& get_root() const { return root.get(); }
   const std::string& get_name() const { return name; }
   const std::string& get_class_name() const;
   const SymbolTable::VariableType_t& get_return_type() const
@@ -54,3 +56,5 @@ public:
 
   int get_next_structured_control_id() { return structured_control_id++; }
 };
+
+}  // namespace jfcl

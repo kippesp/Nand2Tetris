@@ -1,6 +1,8 @@
 #include <list>
 #include <string>
 
+namespace jfcl {
+
 struct CliArgs {
   using filelist_t = std::list<std::string>;
 
@@ -22,3 +24,5 @@ struct CliArgs {
 private:
   filelist_t filelist;
 };
+
+}  // namespace jfcl

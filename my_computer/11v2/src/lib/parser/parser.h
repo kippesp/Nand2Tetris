@@ -3,7 +3,7 @@
 #include "ast.h"
 #include "tokenizer/jack_tokenizer.h"
 
-namespace recursive_descent {
+namespace jfcl {
 
 class Parser {
 public:
@@ -30,34 +30,34 @@ public:
   void require_token(JackTokenCRef, TokenValue_t);
 
   // creates an orphaned AST node of the given type and optional value
-  ast::AstNodeRef create_ast_node(ast::AstNodeType_t);
+  AstNodeRef create_ast_node(AstNodeType_t);
 
   template <typename T>
-  ast::AstNodeRef create_ast_node(ast::AstNodeType_t type, T value);
+  AstNodeRef create_ast_node(AstNodeType_t type, T value);
 
-  ast::AstNodeRef parse_class();
-  ast::AstNodeRef parse_classvar_decl_block();
-  ast::AstNodeRef parse_subroutine();
+  AstNodeRef parse_class();
+  AstNodeRef parse_classvar_decl_block();
+  AstNodeRef parse_subroutine();
 
-  ast::AstNodeRef parse_statement();
-  ast::AstNodeRef parse_subroutine_call();
-  ast::AstNodeRef parse_variable();
-  ast::AstNodeRef parse_term();
+  AstNodeRef parse_statement();
+  AstNodeRef parse_subroutine_call();
+  AstNodeRef parse_variable();
+  AstNodeRef parse_term();
 
-  ast::AstNodeRef parse_expression();
+  AstNodeRef parse_expression();
 
-  const ast::AstTree& get_ast() { return AST; }
+  const AstTree& get_ast() { return AST; }
 
 private:
-  ast::AstNodeRef parse_inner_statements();
-  ast::AstNodeRef parse_let_statement();
-  ast::AstNodeRef parse_do_statement();
-  ast::AstNodeRef parse_return_statement();
-  ast::AstNodeRef parse_while_statement();
-  ast::AstNodeRef parse_if_statement();
-  ast::AstNodeRef parse_type(ast::AstNodeType_t);
+  AstNodeRef parse_inner_statements();
+  AstNodeRef parse_let_statement();
+  AstNodeRef parse_do_statement();
+  AstNodeRef parse_return_statement();
+  AstNodeRef parse_while_statement();
+  AstNodeRef parse_if_statement();
+  AstNodeRef parse_type(AstNodeType_t);
 
-  ast::AstTree AST;
+  AstTree AST;
 
   // support canonical Jack compiler's left associative operator binding
   bool left_associative_expressions {false};
@@ -70,12 +70,12 @@ private:
 };
 
 template <typename T>
-ast::AstNodeRef Parser::create_ast_node(ast::AstNodeType_t type, T value)
+AstNodeRef Parser::create_ast_node(AstNodeType_t type, T value)
 {
-  ast::AstNodeRef ast_node = create_ast_node(type);
+  AstNodeRef ast_node = create_ast_node(type);
   ast_node.get().value = value;
 
   return ast_node;
 }
 
-}  // namespace recursive_descent
+}  // namespace jfcl

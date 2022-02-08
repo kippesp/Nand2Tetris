@@ -7,6 +7,8 @@
 #include "jack_sources.h"
 #include "vmwriter/vmwriter.h"
 
+using namespace jfcl;
+
 SCENARIO("VMWriter Statements")
 {
   SECTION("Single return statement")
@@ -15,10 +17,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -34,10 +36,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -109,10 +111,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -130,10 +132,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -157,10 +159,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -186,10 +188,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -237,10 +239,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -265,10 +267,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -302,10 +304,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -343,10 +345,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -381,10 +383,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -426,10 +428,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -465,10 +467,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -495,10 +497,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -537,10 +539,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -558,10 +560,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -617,10 +619,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -664,10 +666,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -710,10 +712,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -771,10 +773,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 
@@ -812,10 +814,10 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    recursive_descent::Parser parser(tokens);
+    Parser parser(tokens);
     parser.parse_class();
 
-    VmWriter::VmWriter VM(parser.get_ast());
+    VmWriter VM(parser.get_ast());
     // VM.dump_ast();
     VM.lower_module();
 

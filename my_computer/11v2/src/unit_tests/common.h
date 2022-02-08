@@ -7,7 +7,6 @@
 
 #include "catch.hpp"
 #include "parser/parser.h"
-#include "parser/pparser.h"
 #include "tokenizer/jack_tokenizer.h"
 #include "util/text_reader.h"
 #include "util/textfile_reader.h"

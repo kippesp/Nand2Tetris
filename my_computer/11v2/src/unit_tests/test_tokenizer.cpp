@@ -4,6 +4,8 @@
 // Tests for Jack Symbols
 /////////////////////////////////////////////////////////////////////////////
 
+using namespace jfcl;
+
 SCENARIO("Tokenizer baseline checks")
 {
   SECTION("tokenizer")
