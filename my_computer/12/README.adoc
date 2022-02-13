@@ -1,4 +1,0 @@
-= Nand2Tetris Operating System
-
-Since the system library component offers no interesting problems to solve,
-I won't implement my own version of it.
