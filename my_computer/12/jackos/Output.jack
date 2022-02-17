@@ -190,22 +190,20 @@ class Output {
     function void moveCursor(int i, int j) {
       if ((j > 63) | (i > 22) | (j < 0) | (i < 0))
       {
-        let j = 0;
-        let i = 0;
+        // error: OUTPUT_MOVECURSOR_ILLEGAL_POSITION
+        do Sys.error(20);
       }
 
       let cursor_col = j;
       let cursor_row = i;
 
-      do Output.printChar(32);
-      do Output.backSpace();
+      do Output.drawChar(32);
 
       return;
     }
 
-    /** Displays the given character at the cursor location,
-     *  and advances the cursor one column forward. */
-    function void printChar(char c) {
+    /* Same as printChar without the cursor movement */
+    function void drawChar(char c) {
       var int base_address;
       var int word_offset;
       var int idx;
@@ -245,6 +243,28 @@ class Output {
 
         let idx = idx + 1;
       }
+
+      return;
+    }
+
+    /** Displays the given character at the cursor location,
+     *  and advances the cursor one column forward. */
+    function void printChar(char c) {
+      if (c = 128)
+      {
+        // newline
+        do Output.println();
+        return;
+      }
+
+      if (c = 129)
+      {
+        // backspace
+        do Output.backSpace();
+        return;
+      }
+
+      do Output.drawChar(c);
 
       let cursor_col = cursor_col + 1;
 
@@ -346,6 +366,8 @@ class Output {
       {
         let cursor_row = 22;
       }
+
+      do Output.drawChar(32);
 
       return;
     }
