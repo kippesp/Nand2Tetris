@@ -12,12 +12,20 @@
  * data types.
  */
 class Array {
-
-    /** Constructs a new Array of the given size. */
-    function Array new(int size) {
+  /** Constructs a new Array of the given size. */
+  function Array new(int size) {
+    if (size < 0)
+    {
+      // Array size must be positive
+      do Sys.error(2);
     }
 
-    /** Disposes this array. */
-    method void dispose() {
-    }
+    return Memory.alloc(size);
+  }
+
+  /** Disposes this array. */
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
 }
