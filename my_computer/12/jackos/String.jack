@@ -11,54 +11,200 @@
  * string-oriented operations.
  */
 class String {
+  field int m_max_length, m_len;
+  field String m_str;
 
-    /** constructs a new empty string with a maximum length of maxLength
-     *  and initial length of 0. */
-    constructor String new(int maxLength) {
+  /** constructs a new empty string with a maximum length of maxLength
+   *  and initial length of 0. */
+  constructor String new(int maxLength) {
+    if (maxLength < 0)
+    {
+      // Size must be non-negative
+      do Sys.error(14);
     }
 
-    /** Disposes this string. */
-    method void dispose() {
+    let m_max_length = maxLength;
+    let m_len = 0;
+
+    // silly requirement to permit 0-length strings but not arrays
+    if (maxLength = 0)
+    {
+      let m_str = Array.new(1);
+    }
+    else
+    {
+      let m_str = Array.new(maxLength);
     }
 
-    /** Returns the current length of this string. */
-    method int length() {
+    return this;
+  }
+
+  /** Disposes this string. */
+  method void dispose() {
+    do Array.dispose(this);
+    return;
+  }
+
+  /** Returns the current length of this string. */
+  method int length() {
+    return m_len;
+  }
+
+  /** Returns the character at the j-th location of this string. */
+  method char charAt(int j) {
+    if (j > m_len)
+    {
+      // out of bounds
+      do Sys.error(16);
     }
 
-    /** Returns the character at the j-th location of this string. */
-    method char charAt(int j) {
+    return m_str[j];
+  }
+
+  /** Sets the character at the j-th location of this string to c. */
+  method void setCharAt(int j, char c) {
+    if (j > m_len)
+    {
+      // string is full
+      do Sys.error(17);
     }
 
-    /** Sets the character at the j-th location of this string to c. */
-    method void setCharAt(int j, char c) {
+    let m_str[j] = c;
+
+    return;
+  }
+
+  /** Appends c to this string's end and returns this string. */
+  method String appendChar(char c) {
+    if (m_len + 1 > m_max_length)
+    {
+      do Sys.error(17);
     }
 
-    /** Appends c to this string's end and returns this string. */
-    method String appendChar(char c) {
+    let m_str[m_len] = c;
+    let m_len = m_len + 1;
+
+    return this;
+  }
+
+  /** Erases the last character from this string. */
+  method void eraseLastChar() {
+    if (~(m_len > 0))
+    {
+      // string is empty
+      do Sys.error(18);
     }
 
-    /** Erases the last character from this string. */
-    method void eraseLastChar() {
+    let m_len = m_len - 1;
+
+    return;
+  }
+
+  /** Returns the integer value of this string, 
+   *  until a non-digit character is detected. */
+  method int intValue() {
+    var int idx;
+    var int value;
+    var bool is_neg;
+
+    let idx = 0;
+    let value = 0;
+    let is_neg = false;
+
+    if (m_str[idx] = 45)
+    {
+      let is_neg = true;
+      let idx = idx + 1;
     }
 
-    /** Returns the integer value of this string, 
-     *  until a non-digit character is detected. */
-    method int intValue() {
+    while (idx < m_len)
+    {
+      if ((m_str[idx] < 48) | (m_str[idx] > 57))
+      {
+        // non-digit character found; end the loop
+        let idx = m_len;
+      }
+      else
+      {
+        let value = (value * 10) + (m_str[idx] - 48);
+        let idx = idx + 1;
+      }
     }
 
-    /** Sets this string to hold a representation of the given value. */
-    method void setInt(int val) {
+    if (is_neg)
+    {
+      return -value;
     }
 
-    /** Returns the new line character. */
-    function char newLine() {
+    return value;
+  }
+
+  /** Sets this string to hold a representation of the given value. */
+  method void setInt(int val) {
+    var Array buff;
+    var int mod10, len;
+
+    let buff = Array.new(5);
+
+    if (val < 0)
+    {
+      let m_str[0] = 45;    // '-'
+      let val = -val;
+      let m_len = 1;
+    }
+    else
+    {
+      let m_len = 0;
     }
 
-    /** Returns the backspace character. */
-    function char backSpace() {
+    if (val = 0)
+    {
+      let buff[0] = 0;
+      let len = 1;
+    }
+    else
+    {
+      let len = 0;
     }
 
-    /** Returns the double quote (") character. */
-    function char doubleQuote() {
+    while (val > 0)
+    {
+      let mod10 = OsInternal.mod(val, 10);
+      let buff[len] = mod10;
+      let val = val / 10;
+      let len = len + 1;
     }
+
+    if (m_len + len > m_max_length)
+    {
+      // insufficient string capacity
+      do Sys.error(19);
+    }
+
+    while (len > 0)
+    {
+      let m_str[m_len] = 48 + buff[len - 1];
+      let len = len - 1;
+      let m_len = m_len + 1;
+    }
+
+    do buff.dispose();
+
+    return;
+  }
+
+  /** Returns the new line character. */
+  function char newLine() {
+    return 128;
+  }
+
+  /** Returns the backspace character. */
+  function char backSpace() {
+    return 129;
+  }
+
+  /** Returns the double quote (") character. */
+  function char doubleQuote() {
+    return 34;
+  }
 }
