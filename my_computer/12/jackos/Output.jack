@@ -234,7 +234,7 @@ class Output {
         else
         {
           // character is in the lower nibble, clear it
-          let pixel_updates = pixel_updates & (-255);
+          let pixel_updates = pixel_updates & (-256);
           let pixel_updates = pixel_updates | char_map[idx];
         }
 

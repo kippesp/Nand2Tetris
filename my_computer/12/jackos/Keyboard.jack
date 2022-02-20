@@ -67,6 +67,7 @@ class Keyboard {
     function char readChar() {
       var char ch;
 
+      do Output.drawChar(0);
       let ch = Keyboard.readCharNoEcho();
       do Output.printChar(ch);
       return ch;
@@ -92,6 +93,7 @@ class Keyboard {
 
       while (~(ch = 128))
       {
+        do Output.drawChar(0);
         let ch = Keyboard.readCharNoEcho();
 
         if (ch = 129)
@@ -99,6 +101,7 @@ class Keyboard {
           if (idx > 0)
           {
             let idx = idx - 1;
+            do Output.drawChar(32);
             do Output.printChar(ch);
           }
         }
@@ -119,6 +122,7 @@ class Keyboard {
         }
       }
 
+      do Output.drawChar(32);
       do Output.printChar(128);
 
       let str = String.new(idx);

@@ -41,7 +41,7 @@ class String {
 
   /** Disposes this string. */
   method void dispose() {
-    do Array.dispose(this);
+    do m_str.dispose();
     return;
   }
 
