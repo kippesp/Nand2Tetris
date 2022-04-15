@@ -217,7 +217,7 @@ class Output {
 
       let char_map = Output.getMap(c);
 
-      let word_offset = (32 * cursor_row * 11) + OsInternal.lsr(cursor_col, 1);
+      let word_offset = (32 * cursor_row * 11) + Output.lsr(cursor_col, 1);
       let base_address = 16384;
 
       let idx = 0;
@@ -317,7 +317,7 @@ class Output {
 
       while (val > 0)
       {
-        let mod10 = OsInternal.mod(val, 10);
+        let mod10 = Output.mod(val, 10);
         let buff[len] = mod10;
         let val = val / 10;
         let len = len + 1;
@@ -370,5 +370,84 @@ class Output {
       do Output.drawChar(32);
 
       return;
+    }
+
+    // Logical shift right
+    //    - function int lsr(int v, int pos);
+
+    // Modulus
+    //    - function int mod(int a, int b);
+
+    //////////////////////////////////////////////////////////////////////////
+    // #
+    // # Python version
+    // #
+    // def lsr(v, pos):
+    //   mask = 0x1
+    //   acc = 0
+    //   idx = 0
+    //
+    //   # Get mask to starting bit
+    //   while (idx < pos):
+    //     mask = mask + mask
+    //     idx = idx + 1
+    //
+    //   idx = pos
+    //
+    //   shifted_mask = 0x1
+    //
+    //   while (idx < 16):
+    //     if v & mask:
+    //       acc = acc | shifted_mask
+    //     mask = mask + mask
+    //     shifted_mask = shifted_mask + shifted_mask
+    //     idx = idx + 1
+    //
+    //   return acc
+    //////////////////////////////////////////////////////////////////////////
+
+    // logical shift right by `pos` bits
+    function int lsr(int v, int pos)
+    {
+      var int mask, acc, idx;
+      var int shifted_mask;
+
+      let mask = 1;
+      let acc = 0;
+      let idx = 0;
+
+      // Get mask to starting bit
+      while (idx < pos)
+      {
+        let mask = mask + mask;
+        let idx = idx + 1;
+      }
+
+      let idx = pos;
+
+      let shifted_mask = 1;
+
+      while (idx < 16)
+      {
+        if (v & mask)
+        {
+          let acc = acc | shifted_mask;
+        }
+
+        let mask = mask + mask;
+        let shifted_mask = shifted_mask + shifted_mask;
+        let idx = idx + 1;
+      }
+
+      return acc;
+    }
+
+    function int mod(int a, int b)
+    {
+      var int div;
+
+      let div = a / b;
+
+      return a - (div * b);
     }
 }

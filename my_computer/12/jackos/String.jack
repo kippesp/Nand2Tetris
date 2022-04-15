@@ -169,7 +169,7 @@ class String {
 
     while (val > 0)
     {
-      let mod10 = OsInternal.mod(val, 10);
+      let mod10 = String.mod(val, 10);
       let buff[len] = mod10;
       let val = val / 10;
       let len = len + 1;
@@ -206,5 +206,14 @@ class String {
   /** Returns the double quote (") character. */
   function char doubleQuote() {
     return 34;
+  }
+
+  function int mod(int a, int b)
+  {
+    var int div;
+
+    let div = a / b;
+
+    return a - (div * b);
   }
 }

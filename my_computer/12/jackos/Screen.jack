@@ -42,14 +42,12 @@ class Screen {
 
   /** Erases the entire screen. */
   function void clearScreen() {
-    var bool tmp;
+    var int i;
+    let i = 0;
 
-    let tmp = m_pin_color;
-
-    let m_pin_color = false;
-    do Screen.drawRectangle(0, 0, 511, 255);
-    let m_pin_color = tmp;
-
+    while( i < 8192 ) {
+      let SCREEN[i] = 0;
+    }
     return;
   }
 
