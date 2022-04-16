@@ -12,7 +12,7 @@
  */
 class String {
   field int m_max_length, m_len;
-  field String m_str;
+  field Array m_str;
 
   /** constructs a new empty string with a maximum length of maxLength
    *  and initial length of 0. */
@@ -42,6 +42,7 @@ class String {
   /** Disposes this string. */
   method void dispose() {
     do m_str.dispose();
+    do Memory.deAlloc(this);
     return;
   }
 
