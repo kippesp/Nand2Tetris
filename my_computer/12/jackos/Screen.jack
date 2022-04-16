@@ -45,8 +45,10 @@ class Screen {
     var int i;
     let i = 0;
 
+    // 16 * 512
     while( i < 8192 ) {
       let SCREEN[i] = 0;
+      let i = i + 1;
     }
     return;
   }
