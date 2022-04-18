@@ -113,52 +113,34 @@ class Math {
     }
 
     /** Returns the integer part of the square root of x. */
+    // see: https://github.com/IvanIvanov/Jack-OS/blob/master/Math.jack
     function int sqrt(int x) {
-      var int min;
-      var int max;
-      var int middle;
-      var int middlePlusOne;
-      var int firstBound;
-      var int secondBound;
+      var int left, right, mid, midSq, result;
 
-      let min = 0;
-      let max = x;
-      
-      while (min < max)
+      if (x < 0)
       {
-        let middle = (min + max) / 2;
-        let middlePlusOne = middle + 1;
-        
-        let firstBound = middle * middle;
-        let secondBound = middlePlusOne * middlePlusOne;
+        do Sys.error(4);
+      }
 
-        if (firstBound < 0)
+      let left = 0;
+      let right = Math.min(x, 181);
+      let result = 0;
+      while (left < (right + 1))
+      {
+        let mid = (left + right) / 2;
+        let midSq = mid * mid;
+        if (midSq > x)
         {
-            let max = middle;
+          let right = mid - 1;
         }
         else
         {
-          // Without edge cases: (firstBound <= x) && (x < secondBound)
-          if (((firstBound < x) | (firstBound = x)) & 
-             ((x < secondBound) | (secondBound < 0)))
-          {
-            return middle;   
-          }
-          else
-          {
-            if (firstBound > x)
-            {
-              let max = middle;
-            }
-            else
-            {
-              let min = middle + 1;
-            }
-          }
+          let left = mid + 1;
+          let result = mid;
         }
       }
 
-      return 0;
+      return result;
     }
 
     /** Returns the greater number. */
