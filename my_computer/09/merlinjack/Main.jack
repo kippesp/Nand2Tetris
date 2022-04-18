@@ -3,6 +3,7 @@ class Main {
     var GameBoard game;
     var String str;
 
+    do Util.init();
     do StartupScreen.show_title_screen();
 
     do Output.moveCursor(22, 0);

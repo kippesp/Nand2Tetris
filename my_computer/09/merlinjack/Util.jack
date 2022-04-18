@@ -1,12 +1,95 @@
 class Util
 {
-  function int mod(int a, int b)
-  {
-    var int div;
+  static Array bitmask;
 
-    let div = a / b;
+  /** Initializes the library. */
+  function void init() {
+    let bitmask = Array.new(16);
+    let bitmask[0] = 1;
+    let bitmask[1] = 2;
+    let bitmask[2] = 4;
+    let bitmask[3] = 8;
+    let bitmask[4] = 16;
+    let bitmask[5] = 32;
+    let bitmask[6] = 64;
+    let bitmask[7] = 128;
+    let bitmask[8] = 256;
+    let bitmask[9] = 512;
+    let bitmask[10] = 1024;
+    let bitmask[11] = 2048;
+    let bitmask[12] = 4096;
+    let bitmask[13] = 8192;
+    let bitmask[14] = 16384;
+    let bitmask[15] = bitmask[14] + bitmask[14];
 
-    return a - (div * b);
+    return;
+  }
+
+  /* The residual from the divide implementation.  Originally I was using:
+
+         function int mod(int a, int b)
+         {
+           var int div;
+
+           let div = a / b;
+
+           return a - (div * b);
+         }
+
+     but a reimplementation of divide will save the multiply call to (div * b).
+  */
+  function int mod(int dividend, int divisor) {
+    var int quotient;
+    var int partial_dividend;
+    var int idx;
+    var bool isNegative;
+
+    let isNegative = ~((dividend < 0) = (divisor < 0));
+    let dividend = Math.abs(dividend);
+    let divisor = Math.abs(divisor);
+
+    if (divisor > dividend) {
+      return dividend;
+    }
+
+    if (divisor = 0) {
+      do Sys.error(3);
+    }
+
+    let quotient = 0;
+    let partial_dividend = 0;
+    let idx = 15;
+
+    while (idx > -1)
+    {
+      if (dividend & bitmask[idx])
+      {
+        let partial_dividend = partial_dividend + partial_dividend + 1;
+      }
+      else
+      {
+        let partial_dividend = partial_dividend + partial_dividend;
+      }
+
+      if (divisor > partial_dividend)
+      {
+        let quotient = quotient + quotient + 0;
+      }
+      else
+      {
+        let partial_dividend = partial_dividend - divisor;
+        let quotient = quotient + quotient + 1;
+      }
+
+      let idx = idx - 1;
+    }
+
+    if (isNegative)
+    {
+      return -partial_dividend;
+    }
+
+    return partial_dividend;
   }
 
   function int xor(int a, int b)
