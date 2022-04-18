@@ -73,43 +73,59 @@ class Math {
      *  program's code, it handles it by invoking this method. In other words,
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
-    // see: https://raw.githubusercontent.com/preslavmihaylov/nand2tetris/master/JackOS/Math.jack
-    function int divide(int x, int y) {
-      var int q;
-      var int yDoubled;
-      var int result;
+    // Algorithm from "6502 Software Design" by Leo Scanlon, (c) 1980
+    function int divide(int dividend /* x */, int divisor /* y */) {
+      var int quotient;
+      var int partial_dividend;
+      var int idx;
       var bool isNegative;
 
-      let isNegative = ~((x < 0) = (y < 0));
-      let x = Math.abs(x);
-      let y = Math.abs(y);
+      let isNegative = ~((dividend < 0) = (divisor < 0));
+      let dividend = Math.abs(dividend);
+      let divisor = Math.abs(divisor);
 
-
-      if (y > x) {
-        return 0;
-      }
-      
-      let yDoubled = y + y;
-      
-      // overflow
-      if (yDoubled < 0) {
+      if (divisor > dividend) {
         return 0;
       }
 
-      let q = x / yDoubled;
-
-      if ((x - (q * yDoubled)) < y) {
-        let result = q + q;
-      }
-      else {
-        let result = (q + q) + 1;
+      if (divisor = 0) {
+        do Sys.error(3);
       }
 
-      if (isNegative) {
-        let result = -result;
+      let quotient = 0;
+      let partial_dividend = 0;
+      let idx = 15;
+
+      while (idx > -1)
+      {
+        if (dividend & bitmask[idx])
+        {
+          let partial_dividend = partial_dividend + partial_dividend + 1;
+        }
+        else
+        {
+          let partial_dividend = partial_dividend + partial_dividend;
+        }
+
+        if (divisor > partial_dividend)
+        {
+          let quotient = quotient + quotient + 0;
+        }
+        else
+        {
+          let partial_dividend = partial_dividend - divisor;
+          let quotient = quotient + quotient + 1;
+        }
+
+        let idx = idx - 1;
       }
 
-      return result;
+      if (isNegative)
+      {
+        return -quotient;
+      }
+
+      return quotient;
     }
 
     /** Returns the integer part of the square root of x. */
