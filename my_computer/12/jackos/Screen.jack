@@ -10,29 +10,29 @@
  * the screen is indexed (0,0).
  */
 class Screen {
-  static Array bitmask;
-  static bool m_pin_color;
   static Array SCREEN;
+  static Array BITMASK;
+  static bool m_pin_color;
 
-    /** Initializes the Screen. */
+  // For div_mod()
+  static int m_quotient;
+  static int m_modulus;
+
+  /** Initializes the Screen. */
   function void init() {
-    let bitmask = Array.new(16);
-    let bitmask[0] = 1;
-    let bitmask[1] = 2;
-    let bitmask[2] = 4;
-    let bitmask[3] = 8;
-    let bitmask[4] = 16;
-    let bitmask[5] = 32;
-    let bitmask[6] = 64;
-    let bitmask[7] = 128;
-    let bitmask[8] = 256;
-    let bitmask[9] = 512;
-    let bitmask[10] = 1024;
-    let bitmask[11] = 2048;
-    let bitmask[12] = 4096;
-    let bitmask[13] = 8192;
-    let bitmask[14] = 16384;
-    let bitmask[15] = bitmask[14] + bitmask[14];
+    var int idx;
+    var int tmp;
+
+    let BITMASK = Array.new(16);
+    let idx = 0;
+    let tmp = 1;
+
+    while (idx < 16)
+    {
+      let BITMASK[idx] = tmp;
+      let tmp = tmp + tmp;
+      let idx = idx + 1;
+    }
 
     let m_pin_color = true;
     let SCREEN = 16384;
@@ -61,149 +61,218 @@ class Screen {
   }
 
   /** Draws the (x,y) pixel, using the current color. */
-  // https://raw.githubusercontent.com/preslavmihaylov/nand2tetris/master/JackOS/Screen.jack
   function void drawPixel(int x, int y) {
-    var int address;
+    var int offset;
     var int value;
-    var int pixelPos;
+    var int bit;
 
-    let address = (32 * y) + (x / 16);
-    let value = SCREEN[address];
+    let offset = (x / 16) + (y * 32);
+    let value = SCREEN[offset];
 
-    // let pixelPos = x % 16;
-    let pixelPos = x - ((x / 16) * 16);
+    do Screen.div_mod(x, 16);
+    let bit = m_modulus;
 
-    if (m_pin_color = true)
+    if (m_pin_color)
     {
-      let value = value | bitmask[pixelPos];
+      let SCREEN[offset] = value | BITMASK[bit];
     }
     else
     {
-      let value = value & (~bitmask[pixelPos]);
+      let SCREEN[offset] = value & (~BITMASK[bit]);
     }
-
-    let SCREEN[address] = value;
 
     return;
   }
 
   /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
-  // Efficient implementation:
-  // https://github.com/havivha/Nand2Tetris/blob/master/12/Screen.jack
   function void drawLine(int x1, int y1, int x2, int y2) {
-    var int dx, dy;
-    var int temp;
+    var int tmp;
+    var int start_pixel, stop_pixel;
+    var int start_word_offset, stop_word_offset;
+    var int mask;
+    var int bit_idx;
+    var int dx, dy, sx, sy, error, pixel, mask, word_offset, e2, error;
 
-    // Make sure x1 <= x2
-    if (x1 > x2) {
-      let temp = x1;
+    // normalize
+    if (x1 > x2)
+    {
+      let tmp = x1;
       let x1 = x2;
-      let x2 = temp;
-      let temp = y1;
+      let x2 = tmp;
+
+      let tmp = y1;
       let y1 = y2;
-      let y2 = temp;
+      let y2 = tmp;
     }
 
-    let dx = x2 - x1;
-    let dy = y2 - y1;
+    // horizontal line
+    if (y1 = y2)
+    {
+      // determine start/stop offsets
+      do Screen.div_mod(x1, 16);
 
-    if (dx = 0) {
-      do Screen.drawVerticalLine(x1, y1, y2);
+      let start_pixel = m_modulus;
+      let start_word_offset = m_quotient + (y1 * 32);
+
+      do Screen.div_mod(x2, 16);
+
+      let stop_pixel = m_modulus;
+      let stop_word_offset = m_quotient + (y2 * 32);
+
+      // Special case:
+      // start_word_mask and stop_word_mask are at the same location
+      if (start_word_offset = stop_word_offset)
+      {
+        let bit_idx = 15 - start_pixel;
+        let mask = 0;
+        while (bit_idx > (15 - stop_pixel - 1))
+        {
+          let mask = mask | BITMASK[15 - bit_idx];
+          let bit_idx = bit_idx - 1;
+        }
+
+        if (m_pin_color) {
+          let SCREEN[start_word_offset] = SCREEN[start_word_offset] | mask;
+        }
+        else {
+          let SCREEN[start_word_offset] = SCREEN[start_word_offset] & ~mask;
+        }
+      }
+      else
+      {
+        // Start word
+        let bit_idx = 15 - start_pixel;
+        let mask = 0;
+        while (~(bit_idx < 0))
+        {
+          let mask = mask | BITMASK[15 - bit_idx];
+          let bit_idx = bit_idx - 1;
+        }
+
+        if (m_pin_color) {
+          let SCREEN[start_word_offset] = SCREEN[start_word_offset] | mask;
+        }
+        else {
+          let SCREEN[start_word_offset] = SCREEN[start_word_offset] & ~mask;
+        }
+
+        // The between words
+        let start_word_offset = start_word_offset + 1;
+        while (start_word_offset < stop_word_offset)
+        {
+          if (m_pin_color) {
+            let SCREEN[start_word_offset] = -1;
+          }
+          else {
+            let SCREEN[start_word_offset] = 0;
+          }
+          let start_word_offset = start_word_offset + 1;
+        }
+
+        // End word
+        let bit_idx = 15 - stop_pixel;
+        let mask = 0;
+        while (~(15 < bit_idx))
+        {
+          let mask = mask | BITMASK[15 - bit_idx];
+          let bit_idx = bit_idx + 1;
+        }
+
+        if (m_pin_color) {
+          let SCREEN[start_word_offset] = SCREEN[start_word_offset] | mask;
+        }
+        else {
+          let SCREEN[start_word_offset] = SCREEN[start_word_offset] & ~mask;
+        }
+      }
+
+      return;
+    }
+
+    // vertical line
+    if (x1 = x2)
+    {
+      // normalize
+      if (y1 > y2)
+      {
+        let tmp = y1;
+        let y1 = y2;
+        let y2 = tmp;
+      }
+
+      do Screen.div_mod(x1, 16);
+      let start_pixel = m_modulus;
+      let start_word_offset = m_quotient + (y1 * 32);
+      let stop_word_offset = m_quotient + (y2 * 32);
+
+      let mask = BITMASK[start_pixel];
+
+      while (~(start_word_offset > stop_word_offset))
+      {
+        if (m_pin_color) {
+          let SCREEN[start_word_offset] = SCREEN[start_word_offset] | mask;
+        }
+        else {
+          let SCREEN[start_word_offset] = SCREEN[start_word_offset] & ~mask;
+        }
+        let start_word_offset = start_word_offset + 32;
+      }
+
+      return;
+    }
+
+    // diagonal line: Bresenham's line algorithm
+    let dx = Math.abs(x2 - x1);
+    let dy = -Math.abs(y2 - y1);
+
+    if (x1 < x2) {
+      let sx = 1;
     } else {
-      if (dy = 0) {
-        do Screen.drawHorizontalLine(x1, x2, y1);
-      } else {
-        do Screen.drawDiagonalLine(x1, y1, x2, y2, dx, dy);
-      }
+      let sx = -1;
     }
 
-    return;
-  }
-
-  function void drawDiagonalLine(int x1, int y1, int x2, int y2, int dx, int dy) {
-    var int a, b;
-    var int adyMinusbdx;
-    var int y_incr;
-
-    let a = 0;
-    let b = 0;
-    let adyMinusbdx = 0;
-
-    if (dy < 0) {
-      let y_incr = -1;
+    if (y1 < y2) {
+      let sy = 1;
     } else {
-      let y_incr = 1;
+      let sy = -1;
     }
 
-    while (~(a > dx) & (((y_incr = 1) & ~(b > dy)) |
-                        ((y_incr = -1) & ~(b < dy)))) {
-      do Screen.drawPixel(x1 + a, y1 + b);
-      if (adyMinusbdx < 0) {
-        let a = a + 1;
-        let adyMinusbdx = adyMinusbdx + (dy * y_incr);
-      } else {
-        let b = b + y_incr;
-        let adyMinusbdx = adyMinusbdx - dx;
+    let error = dx + dy;
+
+    while (true) {
+      do Screen.div_mod(x1, 16);
+      let pixel = m_modulus;
+      let mask = BITMASK[pixel];
+      let word_offset = m_quotient + (y1 * 32);
+
+      if (m_pin_color) {
+        let SCREEN[word_offset] = SCREEN[word_offset] | mask;
       }
-    }
-
-    return;
-  }
-
-  function void drawVerticalLine(int x, int y1, int y2) {
-    var int temp;
-
-    // Make sure y1 <= y2
-    if (y1 > y2) {
-      let temp = y1;
-      let y1 = y2;
-      let y2 = temp;
-    }
-
-    while (~(y1 > y2)) {
-      do Screen.drawPixel(x, y1);
-      let y1 = y1 + 1;
-    }
-    return;
-  }
-
-  function void drawHorizontalLine(int x1, int x2, int y) {
-    var int start_addr, end_addr;
-    var int x1mod16, x2mod16;
-
-    let x1mod16 = x1 & 15;
-    let x2mod16 = x2 & 15;
-    let start_addr = (y * 32) + (x1 / 16);
-    let end_addr = (y * 32) + (x2 / 16) + (x2mod16 = 0);
-
-    if (start_addr = end_addr) {
-      // line starts and ends within the same screen address
-      do Screen.draw_short_horizontal_line(x1, x2, y);
-    } else {
-      if (~(x1mod16 = 0)) {
-        // Draw the short start of the line
-        let start_addr = start_addr + 1;
-        do Screen.draw_short_horizontal_line(x1, x1 + 16 - x1mod16, y);
+      else {
+        let SCREEN[word_offset] = SCREEN[word_offset] & ~mask;
       }
-      if (~(x2mod16 = 0)) {
-        // Draw the short end of the line
-        let end_addr = end_addr - 1;
-        do Screen.draw_short_horizontal_line(x2 - x2mod16, x2, y);
-      }
-      while (~(start_addr > end_addr)) {
-        // Draw the middle of the line
-        let SCREEN[start_addr] = m_pin_color;
-        let start_addr = start_addr + 1;
-      }
-    }
 
-    return;
-  }
+      if ((x1 = x2) & (y1 = y2)) {
+        return;
+      }
 
-  function void draw_short_horizontal_line(int x1, int x2, int y) {
-    while (~(x1 > x2)) {
-      do Screen.drawPixel(x1, y);
-      let x1 = x1 + 1;
+      let e2 = error + error;
+
+      if (~(e2 < dy)) {
+        if (x1 = x2) {
+          return;
+        }
+        let error = error + dy;
+        let x1 = x1 + sx;
+      }
+
+      if (~(e2 > dx)) {
+        if (y1 = y2) {
+          return;
+        }
+        let error = error + dx;
+        let y1 = y1 + sy;
+      }
     }
 
     return;
@@ -212,12 +281,9 @@ class Screen {
   /** Draws a filled rectangle whose top left corner is (x1, y1)
    * and bottom right corner is (x2,y2), using the current color. */
   function void drawRectangle(int x1, int y1, int x2, int y2) {
-    var int y;
-
-    let y = y1;
-    while (~(y > y2)) {
-      do Screen.drawHorizontalLine(x1, x2, y);
-      let y = y + 1;
+    while (~(y1 > y2)) {
+      do Screen.drawLine(x1, y1, x2, y1);
+      let y1 = y1 + 1;
     }
     return;
   }
@@ -231,9 +297,70 @@ class Screen {
     let r_squared = r * r;
     while (~(dy > r)) {
       let dx = Math.sqrt(r_squared - (dy * dy));
-      do Screen.drawHorizontalLine(x - dx, x + dx, y + dy);
+      do Screen.drawLine(x - dx, y + dy, x + dx, y + dy);
       let dy = dy + 1;
     }
+    return;
+  }
+
+  /* Combined divide/modulus function; returns results in static vars
+   * m_quotient and m_modulus. */
+  function void div_mod(int dividend, int divisor) {
+    var int partial_dividend;
+    var int idx;
+    var bool isNegative;
+
+    let isNegative = ~((dividend < 0) = (divisor < 0));
+    let dividend = Math.abs(dividend);
+    let divisor = Math.abs(divisor);
+
+    if (divisor > dividend) {
+      let m_quotient = 0;
+      let m_modulus = dividend;
+    }
+
+    if (divisor = 0) {
+      do Sys.error(3);
+    }
+
+    let m_quotient = 0;
+    let partial_dividend = 0;
+    let idx = 15;
+
+    while (idx > -1)
+    {
+      if (dividend & BITMASK[idx])
+      {
+        let partial_dividend = partial_dividend + partial_dividend + 1;
+      }
+      else
+      {
+        let partial_dividend = partial_dividend + partial_dividend;
+      }
+
+      if (divisor > partial_dividend)
+      {
+        let m_quotient = m_quotient + m_quotient + 0;
+      }
+      else
+      {
+        let partial_dividend = partial_dividend - divisor;
+        let m_quotient = m_quotient + m_quotient + 1;
+      }
+
+      let idx = idx - 1;
+    }
+
+    if (isNegative)
+    {
+      let m_modulus = -partial_dividend;
+      let m_quotient = -m_quotient;
+    }
+    else
+    {
+      let m_modulus = partial_dividend;
+    }
+
     return;
   }
 }

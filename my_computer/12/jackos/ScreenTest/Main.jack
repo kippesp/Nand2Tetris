@@ -8,6 +8,98 @@ class Main {
 
     /** Draws a sample pictue on the screen using lines and circles. */
     function void main() {
+/*
+        do Screen.drawLine( 5, 0,    5, 0); do Screen.drawLine( 5, 1,    6, 1);
+        do Screen.drawLine( 5, 2,    7, 2); do Screen.drawLine( 5, 3,    8, 3);
+        do Screen.drawLine( 5, 4,    9, 4); do Screen.drawLine( 5, 5,   10, 5);
+        do Screen.drawLine( 5, 6,   11, 6); do Screen.drawLine( 5, 7,   12, 7);
+        do Screen.drawLine( 5, 8,   13, 8); do Screen.drawLine( 5, 9,   14, 9);
+
+        do Screen.drawLine( 5,10,   15,10); do Screen.drawLine( 5,11,   16,11);
+        do Screen.drawLine( 5,12,   17,12); do Screen.drawLine( 5,13,   18,13);
+        do Screen.drawLine( 5,14,   19,14); do Screen.drawLine( 5,15,   20,15);
+        do Screen.drawLine( 5,16,   21,16); do Screen.drawLine( 5,17,   22,17);
+        do Screen.drawLine( 5,18,   23,18); do Screen.drawLine( 5,19,   24,19);
+        do Screen.drawLine( 5,20,   25,20); do Screen.drawLine( 5,21,   26,21);
+        do Screen.drawLine( 5,22,   27,22); do Screen.drawLine( 5,23,   28,23);
+        do Screen.drawLine( 5,24,   29,24); do Screen.drawLine( 5,25,   30,25);
+        do Screen.drawLine( 5,26,   31,26); do Screen.drawLine( 5,27,   32,27);
+        do Screen.drawLine( 5,28,   33,28); do Screen.drawLine( 5,29,   34,29);
+
+        do Screen.drawLine( 5,30,   35,30); do Screen.drawLine( 5,31,   36,31);
+        do Screen.drawLine( 5,32,   37,32); do Screen.drawLine( 5,33,   38,33);
+        do Screen.drawLine( 5,34,   39,34);
+
+
+
+        do Screen.drawLine(  5,40,    5,40); do Screen.drawLine(  6,40,    6,41);
+        do Screen.drawLine(  7,40,    7,42); do Screen.drawLine(  8,40,    8,43);
+        do Screen.drawLine(  9,40,    9,44); do Screen.drawLine( 10,40,   10,45);
+        do Screen.drawLine( 11,40,   11,46); do Screen.drawLine( 12,40,   12,47);
+        do Screen.drawLine( 13,40,   13,48); do Screen.drawLine( 14,40,   14,49);
+        do Screen.drawLine( 15,40,   15,50);
+
+
+
+        do Screen.drawLine( 50,100, 100,110);
+        do Screen.drawLine( 51,101, 101,111);
+        do Screen.drawLine( 52,102, 102,112);
+        do Screen.drawLine( 53,103, 103,113);
+        do Screen.drawLine( 54,104, 104,114);
+        do Screen.drawLine( 55,105, 105,115);
+        do Screen.drawLine( 56,106, 106,116);
+        do Screen.drawLine( 57,107, 107,117);
+        do Screen.drawLine( 58,108, 108,118);
+        do Screen.drawLine( 59,109, 109,119);
+
+        do Screen.drawLine( 100,100, 120,110);
+        do Screen.drawLine( 101,101, 121,111);
+        do Screen.drawLine( 102,102, 122,112);
+        do Screen.drawLine( 103,103, 123,113);
+        do Screen.drawLine( 104,104, 124,114);
+        do Screen.drawLine( 105,105, 125,115);
+        do Screen.drawLine( 106,106, 126,116);
+        do Screen.drawLine( 107,107, 127,117);
+        do Screen.drawLine( 108,108, 128,118);
+        do Screen.drawLine( 109,109, 129,119);
+
+
+
+        do Screen.drawLine( 150,200, 100,210);
+        do Screen.drawLine( 151,201, 101,211);
+        do Screen.drawLine( 152,202, 102,212);
+        do Screen.drawLine( 153,203, 103,213);
+        do Screen.drawLine( 154,204, 104,214);
+        do Screen.drawLine( 155,205, 105,215);
+        do Screen.drawLine( 156,206, 106,216);
+        do Screen.drawLine( 157,207, 107,217);
+        do Screen.drawLine( 158,208, 108,218);
+        do Screen.drawLine( 159,209, 109,219);
+
+
+        do Screen.drawLine( 210,200, 200,210);
+        do Screen.drawLine( 211,201, 201,211);
+        do Screen.drawLine( 212,202, 202,212);
+        do Screen.drawLine( 213,203, 203,213);
+        do Screen.drawLine( 214,204, 204,214);
+        do Screen.drawLine( 215,205, 205,215);
+        do Screen.drawLine( 216,206, 206,216);
+        do Screen.drawLine( 217,207, 207,217);
+        do Screen.drawLine( 218,208, 208,218);
+        do Screen.drawLine( 219,209, 209,219);
+*/
+
+/*
+        do Screen.drawLine(  0, 0,   5,5);
+        do Screen.drawLine( 11, 5,  16,0);
+        do Screen.drawLine( 16, 0,  24,5);
+        do Screen.drawLine( 38, 0,  26,5);
+*/
+
+
+        // do Screen.drawLine(140,26, 140, 6);
+
+
     
         do Screen.drawLine(0,220,511,220);        // base line
         do Screen.drawRectangle(280,90,410,220);  // house
