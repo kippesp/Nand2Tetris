@@ -21,3 +21,5 @@ The two halves of the course are kept in separated branches:
 
 - re-implemented as 11v2; see its corresponding
   [README](my_computer/11v2/README.adoc)
+- reluctantly, project 12 was implemented
+  [README](my_computer/12/README.md)
