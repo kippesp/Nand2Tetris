@@ -88,6 +88,10 @@ command-line option is available to turn operator precedence off.  This
 is not recommended since expressions like (2 * 3) / 4 + 2 would produce
 results different from the Jack reference implementation.
 
+BUG: The expression parsing still has issues when grouping together
+operators.  The expression 5 - 4 + 2 will appear as (5 - (4 + 2)), incorrectly,
+in the AST.  As indicated earlier, don't do this.
+
 == Changes to the 11v2 VM Writer
 
 The VM Writer was re-implemented to support the redesigned AST.  This
