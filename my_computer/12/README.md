@@ -32,4 +32,7 @@ the diagonal special-case became an implemenation of Bresenham's line
 algorithm.  As it happens, from my experiments, of various slopped lines,
 the reference JackOS is using this as well.
 
+The drawRectangle() was also optimized since my MerlinJack game suffered
+a noticable slowness with the repeated drawLine() version.
+
 ## Memory.jack
