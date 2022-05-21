@@ -1,6 +1,8 @@
-= Magic Square
+# Magic Square
 
-The goal of the Magic Square game is to finish with the game state as a square. 
+The goal of the Magic Square game is to finish with the game state as a square.
+
+![solved](./graphic_assets/goal.tif)
 
 Start by choosing a difficulty level corresponding to about how many steps to
 reach the solution on the left.  Each choice of a pip inverts itself and two or
@@ -13,7 +15,7 @@ History:  This game was one of the built-in games in the late 1970's Parker
 Bros. handheld game, Merlin.  This implementation was inspired by the assembly
 language version in the book "6502 Games" (c) 1980 by Rodney Zaks.
 
-== Interesting Implementation Notes
+## Interesting Implementation Notes
 
 - The user is asked to pick a difficulty in order to generate a uP tick count
   to help in seeding a random generator.
