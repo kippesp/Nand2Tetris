@@ -85,6 +85,14 @@ if (${USE_LOCAL_LIBCPP})
     add_link_options(-L/Users/kippesp/usr/opt/llvm-13.0.1-test/lib)
 endif()
 
+include(CheckCXXCompilerFlag)
+
+# Disable RTTI
+check_cxx_compiler_flag("-fno-rtti" SUPPORTS_NO_RTTI)
+if ("${SUPPORTS_NO_RTTI}" EQUAL "1")
+  add_compile_options(-fno-rtti)
+endif()
+
 # cmake 3.13
 # TODO: target link options
 # TODO: clang version 9 or better
