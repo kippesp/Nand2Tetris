@@ -794,7 +794,8 @@ SCENARIO("Parse tree basics")
     auto tokens = T.parse_tokens();
 
     Parser parser(tokens);
-    const auto& root = parser.parse_class();
+    std::string class_name;
+    const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
 
     Expected_t expected = {
@@ -810,6 +811,7 @@ SCENARIO("Parse tree basics")
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
+    REQUIRE(class_name == "Main");
   }
 
   SECTION("void return method")
@@ -820,7 +822,8 @@ SCENARIO("Parse tree basics")
     auto tokens = T.parse_tokens();
 
     Parser parser(tokens);
-    const auto& root = parser.parse_class();
+    std::string class_name;
+    const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
 
     Expected_t expected = {
@@ -835,6 +838,7 @@ SCENARIO("Parse tree basics")
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
+    REQUIRE(class_name == "Test");
   }
 
   SECTION("simple constructor method")
@@ -845,7 +849,8 @@ SCENARIO("Parse tree basics")
     auto tokens = T.parse_tokens();
 
     Parser parser(tokens);
-    const auto& root = parser.parse_class();
+    std::string class_name;
+    const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
 
     Expected_t expected = {
@@ -878,7 +883,8 @@ SCENARIO("Parse tree basics")
     auto tokens = T.parse_tokens();
 
     Parser parser(tokens);
-    const auto& root = parser.parse_class();
+    std::string class_name;
+    const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
 
     Expected_t expected = {
@@ -903,6 +909,7 @@ SCENARIO("Parse tree basics")
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
+    REQUIRE(class_name == "testjack");
   }
 
   SECTION("class and subroutine vars")
@@ -913,7 +920,8 @@ SCENARIO("Parse tree basics")
     auto tokens = T.parse_tokens();
 
     Parser parser(tokens);
-    const auto& root = parser.parse_class();
+    std::string class_name;
+    const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
     Expected_t expected = {
         ""
@@ -946,6 +954,7 @@ SCENARIO("Parse tree basics")
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);
+    REQUIRE(class_name == "JackTest");
   }
 
   SECTION("local method call, no parms")
@@ -956,7 +965,8 @@ SCENARIO("Parse tree basics")
     auto tokens = T.parse_tokens();
 
     Parser parser(tokens);
-    const auto& root = parser.parse_class();
+    std::string class_name;
+    const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
     Expected_t expected = {
         ""
@@ -991,7 +1001,8 @@ SCENARIO("Parse tree basics")
     auto tokens = T.parse_tokens();
 
     Parser parser(tokens);
-    const auto& root = parser.parse_class();
+    std::string class_name;
+    const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
     Expected_t expected = {
         ""
@@ -1044,7 +1055,8 @@ SCENARIO("Parse tree basics")
     auto tokens = T.parse_tokens();
 
     Parser parser(tokens);
-    const auto& root = parser.parse_class();
+    std::string class_name;
+    const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
     Expected_t expected = {
         "(CLASS_DECL string_value:IfTest",

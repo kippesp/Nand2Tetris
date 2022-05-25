@@ -18,7 +18,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -37,7 +38,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -112,7 +114,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -133,7 +136,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -160,7 +164,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -189,7 +194,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -240,7 +246,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -268,7 +275,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -305,7 +313,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -346,7 +355,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -384,7 +394,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -429,7 +440,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -468,7 +480,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -498,7 +511,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -540,7 +554,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -561,7 +576,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -620,7 +636,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -667,7 +684,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -713,7 +731,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -774,7 +793,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();
@@ -815,7 +835,8 @@ SCENARIO("VMWriter Statements")
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
     Parser parser(tokens);
-    parser.parse_class();
+    std::string class_name;
+    parser.parse_class(class_name);
 
     VmWriter VM(parser.get_ast());
     // VM.dump_ast();

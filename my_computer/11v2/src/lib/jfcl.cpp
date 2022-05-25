@@ -60,7 +60,8 @@ static int jfcl_inner_main(const CliArgs& cliargs)
       parser.set_left_associative();
     }
 
-    const auto& class_ast = parser.parse_class().get();
+    std::string class_name;
+    const auto& class_ast = parser.parse_class(class_name).get();
 
     if (cliargs.halt_after_parse_tree_s_expression)
     {

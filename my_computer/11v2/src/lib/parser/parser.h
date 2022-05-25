@@ -35,7 +35,7 @@ public:
   template <typename T>
   AstNodeRef create_ast_node(AstNodeType_t type, T value);
 
-  AstNodeRef parse_class();
+  AstNodeRef parse_class(std::string& class_name);
   AstNodeRef parse_classvar_decl_block();
   AstNodeRef parse_subroutine();
 

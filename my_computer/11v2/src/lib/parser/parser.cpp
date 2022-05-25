@@ -44,7 +44,7 @@ AstNodeRef Parser::create_ast_node(AstNodeType_t type)
   return AST.add(AstNode(type));
 }
 
-AstNodeRef Parser::parse_class()
+AstNodeRef Parser::parse_class(std::string& class_name)
 {
   const auto start_token = TokenValue_t::J_CLASS;
   assert(current_token.get().value_enum == start_token);
@@ -55,6 +55,7 @@ AstNodeRef Parser::parse_class()
   require_token(current_token, TokenValue_t::J_IDENTIFIER);
 
   ClassAst.get().value = current_token.get().value_str;
+  class_name = current_token.get().value_str;
 
   get_next_token();
   require_token(current_token, TokenValue_t::J_LEFT_BRACE);
