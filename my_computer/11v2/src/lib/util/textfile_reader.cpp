@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <sstream>
 
+#pragma warning (disable : 4996)
+
 namespace jfcl {
 
 TextFileReader::TextFileReader(const char* filename)
