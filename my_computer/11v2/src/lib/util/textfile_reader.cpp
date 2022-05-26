@@ -3,7 +3,9 @@
 #include <cstdio>
 #include <sstream>
 
+#if defined _MSC_VER
 #pragma warning (disable : 4996)
+#endif
 
 namespace jfcl {
 
