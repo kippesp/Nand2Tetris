@@ -11,7 +11,7 @@ public:
   Parser(const Parser&) = delete;
   Parser& operator=(const Parser&) = delete;
 
-  Parser(Tokens_t&);
+  Parser(Tokens_t&, AstTree& ast);
 
   void set_left_associative() { left_associative_expressions = true; }
 
@@ -57,7 +57,7 @@ private:
   AstNodeRef parse_if_statement();
   AstNodeRef parse_type(AstNodeType_t);
 
-  AstTree AST;
+  AstTree& AST;
 
   // support canonical Jack compiler's left associative operator binding
   bool left_associative_expressions {false};

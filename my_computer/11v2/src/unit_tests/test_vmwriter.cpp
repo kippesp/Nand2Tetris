@@ -17,7 +17,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -37,7 +38,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -108,12 +110,14 @@ SCENARIO("VMWriter Statements")
   }
 
   SECTION("Void Method return")
+    AstTree ast;
   {
     TextReader R(VOID_RETURN_SRC);
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -135,7 +139,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -163,7 +168,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -193,7 +199,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -245,7 +252,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -274,7 +282,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -312,7 +321,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -354,7 +364,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -393,7 +404,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -439,7 +451,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -479,7 +492,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -510,7 +524,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -553,7 +568,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -575,7 +591,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -635,7 +652,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -683,7 +701,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -730,7 +749,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -792,7 +812,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 
@@ -834,7 +855,8 @@ SCENARIO("VMWriter Statements")
 
     JackTokenizer T(R);
     auto tokens = T.parse_tokens();
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     parser.parse_class(class_name);
 

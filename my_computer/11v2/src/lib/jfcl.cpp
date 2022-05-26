@@ -53,7 +53,8 @@ static int jfcl_inner_main(const CliArgs& cliargs)
       }
     }
 
-    Parser parser(filtered_tokens);
+    AstTree ast;
+    Parser parser(filtered_tokens, ast);
 
     if (cliargs.disable_precedence_parsing)
     {

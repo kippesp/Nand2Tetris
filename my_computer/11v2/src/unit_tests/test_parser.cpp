@@ -14,7 +14,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -26,6 +27,48 @@ SCENARIO("Parse expressions")
     REQUIRE(as_str == expected_str);
   }
 
+  SECTION("single term, unique_ptr allocation")
+  {
+    TextReader R("1");
+    JackTokenizer T(R);
+
+    auto tokens = T.parse_tokens();
+
+    std::unique_ptr<AstTree> pAst = std::make_unique<AstTree>();
+    AstTree& ast1 = *pAst;
+    Parser parser(tokens, ast1);
+
+    const auto& root = parser.parse_expression();
+    std::string as_str = root.get().as_s_expression();
+
+    Expected_t expected = {
+        ""  // clang-format sorcery
+        "(INTEGER_CONSTANT integer_value:1)"};
+
+    std::string expected_str = expected_string(expected);
+    REQUIRE(as_str == expected_str);
+
+    std::string by_ast1_str = ast1.get_root().get().as_s_expression();
+    REQUIRE(by_ast1_str == expected_str);
+
+    // Check the AST can be moved
+
+    auto pAst2 = std::move(pAst);
+    AstTree& ast2 = *pAst2;
+
+    std::string by_ast2_str = ast2.get_root().get().as_s_expression();
+    REQUIRE(by_ast2_str == expected_str);
+
+    // Check the AST can be added to a container
+
+    std::vector<std::unique_ptr<AstTree>> vec;
+    vec.push_back(std::move(pAst2));
+    AstTree& ast3 = *vec.back();
+
+    std::string by_ast3_str = ast3.get_root().get().as_s_expression();
+    REQUIRE(by_ast3_str == expected_str);
+  }
+
   SECTION("single paren term")
   {
     TextReader R("((((1))))");
@@ -33,7 +76,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -52,7 +96,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -73,7 +118,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -96,7 +142,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -125,7 +172,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -154,7 +202,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     parser.set_left_associative();
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
@@ -184,7 +233,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     parser.set_left_associative();
     std::string as_str = root.get().as_s_expression();
@@ -214,7 +264,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -237,7 +288,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -263,7 +315,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -282,7 +335,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -303,7 +357,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -326,7 +381,8 @@ SCENARIO("Parse expressions")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_expression();
     std::string as_str = root.get().as_s_expression();
 
@@ -352,7 +408,8 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -374,7 +431,8 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -397,7 +455,8 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -420,7 +479,8 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -444,7 +504,8 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -472,7 +533,8 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -500,7 +562,8 @@ SCENARIO("Subroutine calls")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_subroutine_call();
     std::string as_str = root.get().as_s_expression();
 
@@ -527,7 +590,8 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -555,7 +619,8 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -580,7 +645,8 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -605,7 +671,8 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -633,7 +700,8 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -656,7 +724,8 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -686,7 +755,8 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -711,7 +781,8 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -734,7 +805,8 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -759,7 +831,8 @@ SCENARIO("Parse statements")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     const auto& root = parser.parse_statement();
     std::string as_str = root.get().as_s_expression();
 
@@ -793,7 +866,8 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
@@ -821,7 +895,8 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
@@ -848,7 +923,8 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
@@ -882,7 +958,8 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
@@ -919,7 +996,8 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
@@ -964,7 +1042,8 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
@@ -1000,7 +1079,8 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();
@@ -1054,7 +1134,8 @@ SCENARIO("Parse tree basics")
 
     auto tokens = T.parse_tokens();
 
-    Parser parser(tokens);
+    AstTree ast;
+    Parser parser(tokens, ast);
     std::string class_name;
     const auto& root = parser.parse_class(class_name);
     std::string as_str = root.get().as_s_expression();

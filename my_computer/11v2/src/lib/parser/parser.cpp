@@ -12,8 +12,9 @@
 
 namespace jfcl {
 
-Parser::Parser(Tokens_t& tokens)
-    : token_iter(tokens.begin()),
+Parser::Parser(Tokens_t& tokens, AstTree& ast)
+    : AST(ast),
+      token_iter(tokens.begin()),
       token_iter_end(tokens.end()),
       current_token(*token_iter),
       peek_token(*(++token_iter))
