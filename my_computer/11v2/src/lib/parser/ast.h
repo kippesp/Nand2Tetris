@@ -82,10 +82,11 @@ class AstNode {
 public:
   const AstNodeType_t type;
   AstNodeValue_t value;
+  int line_number;
 
   AstNode() = delete;
 
-  AstNode(AstNodeType_t type);
+  AstNode(AstNodeType_t type, int line_num = -1);
 
   bool operator==(const AstNode&) const;
 

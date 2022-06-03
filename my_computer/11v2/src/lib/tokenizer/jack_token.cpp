@@ -1,6 +1,7 @@
 #include "jack_token.h"
 
 #include <cassert>
+#include <iomanip>
 #include <iostream>
 #include <locale>
 #include <sstream>
@@ -90,6 +91,9 @@ std::string JackToken::to_s_expression() const
   std::stringstream ss;
 
   ss << "(" << to_string(value_enum);
+  ss << " ";
+  ss << std::setfill('0') << std::setw(5);
+  ss << line_number;
   ss << " " << value_str;
   ss << ")";
 

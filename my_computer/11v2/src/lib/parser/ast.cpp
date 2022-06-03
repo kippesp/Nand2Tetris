@@ -1,6 +1,7 @@
 #include "ast.h"
 
 #include <cassert>
+#include <iomanip>
 #include <iostream>
 
 namespace jfcl {
@@ -21,9 +22,6 @@ std::ostream& operator<<(std::ostream& os, const AstNode& rhs)
     os << "value (int): ";
     os << *i_ptr << std::endl;
   }
-
-  // os << "token_value_str: ";
-  // os << "<<< " << rhs.value_str << " >>>" << std::endl;
 
   return os;
 }
@@ -110,7 +108,17 @@ std::string AstNode::as_s_expression(const std::string& indent) const
 {
   std::stringstream ss;
 
-  ss << indent << "(" << to_string(type);
+  ss << indent << "(" << to_string(type) << " ";
+
+  if (line_number < 0)
+  {
+    ss << line_number;
+  }
+  else
+  {
+    ss << std::setfill('0') << std::setw(5);
+    ss << line_number;
+  }
 
   if (const auto s_ptr(std::get_if<std::string>(&value)); s_ptr)
   {
@@ -138,7 +146,10 @@ void AstNode::dump() const
   std::cout << output << std::endl;
 }
 
-AstNode::AstNode(AstNodeType_t node_type) : type(node_type) {}
+AstNode::AstNode(AstNodeType_t node_type, int line_num)
+    : type(node_type), line_number(line_num)
+{
+}
 
 std::vector<AstNodeCRef> AstNode::get_child_nodes() const
 {

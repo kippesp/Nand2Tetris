@@ -42,7 +42,7 @@ void Parser::require_token(JackTokenCRef token, TokenValue_t token_value)
 
 AstNodeRef Parser::create_ast_node(AstNodeType_t type)
 {
-  return AST.add(AstNode(type));
+  return AST.add(AstNode(type, current_token.get().line_number));
 }
 
 AstNodeRef Parser::parse_class(std::string& class_name)
@@ -472,6 +472,7 @@ AstNodeRef Parser::parse_let_statement()
 AstNodeRef Parser::parse_do_statement()
 {
   require_token(current_token, TokenValue_t::J_DO);
+  AstNodeRef do_ast = create_ast_node(AstNodeType_t::N_DO_STATEMENT);
   get_next_token();
 
   AstNodeRef call_ast = parse_subroutine_call();
@@ -479,7 +480,6 @@ AstNodeRef Parser::parse_do_statement()
   require_token(current_token, TokenValue_t::J_SEMICOLON);
   get_next_token();
 
-  AstNodeRef do_ast = create_ast_node(AstNodeType_t::N_DO_STATEMENT);
   do_ast.get().add_child(call_ast);
 
   return do_ast;
