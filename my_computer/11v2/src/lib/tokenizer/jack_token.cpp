@@ -86,14 +86,17 @@ std::string JackToken::to_string(TokenValue_t v)
   return "POISON";
 }
 
-std::string JackToken::to_s_expression() const
+std::string JackToken::to_s_expression(bool show_line_numbers) const
 {
   std::stringstream ss;
 
   ss << "(" << to_string(value_enum);
-  ss << " ";
-  ss << std::setfill('0') << std::setw(5);
-  ss << line_number;
+  if (show_line_numbers)
+  {
+    ss << " ";
+    ss << std::setfill('0') << std::setw(5);
+    ss << line_number;
+  }
   ss << " " << value_str;
   ss << ")";
 

@@ -92,14 +92,16 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, const AstNode& rhs);
 
-  std::string as_s_expression(const std::string& = "") const;
+  std::string as_s_expression(const std::string& = "",
+                              bool show_line_numbers = false) const;
+  std::string as_s_expression(bool show_line_numbers) const
+  {
+    return as_s_expression("", show_line_numbers);
+  }
 
   AstNodeRef add_child(AstNodeRef);
 
   static std::string to_string(AstNodeType_t);
-
-  // console printer for s-expression tree
-  void dump() const;
 
   // access the node's children
   std::vector<AstNodeCRef> get_child_nodes() const;

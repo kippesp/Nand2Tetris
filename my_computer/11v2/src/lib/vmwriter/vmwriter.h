@@ -20,8 +20,6 @@ public:
 
   void lower_module();
 
-  void dump_ast() const { (module_ast.get_root().get()).dump(); }
-
   std::string get_lowered_vm() const { return lowered_vm.str(); }
 
 private:

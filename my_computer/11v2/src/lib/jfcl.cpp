@@ -67,7 +67,7 @@ static int jfcl_inner_main(const CliArgs& cliargs)
     if (cliargs.halt_after_parse_tree_s_expression)
     {
       std::stringstream ss;
-      ss << class_ast.as_s_expression();
+      ss << class_ast.as_s_expression(false);
       std::cout << ss.str() << std::endl;
       return 0;
     }

@@ -104,20 +104,26 @@ bool AstNode::operator==(const AstNode& other) const
   return this == &other;
 }
 
-std::string AstNode::as_s_expression(const std::string& indent) const
+std::string AstNode::as_s_expression(const std::string& indent,
+                                     bool show_line_numbers) const
 {
   std::stringstream ss;
 
-  ss << indent << "(" << to_string(type) << " ";
+  ss << indent << "(" << to_string(type);
 
-  if (line_number < 0)
+  if (show_line_numbers)
   {
-    ss << line_number;
-  }
-  else
-  {
-    ss << std::setfill('0') << std::setw(5);
-    ss << line_number;
+    ss << " ";
+
+    if (line_number < 0)
+    {
+      ss << line_number;
+    }
+    else
+    {
+      ss << std::setfill('0') << std::setw(5);
+      ss << line_number;
+    }
   }
 
   if (const auto s_ptr(std::get_if<std::string>(&value)); s_ptr)
@@ -131,19 +137,12 @@ std::string AstNode::as_s_expression(const std::string& indent) const
 
   for (const auto& N : child_nodes)
   {
-    ss << "\n" << N.get().as_s_expression(indent + "  ");
+    ss << "\n" << N.get().as_s_expression(indent + "  ", show_line_numbers);
   }
 
   ss << ")";
 
   return ss.str();
-}
-
-void AstNode::dump() const
-{
-  auto const& output = as_s_expression();
-
-  std::cout << output << std::endl;
 }
 
 AstNode::AstNode(AstNodeType_t node_type, int line_num)

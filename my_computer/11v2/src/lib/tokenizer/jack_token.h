@@ -65,7 +65,7 @@ using Tokens_t = std::vector<JackTokenCRef>;
 class JackToken {
 public:
   JackToken() = default;
-  JackToken(TokenValue_t v, std::string s, size_t n)
+  JackToken(TokenValue_t v, std::string s, int n)
       : value_enum(v), value_str(s), line_number(n)
   {
   }
@@ -77,9 +77,9 @@ public:
 
   // Convert to text output
   static std::string to_string(TokenValue_t);
-  std::string to_s_expression() const;
+  std::string to_s_expression(bool show_line_numbers = false) const;
 
   TokenValue_t value_enum {TokenValue_t::J_UNDEFINED};
   std::string value_str {"UNDEFINED"};  // for integer, string, comments tokens
-  size_t line_number;
+  int line_number;                      // don't write big programs!
 };

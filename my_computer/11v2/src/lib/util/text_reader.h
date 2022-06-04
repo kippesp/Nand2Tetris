@@ -39,7 +39,7 @@ public:
   }
 
   bool valid_ch(char ch) { return isascii(ch) && (isspace(ch) | isprint(ch)); }
-  size_t get_current_line_number() { return current_line_number; }
+  int get_current_line_number() { return current_line_number; }
 
 protected:
   void init_buffer(const char*);
@@ -49,7 +49,7 @@ protected:
 
   std::string raw_buffer;
   size_t cursor_pos {0};
-  size_t current_line_number {1};
+  int current_line_number {1};
 };
 
 }  // namespace jfcl
