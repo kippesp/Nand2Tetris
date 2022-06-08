@@ -884,3 +884,70 @@ SCENARIO("VMWriter Statements")
             "return\n");
   }
 }
+
+#if 0
+// Not implementing this feature
+
+SCENARIO("Invalid input for VM")
+{
+  SECTION("boolean value is illegal here")
+  {
+    // clang-format off
+    std::string expected_str = expected_string({
+        "class Main",
+        "{",
+        "  function void main()",
+        "  {",
+        "    var bool a;",
+        "    let a = true + true;",
+        "    return;",
+        "  }",
+        "}",
+        ""}
+    );
+    // clang-format on
+    TextReader R(expected_str.data());
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+
+    AstTree ast;
+    Parser parser(tokens, ast);
+    std::string class_name;
+    parser.parse_class(class_name);
+
+    VmWriter VM(parser.get_ast());
+
+    REQUIRE_THROWS(VM.lower_module());
+  }
+
+  SECTION("int value is expected")
+  {
+    // clang-format off
+    std::string expected_str = expected_string({
+        "class Main",
+        "{",
+        "  function void main()",
+        "  {",
+        "    var int a;",
+        "    let a = true;",
+        "    return;",
+        "  }",
+        "}",
+        ""}
+    );
+    // clang-format on
+    TextReader R(expected_str.data());
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+
+    AstTree ast;
+    Parser parser(tokens, ast);
+    std::string class_name;
+    parser.parse_class(class_name);
+
+    VmWriter VM(parser.get_ast());
+
+    REQUIRE_THROWS(VM.lower_module());
+  }
+}
+#endif

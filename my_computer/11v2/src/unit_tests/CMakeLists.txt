@@ -32,7 +32,7 @@ set_target_properties(${JFCL_TEST_PROJECT_NAME}_main PROPERTIES FOLDER testing)
 # the compile will fail if 'make clean' isn't issued.
 
 # Precompile the catch.hpp header to save about half the time (or ~0.5 sec)
-target_compile_definitions(${JFCL_TEST_PROJECT_NAME} PRIVATE CATCH_CONFIG_FAST_COMPILE CATCH_CONFIG_DISABLE_MATCHERS)
+target_compile_definitions(${JFCL_TEST_PROJECT_NAME} PRIVATE CATCH_CONFIG_FAST_COMPILE)
 target_precompile_headers(${JFCL_TEST_PROJECT_NAME} PRIVATE catch.hpp)
 
 add_test(NAME testjfcl

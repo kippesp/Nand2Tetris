@@ -1179,3 +1179,33 @@ SCENARIO("Parse tree basics")
     REQUIRE(as_str == expected_str);
   }
 }
+
+SCENARIO("Invalid input for parser")
+{
+  SECTION("primitive type or class name expected")
+  {
+    // clang-format off
+    std::string expected_str = expected_string({
+        "class Main {",
+        "    function int main() {",
+        "        var void a;",
+        "        return 1;",
+        "    }",
+        "}",
+        ""}
+    );
+    // clang-format on
+    TextReader R(expected_str.data());
+
+    JackTokenizer T(R);
+    auto tokens = T.parse_tokens();
+    AstTree ast;
+    Parser parser(tokens, ast);
+
+    std::string class_name;
+    REQUIRE_THROWS_WITH(
+        parser.parse_class(class_name),
+        Catch::Matchers::Contains(
+            "Expected int|char|boolean|ClassName while parsing VOID"));
+  }
+}
