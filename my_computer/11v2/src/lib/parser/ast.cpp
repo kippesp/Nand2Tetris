@@ -145,6 +145,12 @@ std::string AstNode::as_s_expression(const std::string& indent,
   return ss.str();
 }
 
+void AstNode::dump() const
+{
+  std::cout << as_s_expression() << std::endl;
+}
+
+
 AstNode::AstNode(AstNodeType_t node_type, int line_num)
     : type(node_type), line_number(line_num)
 {

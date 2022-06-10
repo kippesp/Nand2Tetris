@@ -99,6 +99,8 @@ public:
     return as_s_expression("", show_line_numbers);
   }
 
+  void dump() const;
+
   AstNodeRef add_child(AstNodeRef);
 
   static std::string to_string(AstNodeType_t);
