@@ -11,10 +11,11 @@ An attempt was made to achieve a similar, perceptible speed to the reference
 JackOS implementation's .vm files.  The book's recursive divide algorithm was
 observed to be slow and redone using a faster O(1) implementation taken from an
 old 6502 assembly language book (and aluded to in the Schocken book).
-Additionally, Schocken classifies his recursive algorithm as O(log n) and
-ignores the VM overhead of function calling and local variable
-rematerialization.  My schoolbook, long division, approach is constant-time,
-O(bitwidth), which is O(1)--assisted with the precomputed power-of-two table.
+Additionally, Schocken classifies his recursive algorithm as O(log n), while
+technically true, but ignores the VM overhead of function calling and local
+variable rematerialization.  My schoolbook, long division, approach is
+constant-time, O(bitwidth), which is O(1)--assisted with the precomputed
+power-of-two table.
 
 ## Output.jack
 
@@ -23,17 +24,20 @@ sizes are different) and is less thick than the reference font.
 
 ## Screen.jack
 
-Originally I didn't want to do my own Screen routines, but I didn't find
-satisfactory existing Jack implementations that didn't suffer from
-exceptionally poor performance.  Further, the book's diagonal line drawing
-routine only permitted either the x- or y-coordinate to change per step,
-resulting in a 45-degree line looking fairly bad.  After some research,
-the diagonal special-case became an implemenation of Bresenham's line
-algorithm.  As it happens, from my experiments, of various slopped lines,
-the reference JackOS is using this as well.
+Originally I didn't want to do my own Screen routines, but I was unsuccssful in
+finding satisfactory Jack implementations that didn't suffer from exceptionally
+poor performance.  Further, the book's diagonal line drawing routine only
+permitted either the x- or y-coordinate to change per step, resulting in a
+45-degree line looking fairly bad.  After some research, the diagonal
+special-case became an implemenation of Bresenham's line algorithm.
+Interestingly, and from my experiments of various slopped lines, the
+reference JackOS is using this algorithm as well.
 
 The drawRectangle() was also optimized since my MerlinJack game suffered
 a noticable slowness with the repeated drawLine() version.
+
+An internal div_mod() routine exists for divide computations which require both
+the quotient and modulus as output.
 
 UPDATE: The drawRectangle() was needlessly complicated.
 

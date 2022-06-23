@@ -1,16 +1,16 @@
 # NAND to Tetris - Build a Modern Computer from First Principles
 
-My implementation of chapters 1-11 of the NAND to Tetris course.  The final
-operating chapter wasn't completed as its fairly uninteresting when compared to
-the overall course.
+My implementation of chapters 1-12 of the NAND to Tetris course.  This represents
+a my own implementation of all the projects of the course.
 
 - See MOOC course: https://www.coursera.org/learn/nand2tetris2
 - See website: https://www.nand2tetris.org
+- See course forums: http://nand2tetris-questions-and-answers-forum.52.s1.nabble.com
 
 Requires the addition of the upstream distributions files:
 
 - nand2tetris/projects
-- nand2tetris/tools/
+- nand2tetris/tools
 
 The two halves of the course are kept in separated branches:
 
