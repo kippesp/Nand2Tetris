@@ -28,7 +28,8 @@ public:
   TextReader(TextReader&&) = delete;
   TextReader& operator=(TextReader&&) = delete;
 
-  TextReader(const char*);
+  inline TextReader(const char* s) { init_buffer(s); }
+  inline TextReader(std::string s) { init_buffer(s.data()); }
 
   [[nodiscard]] const std::string_view get_line(size_t x) const
   {

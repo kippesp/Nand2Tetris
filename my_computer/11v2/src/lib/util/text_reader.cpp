@@ -79,9 +79,4 @@ void TextReader::init_buffer(const char* buf)
   cursor_pos = 0;
 }
 
-TextReader::TextReader(const char* buf)
-{
-  init_buffer(buf);
-}
-
 }  // namespace jfcl
