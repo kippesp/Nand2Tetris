@@ -81,8 +81,8 @@ endif()
 
 # Use this with new tools
 if (${USE_LOCAL_LIBCPP})
-    set(CMAKE_BUILD_RPATH "/Users/kippesp/usr/opt/llvm-13.0.1-test/lib")
-    add_link_options(-L/Users/kippesp/usr/opt/llvm-13.0.1-test/lib)
+    set(CMAKE_BUILD_RPATH "/Users/kippesp/usr/opt/llvm-14.0.4/lib")
+    add_link_options(-L/Users/kippesp/usr/opt/llvm-14.0.4/lib)
 endif()
 
 include(CheckCXXCompilerFlag)

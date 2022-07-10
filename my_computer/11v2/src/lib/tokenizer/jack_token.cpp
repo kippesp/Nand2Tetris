@@ -7,6 +7,8 @@
 #include <sstream>
 #include <string>
 
+namespace jfcl {
+
 std::ostream& operator<<(std::ostream& os, JackTokenCRef rhs)
 {
   os << "token_name: ";
@@ -102,3 +104,5 @@ std::string JackToken::to_s_expression(bool show_line_numbers) const
 
   return ss.str();
 }
+
+}  // namespace jfcl

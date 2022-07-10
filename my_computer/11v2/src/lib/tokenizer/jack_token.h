@@ -1,7 +1,11 @@
+#pragma once
+
 #include <functional>
 #include <string>
 
 #include "util/text_reader.h"
+
+namespace jfcl {
 
 using TokenValue_t = enum class TokenValue_s {
   J_UNDEFINED,
@@ -83,3 +87,5 @@ public:
   std::string value_str {"UNDEFINED"};  // for integer, string, comments tokens
   int line_number;                      // don't write big programs!
 };
+
+}  // namespace jfcl

@@ -72,11 +72,14 @@ using AstNodeType_t = enum class AstNodeType_s {
 };
 
 class AstNode;
+class AstTree;
 
 using AstNodeRef = std::reference_wrapper<AstNode>;
 using AstNodeCRef = std::reference_wrapper<const AstNode>;
 
 using AstNodeValue_t = std::variant<std::monostate, std::string, int>;
+
+using AstTreeCRef = std::reference_wrapper<const AstTree>;
 
 class AstNode {
 public:
