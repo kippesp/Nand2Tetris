@@ -178,8 +178,6 @@ JackToken JackTokenizer::get_next_token()
   // PARSE FOR JACK SYMBOL
   token = get_symbol_token(ch);
 
-  assert((token.value_enum != TokenValue_t::J_UNDEFINED) && "Unhandled case!");
-
   return token;
 }
 
