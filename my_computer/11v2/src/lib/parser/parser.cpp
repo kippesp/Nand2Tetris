@@ -371,6 +371,16 @@ AstNodeRef Parser::parse_subroutine()
     while (current_token.get().value_enum != TokenValue_t::J_RIGHT_BRACE)
     {
       AstNodeRef StatementAst = parse_statement();
+      if (StatementAst.get() == AST.get_empty_node_ref().get())
+      {
+        std::stringstream ss;
+
+        ss << "Line #" << current_token.get().line_number << ": "
+           << "Expected statement start token while parsing "
+           << JackToken::to_string(current_token.get().value_enum);
+
+        fatal_error(ss.str());
+      }
       assert((StatementAst.get() != AST.get_empty_node_ref().get()) &&
              "statement required");
       StatementBlockAst.get().add_child(StatementAst);
