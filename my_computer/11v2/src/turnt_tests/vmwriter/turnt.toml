@@ -1,3 +1,0 @@
-command = "../../../build/src/jfcl -w {filename}"
-diff = "git --no-pager diff --no-index"
-#diff = "diff --unified --color=always"

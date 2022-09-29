@@ -1,5 +1,3 @@
-command_dir = "../../../build/src"
-command_exec = "jfcl"
-command_args = "-t {filename}"
+command = "../../../build/src/jfcl -t {filename}"
 diff = "git --no-pager diff --no-index"
 #diff = "diff --unified --color=always"

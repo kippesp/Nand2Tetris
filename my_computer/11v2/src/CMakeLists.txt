@@ -19,3 +19,5 @@ if (NOT MSVC)
 else()
     target_link_libraries(${PROJECT_NAME} jfclmain)
 endif()
+
+add_subdirectory(turnt_tests)
