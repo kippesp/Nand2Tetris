@@ -4,7 +4,7 @@
 #include <sstream>
 
 #if defined _MSC_VER
-#pragma warning (disable : 4996)
+#pragma warning(disable : 4996)
 #endif
 
 namespace jfcl {
@@ -22,9 +22,7 @@ TextFileReader::TextFileReader(const char* filename)
 
   fclose(fd);
 
-  ss << '\0';
-
-  init_buffer(ss.str().data());
+  init_buffer(ss.str());
 }
 
 }  // namespace jfcl

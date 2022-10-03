@@ -29,10 +29,9 @@ public:
   TextReader(TextReader&&) = delete;
   TextReader& operator=(TextReader&&) = delete;
 
-  inline TextReader(const char* s) { init_buffer(s); }
-  inline TextReader(std::string s) { init_buffer(s.data()); }
+  inline TextReader(std::string s) { init_buffer(s); }
 
-  [[nodiscard]] const std::string_view get_line(size_t x) const
+  [[nodiscard]] std::string_view get_line(size_t x) const
   {
     if (x >= contents.size())
       throw std::runtime_error("Read beyond input");
@@ -44,14 +43,18 @@ public:
   int get_current_line_number() { return current_line_number; }
 
 protected:
-  void init_buffer(const char*);
+  void init_buffer(const std::string&);
 
-  using Contents_t = std::vector<std::string>;
+  using Contents_t = std::vector<std::string_view>;
   Contents_t contents;
 
   std::string raw_buffer;
   size_t cursor_pos {0};
   int current_line_number {1};
+
+private:
+  // backing store for each line
+  std::vector<std::unique_ptr<std::string>> contents_store;
 };
 
 }  // namespace jfcl

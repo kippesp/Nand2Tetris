@@ -44,10 +44,9 @@ TextReader::char_type TextReader::peek2()
   return '\0';
 }
 
-void TextReader::init_buffer(const char* buf)
+void TextReader::init_buffer(const std::string& s)
 {
   std::stringstream ss_line;
-  std::string s(buf);
 
   for (char ch : s)
   {
@@ -55,7 +54,11 @@ void TextReader::init_buffer(const char* buf)
     {
       if (ch == '\n')
       {
-        contents.push_back(ss_line.str());
+        contents_store.emplace_back(
+            std::make_unique<std::string>(ss_line.str()));
+        auto& s_ptr_ref = contents_store.back();
+        std::string_view s_view = *s_ptr_ref;
+        contents.emplace_back(s_view);
         ss_line.str("");
         ss_line.clear();
       }
@@ -73,7 +76,10 @@ void TextReader::init_buffer(const char* buf)
 
   if (!ss_line.str().empty())
   {
-    contents.push_back(ss_line.str());
+    contents_store.emplace_back(std::make_unique<std::string>(ss_line.str()));
+    auto& s_ptr_ref = contents_store.back();
+    std::string_view s_view = *s_ptr_ref;
+    contents.emplace_back(s_view);
   }
   raw_buffer = s;
   cursor_pos = 0;
