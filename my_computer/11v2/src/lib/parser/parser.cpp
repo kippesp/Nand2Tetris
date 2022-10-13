@@ -637,11 +637,10 @@ AstNodeRef Parser::parse_subroutine_call()
       create_ast_node(AstNodeType_t::N_CALL_ARGUMENTS);
   root_node.get().add_child(call_arguments_node);
 
-  for (bool done = false; !done; /* none */)
+  for (;;)
   {
     if (current_token.get().value_enum == TokenValue_t::J_RIGHT_PARENTHESIS)
     {
-      done = true;
       break;
     }
 

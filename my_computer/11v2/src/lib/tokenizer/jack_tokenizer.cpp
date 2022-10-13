@@ -276,7 +276,7 @@ JackToken JackTokenizer::get_string_token(char ch)
 
   if ('"' == reader.peek())
   {
-    ch = reader.read();
+    reader.read();
 
     return JackToken(TokenValue_t::J_STRING_CONSTANT, s.str(),
                      reader.get_current_line_number());
