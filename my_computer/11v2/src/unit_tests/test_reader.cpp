@@ -1,6 +1,6 @@
-#include <cstdio>
-
 #include "common.h"
+
+#include <cstdio>
 
 using namespace jfcl;
 

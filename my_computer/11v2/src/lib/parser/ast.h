@@ -1,10 +1,9 @@
 #pragma once
+
 #include "tokenizer/jack_tokenizer.h"
 
 #include <variant>
 #include <vector>
-
-#include <signal.h>
 
 namespace jfcl {
 

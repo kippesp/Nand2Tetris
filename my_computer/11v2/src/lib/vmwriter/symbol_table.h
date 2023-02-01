@@ -1,9 +1,8 @@
 #pragma once
 
-#include <iostream>
-#include <map>
-
 #include "parser/ast.h"
+
+#include <map>
 
 namespace jfcl {
 

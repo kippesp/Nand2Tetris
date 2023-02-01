@@ -3,6 +3,9 @@
 #include "parser/ast.h"
 #include "program.h"
 
+#include <sstream>
+#include <string>
+
 namespace jfcl {
 
 class VmWriter {

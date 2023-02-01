@@ -1,11 +1,8 @@
-#include <string.h>
-
-// for testing
-#include <iostream>
-
 #include "common.h"
 #include "jack_sources.h"
 #include "vmwriter/vmwriter.h"
+
+#include <string.h>
 
 using namespace jfcl;
 

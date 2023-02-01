@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include <sstream>
+
 std::string expected_string(const Expected_t& strings)
 {
   std::stringstream ss;

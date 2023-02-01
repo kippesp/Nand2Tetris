@@ -1,11 +1,8 @@
 #include "jack_token.h"
 
-#include <cassert>
 #include <iomanip>
 #include <iostream>
-#include <locale>
 #include <sstream>
-#include <string>
 
 namespace jfcl {
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ast.h"
-
 #include "tokenizer/jack_token.h"
 #include "util/text_reader.h"
 

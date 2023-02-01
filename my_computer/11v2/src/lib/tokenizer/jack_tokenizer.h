@@ -1,12 +1,10 @@
 #pragma once
 
-#include <memory>
-#include <sstream>
-#include <string>
-#include <vector>
-
 #include "jack_token.h"
 #include "util/text_reader.h"
+
+#include <memory>
+#include <vector>
 
 namespace jfcl {
 

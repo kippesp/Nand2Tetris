@@ -1,14 +1,8 @@
 #include "parser.h"
 
-#include <cassert>
-#include <functional>
-#include <list>
 #include <map>
-#include <memory>
-#include <optional>
+#include <sstream>
 #include <unordered_set>
-
-#include <signal.h>
 
 namespace jfcl {
 

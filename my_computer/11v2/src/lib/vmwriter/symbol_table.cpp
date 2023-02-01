@@ -1,6 +1,3 @@
-#include <cassert>
-#include <string>
-
 #include "semantic_exception.h"
 #include "symbol_table.h"
 

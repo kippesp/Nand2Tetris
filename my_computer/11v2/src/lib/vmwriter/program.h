@@ -1,11 +1,11 @@
 #pragma once
 
+#include "class_descr.h"
+#include "parser/ast.h"
+
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "class_descr.h"
-#include "parser/ast.h"
 
 namespace jfcl {
 

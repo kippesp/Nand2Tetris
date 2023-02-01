@@ -1,6 +1,5 @@
 #include "text_reader.h"
 
-#include <exception>
 #include <sstream>
 
 namespace jfcl {

@@ -2,9 +2,7 @@
 
 #include "jack_tokenizer.h"
 
-#include <cassert>
 #include <sstream>
-#include <string>
 
 namespace jfcl {
 

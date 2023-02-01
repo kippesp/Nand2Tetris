@@ -1,7 +1,4 @@
-#include <string.h>
-
-#include <fstream>
-#include <iostream>
+#include "jfcl.h"
 
 #include "parser/parser.h"
 #include "tokenizer/jack_tokenizer.h"
@@ -9,7 +6,8 @@
 #include "util/textfile_reader.h"
 #include "vmwriter/vmwriter.h"
 
-#include "jfcl.h"
+#include <fstream>
+#include <iostream>
 
 using namespace jfcl;
 

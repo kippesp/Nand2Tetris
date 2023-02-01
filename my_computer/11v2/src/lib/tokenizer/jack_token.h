@@ -1,9 +1,9 @@
 #pragma once
 
+#include "util/text_reader.h"
+
 #include <functional>
 #include <string>
-
-#include "util/text_reader.h"
 
 namespace jfcl {
 

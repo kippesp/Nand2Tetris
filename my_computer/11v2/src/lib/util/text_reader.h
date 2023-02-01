@@ -1,11 +1,7 @@
 #pragma once
 
-#include <ctype.h>
-
 #include <cstdint>
-#include <exception>
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>

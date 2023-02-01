@@ -1,10 +1,10 @@
 #pragma once
 
-#include <optional>
-
 #include "parser/ast.h"
 #include "semantic_exception.h"
 #include "symbol_table.h"
+
+#include <optional>
 
 namespace jfcl {
 
