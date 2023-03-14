@@ -1,5 +1,6 @@
 #include "jack_token.h"
 
+#include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <sstream>

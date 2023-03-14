@@ -3,6 +3,7 @@
 #include "class_descr.h"
 #include "semantic_exception.h"
 
+#include <cassert>
 #include <iostream>
 #include <queue>
 

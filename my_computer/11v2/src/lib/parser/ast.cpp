@@ -1,5 +1,6 @@
 #include "ast.h"
 
+#include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <sstream>

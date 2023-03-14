@@ -1,6 +1,8 @@
 #include "parser.h"
 
+#include <cassert>
 #include <map>
+#include <optional>
 #include <sstream>
 #include <unordered_set>
 
