@@ -1,5 +1,6 @@
 #include "cli_args.h"
 
+#include <cassert>
 #include <filesystem>
 #include <iostream>
 
