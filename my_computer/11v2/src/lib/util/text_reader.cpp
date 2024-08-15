@@ -69,7 +69,9 @@ void TextReader::init_buffer(const std::string& s)
     else
     {
       // current position
-      throw std::domain_error("Invalid character in input stream");
+      throw std::domain_error(
+          "Invalid character in input stream.  Check for non-ASCII characters "
+          "in input.");
     }
   }
 

@@ -126,9 +126,19 @@ JFCL_DLLEXPORT int JFCL_APICALL jfcl_main(int argc, const char* argv[])
   {
     rvalue = jfcl_inner_main(cliargs);
   }
-  catch (std::runtime_error& e)
+  catch (const std::runtime_error& e)
   {
     std::cout << "Error: " << e.what() << std::endl;
+    return 1;
+  }
+  catch (const std::domain_error& e)
+  {
+    std::cout << "Error: " << e.what() << std::endl;
+    return 1;
+  }
+  catch (...)
+  {
+    std::cout << "Unhandled exception" << std::endl;
     return 1;
   }
 
