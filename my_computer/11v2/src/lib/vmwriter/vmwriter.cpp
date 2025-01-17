@@ -17,6 +17,23 @@
 
 using namespace std;
 
+#if 0
+static bool is_valid_node_reference(
+    const std::reference_wrapper<const jfcl::AstNode>& ref)
+{
+  // Add validation logic
+  try
+  {
+    const jfcl::AstNode& node = ref.get();
+    return true;
+  }
+  catch (...)
+  {
+    return false;
+  }
+}
+#endif
+
 namespace jfcl {
 
 void VmWriter::lower_module()
@@ -327,7 +344,7 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
 
   while (!worklist.empty())
   {
-    auto& node = worklist.front();
+    auto node = worklist.front();
     const auto& node_type = node.get().type;
 
     worklist.pop();
