@@ -1,9 +1,14 @@
 #include "ast.h"
 
 #include <cassert>
+#include <functional>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <sstream>
+#include <string>
+#include <variant>
+#include <vector>
 
 namespace jfcl {
 
@@ -11,17 +16,17 @@ std::ostream& operator<<(std::ostream& os, const AstNode& rhs)
 {
   os << "type: ";
 
-  os << AstNode::to_string(rhs.type) << std::endl;
+  os << AstNode::to_string(rhs.type) << '\n';
 
-  if (const auto s_ptr(std::get_if<std::string>(&rhs.value)); s_ptr)
+  if (const auto* const s_ptr(std::get_if<std::string>(&rhs.value)); s_ptr)
   {
     os << "value (string): ";
-    os << *s_ptr << std::endl;
+    os << *s_ptr << '\n';
   }
-  else if (const auto i_ptr(std::get_if<int>(&rhs.value)); i_ptr)
+  else if (const auto* const i_ptr(std::get_if<int>(&rhs.value)); i_ptr)
   {
     os << "value (int): ";
-    os << *i_ptr << std::endl;
+    os << *i_ptr << '\n';
   }
 
   return os;
@@ -127,11 +132,11 @@ std::string AstNode::as_s_expression(const std::string& indent,
     }
   }
 
-  if (const auto s_ptr(std::get_if<std::string>(&value)); s_ptr)
+  if (const auto* const s_ptr(std::get_if<std::string>(&value)); s_ptr)
   {
     ss << " string_value:" << *s_ptr;
   }
-  else if (const auto i_ptr(std::get_if<int>(&value)); i_ptr)
+  else if (const auto* const i_ptr(std::get_if<int>(&value)); i_ptr)
   {
     ss << " integer_value:" << *i_ptr;
   }
@@ -148,7 +153,7 @@ std::string AstNode::as_s_expression(const std::string& indent,
 
 void AstNode::dump() const
 {
-  std::cout << as_s_expression() << std::endl;
+  std::cout << as_s_expression() << '\n';
 }
 
 
@@ -161,6 +166,7 @@ std::vector<AstNodeCRef> AstNode::get_child_nodes() const
 {
   std::vector<AstNodeCRef> V;
 
+  V.reserve(child_nodes.size());
   for (const auto& N : child_nodes)
   {
     V.emplace_back(std::cref(N.get()));

@@ -1,11 +1,19 @@
 #include "vmwriter/vmwriter.h"
 
 #include "class_descr.h"
+#include "parser/ast.h"
 #include "semantic_exception.h"
+#include "vmwriter/subroutine_descr.h"
+#include "vmwriter/symbol_table.h"
 
 #include <cassert>
+#include <cstdlib>
+#include <functional>
 #include <iostream>
+#include <optional>
 #include <queue>
+#include <sstream>
+#include <variant>
 
 using namespace std;
 
@@ -28,14 +36,14 @@ void VmWriter::lower_module()
 template <typename T>
 const T& VmWriter::get_ast_node_value(AstNodeCRef node, AstNodeType_t node_type)
 {
-  AstNodeCRef ast_node = module_ast.find_child_node(node, node_type);
+  AstNodeCRef const ast_node = module_ast.find_child_node(node, node_type);
 
   if (ast_node.get() == EmptyNodeRef.get())
   {
     throw SemanticException("Expected node type not found in child nodes");
   }
 
-  if (const auto s_ptr(get_if<T>(&ast_node.get().value)); s_ptr)
+  if (const auto* const s_ptr(get_if<T>(&ast_node.get().value)); s_ptr)
   {
     return *s_ptr;
   }
@@ -51,7 +59,7 @@ const T& VmWriter::get_ast_node_value(AstNodeCRef node)
     throw SemanticException("Expected node type not found in child nodes");
   }
 
-  if (const auto s_ptr(get_if<T>(&node.get().value)); s_ptr)
+  if (const auto* const s_ptr(get_if<T>(&node.get().value)); s_ptr)
   {
     return *s_ptr;
   }
@@ -66,7 +74,7 @@ const T& VmWriter::get_ast_node_value(AstNodeCRef node)
 optional<VmWriter::SymbolLoweringLocations_t> VmWriter::get_symbol_alloc_info(
     SubroutineDescr& subroutine_descr, const AstNode& node)
 {
-  auto& var_name = get_ast_node_value<string>(node);
+  const auto& var_name = get_ast_node_value<string>(node);
 
   return get_symbol_alloc_info(subroutine_descr, var_name);
 }
@@ -127,7 +135,7 @@ optional<VmWriter::SymbolLoweringLocations_t> VmWriter::get_symbol_alloc_info(
 
 void VmWriter::lower_class(AstNodeCRef root)
 {
-  auto& class_name = get_ast_node_value<std::string>(root);
+  const auto& class_name = get_ast_node_value<std::string>(root);
   ClassDescr& class_descr = program.add_class(class_name, root);
 
   for (auto& node : root.get().get_child_nodes())
@@ -146,10 +154,10 @@ void VmWriter::lower_class(AstNodeCRef root)
           throw SemanticException("Expected class variable decl node");
         }
 
-        auto& variable_name = get_ast_node_value<std::string>(var_node);
-        auto& variable_scope = get_ast_node_value<std::string>(
+        const auto& variable_name = get_ast_node_value<std::string>(var_node);
+        const auto& variable_scope = get_ast_node_value<std::string>(
             var_node, AstNodeType_t::N_CLASS_VARIABLE_SCOPE);
-        auto& variable_type = get_ast_node_value<std::string>(
+        const auto& variable_type = get_ast_node_value<std::string>(
             var_node, AstNodeType_t::N_VARIABLE_TYPE);
 
         class_descr.add_symbol(variable_name, variable_scope, variable_type);
@@ -163,7 +171,7 @@ void VmWriter::lower_class(AstNodeCRef root)
     }
     else
     {
-      cout << node.get() << endl;
+      cout << node.get() << '\n';
       throw SemanticException("Unexpected node");
     }
   }
@@ -185,7 +193,7 @@ void VmWriter::lower_statement_block(SubroutineDescr& subroutine_descr,
     else if (node.get().type == AstNodeType_t::N_DO_STATEMENT)
     {
       assert(node.get().num_child_nodes() == 1);
-      auto& call_site_parent = node.get().get_child_nodes()[0].get();
+      const auto& call_site_parent = node.get().get_child_nodes()[0].get();
 
       if (call_site_parent.type != AstNodeType_t::N_SUBROUTINE_CALL)
       {
@@ -194,7 +202,7 @@ void VmWriter::lower_statement_block(SubroutineDescr& subroutine_descr,
 
       lower_subroutine_call(subroutine_descr, call_site_parent);
       // throw away call-ed subroutine's return value
-      lowered_vm << "pop temp 0" << endl;
+      lowered_vm << "pop temp 0" << '\n';
     }
     else if (node.get().type == AstNodeType_t::N_WHILE_STATEMENT)
     {
@@ -213,7 +221,7 @@ void VmWriter::lower_statement_block(SubroutineDescr& subroutine_descr,
 
 void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
 {
-  auto& subroutine_name = get_ast_node_value<std::string>(root);
+  const auto& subroutine_name = get_ast_node_value<std::string>(root);
   const AstNode& DescrNode =
       module_ast.find_child_node(root, AstNodeType_t::N_SUBROUTINE_DESCR).get();
   auto return_type = SymbolTable::variable_type_from_string(
@@ -241,8 +249,8 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
           throw SemanticException("Expected subroutine input param decl node");
         }
 
-        auto& variable_name = get_ast_node_value<std::string>(node);
-        auto& variable_type = get_ast_node_value<std::string>(
+        const auto& variable_name = get_ast_node_value<std::string>(node);
+        const auto& variable_type = get_ast_node_value<std::string>(
             node, AstNodeType_t::N_VARIABLE_TYPE);
 
         subroutine_descr.add_symbol(
@@ -261,14 +269,14 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
   add_symbol(AstNodeType_t::N_LOCAL_VARIABLES);
 
   lowered_vm << "function " << class_descr.get_name() << "." << subroutine_name;
-  lowered_vm << " " << subroutine_descr.num_locals() << endl;
+  lowered_vm << " " << subroutine_descr.num_locals() << '\n';
 
   // For class constructors, allocate class object and save to pointer 0
   if (root.type == AstNodeType_t::N_CONSTRUCTOR_DECL)
   {
-    lowered_vm << "push constant " << subroutine_descr.num_fields() << endl;
-    lowered_vm << "call Memory.alloc 1" << endl;
-    lowered_vm << "pop pointer 0" << endl;
+    lowered_vm << "push constant " << subroutine_descr.num_fields() << '\n';
+    lowered_vm << "call Memory.alloc 1" << '\n';
+    lowered_vm << "pop pointer 0" << '\n';
   }
 
   // For class methods, get the THIS pointer passed in as argument 0
@@ -276,15 +284,15 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
   if (auto this_var = subroutine_descr.find_symbol("this");
       this_var.has_value())
   {
-    Symbol& symbol = *this_var;
-    lowered_vm << "push argument " << symbol.index << endl;
-    lowered_vm << "pop pointer 0" << endl;
+    Symbol const& symbol = *this_var;
+    lowered_vm << "push argument " << symbol.index << '\n';
+    lowered_vm << "pop pointer 0" << '\n';
   }
 
-  AstNodeCRef BodyNode =
+  AstNodeCRef const BodyNode =
       module_ast.find_child_node(root, AstNodeType_t::N_SUBROUTINE_BODY);
 
-  AstNodeCRef StatementBlockNode =
+  AstNodeCRef const StatementBlockNode =
       module_ast.find_child_node(BodyNode, AstNodeType_t::N_STATEMENT_BLOCK);
 
   lower_statement_block(subroutine_descr, StatementBlockNode.get());
@@ -317,10 +325,10 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
   // build DFS node queue the expression tree
   visit_fn(expression_root);
 
-  while (worklist.size() > 0)
+  while (!worklist.empty())
   {
     auto& node = worklist.front();
-    auto& node_type = node.get().type;
+    const auto& node_type = node.get().type;
 
     worklist.pop();
 
@@ -336,9 +344,11 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
       }
 
       if (int_value < 0)
+      {
         throw SemanticException("Unexpected encountered negative number");
+      }
 
-      lowered_vm << "push constant " << int_value << endl;
+      lowered_vm << "push constant " << int_value << '\n';
     }
     else if (node_type == AstNodeType_t::N_THIS_KEYWORD)
     {
@@ -347,7 +357,7 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
         throw SemanticException("'this' keyword not permitted in functions");
       }
 
-      lowered_vm << "push pointer 0" << endl;
+      lowered_vm << "push pointer 0" << '\n';
     }
     else if (node_type == AstNodeType_t::N_VARIABLE_NAME)
     {
@@ -361,83 +371,83 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
     {
       lower_var(subroutine_descr, node);
 
-      lowered_vm << "add" << endl;
-      lowered_vm << "pop pointer 1" << endl;
-      lowered_vm << "push that 0" << endl;
+      lowered_vm << "add" << '\n';
+      lowered_vm << "pop pointer 1" << '\n';
+      lowered_vm << "push that 0" << '\n';
     }
     else if (node_type == AstNodeType_t::N_STRING_CONSTANT)
     {
-      auto& str = get_ast_node_value<string>(node);
+      const auto& str = get_ast_node_value<string>(node);
 
-      lowered_vm << "push constant " << str.length() << endl;
-      lowered_vm << "call String.new 1" << endl;
+      lowered_vm << "push constant " << str.length() << '\n';
+      lowered_vm << "call String.new 1" << '\n';
       for (auto ch : str)
       {
-        lowered_vm << "push constant " << static_cast<int>(ch) << endl;
-        lowered_vm << "call String.appendChar 2" << endl;
+        lowered_vm << "push constant " << static_cast<int>(ch) << '\n';
+        lowered_vm << "call String.appendChar 2" << '\n';
       }
     }
     // handle operators
     else
     {
-      string operator_vm;
+      string const operator_vm;
 
       if (node_type == AstNodeType_t::N_OP_MULTIPLY)
       {
-        lowered_vm << "call Math.multiply 2" << endl;
+        lowered_vm << "call Math.multiply 2" << '\n';
       }
       else if (node_type == AstNodeType_t::N_OP_DIVIDE)
       {
-        lowered_vm << "call Math.divide 2" << endl;
+        lowered_vm << "call Math.divide 2" << '\n';
       }
       else if (node_type == AstNodeType_t::N_OP_ADD)
       {
-        lowered_vm << "add" << endl;
+        lowered_vm << "add" << '\n';
       }
       else if (node_type == AstNodeType_t::N_OP_SUBTRACT)
       {
-        lowered_vm << "sub" << endl;
+        lowered_vm << "sub" << '\n';
       }
       else if (node_type == AstNodeType_t::N_OP_LOGICAL_EQUALS)
       {
-        lowered_vm << "eq" << endl;
+        lowered_vm << "eq" << '\n';
       }
       else if (node_type == AstNodeType_t::N_OP_LOGICAL_GT)
       {
-        lowered_vm << "gt" << endl;
+        lowered_vm << "gt" << '\n';
       }
       else if (node_type == AstNodeType_t::N_OP_LOGICAL_LT)
       {
-        lowered_vm << "lt" << endl;
+        lowered_vm << "lt" << '\n';
       }
       else if (node_type == AstNodeType_t::N_OP_LOGICAL_AND)
       {
-        lowered_vm << "and" << endl;
+        lowered_vm << "and" << '\n';
       }
       else if (node_type == AstNodeType_t::N_OP_LOGICAL_OR)
       {
-        lowered_vm << "or" << endl;
+        lowered_vm << "or" << '\n';
       }
       else if (node_type == AstNodeType_t::N_OP_PREFIX_NEG)
       {
-        lowered_vm << "neg" << endl;
+        lowered_vm << "neg" << '\n';
       }
       else if (node_type == AstNodeType_t::N_OP_PREFIX_LOGICAL_NOT)
       {
-        lowered_vm << "not" << endl;
+        lowered_vm << "not" << '\n';
       }
       else if (node_type == AstNodeType_t::N_TRUE_KEYWORD)
       {
-        lowered_vm << "push constant 0" << endl;
-        lowered_vm << "not" << endl;
+        lowered_vm << "push constant 0" << '\n';
+        lowered_vm << "not" << '\n';
       }
       else if (node_type == AstNodeType_t::N_FALSE_KEYWORD)
       {
-        lowered_vm << "push constant 0" << endl;
+        lowered_vm << "push constant 0" << '\n';
       }
       else if (node_type == AstNodeType_t::N_NULL_KEYWORD)
       {
-        lowered_vm << "push constant 0" << endl;
+        lowered_vm << "push constant 0" << '\n';
       }
       else
       {
@@ -461,11 +471,11 @@ void VmWriter::lower_var(SubroutineDescr& subroutine_descr, const AstNode& node)
     auto& symbol = symbol_alloc.value();
 
     lowered_vm << "push " << symbol.stack_name << " " << symbol.symbol_index
-               << endl;
+               << '\n';
   }
   else
   {
-    auto& bind_var_name = get_ast_node_value<string>(node);
+    const auto& bind_var_name = get_ast_node_value<string>(node);
     throw SemanticException("Symbol not found:", bind_var_name);
   }
 }
@@ -479,7 +489,7 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
   auto subroutine_return_type = subroutine_descr.get_return_type();
   bool is_void_return = false;
 
-  if (auto return_type_ptr =
+  if (auto* return_type_ptr =
           get_if<SymbolTable::BasicType_t>(&subroutine_return_type);
       return_type_ptr)
   {
@@ -496,8 +506,8 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
         throw SemanticException("Void subroutine returning non-void");
       }
 
-      lowered_vm << "push constant 0" << endl;
-      lowered_vm << "return" << endl;
+      lowered_vm << "push constant 0" << '\n';
+      lowered_vm << "return" << '\n';
       return;
     }
 
@@ -512,10 +522,10 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
       throw SemanticException("Non-void subroutine returning void");
     }
 
-    auto& expression_node = root.get_child_nodes()[0].get();
+    const auto& expression_node = root.get_child_nodes()[0].get();
 
     lower_expression(subroutine_descr, expression_node);
-    lowered_vm << "return" << endl;
+    lowered_vm << "return" << '\n';
   }
 }
 
@@ -524,8 +534,8 @@ void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
 {
   assert(root.num_child_nodes() == 2);
 
-  auto& lh_bind_node = root.get_child_nodes()[0].get();
-  auto& rhs_node = root.get_child_nodes()[1].get();
+  const auto& lh_bind_node = root.get_child_nodes()[0].get();
+  const auto& rhs_node = root.get_child_nodes()[1].get();
 
   lower_expression(subroutine_descr, rhs_node);
 
@@ -537,24 +547,25 @@ void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
     {
       auto& sym = sym_locs.value();
 
-      lowered_vm << "pop " << sym.stack_name << " " << sym.symbol_index << endl;
+      lowered_vm << "pop " << sym.stack_name << " " << sym.symbol_index << '\n';
     }
     else
     {
-      auto& bind_var_name = get_ast_node_value<string>(lh_bind_node);
+      const auto& bind_var_name = get_ast_node_value<string>(lh_bind_node);
       throw SemanticException("Symbol not found in LET:", bind_var_name);
     }
   }
   else if (lh_bind_node.type == AstNodeType_t::N_SUBSCRIPTED_VARIABLE_NAME)
   {
-    auto& subscript_expression_node = lh_bind_node.get_child_nodes()[0].get();
+    const auto& subscript_expression_node =
+        lh_bind_node.get_child_nodes()[0].get();
 
     lower_expression(subroutine_descr, subscript_expression_node);
     lower_var(subroutine_descr, lh_bind_node);
 
-    lowered_vm << "add" << endl;
-    lowered_vm << "pop pointer 1" << endl;
-    lowered_vm << "pop that 0" << endl;
+    lowered_vm << "add" << '\n';
+    lowered_vm << "pop pointer 1" << '\n';
+    lowered_vm << "pop that 0" << '\n';
   }
   else
   {
@@ -572,13 +583,13 @@ void VmWriter::lower_while_statement(SubroutineDescr& subroutine_descr,
   const auto& expression_node = root.get_child_nodes()[0].get();
   const auto& statement_block_node = root.get_child_nodes()[1].get();
 
-  lowered_vm << "label WHILE_BEGIN_" << LOOP_ID << endl;
+  lowered_vm << "label WHILE_BEGIN_" << LOOP_ID << '\n';
   lower_expression(subroutine_descr, expression_node);
-  lowered_vm << "not" << endl;
-  lowered_vm << "if-goto WHILE_END_" << LOOP_ID << endl;
+  lowered_vm << "not" << '\n';
+  lowered_vm << "if-goto WHILE_END_" << LOOP_ID << '\n';
   lower_statement_block(subroutine_descr, statement_block_node);
-  lowered_vm << "goto WHILE_BEGIN_" << LOOP_ID << endl;
-  lowered_vm << "label WHILE_END_" << LOOP_ID << endl;
+  lowered_vm << "goto WHILE_BEGIN_" << LOOP_ID << '\n';
+  lowered_vm << "label WHILE_END_" << LOOP_ID << '\n';
 }
 
 void VmWriter::lower_if_statement(SubroutineDescr& subroutine_descr,
@@ -603,28 +614,28 @@ void VmWriter::lower_if_statement(SubroutineDescr& subroutine_descr,
   {
     const auto& false_statement_block_node = root.get_child_nodes()[2].get();
 
-    lowered_vm << "if-goto IF_TRUE_" << ID << endl;
-    lowered_vm << "label IF_FALSE_" << ID << endl;
+    lowered_vm << "if-goto IF_TRUE_" << ID << '\n';
+    lowered_vm << "label IF_FALSE_" << ID << '\n';
     lower_statement_block(subroutine_descr, false_statement_block_node);
-    lowered_vm << "goto IF_END_" << ID << endl;
-    lowered_vm << "label IF_TRUE_" << ID << endl;
+    lowered_vm << "goto IF_END_" << ID << '\n';
+    lowered_vm << "label IF_TRUE_" << ID << '\n';
     lower_statement_block(subroutine_descr, true_statement_block_node);
-    lowered_vm << "label IF_END_" << ID << endl;
+    lowered_vm << "label IF_END_" << ID << '\n';
   }
   else
   {
-    lowered_vm << "if-goto IF_TRUE_" << ID << endl;
-    lowered_vm << "goto IF_END_" << ID << endl;
-    lowered_vm << "label IF_TRUE_" << ID << endl;
+    lowered_vm << "if-goto IF_TRUE_" << ID << '\n';
+    lowered_vm << "goto IF_END_" << ID << '\n';
+    lowered_vm << "label IF_TRUE_" << ID << '\n';
     lower_statement_block(subroutine_descr, true_statement_block_node);
-    lowered_vm << "label IF_END_" << ID << endl;
+    lowered_vm << "label IF_END_" << ID << '\n';
   }
 }
 
 void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
                                      const AstNode& root)
 {
-  auto& call_site = root.get_child_nodes()[0].get();
+  const auto& call_site = root.get_child_nodes()[0].get();
   assert((call_site.type == AstNodeType_t::N_LOCAL_CALL_SITE) ||
          (call_site.type == AstNodeType_t::N_GLOBAL_CALL_SITE));
 
@@ -645,10 +656,10 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
     if (call_site.type == AstNodeType_t::N_LOCAL_CALL_SITE)
     {
       // Handle call: subroutine(), this pointer
-      lowered_vm << "push pointer 0" << endl;
+      lowered_vm << "push pointer 0" << '\n';
       call_site_args++;
 
-      if (auto symbol_type_ptr =
+      if (const auto* symbol_type_ptr =
               get_if<SymbolTable::ClassType_t>(&this_symbol->variable_type);
           symbol_type_ptr)
       {
@@ -675,7 +686,7 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
       else
       {
         // Handle call: ClassName.subroutine()
-        auto& global_bind_name = get_ast_node_value<string>(
+        const auto& global_bind_name = get_ast_node_value<string>(
             call_site, AstNodeType_t::N_GLOBAL_BIND_NAME);
 
         // Handle call: local_var.subroutine()
@@ -687,9 +698,9 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
 
           call_site_args++;
           lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
-                     << endl;
+                     << '\n';
 
-          if (auto class_type_ptr =
+          if (auto* class_type_ptr =
                   get_if<SymbolTable::ClassType_t>(&sym.variable_type);
               class_type_ptr)
           {
@@ -721,14 +732,14 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
     if (call_site.type == AstNodeType_t::N_LOCAL_CALL_SITE)
     {
       // Handle call: subroutine()
-      lowered_vm << "push pointer 0" << endl;
+      lowered_vm << "push pointer 0" << '\n';
       call_site_args++;
       call_site_bind_name << subroutine_descr.get_class_name() << ".";
     }
     // GLOBAL METHOD CALL
     else if (call_site.type == AstNodeType_t::N_GLOBAL_CALL_SITE)
     {
-      auto& global_bind_name = get_ast_node_value<string>(
+      const auto& global_bind_name = get_ast_node_value<string>(
           call_site, AstNodeType_t::N_GLOBAL_BIND_NAME);
 
       // Handle call: local_var.subroutine()
@@ -740,9 +751,9 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
 
         call_site_args++;
         lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
-                   << endl;
+                   << '\n';
 
-        if (auto class_type_ptr =
+        if (auto* class_type_ptr =
                 get_if<SymbolTable::ClassType_t>(&sym.variable_type);
             class_type_ptr)
         {
@@ -765,7 +776,7 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
     }
   }
 
-  auto& call_site_subroutine_name =
+  const auto& call_site_subroutine_name =
       get_ast_node_value<string>(call_site, AstNodeType_t::N_SUBROUTINE_NAME);
   call_site_bind_name << call_site_subroutine_name;
 
@@ -782,7 +793,7 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
 
   // LOWER CALL
   lowered_vm << "call " << call_site_bind_name.str() << " " << call_site_args
-             << endl;
+             << '\n';
 }
 
 }  // namespace jfcl

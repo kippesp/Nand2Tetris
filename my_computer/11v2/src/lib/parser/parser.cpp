@@ -1,9 +1,13 @@
 #include "parser.h"
+#include "parser/ast.h"
+#include "tokenizer/jack_token.h"
 
 #include <cassert>
+#include <functional>
 #include <map>
 #include <optional>
 #include <sstream>
+#include <string>
 #include <unordered_set>
 
 namespace jfcl {
@@ -64,14 +68,14 @@ AstNodeRef Parser::parse_class(std::string& class_name)
   if ((current_token.get().value_enum == TokenValue_t::J_STATIC) ||
       (current_token.get().value_enum == TokenValue_t::J_FIELD))
   {
-    AstNodeRef class_vars_block_node = parse_classvar_decl_block();
+    AstNodeRef const class_vars_block_node = parse_classvar_decl_block();
 
     ClassAst.get().add_child(class_vars_block_node);
   }
 
   while (current_token.get().value_enum != TokenValue_t::J_RIGHT_BRACE)
   {
-    AstNodeRef SubroutineAstNodeRef = parse_subroutine();
+    AstNodeRef const SubroutineAstNodeRef = parse_subroutine();
     ClassAst.get().add_child(SubroutineAstNodeRef);
   }
 
@@ -127,7 +131,7 @@ AstNodeRef Parser::parse_classvar_decl_block()
     auto add_def_to_block = [&]() {
       require_token(current_token, TokenValue_t::J_IDENTIFIER);
 
-      AstNodeRef class_var_decl = create_ast_node(
+      AstNodeRef const class_var_decl = create_ast_node(
           AstNodeType_t::N_VARIABLE_DECL, current_token.get().value_str);
 
       class_var_decl.get().add_child(
@@ -186,7 +190,8 @@ AstNodeRef Parser::parse_subroutine()
 
   get_next_token();
 
-  AstNodeRef SubrDescrAst = create_ast_node(AstNodeType_t::N_SUBROUTINE_DESCR);
+  AstNodeRef const SubrDescrAst =
+      create_ast_node(AstNodeType_t::N_SUBROUTINE_DESCR);
 
   // <subroutine-decl>  ::= ("constructor" | "function" | "method")
   //                        ("void" | <type>) <subroutine-name>
@@ -244,12 +249,13 @@ AstNodeRef Parser::parse_subroutine()
 
   if (current_token.get().value_enum != TokenValue_t::J_RIGHT_PARENTHESIS)
   {
-    AstNodeRef input_parms_root =
+    AstNodeRef const input_parms_root =
         create_ast_node(AstNodeType_t::N_INPUT_PARAMETERS);
 
     while (current_token.get().value_enum != TokenValue_t::J_RIGHT_PARENTHESIS)
     {
-      AstNodeRef parm_type_node = parse_type(AstNodeType_t::N_VARIABLE_TYPE);
+      AstNodeRef const parm_type_node =
+          parse_type(AstNodeType_t::N_VARIABLE_TYPE);
 
       if (parm_type_node.get() == AST.get_empty_node_ref().get())
       {
@@ -264,7 +270,7 @@ AstNodeRef Parser::parse_subroutine()
 
       require_token(current_token, TokenValue_t::J_IDENTIFIER);
 
-      AstNodeRef variable_decl_root = create_ast_node(
+      AstNodeRef const variable_decl_root = create_ast_node(
           AstNodeType_t::N_VARIABLE_DECL, current_token.get().value_str);
 
       variable_decl_root.get().add_child(parm_type_node);
@@ -301,18 +307,18 @@ AstNodeRef Parser::parse_subroutine()
   //                                /
   //            N_VARIABLE_TYPE ----
 
-  AstNodeRef SubroutineBodyAst =
+  AstNodeRef const SubroutineBodyAst =
       create_ast_node(AstNodeType_t::N_SUBROUTINE_BODY);
 
   if (current_token.get().value_enum == TokenValue_t::J_VAR)
   {
-    AstNodeRef SubroutineVarDeclBlockAst =
+    AstNodeRef const SubroutineVarDeclBlockAst =
         create_ast_node(AstNodeType_t::N_LOCAL_VARIABLES);
 
     while (current_token.get().value_enum == TokenValue_t::J_VAR)
     {
       get_next_token();
-      AstNodeRef var_type = parse_type(AstNodeType_t::N_VARIABLE_TYPE);
+      AstNodeRef const var_type = parse_type(AstNodeType_t::N_VARIABLE_TYPE);
 
       if (var_type.get() == AST.get_empty_node_ref().get())
       {
@@ -327,7 +333,7 @@ AstNodeRef Parser::parse_subroutine()
 
       for (bool done = false; !done; /* empty */)
       {
-        AstNodeRef SubroutineVarDeclAst = create_ast_node(
+        AstNodeRef const SubroutineVarDeclAst = create_ast_node(
             AstNodeType_t::N_VARIABLE_DECL, current_token.get().value_str);
         get_next_token();
 
@@ -361,12 +367,12 @@ AstNodeRef Parser::parse_subroutine()
 
   if (peek_token.get().value_enum != TokenValue_t::J_RIGHT_BRACE)
   {
-    AstNodeRef StatementBlockAst =
+    AstNodeRef const StatementBlockAst =
         create_ast_node(AstNodeType_t::N_STATEMENT_BLOCK);
 
     while (current_token.get().value_enum != TokenValue_t::J_RIGHT_BRACE)
     {
-      AstNodeRef StatementAst = parse_statement();
+      AstNodeRef const StatementAst = parse_statement();
       if (StatementAst.get() == AST.get_empty_node_ref().get())
       {
         std::stringstream ss;
@@ -401,7 +407,7 @@ AstNodeRef Parser::parse_inner_statements()
 
   for (bool done = false; !done; /* empty */)
   {
-    AstNodeRef statement_ast = parse_statement();
+    AstNodeRef const statement_ast = parse_statement();
 
     if (statement_ast.get() != AST.get_empty_node_ref().get())
     {
@@ -481,7 +487,7 @@ AstNodeRef Parser::parse_do_statement()
   AstNodeRef do_ast = create_ast_node(AstNodeType_t::N_DO_STATEMENT);
   get_next_token();
 
-  AstNodeRef call_ast = parse_subroutine_call();
+  AstNodeRef const call_ast = parse_subroutine_call();
 
   require_token(current_token, TokenValue_t::J_SEMICOLON);
   get_next_token();
@@ -529,7 +535,7 @@ AstNodeRef Parser::parse_while_statement()
   require_token(current_token, TokenValue_t::J_LEFT_BRACE);
   get_next_token();
 
-  AstNodeRef statement_block_root = parse_inner_statements();
+  AstNodeRef const statement_block_root = parse_inner_statements();
   while_ast.get().add_child(statement_block_root);
 
   require_token(current_token, TokenValue_t::J_RIGHT_BRACE);
@@ -557,7 +563,7 @@ AstNodeRef Parser::parse_if_statement()
   require_token(current_token, TokenValue_t::J_LEFT_BRACE);
   get_next_token();
 
-  AstNodeRef true_statement_block_root = parse_inner_statements();
+  AstNodeRef const true_statement_block_root = parse_inner_statements();
   if_ast.get().add_child(true_statement_block_root);
 
   require_token(current_token, TokenValue_t::J_RIGHT_BRACE);
@@ -571,7 +577,7 @@ AstNodeRef Parser::parse_if_statement()
     require_token(current_token, TokenValue_t::J_LEFT_BRACE);
     get_next_token();
 
-    AstNodeRef false_statement_block_root = parse_inner_statements();
+    AstNodeRef const false_statement_block_root = parse_inner_statements();
     if_ast.get().add_child(false_statement_block_root);
 
     require_token(current_token, TokenValue_t::J_RIGHT_BRACE);
@@ -599,7 +605,7 @@ AstNodeRef Parser::parse_subroutine_call()
 
   if (peek_token.get().value_enum == TokenValue_t::J_PERIOD)
   {
-    AstNodeRef global_call_node =
+    AstNodeRef const global_call_node =
         create_ast_node(AstNodeType_t::N_GLOBAL_CALL_SITE);
 
     global_call_node.get().add_child(create_ast_node(
@@ -617,7 +623,7 @@ AstNodeRef Parser::parse_subroutine_call()
   }
   else
   {
-    AstNodeRef local_call_node =
+    AstNodeRef const local_call_node =
         create_ast_node(AstNodeType_t::N_LOCAL_CALL_SITE);
     local_call_node.get().add_child(create_ast_node(
         AstNodeType_t::N_SUBROUTINE_NAME, current_token.get().value_str));
@@ -629,7 +635,7 @@ AstNodeRef Parser::parse_subroutine_call()
   require_token(current_token, TokenValue_t::J_LEFT_PARENTHESIS);
   get_next_token();
 
-  AstNodeRef call_arguments_node =
+  AstNodeRef const call_arguments_node =
       create_ast_node(AstNodeType_t::N_CALL_ARGUMENTS);
   root_node.get().add_child(call_arguments_node);
 
@@ -640,7 +646,7 @@ AstNodeRef Parser::parse_subroutine_call()
       break;
     }
 
-    AstNodeRef statement_ast = parse_expression();
+    AstNodeRef const statement_ast = parse_expression();
 
     if (statement_ast.get() != AST.get_empty_node_ref().get())
     {
@@ -676,7 +682,7 @@ AstNodeRef Parser::parse_variable()
     require_token(current_token, TokenValue_t::J_LEFT_BRACKET);
     get_next_token();
 
-    AstNodeRef subscript_node = parse_expression();
+    AstNodeRef const subscript_node = parse_expression();
 
     require_token(current_token, TokenValue_t::J_RIGHT_BRACKET);
     get_next_token();
@@ -734,7 +740,7 @@ AstNodeRef Parser::parse_term()
 
   if (current_token.get().value_enum == TokenValue_t::J_INTEGER_CONSTANT)
   {
-    int int_const = std::stoi(current_token.get().value_str);
+    int const int_const = std::stoi(current_token.get().value_str);
 
     TermAst = create_ast_node(AstNodeType_t::N_INTEGER_CONSTANT, int_const);
     get_next_token();
@@ -774,18 +780,19 @@ AstNodeRef Parser::parse_term()
   }
   else if (current_token.get().value_enum == TokenValue_t::J_MINUS)
   {
-    AstNodeRef prefix_neg = create_ast_node(AstNodeType_t::N_OP_PREFIX_NEG);
+    AstNodeRef const prefix_neg =
+        create_ast_node(AstNodeType_t::N_OP_PREFIX_NEG);
     get_next_token();
-    AstNodeRef prefix_term = parse_term();
+    AstNodeRef const prefix_term = parse_term();
     prefix_neg.get().add_child(prefix_term);
     TermAst = prefix_neg;
   }
   else if (current_token.get().value_enum == TokenValue_t::J_TILDE)
   {
-    AstNodeRef prefix_not =
+    AstNodeRef const prefix_not =
         create_ast_node(AstNodeType_t::N_OP_PREFIX_LOGICAL_NOT);
     get_next_token();
-    AstNodeRef prefix_term = parse_term();
+    AstNodeRef const prefix_term = parse_term();
     prefix_not.get().add_child(prefix_term);
     TermAst = prefix_not;
   }
@@ -954,7 +961,7 @@ AstNodeRef Parser::parse_expression()
     combine_oper_chain =
         [&](AstNodeRef lhs, const PrecedenceLevel_t& prec_level) -> AstNodeRef {
       // operators_in_level - set of operators at current precedence level
-      auto& operators_in_level = OperationOpMap[prec_level];
+      const auto& operators_in_level = OperationOpMap[prec_level];
 
       // recursive base case - is current_token valid for precedence level?
       if (!operators_in_level.contains(current_token.get().value_enum))
@@ -971,7 +978,7 @@ AstNodeRef Parser::parse_expression()
 
       chained_root.get().add_child(lhs);
 
-      if (AstNodeRef rhs = parse_subexpression(prec_level);
+      if (AstNodeRef const rhs = parse_subexpression(prec_level);
           rhs.get() != AST.get_empty_node_ref().get())
       {
         chained_root.get().add_child(rhs);
@@ -1002,7 +1009,8 @@ AstNodeRef Parser::parse_expression()
 
     for (bool done = false; !done; /* empty */)
     {
-      AstNodeRef new_lhs = combine_oper_chain(lhs, subexp_precedence_level);
+      AstNodeRef const new_lhs =
+          combine_oper_chain(lhs, subexp_precedence_level);
 
       if (new_lhs.get() == AST.get_empty_node_ref().get())
       {

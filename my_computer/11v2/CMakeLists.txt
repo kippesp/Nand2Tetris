@@ -52,21 +52,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 message(STATUS "Compiler ID: " ${CMAKE_CXX_COMPILER_ID})
 
-set(RUN_CLANG_TIDY OFF)
-
-if (${RUN_CLANG_TIDY})
-  #set(CMAKE_CXX_CLANG_TIDY clang-tidy -header-filter=.* -checks=-*,modernize-use-*' -fix)
-  #set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*,modernize-use-*)
-  set(CMAKE_CXX_CLANG_TIDY clang-tidy
-    -checks=-*,readability-braces-around-statements,readability-qualified-auto,readability-else-after-return,readability-redundant-member-init,readability-convert-member-functions-to-static
-    -fix
-    )
-  #readability-braces-around-statements
-  #readability-qualified-auto
-  #readability-else-after-return
-  #readability-redundant-member-init
-  #readability-convert-member-functions-to-static
-  #set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
+if(RUN_CLANG_TIDY)
+  find_program(CLANGTIDY clang-tidy)
+  if(CLANGTIDY)
+    message(STATUS "clang-tidy: enabled")
+    set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY} -extra-arg=-Wno-unknown-warning-option -export-fixes=clang_replacements.yaml)
+    if(WARNINGS_AS_ERRORS)
+      list(APPEND CMAKE_CXX_CLANG_TIDY -warnings-as-errors=*)
+    endif()
+  else()
+    message(SEND_ERROR "clang-tidy requested but executable not found")
+  endif()
 endif()
 
 # see: https://trac.macports.org/ticket/62426
@@ -102,6 +98,13 @@ endif()
 #add_compile_options(-Wno-c99-extensions)
 
 if (NOT MSVC)
+  if ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"))
+    option(ENABLE_ADDRESS_SANITIZER "Enable Address Sanitizer" ON)
+    option(ENABLE_MEMORY_SANITIZER "Enable Memory Sanitizer" OFF)
+  endif()
+endif()
+
+if (NOT MSVC)
     add_compile_options(-Wall)
     add_compile_options(-Wextra)
     add_compile_options(-Wimplicit-fallthrough)
@@ -124,16 +127,20 @@ if (NOT MSVC)
         add_compile_options(-Wshadow)
         add_compile_options(-Wshadow-field)
 
-        #add_compile_options(-fsanitize=memory)
-        #add_link_options(-fsanitize=memory)
-
         #add_compile_options(-fsanitize=undefined)
         #add_link_options(-fsanitize=undefined)
 
-        #add_compile_options(-fsanitize=address)
-        #add_link_options(-fsanitize=address)
         add_compile_options(-D _LIBCPP_NODISCARD_EXT)
     else()
+    endif()
+
+    # Address sanitizer settings
+    if (ENABLE_ADDRESS_SANITIZER)
+      add_compile_options(-fsanitize=address)
+      add_link_options(-fsanitize=address)
+    endif()
+    if (ENABLE_MEMORY_SANITIZER)
+      add_compile_options(-fsanitize=memory)
     endif()
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

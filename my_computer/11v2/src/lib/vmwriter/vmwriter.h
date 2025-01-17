@@ -54,7 +54,7 @@ private:
   std::optional<SymbolLoweringLocations_t> get_symbol_alloc_info(
       SubroutineDescr&, const AstNode&);
 
-  std::optional<SymbolLoweringLocations_t> get_symbol_alloc_info(
+  static std::optional<SymbolLoweringLocations_t> get_symbol_alloc_info(
       SubroutineDescr&, const std::string&);
 
   template <typename T>

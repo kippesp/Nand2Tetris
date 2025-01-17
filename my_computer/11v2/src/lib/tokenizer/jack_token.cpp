@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 namespace jfcl {
 
@@ -11,9 +12,9 @@ std::ostream& operator<<(std::ostream& os, JackTokenCRef rhs)
 {
   os << "token_name: ";
 
-  os << JackToken::to_string(rhs.get().value_enum) << std::endl;
+  os << JackToken::to_string(rhs.get().value_enum) << '\n';
   os << "token_value_str: ";
-  os << "<<< " << rhs.get().value_str << " >>>" << std::endl;
+  os << "<<< " << rhs.get().value_str << " >>>" << '\n';
 
   return os;
 }
