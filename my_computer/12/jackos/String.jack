@@ -106,7 +106,7 @@ class String {
   method int intValue() {
     var int idx;
     var int value;
-    var bool is_neg;
+    var boolean is_neg;
 
     let idx = 0;
     let value = 0;

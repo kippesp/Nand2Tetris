@@ -12,7 +12,7 @@
 class Screen {
   static Array SCREEN;
   static Array BITMASK;
-  static bool m_pin_color;
+  static boolean m_pin_color;
 
   // For div_mod()
   static int m_quotient;
@@ -282,7 +282,7 @@ class Screen {
    * and bottom right corner is (x2,y2), using the current color. */
   function void drawRectangle(int x1, int y1, int x2, int y2) {
     var int start_word_offset, stop_word_offset;
-    var bool has_left_mask, has_right_mask;
+    var boolean has_left_mask, has_right_mask;
     var int bit_idx, left_mask, right_mask;
     var int word_width;     // the span of the rect. in words
     var int idx;
@@ -403,7 +403,7 @@ class Screen {
   function void div_mod(int dividend, int divisor) {
     var int partial_dividend;
     var int idx;
-    var bool isNegative;
+    var boolean isNegative;
 
     let isNegative = ~((dividend < 0) = (divisor < 0));
     let dividend = Math.abs(dividend);

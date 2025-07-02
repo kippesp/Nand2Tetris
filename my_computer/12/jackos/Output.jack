@@ -298,7 +298,7 @@ class Output {
     function void printInt(int val) {
       var Array buff;
       var int mod10, len;
-      var bool is_neg;
+      var boolean is_neg;
 
       let buff = Array.new(5);
       let len = 0;

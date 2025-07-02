@@ -76,7 +76,7 @@ class Math {
       var int quotient;
       var int partial_dividend;
       var int idx;
-      var bool isNegative;
+      var boolean isNegative;
 
       let isNegative = ~((dividend < 0) = (divisor < 0));
       let dividend = Math.abs(dividend);
