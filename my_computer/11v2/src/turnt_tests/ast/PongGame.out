@@ -163,15 +163,15 @@
     (SUBROUTINE_BODY
       (STATEMENT_BLOCK
         (WHILE_STATEMENT
-          (OP_PREFIX_LOGICAL_NOT
+          (OP_PREFIX_BITWISE_NOT
             (VARIABLE_NAME string_value:exit))
           (STATEMENT_BLOCK
             (WHILE_STATEMENT
-              (OP_LOGICAL_AND
+              (OP_BITWISE_AND
                 (OP_LOGICAL_EQUALS
                   (VARIABLE_NAME string_value:key)
                   (INTEGER_CONSTANT integer_value:0))
-                (OP_PREFIX_LOGICAL_NOT
+                (OP_PREFIX_BITWISE_NOT
                   (VARIABLE_NAME string_value:exit)))
               (STATEMENT_BLOCK
                 (LET_STATEMENT
@@ -234,12 +234,12 @@
                           (VARIABLE_NAME string_value:exit)
                           (TRUE_KEYWORD))))))))
             (WHILE_STATEMENT
-              (OP_LOGICAL_AND
-                (OP_PREFIX_LOGICAL_NOT
+              (OP_BITWISE_AND
+                (OP_PREFIX_BITWISE_NOT
                   (OP_LOGICAL_EQUALS
                     (VARIABLE_NAME string_value:key)
                     (INTEGER_CONSTANT integer_value:0)))
-                (OP_PREFIX_LOGICAL_NOT
+                (OP_PREFIX_BITWISE_NOT
                   (VARIABLE_NAME string_value:exit)))
               (STATEMENT_BLOCK
                 (LET_STATEMENT
@@ -310,11 +310,11 @@
               (SUBROUTINE_NAME string_value:move))
             (CALL_ARGUMENTS)))
         (IF_STATEMENT
-          (OP_LOGICAL_AND
+          (OP_BITWISE_AND
             (OP_LOGICAL_GT
               (VARIABLE_NAME string_value:wall)
               (INTEGER_CONSTANT integer_value:0))
-            (OP_PREFIX_LOGICAL_NOT
+            (OP_PREFIX_BITWISE_NOT
               (OP_LOGICAL_EQUALS
                 (VARIABLE_NAME string_value:wall)
                 (VARIABLE_NAME string_value:lastWall))))
@@ -360,7 +360,7 @@
               (STATEMENT_BLOCK
                 (LET_STATEMENT
                   (VARIABLE_NAME string_value:exit)
-                  (OP_LOGICAL_OR
+                  (OP_BITWISE_OR
                     (OP_LOGICAL_GT
                       (VARIABLE_NAME string_value:batLeft)
                       (VARIABLE_NAME string_value:ballRight))
@@ -368,7 +368,7 @@
                       (VARIABLE_NAME string_value:batRight)
                       (VARIABLE_NAME string_value:ballLeft))))
                 (IF_STATEMENT
-                  (OP_PREFIX_LOGICAL_NOT
+                  (OP_PREFIX_BITWISE_NOT
                     (VARIABLE_NAME string_value:exit))
                   (STATEMENT_BLOCK
                     (IF_STATEMENT

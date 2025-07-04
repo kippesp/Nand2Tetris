@@ -437,11 +437,11 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
       {
         lowered_vm << "lt" << '\n';
       }
-      else if (node_type == AstNodeType_t::N_OP_LOGICAL_AND)
+      else if (node_type == AstNodeType_t::N_OP_BITWISE_AND)
       {
         lowered_vm << "and" << '\n';
       }
-      else if (node_type == AstNodeType_t::N_OP_LOGICAL_OR)
+      else if (node_type == AstNodeType_t::N_OP_BITWISE_OR)
       {
         lowered_vm << "or" << '\n';
       }
@@ -449,7 +449,7 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
       {
         lowered_vm << "neg" << '\n';
       }
-      else if (node_type == AstNodeType_t::N_OP_PREFIX_LOGICAL_NOT)
+      else if (node_type == AstNodeType_t::N_OP_PREFIX_BITWISE_NOT)
       {
         lowered_vm << "not" << '\n';
       }

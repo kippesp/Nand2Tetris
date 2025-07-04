@@ -790,7 +790,7 @@ AstNodeRef Parser::parse_term()
   else if (current_token.get().value_enum == TokenValue_t::J_TILDE)
   {
     AstNodeRef const prefix_not =
-        create_ast_node(AstNodeType_t::N_OP_PREFIX_LOGICAL_NOT);
+        create_ast_node(AstNodeType_t::N_OP_PREFIX_BITWISE_NOT);
     get_next_token();
     AstNodeRef const prefix_term = parse_term();
     prefix_not.get().add_child(prefix_term);
@@ -928,8 +928,8 @@ AstNodeRef Parser::parse_expression()
       {TokenValue_t::J_EQUAL, AstNodeType_t::N_OP_LOGICAL_EQUALS},
       {TokenValue_t::J_GREATER_THAN, AstNodeType_t::N_OP_LOGICAL_GT},
       {TokenValue_t::J_LESS_THAN, AstNodeType_t::N_OP_LOGICAL_LT},
-      {TokenValue_t::J_AMPERSAND, AstNodeType_t::N_OP_LOGICAL_AND},
-      {TokenValue_t::J_VBAR, AstNodeType_t::N_OP_LOGICAL_OR}};
+      {TokenValue_t::J_AMPERSAND, AstNodeType_t::N_OP_BITWISE_AND},
+      {TokenValue_t::J_VBAR, AstNodeType_t::N_OP_BITWISE_OR}};
 
   // internal lambda decls
   std::function<AstNodeRef(const PrecedenceLevel_t&)> parse_subexpression;

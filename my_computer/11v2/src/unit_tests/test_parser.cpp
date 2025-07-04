@@ -362,7 +362,7 @@ SCENARIO("Parse expressions")
 
     Expected_t expected = {
         ""  // clang-format sorcery
-        "(OP_PREFIX_LOGICAL_NOT",
+        "(OP_PREFIX_BITWISE_NOT",
         "  (OP_LOGICAL_LT",
         "    (OP_PREFIX_NEG",
         "      (INTEGER_CONSTANT integer_value:1))",
