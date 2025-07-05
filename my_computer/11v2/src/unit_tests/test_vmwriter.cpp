@@ -25,8 +25,8 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Main.f1 0\n"
-            "push constant 1\n"
-            "return\n");
+            "    push constant 1\n"
+            "    return\n");
   }
 
   SECTION("Single return expressions")
@@ -46,64 +46,64 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function MathExp.f1 0\n"
-            "push constant 1\n"
-            "push constant 2\n"
-            "add\n"
-            "push constant 3\n"
-            "add\n"
-            "push constant 4\n"
-            "add\n"
-            "push constant 5\n"
-            "add\n"
-            "return\n"
+            "    push constant 1\n"
+            "    push constant 2\n"
+            "    add\n"
+            "    push constant 3\n"
+            "    add\n"
+            "    push constant 4\n"
+            "    add\n"
+            "    push constant 5\n"
+            "    add\n"
+            "    return\n"
             "function MathExp.f2 0\n"
-            "push constant 1\n"
-            "push constant 2\n"
-            "push constant 3\n"
-            "call Math.divide 2\n"
-            "add\n"
-            "push constant 4\n"
-            "push constant 5\n"
-            "call Math.multiply 2\n"
-            "sub\n"
-            "return\n"
+            "    push constant 1\n"
+            "    push constant 2\n"
+            "    push constant 3\n"
+            "    call Math.divide 2\n"
+            "    add\n"
+            "    push constant 4\n"
+            "    push constant 5\n"
+            "    call Math.multiply 2\n"
+            "    sub\n"
+            "    return\n"
             "function MathExp.f3 0\n"
-            "push constant 2\n"
-            "neg\n"
-            "return\n"
+            "    push constant 2\n"
+            "    neg\n"
+            "    return\n"
             "function MathExp.f4 0\n"
-            "push constant 3\n"
-            "not\n"
-            "return\n"
+            "    push constant 3\n"
+            "    not\n"
+            "    return\n"
             "function MathExp.f5 0\n"
-            "push constant 0\n"
-            "not\n"
-            "push constant 0\n"
-            "not\n"
-            "push constant 0\n"
-            "not\n"
-            "and\n"
-            "or\n"
-            "return\n"
+            "    push constant 0\n"
+            "    not\n"
+            "    push constant 0\n"
+            "    not\n"
+            "    push constant 0\n"
+            "    not\n"
+            "    and\n"
+            "    or\n"
+            "    return\n"
             "function MathExp.f6 0\n"
-            "push constant 5\n"
-            "push constant 6\n"
-            "eq\n"
-            "return\n"
+            "    push constant 5\n"
+            "    push constant 6\n"
+            "    eq\n"
+            "    return\n"
             "function MathExp.f7 0\n"
-            "push constant 0\n"
-            "not\n"
-            "not\n"
-            "return\n"
+            "    push constant 0\n"
+            "    not\n"
+            "    not\n"
+            "    return\n"
             "function MathExp.f8 0\n"
-            "push constant 2\n"
-            "push constant 1\n"
-            "gt\n"
-            "push constant 1\n"
-            "push constant 2\n"
-            "lt\n"
-            "and\n"
-            "return\n");
+            "    push constant 2\n"
+            "    push constant 1\n"
+            "    gt\n"
+            "    push constant 1\n"
+            "    push constant 2\n"
+            "    lt\n"
+            "    and\n"
+            "    return\n");
   }
 
   SECTION("Void Method return")
@@ -124,10 +124,10 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.f1 0\n"
-            "push argument 0\n"
-            "pop pointer 0\n"
-            "push constant 0\n"
-            "return\n");
+            "    push argument 0\n"
+            "    pop pointer 0\n"
+            "    push constant 0\n"
+            "    return\n");
   }
 
   SECTION("Simple Constructor")
@@ -147,16 +147,16 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.new 0\n"
-            "push constant 0\n"
-            "call Memory.alloc 1\n"
-            "pop pointer 0\n"
-            "push pointer 0\n"
-            "return\n"
+            "    push constant 0\n"
+            "    call Memory.alloc 1\n"
+            "    pop pointer 0\n"
+            "    push pointer 0\n"
+            "    return\n"
             "function Test.ref 0\n"
-            "push argument 0\n"
-            "pop pointer 0\n"
-            "push pointer 0\n"
-            "return\n");
+            "    push argument 0\n"
+            "    pop pointer 0\n"
+            "    push pointer 0\n"
+            "    return\n");
   }
 
   SECTION("Local method call")
@@ -176,18 +176,18 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.draw 0\n"
-            "push argument 0\n"
-            "pop pointer 0\n"
-            "push constant 0\n"
-            "return\n"
+            "    push argument 0\n"
+            "    pop pointer 0\n"
+            "    push constant 0\n"
+            "    return\n"
             "function Test.run 0\n"
-            "push argument 0\n"
-            "pop pointer 0\n"
-            "push pointer 0\n"
-            "call Test.draw 1\n"
-            "pop temp 0\n"
-            "push constant 0\n"
-            "return\n");
+            "    push argument 0\n"
+            "    pop pointer 0\n"
+            "    push pointer 0\n"
+            "    call Test.draw 1\n"
+            "    pop temp 0\n"
+            "    push constant 0\n"
+            "    return\n");
   }
 
   SECTION("Global method call w/parms")
@@ -207,27 +207,27 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.draw 0\n"
-            "push argument 0\n"
-            "pop pointer 0\n"
-            "push argument 1\n"
-            "push argument 2\n"
-            "and\n"
-            "call Screen.setColor 1\n"
-            "pop temp 0\n"
-            "push constant 0\n"
-            "return\n"
+            "    push argument 0\n"
+            "    pop pointer 0\n"
+            "    push argument 1\n"
+            "    push argument 2\n"
+            "    and\n"
+            "    call Screen.setColor 1\n"
+            "    pop temp 0\n"
+            "    push constant 0\n"
+            "    return\n"
             "function Test.run 0\n"
-            "push argument 0\n"
-            "pop pointer 0\n"
-            "push pointer 0\n"
-            "push constant 0\n"
-            "not\n"
-            "push constant 0\n"
-            "not\n"
-            "call Test.draw 3\n"
-            "pop temp 0\n"
-            "push constant 0\n"
-            "return\n");
+            "    push argument 0\n"
+            "    pop pointer 0\n"
+            "    push pointer 0\n"
+            "    push constant 0\n"
+            "    not\n"
+            "    push constant 0\n"
+            "    not\n"
+            "    call Test.draw 3\n"
+            "    pop temp 0\n"
+            "    push constant 0\n"
+            "    return\n");
   }
 
   SECTION("Object global method call")
@@ -260,17 +260,17 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.dispose 0\n"
-            "push argument 0\n"
-            "pop pointer 0\n"
-            "push this 0\n"
-            "push constant 1\n"
-            "call Square.check 2\n"
-            "pop temp 0\n"
-            "push this 0\n"
-            "call Square.dispose 1\n"
-            "pop temp 0\n"
-            "push constant 0\n"
-            "return\n");
+            "    push argument 0\n"
+            "    pop pointer 0\n"
+            "    push this 0\n"
+            "    push constant 1\n"
+            "    call Square.check 2\n"
+            "    pop temp 0\n"
+            "    push this 0\n"
+            "    call Square.dispose 1\n"
+            "    pop temp 0\n"
+            "    push constant 0\n"
+            "    return\n");
   }
 
   SECTION("Global function as call argument, VM")
@@ -290,16 +290,16 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Main.Res 0\n"
-            "call Main.Res 0\n"
-            "call Output.printInt 1\n"
-            "pop temp 0\n"
-            "push constant 2\n"
-            "push constant 7\n"
-            "call Math.multiply 2\n"
-            "return\n"
+            "    call Main.Res 0\n"
+            "    call Output.printInt 1\n"
+            "    pop temp 0\n"
+            "    push constant 2\n"
+            "    push constant 7\n"
+            "    call Math.multiply 2\n"
+            "    return\n"
             "function Main.main 0\n"
-            "call Math.Res 0\n"
-            "return\n");
+            "    call Math.Res 0\n"
+            "    return\n");
   }
 
   SECTION("Valid static class")
@@ -329,15 +329,15 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Main.main 0\n"
-            "push constant 1\n"
-            "push constant 2\n"
-            "push constant 3\n"
-            "call Math.multiply 2\n"
-            "add\n"
-            "call Output.printInt 1\n"
-            "pop temp 0\n"
-            "push constant 0\n"
-            "return\n");
+            "    push constant 1\n"
+            "    push constant 2\n"
+            "    push constant 3\n"
+            "    call Math.multiply 2\n"
+            "    add\n"
+            "    call Output.printInt 1\n"
+            "    pop temp 0\n"
+            "    push constant 0\n"
+            "    return\n");
   }
 
   SECTION("Vars check")
@@ -372,10 +372,10 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.sub1 3\n"
-            "push argument 0\n"
-            "pop pointer 0\n"
-            "push constant 0\n"
-            "return\n"
+            "    push argument 0\n"
+            "    pop pointer 0\n"
+            "    push constant 0\n"
+            "    return\n"
             "");
   }
 
@@ -412,22 +412,22 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Main.f1 3\n"
-            "push constant 1\n"
-            "pop local 0\n"
-            "push constant 1\n"
-            "push local 1\n"
-            "neg\n"
-            "add\n"
-            "pop local 1\n"
-            "push constant 0\n"
-            "not\n"
-            "pop local 2\n"
-            "push local 0\n"
-            "push local 1\n"
-            "push constant 2\n"
-            "call Math.pow 2\n"
-            "add\n"
-            "return\n");
+            "    push constant 1\n"
+            "    pop local 0\n"
+            "    push constant 1\n"
+            "    push local 1\n"
+            "    neg\n"
+            "    add\n"
+            "    pop local 1\n"
+            "    push constant 0\n"
+            "    not\n"
+            "    pop local 2\n"
+            "    push local 0\n"
+            "    push local 1\n"
+            "    push constant 2\n"
+            "    call Math.pow 2\n"
+            "    add\n"
+            "    return\n");
   }
 
   SECTION("Object method call")
@@ -459,13 +459,13 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.main 1\n"
-            "call MyClass.new 0\n"
-            "pop local 0\n"
-            "push local 0\n"
-            "call MyClass.run 1\n"
-            "pop temp 0\n"
-            "push constant 0\n"
-            "return\n");
+            "    call MyClass.new 0\n"
+            "    pop local 0\n"
+            "    push local 0\n"
+            "    call MyClass.run 1\n"
+            "    pop temp 0\n"
+            "    push constant 0\n"
+            "    return\n");
   }
 
   SECTION("Local method call from constructor")
@@ -500,19 +500,19 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.new 0\n"
-            "push constant 1\n"
-            "call Memory.alloc 1\n"
-            "pop pointer 0\n"
-            "push pointer 0\n"
-            "call Test.draw 1\n"
-            "pop temp 0\n"
-            "push pointer 0\n"
-            "return\n"
+            "    push constant 1\n"
+            "    call Memory.alloc 1\n"
+            "    pop pointer 0\n"
+            "    push pointer 0\n"
+            "    call Test.draw 1\n"
+            "    pop temp 0\n"
+            "    push pointer 0\n"
+            "    return\n"
             "function Test.draw 0\n"
-            "push argument 0\n"
-            "pop pointer 0\n"
-            "push constant 0\n"
-            "return\n");
+            "    push argument 0\n"
+            "    pop pointer 0\n"
+            "    push constant 0\n"
+            "    return\n");
   }
 
   SECTION("Simple while loop")
@@ -533,19 +533,19 @@ SCENARIO("VMWriter Statements")
     REQUIRE(VM.get_lowered_vm() ==
             "function WhileTest.f1 0\n"
             "label WHILE_BEGIN_0\n"
-            "push argument 0\n"
-            "push constant 0\n"
-            "gt\n"
-            "not\n"
+            "    push argument 0\n"
+            "    push constant 0\n"
+            "    gt\n"
+            "    not\n"
             "if-goto WHILE_END_0\n"
-            "push argument 0\n"
-            "push constant 1\n"
-            "sub\n"
-            "pop argument 0\n"
-            "goto WHILE_BEGIN_0\n"
+            "    push argument 0\n"
+            "    push constant 1\n"
+            "    sub\n"
+            "    pop argument 0\n"
+            "    goto WHILE_BEGIN_0\n"
             "label WHILE_END_0\n"
-            "push argument 0\n"
-            "return\n");
+            "    push argument 0\n"
+            "    return\n");
   }
 
   SECTION("NULL assignment")
@@ -576,10 +576,10 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.test 1\n"
-            "push constant 0\n"
-            "pop local 0\n"
-            "push constant 0\n"
-            "return\n");
+            "    push constant 0\n"
+            "    pop local 0\n"
+            "    push constant 0\n"
+            "    return\n");
   }
 
   SECTION("IF-ELSE structure")
@@ -599,29 +599,29 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function IfTest.f1 1\n"
-            "push argument 0\n"
-            "push constant 50\n"
-            "gt\n"
+            "    push argument 0\n"
+            "    push constant 50\n"
+            "    gt\n"
             "if-goto IF_TRUE_0\n"
             "label IF_FALSE_0\n"
-            "push argument 0\n"
-            "pop local 0\n"
-            "goto IF_END_0\n"
+            "    push argument 0\n"
+            "    pop local 0\n"
+            "    goto IF_END_0\n"
             "label IF_TRUE_0\n"
-            "push constant 2\n"
-            "pop local 0\n"
+            "    push constant 2\n"
+            "    pop local 0\n"
             "label IF_END_0\n"
-            "push argument 0\n"
-            "push constant 60\n"
-            "gt\n"
+            "    push argument 0\n"
+            "    push constant 60\n"
+            "    gt\n"
             "if-goto IF_TRUE_1\n"
-            "goto IF_END_1\n"
+            "    goto IF_END_1\n"
             "label IF_TRUE_1\n"
-            "push constant 1\n"
-            "pop local 0\n"
+            "    push constant 1\n"
+            "    pop local 0\n"
             "label IF_END_1\n"
-            "push local 0\n"
-            "return\n");
+            "    push local 0\n"
+            "    return\n");
   }
 
   SECTION("Numerical IF")
@@ -660,22 +660,22 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Main.main 0\n"
-            "push constant 8191\n"
-            "push constant 2\n"
-            "and\n"
+            "    push constant 8191\n"
+            "    push constant 2\n"
+            "    and\n"
             "if-goto IF_TRUE_0\n"
             "label IF_FALSE_0\n"
-            "push constant 255\n"
-            "call Output.printInt 1\n"
-            "pop temp 0\n"
-            "goto IF_END_0\n"
+            "    push constant 255\n"
+            "    call Output.printInt 1\n"
+            "    pop temp 0\n"
+            "    goto IF_END_0\n"
             "label IF_TRUE_0\n"
-            "push constant 1\n"
-            "call Output.printInt 1\n"
-            "pop temp 0\n"
+            "    push constant 1\n"
+            "    call Output.printInt 1\n"
+            "    pop temp 0\n"
             "label IF_END_0\n"
-            "push constant 0\n"
-            "return\n");
+            "    push constant 0\n"
+            "    return\n");
   }
 
   SECTION("LHS Array Assignment")
@@ -710,19 +710,19 @@ SCENARIO("VMWriter Statements")
     REQUIRE(VM.get_lowered_vm() ==
             // clang-format off
             "function Test.main 2\n"
-            "push constant 5\n"
-            "pop local 1\n"             // b = 5
-            "push constant 3\n"
-            "call Array.new 1\n"
-            "pop local 0\n"             // a = Array.new(3)
-            "push local 1\n"            // b
-            "push constant 2\n"
-            "push local 0\n"            // &a
-            "add\n"                     // &a[2]
-            "pop pointer 1\n"
-            "pop that 0\n"              // b -> a[2]
-            "push constant 0\n"
-            "return\n"
+            "    push constant 5\n"
+            "    pop local 1\n"             // b = 5
+            "    push constant 3\n"
+            "    call Array.new 1\n"
+            "    pop local 0\n"             // a = Array.new(3)
+            "    push local 1\n"            // b
+            "    push constant 2\n"
+            "    push local 0\n"            // &a
+            "    add\n"                     // &a[2]
+            "    pop pointer 1\n"
+            "    pop that 0\n"              // b -> a[2]
+            "    push constant 0\n"
+            "    return\n"
             // clang-format on
     );
   }
@@ -757,35 +757,35 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.main 1\n"
-            "push constant 2\n"
-            "call Array.new 1\n"
-            "pop local 0\n"
+            "    push constant 2\n"
+            "    call Array.new 1\n"
+            "    pop local 0\n"
             //
             // let a[1] = 5
-            "push constant 5\n"
+            "    push constant 5\n"
             // a[1] <-- 5
-            "push constant 1\n"
-            "push local 0\n"
-            "add\n"
-            "pop pointer 1\n"
-            "pop that 0\n"
+            "    push constant 1\n"
+            "    push local 0\n"
+            "    add\n"
+            "    pop pointer 1\n"
+            "    pop that 0\n"
             //
             // let a[0] = 6
-            "push constant 6\n"
+            "    push constant 6\n"
             // a[0] <-- 6
-            "push constant 0\n"
-            "push local 0\n"
-            "add\n"
-            "pop pointer 1\n"
-            "pop that 0\n"
+            "    push constant 0\n"
+            "    push local 0\n"
+            "    add\n"
+            "    pop pointer 1\n"
+            "    pop that 0\n"
             //
             // a[1]
-            "push constant 1\n"
-            "push local 0\n"
-            "add\n"
-            "pop pointer 1\n"
-            "push that 0\n"
-            "return\n");
+            "    push constant 1\n"
+            "    push local 0\n"
+            "    add\n"
+            "    pop pointer 1\n"
+            "    push that 0\n"
+            "    return\n");
   }
 
   SECTION("Array-Array assignment")
@@ -820,30 +820,30 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.main 2\n"
-            "push constant 1\n"
-            "call Array.new 1\n"
-            "pop local 0\n"
-            "push constant 1\n"
-            "call Array.new 1\n"
-            "pop local 1\n"
-            "push constant 5\n"
-            "push constant 0\n"
-            "push local 1\n"
-            "add\n"
-            "pop pointer 1\n"
-            "pop that 0\n"
-            "push constant 0\n"
-            "push local 1\n"
-            "add\n"
-            "pop pointer 1\n"
-            "push that 0\n"
-            "push constant 0\n"
-            "push local 0\n"
-            "add\n"
-            "pop pointer 1\n"
-            "pop that 0\n"
-            "push constant 0\n"
-            "return\n");
+            "    push constant 1\n"
+            "    call Array.new 1\n"
+            "    pop local 0\n"
+            "    push constant 1\n"
+            "    call Array.new 1\n"
+            "    pop local 1\n"
+            "    push constant 5\n"
+            "    push constant 0\n"
+            "    push local 1\n"
+            "    add\n"
+            "    pop pointer 1\n"
+            "    pop that 0\n"
+            "    push constant 0\n"
+            "    push local 1\n"
+            "    add\n"
+            "    pop pointer 1\n"
+            "    push that 0\n"
+            "    push constant 0\n"
+            "    push local 0\n"
+            "    add\n"
+            "    pop pointer 1\n"
+            "    pop that 0\n"
+            "    push constant 0\n"
+            "    return\n");
   }
 
   SECTION("String term")
@@ -863,22 +863,22 @@ SCENARIO("VMWriter Statements")
 
     REQUIRE(VM.get_lowered_vm() ==
             "function Test.main 0\n"
-            "push constant 5\n"
-            "call String.new 1\n"
-            "push constant 72\n"
-            "call String.appendChar 2\n"
-            "push constant 101\n"
-            "call String.appendChar 2\n"
-            "push constant 108\n"
-            "call String.appendChar 2\n"
-            "push constant 108\n"
-            "call String.appendChar 2\n"
-            "push constant 111\n"
-            "call String.appendChar 2\n"
-            "call Output.printString 1\n"
-            "pop temp 0\n"
-            "push constant 0\n"
-            "return\n");
+            "    push constant 5\n"
+            "    call String.new 1\n"
+            "    push constant 72\n"
+            "    call String.appendChar 2\n"
+            "    push constant 101\n"
+            "    call String.appendChar 2\n"
+            "    push constant 108\n"
+            "    call String.appendChar 2\n"
+            "    push constant 108\n"
+            "    call String.appendChar 2\n"
+            "    push constant 111\n"
+            "    call String.appendChar 2\n"
+            "    call Output.printString 1\n"
+            "    pop temp 0\n"
+            "    push constant 0\n"
+            "    return\n");
   }
 }
 

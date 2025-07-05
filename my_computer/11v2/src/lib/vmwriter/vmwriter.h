@@ -66,6 +66,9 @@ private:
   Program program;
 
   std::stringstream lowered_vm;
+
+  // Helper method to add indentation based on VM instruction type
+  void emit_vm_instruction(const std::string& instruction);
 };
 
 }  // namespace jfcl

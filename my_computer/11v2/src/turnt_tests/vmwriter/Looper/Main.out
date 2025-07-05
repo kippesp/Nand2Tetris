@@ -1,75 +1,75 @@
 function Main.mod 1
-push argument 0
-push argument 1
-call Math.divide 2
-pop local 0
-push argument 0
-push local 0
-push argument 1
-call Math.multiply 2
-sub
-return
+    push argument 0
+    push argument 1
+    call Math.divide 2
+    pop local 0
+    push argument 0
+    push local 0
+    push argument 1
+    call Math.multiply 2
+    sub
+    return
 function Main.test_while 2
-push constant 100
-pop local 1
-push constant 0
-pop local 0
+    push constant 100
+    pop local 1
+    push constant 0
+    pop local 0
 label WHILE_BEGIN_0
-push local 0
-not
-not
+    push local 0
+    not
+    not
 if-goto WHILE_END_0
-push local 1
-push constant 1
-sub
-pop local 1
-push local 1
-push constant 4
-call Main.mod 2
-push constant 0
-eq
+    push local 1
+    push constant 1
+    sub
+    pop local 1
+    push local 1
+    push constant 4
+    call Main.mod 2
+    push constant 0
+    eq
 if-goto IF_TRUE_1
 label IF_FALSE_1
-push local 0
-push constant 7
-add
-pop local 0
+    push local 0
+    push constant 7
+    add
+    pop local 0
 goto IF_END_1
 label IF_TRUE_1
-push local 0
-push constant 1
-add
-pop local 0
+    push local 0
+    push constant 1
+    add
+    pop local 0
 label IF_END_1
 goto WHILE_BEGIN_0
 label WHILE_END_0
-push local 1
-return
+    push local 1
+    return
 function Main.main 1
-call Main.test_while 0
-pop local 0
-push local 0
-push constant 99
-eq
+    call Main.test_while 0
+    pop local 0
+    push local 0
+    push constant 99
+    eq
 if-goto IF_TRUE_0
 label IF_FALSE_0
-push local 0
-call Output.printInt 1
-pop temp 0
+    push local 0
+    call Output.printInt 1
+    pop temp 0
 goto IF_END_0
 label IF_TRUE_0
-push constant 4
-call String.new 1
-push constant 112
-call String.appendChar 2
-push constant 97
-call String.appendChar 2
-push constant 115
-call String.appendChar 2
-push constant 115
-call String.appendChar 2
-call Output.printString 1
-pop temp 0
+    push constant 4
+    call String.new 1
+    push constant 112
+    call String.appendChar 2
+    push constant 97
+    call String.appendChar 2
+    push constant 115
+    call String.appendChar 2
+    push constant 115
+    call String.appendChar 2
+    call Output.printString 1
+    pop temp 0
 label IF_END_0
-push constant 0
-return
+    push constant 0
+    return

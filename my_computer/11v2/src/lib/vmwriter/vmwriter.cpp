@@ -219,7 +219,7 @@ void VmWriter::lower_statement_block(SubroutineDescr& subroutine_descr,
 
       lower_subroutine_call(subroutine_descr, call_site_parent);
       // throw away call-ed subroutine's return value
-      lowered_vm << "pop temp 0" << '\n';
+      emit_vm_instruction("pop temp 0");
     }
     else if (node.get().type == AstNodeType_t::N_WHILE_STATEMENT)
     {
@@ -285,15 +285,20 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
   // Add any subroutine local variables to the symbol table
   add_symbol(AstNodeType_t::N_LOCAL_VARIABLES);
 
-  lowered_vm << "function " << class_descr.get_name() << "." << subroutine_name;
-  lowered_vm << " " << subroutine_descr.num_locals() << '\n';
+  stringstream function_decl;
+  function_decl << "function " << class_descr.get_name() << "."
+                << subroutine_name;
+  function_decl << " " << subroutine_descr.num_locals();
+  emit_vm_instruction(function_decl.str());
 
   // For class constructors, allocate class object and save to pointer 0
   if (root.type == AstNodeType_t::N_CONSTRUCTOR_DECL)
   {
-    lowered_vm << "push constant " << subroutine_descr.num_fields() << '\n';
-    lowered_vm << "call Memory.alloc 1" << '\n';
-    lowered_vm << "pop pointer 0" << '\n';
+    stringstream push_const;
+    push_const << "push constant " << subroutine_descr.num_fields();
+    emit_vm_instruction(push_const.str());
+    emit_vm_instruction("call Memory.alloc 1");
+    emit_vm_instruction("pop pointer 0");
   }
 
   // For class methods, get the THIS pointer passed in as argument 0
@@ -302,8 +307,10 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
       this_var.has_value())
   {
     Symbol const& symbol = *this_var;
-    lowered_vm << "push argument " << symbol.index << '\n';
-    lowered_vm << "pop pointer 0" << '\n';
+    stringstream push_arg;
+    push_arg << "push argument " << symbol.index;
+    emit_vm_instruction(push_arg.str());
+    emit_vm_instruction("pop pointer 0");
   }
 
   AstNodeCRef const BodyNode =
@@ -365,7 +372,9 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
         throw SemanticException("Unexpected encountered negative number");
       }
 
-      lowered_vm << "push constant " << int_value << '\n';
+      stringstream push_const;
+      push_const << "push constant " << int_value;
+      emit_vm_instruction(push_const.str());
     }
     else if (node_type == AstNodeType_t::N_THIS_KEYWORD)
     {
@@ -374,7 +383,7 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
         throw SemanticException("'this' keyword not permitted in functions");
       }
 
-      lowered_vm << "push pointer 0" << '\n';
+      emit_vm_instruction("push pointer 0");
     }
     else if (node_type == AstNodeType_t::N_VARIABLE_NAME)
     {
@@ -388,20 +397,24 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
     {
       lower_var(subroutine_descr, node);
 
-      lowered_vm << "add" << '\n';
-      lowered_vm << "pop pointer 1" << '\n';
-      lowered_vm << "push that 0" << '\n';
+      emit_vm_instruction("add");
+      emit_vm_instruction("pop pointer 1");
+      emit_vm_instruction("push that 0");
     }
     else if (node_type == AstNodeType_t::N_STRING_CONSTANT)
     {
       const auto& str = get_ast_node_value<string>(node);
 
-      lowered_vm << "push constant " << str.length() << '\n';
-      lowered_vm << "call String.new 1" << '\n';
+      stringstream push_str_len;
+      push_str_len << "push constant " << str.length();
+      emit_vm_instruction(push_str_len.str());
+      emit_vm_instruction("call String.new 1");
       for (auto ch : str)
       {
-        lowered_vm << "push constant " << static_cast<int>(ch) << '\n';
-        lowered_vm << "call String.appendChar 2" << '\n';
+        stringstream push_char;
+        push_char << "push constant " << static_cast<int>(ch);
+        emit_vm_instruction(push_char.str());
+        emit_vm_instruction("call String.appendChar 2");
       }
     }
     // handle operators
@@ -411,60 +424,60 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
 
       if (node_type == AstNodeType_t::N_OP_MULTIPLY)
       {
-        lowered_vm << "call Math.multiply 2" << '\n';
+        emit_vm_instruction("call Math.multiply 2");
       }
       else if (node_type == AstNodeType_t::N_OP_DIVIDE)
       {
-        lowered_vm << "call Math.divide 2" << '\n';
+        emit_vm_instruction("call Math.divide 2");
       }
       else if (node_type == AstNodeType_t::N_OP_ADD)
       {
-        lowered_vm << "add" << '\n';
+        emit_vm_instruction("add");
       }
       else if (node_type == AstNodeType_t::N_OP_SUBTRACT)
       {
-        lowered_vm << "sub" << '\n';
+        emit_vm_instruction("sub");
       }
       else if (node_type == AstNodeType_t::N_OP_LOGICAL_EQUALS)
       {
-        lowered_vm << "eq" << '\n';
+        emit_vm_instruction("eq");
       }
       else if (node_type == AstNodeType_t::N_OP_LOGICAL_GT)
       {
-        lowered_vm << "gt" << '\n';
+        emit_vm_instruction("gt");
       }
       else if (node_type == AstNodeType_t::N_OP_LOGICAL_LT)
       {
-        lowered_vm << "lt" << '\n';
+        emit_vm_instruction("lt");
       }
       else if (node_type == AstNodeType_t::N_OP_BITWISE_AND)
       {
-        lowered_vm << "and" << '\n';
+        emit_vm_instruction("and");
       }
       else if (node_type == AstNodeType_t::N_OP_BITWISE_OR)
       {
-        lowered_vm << "or" << '\n';
+        emit_vm_instruction("or");
       }
       else if (node_type == AstNodeType_t::N_OP_PREFIX_NEG)
       {
-        lowered_vm << "neg" << '\n';
+        emit_vm_instruction("neg");
       }
       else if (node_type == AstNodeType_t::N_OP_PREFIX_BITWISE_NOT)
       {
-        lowered_vm << "not" << '\n';
+        emit_vm_instruction("not");
       }
       else if (node_type == AstNodeType_t::N_TRUE_KEYWORD)
       {
-        lowered_vm << "push constant 0" << '\n';
-        lowered_vm << "not" << '\n';
+        emit_vm_instruction("push constant 0");
+        emit_vm_instruction("not");
       }
       else if (node_type == AstNodeType_t::N_FALSE_KEYWORD)
       {
-        lowered_vm << "push constant 0" << '\n';
+        emit_vm_instruction("push constant 0");
       }
       else if (node_type == AstNodeType_t::N_NULL_KEYWORD)
       {
-        lowered_vm << "push constant 0" << '\n';
+        emit_vm_instruction("push constant 0");
       }
       else
       {
@@ -487,8 +500,9 @@ void VmWriter::lower_var(SubroutineDescr& subroutine_descr, const AstNode& node)
   {
     auto& symbol = symbol_alloc.value();
 
-    lowered_vm << "push " << symbol.stack_name << " " << symbol.symbol_index
-               << '\n';
+    stringstream push_var;
+    push_var << "push " << symbol.stack_name << " " << symbol.symbol_index;
+    emit_vm_instruction(push_var.str());
   }
   else
   {
@@ -523,8 +537,8 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
         throw SemanticException("Void subroutine returning non-void");
       }
 
-      lowered_vm << "push constant 0" << '\n';
-      lowered_vm << "return" << '\n';
+      emit_vm_instruction("push constant 0");
+      emit_vm_instruction("return");
       return;
     }
 
@@ -542,7 +556,7 @@ void VmWriter::lower_return_statement(SubroutineDescr& subroutine_descr,
     const auto& expression_node = root.get_child_nodes()[0].get();
 
     lower_expression(subroutine_descr, expression_node);
-    lowered_vm << "return" << '\n';
+    emit_vm_instruction("return");
   }
 }
 
@@ -564,7 +578,9 @@ void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
     {
       auto& sym = sym_locs.value();
 
-      lowered_vm << "pop " << sym.stack_name << " " << sym.symbol_index << '\n';
+      stringstream pop_var;
+      pop_var << "pop " << sym.stack_name << " " << sym.symbol_index;
+      emit_vm_instruction(pop_var.str());
     }
     else
     {
@@ -580,9 +596,9 @@ void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
     lower_expression(subroutine_descr, subscript_expression_node);
     lower_var(subroutine_descr, lh_bind_node);
 
-    lowered_vm << "add" << '\n';
-    lowered_vm << "pop pointer 1" << '\n';
-    lowered_vm << "pop that 0" << '\n';
+    emit_vm_instruction("add");
+    emit_vm_instruction("pop pointer 1");
+    emit_vm_instruction("pop that 0");
   }
   else
   {
@@ -600,13 +616,19 @@ void VmWriter::lower_while_statement(SubroutineDescr& subroutine_descr,
   const auto& expression_node = root.get_child_nodes()[0].get();
   const auto& statement_block_node = root.get_child_nodes()[1].get();
 
-  lowered_vm << "label WHILE_BEGIN_" << LOOP_ID << '\n';
+  stringstream while_begin_label, while_end_label, if_goto_stmt, goto_stmt;
+  while_begin_label << "label WHILE_BEGIN_" << LOOP_ID;
+  while_end_label << "label WHILE_END_" << LOOP_ID;
+  if_goto_stmt << "if-goto WHILE_END_" << LOOP_ID;
+  goto_stmt << "goto WHILE_BEGIN_" << LOOP_ID;
+
+  emit_vm_instruction(while_begin_label.str());
   lower_expression(subroutine_descr, expression_node);
-  lowered_vm << "not" << '\n';
-  lowered_vm << "if-goto WHILE_END_" << LOOP_ID << '\n';
+  emit_vm_instruction("not");
+  emit_vm_instruction(if_goto_stmt.str());
   lower_statement_block(subroutine_descr, statement_block_node);
-  lowered_vm << "goto WHILE_BEGIN_" << LOOP_ID << '\n';
-  lowered_vm << "label WHILE_END_" << LOOP_ID << '\n';
+  emit_vm_instruction(goto_stmt.str());
+  emit_vm_instruction(while_end_label.str());
 }
 
 void VmWriter::lower_if_statement(SubroutineDescr& subroutine_descr,
@@ -631,21 +653,35 @@ void VmWriter::lower_if_statement(SubroutineDescr& subroutine_descr,
   {
     const auto& false_statement_block_node = root.get_child_nodes()[2].get();
 
-    lowered_vm << "if-goto IF_TRUE_" << ID << '\n';
-    lowered_vm << "label IF_FALSE_" << ID << '\n';
+    stringstream if_goto_true, if_false_label, goto_end, if_true_label,
+        if_end_label;
+    if_goto_true << "if-goto IF_TRUE_" << ID;
+    if_false_label << "label IF_FALSE_" << ID;
+    goto_end << "goto IF_END_" << ID;
+    if_true_label << "label IF_TRUE_" << ID;
+    if_end_label << "label IF_END_" << ID;
+
+    emit_vm_instruction(if_goto_true.str());
+    emit_vm_instruction(if_false_label.str());
     lower_statement_block(subroutine_descr, false_statement_block_node);
-    lowered_vm << "goto IF_END_" << ID << '\n';
-    lowered_vm << "label IF_TRUE_" << ID << '\n';
+    emit_vm_instruction(goto_end.str());
+    emit_vm_instruction(if_true_label.str());
     lower_statement_block(subroutine_descr, true_statement_block_node);
-    lowered_vm << "label IF_END_" << ID << '\n';
+    emit_vm_instruction(if_end_label.str());
   }
   else
   {
-    lowered_vm << "if-goto IF_TRUE_" << ID << '\n';
-    lowered_vm << "goto IF_END_" << ID << '\n';
-    lowered_vm << "label IF_TRUE_" << ID << '\n';
+    stringstream if_goto_true2, goto_end2, if_true_label2, if_end_label2;
+    if_goto_true2 << "if-goto IF_TRUE_" << ID;
+    goto_end2 << "goto IF_END_" << ID;
+    if_true_label2 << "label IF_TRUE_" << ID;
+    if_end_label2 << "label IF_END_" << ID;
+
+    emit_vm_instruction(if_goto_true2.str());
+    emit_vm_instruction(goto_end2.str());
+    emit_vm_instruction(if_true_label2.str());
     lower_statement_block(subroutine_descr, true_statement_block_node);
-    lowered_vm << "label IF_END_" << ID << '\n';
+    emit_vm_instruction(if_end_label2.str());
   }
 }
 
@@ -673,7 +709,7 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
     if (call_site.type == AstNodeType_t::N_LOCAL_CALL_SITE)
     {
       // Handle call: subroutine(), this pointer
-      lowered_vm << "push pointer 0" << '\n';
+      emit_vm_instruction("push pointer 0");
       call_site_args++;
 
       if (const auto* symbol_type_ptr =
@@ -714,8 +750,9 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
           auto& sym = symbol_alloc_.value();
 
           call_site_args++;
-          lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
-                     << '\n';
+          stringstream push_sym;
+          push_sym << "push " << sym.stack_name << " " << sym.symbol_index;
+          emit_vm_instruction(push_sym.str());
 
           if (auto* class_type_ptr =
                   get_if<SymbolTable::ClassType_t>(&sym.variable_type);
@@ -749,7 +786,7 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
     if (call_site.type == AstNodeType_t::N_LOCAL_CALL_SITE)
     {
       // Handle call: subroutine()
-      lowered_vm << "push pointer 0" << '\n';
+      emit_vm_instruction("push pointer 0");
       call_site_args++;
       call_site_bind_name << subroutine_descr.get_class_name() << ".";
     }
@@ -767,8 +804,9 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
         auto& sym = symbol_alloc.value();
 
         call_site_args++;
-        lowered_vm << "push " << sym.stack_name << " " << sym.symbol_index
-                   << '\n';
+        stringstream push_sym2;
+        push_sym2 << "push " << sym.stack_name << " " << sym.symbol_index;
+        emit_vm_instruction(push_sym2.str());
 
         if (auto* class_type_ptr =
                 get_if<SymbolTable::ClassType_t>(&sym.variable_type);
@@ -809,8 +847,24 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
   }
 
   // LOWER CALL
-  lowered_vm << "call " << call_site_bind_name.str() << " " << call_site_args
-             << '\n';
+  stringstream call_instr;
+  call_instr << "call " << call_site_bind_name.str() << " " << call_site_args;
+  emit_vm_instruction(call_instr.str());
+}
+
+void VmWriter::emit_vm_instruction(const std::string& instruction)
+{
+  // Check if this is a control flow instruction that should not be indented
+  if (instruction.find("label ") == 0 || instruction.find("if-goto ") == 0 ||
+      instruction.find("function ") == 0)
+  {
+    lowered_vm << instruction << '\n';
+  }
+  else
+  {
+    // All other instructions get 4 spaces of indentation (including goto)
+    lowered_vm << "    " << instruction << '\n';
+  }
 }
 
 }  // namespace jfcl
