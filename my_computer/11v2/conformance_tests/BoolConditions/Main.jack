@@ -11,7 +11,65 @@ class Main {
       let idx = idx + 1;
     }
 
+    do Output.println();
     return count;
+  }
+
+  function void test_if_1() {
+    if (5)
+    {
+      if (0)
+      {
+        do Output.printString("IF1 TT fail");
+      }
+      else
+      {
+        do Output.printString("IF1 TF fail");
+      }
+    }
+    else
+    {
+      if (~0)
+      {
+        do Output.printString("IF1 FT pass");
+      }
+      else
+      {
+        do Output.printString("IF1 FF fail");
+      }
+    }
+
+    do Output.println();
+    return;
+  }
+
+
+  function void test_if_2() {
+    if (5 = 0)
+    {
+      if (0 = 1)
+      {
+        do Output.printString("IF2 TT fail");
+      }
+      else
+      {
+        do Output.printString("IF2 TF fail");
+      }
+    }
+    else
+    {
+      if (~0 = ~0)
+      {
+        do Output.printString("IF2 FT pass");
+      }
+      else
+      {
+        do Output.printString("IF2 FF fail");
+      }
+    }
+
+    do Output.println();
+    return;
   }
 
   function void main() {
@@ -31,22 +89,8 @@ class Main {
     }
 
     do Output.println();
-
-    if (5)
-    {
-      if (0)
-      {
-        do Output.printString("IF fail");
-      }
-      else
-      {
-        do Output.printString("IF pass");
-      }
-    }
-    else
-    {
-      do Output.printString("IF fail");
-    }
+    do Main.test_if_1();
+    do Main.test_if_2();
 
     return;
   }
