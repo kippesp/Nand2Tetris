@@ -139,12 +139,12 @@ class GameBoard {
   }
 
   method void run() {
-    var bool exit_game;
+    var boolean exit_game;
     var int pip_number;
     var int xor_mask;
     var int num_user_moves;
     var String str;
-    var ch play_again_key;
+    var char play_again_key;
 
     let exit_game = false;
 
@@ -235,7 +235,7 @@ class GameBoard {
   method void waitForDifficultyChoice() {
     var char ch;
     var int tics;
-    var bool do_wait_loop;
+    var boolean do_wait_loop;
     var int difficulty;
 
     let tics = 0;
