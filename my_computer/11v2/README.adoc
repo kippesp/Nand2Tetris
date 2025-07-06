@@ -1,267 +1,163 @@
-= Jack Front End Compiler (jfcl) - part 2
+= Jack Front End Compiler (jfcl)
 
-Nand2Tetris project #11 to convert .jack files to .vm Jack virtual machine
-files.
+Nand2Tetris project #11 implementation - a Jack language compiler that converts
+`.jack` files to `.vm` (virtual machine) files.  This version 11v2 is a
+refactored implementation with improved AST structure and operator precedence
+parsing.
 
-This follow-on version of jfcl, 11v2, is functionally equivalent to the initial
-version, xref:../11/README.adoc, while making the following improvements by
+== Key Improvements
 
-- re-implementing the parser with a rework of the AST,
-- incorporated true operator precedence using a recursive decent parser,
-- re-implementing the vmwriter,
-- refactoring the file i/o classes,
-- correcting some VM lowering corner cases to better support some Jack programs
-  observed in the wild.
+- Clean AST structure suitable for multiple compilation targets
+- Simplification to internal AST data structure
+- Parsing with recursive descent parser
+- Left-to-right expression evaluation (matches reference Jack compiler)
+- Enhanced VM code generation with descriptive labels
+- Comprehensive test suite with unit and integration tests
+- Legacy compatibility mode for existing Jack tools
 
-The goal of 11v2 is to achieve an AST structure that can be shared with multiple
-targets lowered by the FE compiler.  Currently, only the Hack virtual machine
-target is supported.
+== Architecture
 
-== Why Refactor/Reimplement the Previous jfcl?
+The compiler has three main phases:
 
-Well, we had this thing called a pandemic....
-
-Originally with v1, I thought I would have a parse tree and then create from
-that an AST.  This turned out to be so boring and tedious that I was left with
-an odd parse tree with some abstract syntax elements.  I also used v1 to
-explore more modern c++11 and c++17 constructions and made some poor decisions.
-Several of the c++ choices were revisited in 11v2 by using
-std::reference_wrapper and using std::vector as the backing store, and not
-making such heavy use of std::variant.
-
-I also thought I'd incorporate operator precedence using the Pratt parsing
-techniques, but abandoned this in favor of extending the existing recursive
-descent design.
-
-Another reason is I might extend this project by adding an additional
-target for the AST.
+1. **Tokenizer** - Lexical analysis of Jack source
+2. **Parser** - Creates AST with configurable expression evaluation
+3. **VMWriter** - Generates VM code from AST
 
 == Usage
 
-    jfcl -h
-    jfcl [-t|-T|-p|-w] FILENAME.jack
-    jfcl DIRECTORY|FILENAME.jack
+    jfcl -h                      # Show help
+    jfcl FILENAME.jack           # Compile to .vm file
+    jfcl -w FILENAME.jack        # Print VM output to console
+    jfcl -p FILENAME.jack        # Show parse tree
+    jfcl -t FILENAME.jack        # Show tokenizer output
+    jfcl -r FILENAME.jack        # Enable operator precedence
+    jfcl -l FILENAME.jack        # Left-justify VM output
 
 == Options
 
     -h     Display available options
-    -t     Display tokenizer output and halt (includes internal tokens)
-    -T     Display tokenizer output in S expression w/o internals and halt
+    -t     Display tokenizer output and halt
+    -T     Display tokenizer output in S expression format and halt
     -p     Display parse tree output and halt
     -w     Display VM Writer output and halt
+    -r     Enable operator precedence parsing
+    -l     Left-justify VM output (matches reference formatting)
 
-== Overview
+== Expression Parsing
 
-    jfcl
+By default, jfcl uses **left-to-right evaluation** to match the reference Jack
+compiler:
 
-    +-----------+      +---------------+      +----------+      +--------+
-    |           |      |               |      |          |      |        |
-    | Tokenizer |----->|  Parser (AST) |----->| VmWriter |----->|  .vm   |
-    |           |      |               |      |          |      |        |
-    +-----------+      +---------------+      +----------+      +--------+
+- `1 + 2 * 3` evaluates as `(1 + 2) * 3 = 9`
+- `5 - 4 + 2` evaluates as `(5 - 4) + 2 = 3`
+- All operators have equal precedence and are evaluated left-to-right
 
-== Changes to the 11v2 Parser
+=== Operator Precedence Mode
 
-The v1 parser created a hybrid parse tree and AST tree.  This hybrid data
-structure created complications in the VM lowering code where extending this to
-future targets was deemed impractical.  Additionally, the internal node
-structure of the hybrid tree used specialized classes for terminal and
-non-terminal nodes--in other words, a node either has children nodes or
-doesn't.  The new AST has only a single AstNode class.
+Use the `-r` flag to enable **proper operator precedence** parsing:
 
-The 11v2 input to the VM lowering section is more of a traditional AST
-structure where the Jack language semantics are better described.  For
-example, the class and subroutine variable declariations are structured
-within the AST under their N_CLASS_VARIABLES and N_LOCAL_VARIABLES subtrees,
-respectively.
+- `1 + 2 * 3` evaluates as `1 + (2 * 3) = 7`
+- Standard mathematical precedence: `* /` before `+ -`
+- Comparison operators: `< > =`
+- Logical operators: `&` (AND) before `|` (OR)
+- This is not tested since simulators and exiting programs don't expect it
 
-The Parser is now smarter about generalizing code elements into more useful AST
-nodes.  See the modified Jack grammar in xref:src/lib/parser/README.adoc.
+== Legacy Compatibility
 
-The new Parser no longer makes such heavy use of unique pointers and
-std::variant which made the v1 VM lowering logic tedious to implement and
-difficult to follow.  The v1 hybrid parse tree also contained numerous,
-structurally irrelevant nodes that had to be ignored and skipped over.
+This compiler maintains compatibility with the original Nand2Tetris JVM Jack
+compiler and tooling by using legacy VM generation patterns for if-statements.
+This ensures compatibility with existing Jack tools and reference
+implementations.
 
-Expression nodes are constructed with c-style operator precedence.  A
-command-line option is available to turn operator precedence off.  This
-is not recommended since expressions like (2 * 3) / 4 + 2 would produce
-results different from the Jack reference implementation.
+== VM Label Naming
 
-BUG: The expression parsing still has issues when grouping together
-operators.  The expression 5 - 4 + 2 will appear as (5 - (4 + 2)), incorrectly,
-in the AST.  As indicated earlier, don't do this.
+The compiler uses descriptive label names for better readability:
 
-== Changes to the 11v2 VM Writer
+**While Loops:**
+- `WHILE_BEGIN_X` - Start of while loop
+- `WHILE_EXIT_X` - Exit point when condition becomes false
 
-The VM Writer was re-implemented to support the redesigned AST.  This
-portion of the code is smaller
+**If Statements:**
+- `IF_TRUE_X` - Jump target for true condition
+- `IF_FALSE_X` - Jump target for false condition (else block)
+- `IF_END_X` - End of entire if-statement
 
-Expressions are now parsed using DFS
+== Testing
 
-== Changes to the 11v2 Tests
+=== Conformance Tests
+Located in `conformance_tests/` directory:
+- `Seven/` - Simple arithmetic test
+- `HelloWorld/` - Basic program structure
+- `Average/`, `ComplexArrays/`, `ConvertToBin/` - More complex tests
+- `Pong/`, `Square/` - Game implementations
 
-All code, except main.cpp, is unit tested with Catch2 (single header
-implementation).  The VM Writer tests are class-level tests and no longer
-examine the internal data structures.
+=== turnt Testing Tool
 
-Additional turnt tests are capable of whole-program lowering tests on
-supported platforms.
+    turnt FILENAME.jack -p        # Print output only
+    turnt FILENAME.jack --diff    # Show differences with expected
+    turnt FILENAME.jack           # Run automatic comparison
 
-=== Example #1 Jack, HelloWorld program
+== Build Information
 
-This example shows the improved structure to the AST.
+- Built with CMake
+- Uses Catch2 for unit testing
+- Includes turnt for regression testing
+- C++11/17 features utilized
 
-[source]
-----
-class Main {
-  static int a_number;
+== Implementation Details
 
-  function void run(int N, int unused) {
-    do Output.printString("Hello from Nand");
-    do Output.printInt(N);
-    do Output.printString("Tetris!");
-  }
-  function void main() {
-    var int nine;
-    var int unused;
+=== Parser Improvements
 
-    let nine = -1;
-    let a_number = 3;
-    let a_number = -1 + nine / a_number;
+The parser creates a clean AST structure where Jack language semantics are
+properly represented.  Class and subroutine variable declarations are organized
+under `N_CLASS_VARIABLES` and `N_LOCAL_VARIABLES` subtrees respectively.
 
-    do Main.run(a_number, unused);
-    return;
-  }
-}
-----
+Key improvements:
+- Single `AstNode` class replacing specialized terminal/non-terminal classes
+- Reduced complexity from removing excessive use of unique pointers and std::variant
+- Eliminated structurally irrelevant nodes that required skipping
 
-==== HelloWorld AST
+=== VM Writer
 
-[source]
-----
-(CLASS_DECL string_value:Main
-  (CLASS_VARIABLES
-    (VARIABLE_DECL string_value:a_number
-      (CLASS_VARIABLE_SCOPE string_value:static)
-      (VARIABLE_TYPE string_value:int)))
-  (FUNCTION_DECL string_value:run
-    (SUBROUTINE_DESCR
-      (RETURN_TYPE string_value:void)
-      (INPUT_PARAMETERS
-        (VARIABLE_DECL string_value:N
-          (VARIABLE_TYPE string_value:int))
-        (VARIABLE_DECL string_value:unused
-          (VARIABLE_TYPE string_value:int))))
-    (SUBROUTINE_BODY
-      (STATEMENT_BLOCK
-        (DO_STATEMENT
-          (SUBROUTINE_CALL
-            (GLOBAL_CALL_SITE
-              (GLOBAL_BIND_NAME string_value:Output)
-              (SUBROUTINE_NAME string_value:printString))
-            (CALL_ARGUMENTS
-              (STRING_CONSTANT string_value:Hello from Nand))))
-        (DO_STATEMENT
-          (SUBROUTINE_CALL
-            (GLOBAL_CALL_SITE
-              (GLOBAL_BIND_NAME string_value:Output)
-              (SUBROUTINE_NAME string_value:printInt))
-            (CALL_ARGUMENTS
-              (VARIABLE_NAME string_value:N))))
-        (DO_STATEMENT
-          (SUBROUTINE_CALL
-            (GLOBAL_CALL_SITE
-              (GLOBAL_BIND_NAME string_value:Output)
-              (SUBROUTINE_NAME string_value:printString))
-            (CALL_ARGUMENTS
-              (STRING_CONSTANT string_value:Tetris!)))))))
-  (FUNCTION_DECL string_value:main
-    (SUBROUTINE_DESCR
-      (RETURN_TYPE string_value:void)
-      (LOCAL_VARIABLES
-        (VARIABLE_DECL string_value:nine
-          (VARIABLE_TYPE string_value:int))
-        (VARIABLE_DECL string_value:unused
-          (VARIABLE_TYPE string_value:int))))
-    (SUBROUTINE_BODY
-      (STATEMENT_BLOCK
-        (LET_STATEMENT
-          (VARIABLE_NAME string_value:nine)
-          (OP_PREFIX_NEG
-            (INTEGER_CONSTANT integer_value:1)))
-        (LET_STATEMENT
-          (VARIABLE_NAME string_value:a_number)
-          (INTEGER_CONSTANT integer_value:3))
-        (LET_STATEMENT
-          (VARIABLE_NAME string_value:a_number)
-          (OP_ADD
-            (OP_PREFIX_NEG
-              (INTEGER_CONSTANT integer_value:1))
-            (OP_DIVIDE
-              (VARIABLE_NAME string_value:nine)
-              (VARIABLE_NAME string_value:a_number))))
-        (DO_STATEMENT
-          (SUBROUTINE_CALL
-            (GLOBAL_CALL_SITE
-              (GLOBAL_BIND_NAME string_value:Main)
-              (SUBROUTINE_NAME string_value:run))
-            (CALL_ARGUMENTS
-              (VARIABLE_NAME string_value:a_number)
-              (VARIABLE_NAME string_value:unused))))
-        (RETURN_STATEMENT)))))
-----
+Re-implemented to support the redesigned AST with DFS expression parsing.  The
+VM writer generates descriptive labels and maintains compatibility with legacy
+Jack tools.
 
-=== Example #2 A Jack Class
+=== Testing
 
-This example shows other improved structures to the AST.
+Comprehensive testing with:
+- Catch2 unit tests for all code except main.cpp
+- Class-level VM Writer tests
+- turnt integration tests for whole-program validation
 
-[source]
-----
-class MyClass {
-  method void run(int N, int unused) {
-    return;
-  }
+== Example Usage
 
-  method void my_method(int a_var_1, int a_var_2) {
-    do run(a_var_1, a_var_2);
-    return;
-  }
-}
-----
+=== Basic Compilation
 
-==== MyClass AST
+    # Compile a Jack file to VM
+    jfcl HelloWorld.jack
 
-[source]
-----
-(CLASS_DECL string_value:MyClass
-  (METHOD_DECL string_value:run
-    (SUBROUTINE_DESCR
-      (RETURN_TYPE string_value:void)
-      (INPUT_PARAMETERS
-        (VARIABLE_DECL string_value:N
-          (VARIABLE_TYPE string_value:int))
-        (VARIABLE_DECL string_value:unused
-          (VARIABLE_TYPE string_value:int))))
-    (SUBROUTINE_BODY
-      (STATEMENT_BLOCK
-        (RETURN_STATEMENT))))
-  (METHOD_DECL string_value:my_method
-    (SUBROUTINE_DESCR
-      (RETURN_TYPE string_value:void)
-      (INPUT_PARAMETERS
-        (VARIABLE_DECL string_value:a_var_1
-          (VARIABLE_TYPE string_value:int))
-        (VARIABLE_DECL string_value:a_var_2
-          (VARIABLE_TYPE string_value:int))))
-    (SUBROUTINE_BODY
-      (STATEMENT_BLOCK
-        (DO_STATEMENT
-          (SUBROUTINE_CALL
-            (LOCAL_CALL_SITE
-              (SUBROUTINE_NAME string_value:run))
-            (CALL_ARGUMENTS
-              (VARIABLE_NAME string_value:a_var_1)
-              (VARIABLE_NAME string_value:a_var_2))))
-        (RETURN_STATEMENT)))))
-----
+    # View VM output without creating file
+    jfcl -w HelloWorld.jack
+
+    # Show parse tree structure
+    jfcl -p HelloWorld.jack
+
+=== Testing with turnt
+
+    # Run test in test directory
+    turnt Main.jack
+
+    # View test output
+    turnt Main.jack -p
+
+    # Compare with expected output
+    turnt Main.jack --diff
+
+=== Expression Evaluation Examples
+
+    # Default left-to-right: (1 + 2) * 3 = 9
+    jfcl -w test.jack
+
+    # Operator precedence: 1 + (2 * 3) = 7 
+    jfcl -r -w test.jack
