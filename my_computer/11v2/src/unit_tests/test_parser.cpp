@@ -209,16 +209,16 @@ SCENARIO("Parse expressions")
     Expected_t expected = {
         ""  // clang-format sorcery
         "(OP_ADD",
-        "  (INTEGER_CONSTANT integer_value:2)",
         "  (OP_MULTIPLY",
-        "    (INTEGER_CONSTANT integer_value:3)",
         "    (OP_SUBTRACT",
-        "      (INTEGER_CONSTANT integer_value:4)",
         "      (OP_MULTIPLY",
-        "        (INTEGER_CONSTANT integer_value:5)",
         "        (OP_ADD",
-        "          (INTEGER_CONSTANT integer_value:6)",
-        "          (INTEGER_CONSTANT integer_value:7))))))"};
+        "          (INTEGER_CONSTANT integer_value:2)",
+        "          (INTEGER_CONSTANT integer_value:3))",
+        "        (INTEGER_CONSTANT integer_value:4))",
+        "      (INTEGER_CONSTANT integer_value:5))",
+        "    (INTEGER_CONSTANT integer_value:6))",
+        "  (INTEGER_CONSTANT integer_value:7))"};
 
     std::string expected_str = expected_string(expected);
     REQUIRE(as_str == expected_str);

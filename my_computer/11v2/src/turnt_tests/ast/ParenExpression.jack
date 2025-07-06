@@ -1,4 +1,4 @@
-class ConstSeven
+class ParenExpression
 {
   function int get_four()
   {
