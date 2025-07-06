@@ -158,7 +158,7 @@ class GameBoard {
     do Output.printString(str);
     do str.dispose();
 
-    while (exit_game = false) {
+    while (~exit_game) {
       let num_user_moves = 0;
 
       do Output.moveCursor(2, 48);
@@ -241,7 +241,7 @@ class GameBoard {
     let tics = 0;
     let do_wait_loop = true;
 
-    while (do_wait_loop = true) {
+    while (do_wait_loop) {
       let ch = Keyboard.keyPressed();
 
       // easy (1)
