@@ -45,8 +45,8 @@ CliArgs::CliArgs(int argc, const char* argv[])
       continue;
     }
 
-    // -r - enable new operator precedence parsing
-    //      Use this to enable full operator precedence (experimental)
+    // -r - enable operator precedence parsing
+    //      Use this to enable proper operator precedence
     if ((argv[i][0] == '-') && (argv[i][1] == 'r') && (argv[i][2] == '\0'))
     {
       enable_precedence_parsing = true;
@@ -150,7 +150,7 @@ void CliArgs::show_help()
 
   std::cout << "\n  ";
   std::cout << std::setw(24) << std::left << "-r";
-  std::cout << "Enable new operator precedence parsing";
+  std::cout << "Enable operator precedence parsing";
 
   std::cout << "\n  ";
   std::cout << std::setw(24) << std::left << "-l";

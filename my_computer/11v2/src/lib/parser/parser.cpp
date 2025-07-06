@@ -978,8 +978,20 @@ AstNodeRef Parser::parse_expression()
 
       chained_root.get().add_child(lhs);
 
-      if (AstNodeRef const rhs = parse_subexpression(prec_level);
-          rhs.get() != AST.get_empty_node_ref().get())
+      AstNodeRef rhs = AST.get_empty_node_ref();
+
+      if (left_associative_expressions)
+      {
+        // For left-associative parsing, only parse the next term
+        rhs = parse_term();
+      }
+      else
+      {
+        // For precedence parsing, parse the full subexpression
+        rhs = parse_subexpression(prec_level);
+      }
+
+      if (rhs.get() != AST.get_empty_node_ref().get())
       {
         chained_root.get().add_child(rhs);
       }
