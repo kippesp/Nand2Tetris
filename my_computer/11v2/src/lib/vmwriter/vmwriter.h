@@ -70,8 +70,14 @@ private:
 
   bool left_justify_output;
 
+  // Global label counter for unique label generation across all subroutines
+  int global_label_counter {0};
+
   // Helper method to add indentation based on VM instruction type
   void emit_vm_instruction(const std::string& instruction);
+
+  // Helper method to get next unique label ID
+  int get_next_label_id() { return global_label_counter++; }
 };
 
 }  // namespace jfcl

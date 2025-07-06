@@ -611,16 +611,17 @@ void VmWriter::lower_while_statement(SubroutineDescr& subroutine_descr,
 {
   assert(root.num_child_nodes() == 2);
 
-  const auto LOOP_ID = subroutine_descr.get_next_structured_control_id();
+  const auto BEGIN_ID = get_next_label_id();
+  const auto END_ID = get_next_label_id();
 
   const auto& expression_node = root.get_child_nodes()[0].get();
   const auto& statement_block_node = root.get_child_nodes()[1].get();
 
   stringstream while_begin_label, while_end_label, if_goto_stmt, goto_stmt;
-  while_begin_label << "label WHILE_BEGIN_" << LOOP_ID;
-  while_end_label << "label WHILE_END_" << LOOP_ID;
-  if_goto_stmt << "if-goto WHILE_END_" << LOOP_ID;
-  goto_stmt << "goto WHILE_BEGIN_" << LOOP_ID;
+  while_begin_label << "label WHILE_BEGIN_" << BEGIN_ID;
+  while_end_label << "label WHILE_EXIT_" << END_ID;
+  if_goto_stmt << "if-goto WHILE_EXIT_" << END_ID;
+  goto_stmt << "goto WHILE_BEGIN_" << BEGIN_ID;
 
   emit_vm_instruction(while_begin_label.str());
   lower_expression(subroutine_descr, expression_node);
@@ -642,7 +643,7 @@ void VmWriter::lower_if_statement(SubroutineDescr& subroutine_descr,
     has_else = true;
   }
 
-  const auto ID = subroutine_descr.get_next_structured_control_id();
+  const auto ID = get_next_label_id();
 
   const auto& expression_node = root.get_child_nodes()[0].get();
   const auto& true_statement_block_node = root.get_child_nodes()[1].get();
@@ -655,12 +656,12 @@ void VmWriter::lower_if_statement(SubroutineDescr& subroutine_descr,
 
     stringstream if_goto_true, if_false_label, goto_false, if_true_label,
         goto_end, if_end_label;
-    if_goto_true << "if-goto IF_TRUE" << ID;
-    if_false_label << "label IF_FALSE" << ID;
-    goto_false << "goto IF_FALSE" << ID;
-    if_true_label << "label IF_TRUE" << ID;
-    goto_end << "goto IF_END" << ID;
-    if_end_label << "label IF_END" << ID;
+    if_goto_true << "if-goto IF_TRUE_" << ID;
+    if_false_label << "label IF_FALSE_" << ID;
+    goto_false << "goto IF_FALSE_" << ID;
+    if_true_label << "label IF_TRUE_" << ID;
+    goto_end << "goto IF_END_" << ID;
+    if_end_label << "label IF_END_" << ID;
 
     emit_vm_instruction(if_goto_true.str());
     emit_vm_instruction(goto_false.str());
@@ -674,10 +675,10 @@ void VmWriter::lower_if_statement(SubroutineDescr& subroutine_descr,
   else
   {
     stringstream if_goto_true, goto_false, if_true_label, if_false_label;
-    if_goto_true << "if-goto IF_TRUE" << ID;
-    goto_false << "goto IF_FALSE" << ID;
-    if_true_label << "label IF_TRUE" << ID;
-    if_false_label << "label IF_FALSE" << ID;
+    if_goto_true << "if-goto IF_TRUE_" << ID;
+    goto_false << "goto IF_FALSE_" << ID;
+    if_true_label << "label IF_TRUE_" << ID;
+    if_false_label << "label IF_FALSE_" << ID;
 
     emit_vm_instruction(if_goto_true.str());
     emit_vm_instruction(goto_false.str());
