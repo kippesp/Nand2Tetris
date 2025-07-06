@@ -1,3 +1,15 @@
+// The original Jack JVM compiler as well as my 11v2 compiler will fail
+// the first test_if_1() test.  Since I wanted to achieve operational
+// parity and not correctness of the Jack Language Spec for the 11v2
+// project the failure is by definition correct.
+// 
+// It can be noted that 11v2 generates VM when run on the newer web version
+// of the Jack tools--the VM simulator, the results all show passing.
+//
+// For project 13, since there is not reference that compiler when targeting
+// the LLVM backends conforms to the Jack Language Spec.  The results
+// pass for these targets.
+
 class Main {
   function int test_while() {
     var int idx, count;
