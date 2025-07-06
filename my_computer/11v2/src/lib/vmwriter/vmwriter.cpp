@@ -851,16 +851,24 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
 
 void VmWriter::emit_vm_instruction(const std::string& instruction)
 {
-  // Check if this is a control flow instruction that should not be indented
-  if (instruction.find("label ") == 0 || instruction.find("if-goto ") == 0 ||
-      instruction.find("function ") == 0)
+  if (left_justify_output)
   {
+    // Left justify - no indentation
     lowered_vm << instruction << '\n';
   }
   else
   {
-    // All other instructions get 4 spaces of indentation (including goto)
-    lowered_vm << "    " << instruction << '\n';
+    // Check if this is a control flow instruction that should not be indented
+    if (instruction.find("label ") == 0 || instruction.find("if-goto ") == 0 ||
+        instruction.find("function ") == 0)
+    {
+      lowered_vm << instruction << '\n';
+    }
+    else
+    {
+      // All other instructions get 4 spaces of indentation (including goto)
+      lowered_vm << "    " << instruction << '\n';
+    }
   }
 }
 

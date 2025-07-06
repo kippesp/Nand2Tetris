@@ -1,0 +1,12 @@
+class Main {
+  function void main() {
+    var int val1;
+
+    let val1 = 1 + 2 * 3;
+
+    do Output.printInt(val1);     // 9
+    do Output.println();
+
+    return;
+  }
+}

@@ -54,7 +54,7 @@ static int jfcl_inner_main(const CliArgs& cliargs)
     AstTree ast;
     Parser parser(filtered_tokens, ast);
 
-    if (cliargs.disable_precedence_parsing)
+    if (!cliargs.enable_precedence_parsing)
     {
       parser.set_left_associative();
     }
@@ -70,7 +70,7 @@ static int jfcl_inner_main(const CliArgs& cliargs)
       return 0;
     }
 
-    jfcl::VmWriter VM(parser.get_ast());
+    jfcl::VmWriter VM(parser.get_ast(), cliargs.left_justify_vm_output);
     VM.lower_module();
 
     if (cliargs.halt_after_vmwriter)

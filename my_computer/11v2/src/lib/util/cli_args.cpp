@@ -45,12 +45,20 @@ CliArgs::CliArgs(int argc, const char* argv[])
       continue;
     }
 
-    // -r - disable new operator precedence parsing (not recommended)
-    //      Use this mainly to check if parens should be added to ambiguous
-    //      expressions
+    // -r - enable new operator precedence parsing
+    //      Use this to enable full operator precedence (experimental)
     if ((argv[i][0] == '-') && (argv[i][1] == 'r') && (argv[i][2] == '\0'))
     {
-      disable_precedence_parsing = true;
+      enable_precedence_parsing = true;
+      i++;
+      continue;
+    }
+
+    // -l - left justify VM output (remove indentation)
+    //      Use this to match reference compiler formatting
+    if ((argv[i][0] == '-') && (argv[i][1] == 'l') && (argv[i][2] == '\0'))
+    {
+      left_justify_vm_output = true;
       i++;
       continue;
     }
@@ -113,7 +121,7 @@ void CliArgs::show_usage()
   std::cout << "SYNOPSIS:\n\n";
   std::cout << "  jfcl -h" << std::endl;
   std::cout << "  jfcl [-t|-p|-w] FILENAME.jack" << std::endl;
-  std::cout << "  jfcl [-r] DIRECTORY|FILENAME.jack" << std::endl;
+  std::cout << "  jfcl [-r|-l] DIRECTORY|FILENAME.jack" << std::endl;
 }
 
 void CliArgs::show_help()
@@ -142,7 +150,11 @@ void CliArgs::show_help()
 
   std::cout << "\n  ";
   std::cout << std::setw(24) << std::left << "-r";
-  std::cout << "Disable new operator precedence parsing";
+  std::cout << "Enable new operator precedence parsing";
+
+  std::cout << "\n  ";
+  std::cout << std::setw(24) << std::left << "-l";
+  std::cout << "Left justify VM output (no indentation)";
 
   std::cout << std::endl;
 }

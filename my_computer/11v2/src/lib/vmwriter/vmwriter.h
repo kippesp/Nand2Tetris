@@ -14,10 +14,11 @@ public:
   VmWriter(const VmWriter&) = delete;
   VmWriter& operator=(const VmWriter&) = delete;
 
-  VmWriter(const AstTree& ast_tree)
+  VmWriter(const AstTree& ast_tree, bool left_justify = false)
       : module_ast(ast_tree),
         module_root(ast_tree.get_root()),
-        EmptyNodeRef(module_ast.get_empty_node_ref().get())
+        EmptyNodeRef(module_ast.get_empty_node_ref().get()),
+        left_justify_output(left_justify)
   {
   }
 
@@ -66,6 +67,8 @@ private:
   Program program;
 
   std::stringstream lowered_vm;
+
+  bool left_justify_output;
 
   // Helper method to add indentation based on VM instruction type
   void emit_vm_instruction(const std::string& instruction);
