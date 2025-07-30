@@ -4,6 +4,7 @@
 #include "tokenizer/jack_tokenizer.h"
 #include "util/cli_args.h"
 #include "util/textfile_reader.h"
+#include "vmwriter/semantic_exception.h"
 #include "vmwriter/vmwriter.h"
 
 #include <fstream>
@@ -134,6 +135,11 @@ JFCL_DLLEXPORT int JFCL_APICALL jfcl_main(int argc, const char* argv[])
   catch (const std::domain_error& e)
   {
     std::cout << "Error: " << e.what() << std::endl;
+    return 1;
+  }
+  catch (const SemanticException e)
+  {
+    std::cout << "Compilation Error: " << e.what() << std::endl;
     return 1;
   }
   catch (...)

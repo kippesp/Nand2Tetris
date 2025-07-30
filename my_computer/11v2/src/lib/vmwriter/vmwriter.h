@@ -78,6 +78,27 @@ private:
 
   // Helper method to get next unique label ID
   int get_next_label_id() { return global_label_counter++; }
+
+  // Type analysis methods for warning system
+  SymbolTable::VariableType_t get_expression_type(
+      SubroutineDescr& subroutine_descr, const AstNode& expression_node);
+
+  bool are_types_compatible(const SymbolTable::VariableType_t& type1,
+                            const SymbolTable::VariableType_t& type2,
+                            AstNodeType_t operator_type);
+
+  void validate_binary_operator_types(SubroutineDescr& subroutine_descr,
+                                      const AstNode& operator_node);
+
+  void check_assignment_type_conversion(
+      const SymbolTable::VariableType_t& lhs_type,
+      const SymbolTable::VariableType_t& rhs_type, const AstNode& rhs_node);
+
+  void validate_boolean_context(SubroutineDescr& subroutine_descr,
+                                const AstNode& expression_node,
+                                const std::string& context_name);
+
+  void emit_warning(const AstNode& node, const std::string& message);
 };
 
 }  // namespace jfcl

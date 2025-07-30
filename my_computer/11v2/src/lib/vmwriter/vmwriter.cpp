@@ -177,7 +177,18 @@ void VmWriter::lower_class(AstNodeCRef root)
         const auto& variable_type = get_ast_node_value<std::string>(
             var_node, AstNodeType_t::N_VARIABLE_TYPE);
 
-        class_descr.add_symbol(variable_name, variable_scope, variable_type);
+        // Find the variable type node to get line number information
+        const AstNode& variable_type_node =
+            module_ast.find_child_node(var_node, AstNodeType_t::N_VARIABLE_TYPE)
+                .get();
+
+        auto warn_callback = [this,
+                              &variable_type_node](const std::string& msg) {
+          emit_warning(variable_type_node, msg);
+        };
+
+        class_descr.add_symbol(variable_name, variable_scope, variable_type,
+                               warn_callback);
       }
     }
     else if ((node_type == AstNodeType_t::N_FUNCTION_DECL) ||
@@ -270,11 +281,21 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
         const auto& variable_type = get_ast_node_value<std::string>(
             node, AstNodeType_t::N_VARIABLE_TYPE);
 
+        // Find the variable type node to get line number information
+        const AstNode& variable_type_node =
+            module_ast.find_child_node(node, AstNodeType_t::N_VARIABLE_TYPE)
+                .get();
+
+        auto warn_callback = [this,
+                              &variable_type_node](const std::string& msg) {
+          emit_warning(variable_type_node, msg);
+        };
+
         subroutine_descr.add_symbol(
             variable_name,
             (node_type == AstNodeType_t::N_INPUT_PARAMETERS) ? "argument"
                                                              : "local",
-            variable_type);
+            variable_type, warn_callback);
       }
     }
   };
@@ -424,38 +445,47 @@ string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
 
       if (node_type == AstNodeType_t::N_OP_MULTIPLY)
       {
+        validate_binary_operator_types(subroutine_descr, node);
         emit_vm_instruction("call Math.multiply 2");
       }
       else if (node_type == AstNodeType_t::N_OP_DIVIDE)
       {
+        validate_binary_operator_types(subroutine_descr, node);
         emit_vm_instruction("call Math.divide 2");
       }
       else if (node_type == AstNodeType_t::N_OP_ADD)
       {
+        validate_binary_operator_types(subroutine_descr, node);
         emit_vm_instruction("add");
       }
       else if (node_type == AstNodeType_t::N_OP_SUBTRACT)
       {
+        validate_binary_operator_types(subroutine_descr, node);
         emit_vm_instruction("sub");
       }
       else if (node_type == AstNodeType_t::N_OP_LOGICAL_EQUALS)
       {
+        validate_binary_operator_types(subroutine_descr, node);
         emit_vm_instruction("eq");
       }
       else if (node_type == AstNodeType_t::N_OP_LOGICAL_GT)
       {
+        validate_binary_operator_types(subroutine_descr, node);
         emit_vm_instruction("gt");
       }
       else if (node_type == AstNodeType_t::N_OP_LOGICAL_LT)
       {
+        validate_binary_operator_types(subroutine_descr, node);
         emit_vm_instruction("lt");
       }
       else if (node_type == AstNodeType_t::N_OP_BITWISE_AND)
       {
+        validate_binary_operator_types(subroutine_descr, node);
         emit_vm_instruction("and");
       }
       else if (node_type == AstNodeType_t::N_OP_BITWISE_OR)
       {
+        validate_binary_operator_types(subroutine_descr, node);
         emit_vm_instruction("or");
       }
       else if (node_type == AstNodeType_t::N_OP_PREFIX_NEG)
@@ -568,6 +598,18 @@ void VmWriter::lower_let_statement(SubroutineDescr& subroutine_descr,
   const auto& lh_bind_node = root.get_child_nodes()[0].get();
   const auto& rhs_node = root.get_child_nodes()[1].get();
 
+  // Check for assignment type conversion warnings
+  if (lh_bind_node.type == AstNodeType_t::N_VARIABLE_NAME)
+  {
+    auto sym_locs = get_symbol_alloc_info(subroutine_descr, lh_bind_node);
+    if (sym_locs.has_value())
+    {
+      auto lhs_type = sym_locs->variable_type;
+      auto rhs_type = get_expression_type(subroutine_descr, rhs_node);
+      check_assignment_type_conversion(lhs_type, rhs_type, rhs_node);
+    }
+  }
+
   lower_expression(subroutine_descr, rhs_node);
 
   if (lh_bind_node.type == AstNodeType_t::N_VARIABLE_NAME)
@@ -617,6 +659,9 @@ void VmWriter::lower_while_statement(SubroutineDescr& subroutine_descr,
   const auto& expression_node = root.get_child_nodes()[0].get();
   const auto& statement_block_node = root.get_child_nodes()[1].get();
 
+  // Validate that while condition is boolean
+  validate_boolean_context(subroutine_descr, expression_node, "while");
+
   stringstream while_begin_label, while_end_label, if_goto_stmt, goto_stmt;
   while_begin_label << "label WHILE_BEGIN_" << BEGIN_ID;
   while_end_label << "label WHILE_EXIT_" << END_ID;
@@ -647,6 +692,9 @@ void VmWriter::lower_if_statement(SubroutineDescr& subroutine_descr,
 
   const auto& expression_node = root.get_child_nodes()[0].get();
   const auto& true_statement_block_node = root.get_child_nodes()[1].get();
+
+  // Validate that if condition is boolean
+  validate_boolean_context(subroutine_descr, expression_node, "if");
 
   lower_expression(subroutine_descr, expression_node);
 
@@ -876,6 +924,214 @@ void VmWriter::emit_vm_instruction(const std::string& instruction)
       lowered_vm << "    " << instruction << '\n';
     }
   }
+}
+
+SymbolTable::VariableType_t VmWriter::get_expression_type(
+    SubroutineDescr& subroutine_descr, const AstNode& expression_node)
+{
+  switch (expression_node.type)
+  {
+    case AstNodeType_t::N_INTEGER_CONSTANT:
+      return SymbolTable::BasicType_t::T_INT;
+
+    case AstNodeType_t::N_TRUE_KEYWORD:
+    case AstNodeType_t::N_FALSE_KEYWORD:
+      return SymbolTable::BasicType_t::T_BOOLEAN;
+
+    case AstNodeType_t::N_VARIABLE_NAME:
+      if (auto symbol =
+              get_symbol_alloc_info(subroutine_descr, expression_node))
+      {
+        return symbol->variable_type;
+      }
+      break;
+
+    case AstNodeType_t::N_OP_ADD:
+    case AstNodeType_t::N_OP_SUBTRACT:
+    case AstNodeType_t::N_OP_MULTIPLY:
+    case AstNodeType_t::N_OP_DIVIDE:
+      return SymbolTable::BasicType_t::T_INT;
+
+    case AstNodeType_t::N_OP_LOGICAL_LT:
+    case AstNodeType_t::N_OP_LOGICAL_GT:
+    case AstNodeType_t::N_OP_LOGICAL_EQUALS:
+      return SymbolTable::BasicType_t::T_BOOLEAN;
+
+    case AstNodeType_t::N_OP_BITWISE_AND:
+    case AstNodeType_t::N_OP_BITWISE_OR:
+      if (expression_node.num_child_nodes() > 0)
+      {
+        return get_expression_type(subroutine_descr,
+                                   expression_node.get_child_nodes()[0].get());
+      }
+      break;
+
+    case AstNodeType_t::N_OP_PREFIX_BITWISE_NOT:
+      if (expression_node.num_child_nodes() > 0)
+      {
+        return get_expression_type(subroutine_descr,
+                                   expression_node.get_child_nodes()[0].get());
+      }
+      break;
+
+    case AstNodeType_t::N_STRING_CONSTANT:
+      return std::string("String");
+
+    case AstNodeType_t::N_NULL_KEYWORD:
+      return std::monostate {};
+
+    default:
+      break;
+  }
+
+  return std::monostate {};
+}
+
+bool VmWriter::are_types_compatible(const SymbolTable::VariableType_t& type1,
+                                    const SymbolTable::VariableType_t& type2,
+                                    AstNodeType_t operator_type)
+{
+  auto* basic_type1 = std::get_if<SymbolTable::BasicType_t>(&type1);
+  auto* basic_type2 = std::get_if<SymbolTable::BasicType_t>(&type2);
+
+  if (!basic_type1 || !basic_type2)
+  {
+    return true;
+  }
+
+  switch (operator_type)
+  {
+    case AstNodeType_t::N_OP_ADD:
+    case AstNodeType_t::N_OP_SUBTRACT:
+    case AstNodeType_t::N_OP_MULTIPLY:
+    case AstNodeType_t::N_OP_DIVIDE:
+      return (*basic_type1 == SymbolTable::BasicType_t::T_INT) &&
+             (*basic_type2 == SymbolTable::BasicType_t::T_INT);
+
+    case AstNodeType_t::N_OP_LOGICAL_LT:
+    case AstNodeType_t::N_OP_LOGICAL_GT:
+    case AstNodeType_t::N_OP_LOGICAL_EQUALS:
+      return (*basic_type1 == SymbolTable::BasicType_t::T_INT) &&
+             (*basic_type2 == SymbolTable::BasicType_t::T_INT);
+
+    case AstNodeType_t::N_OP_BITWISE_AND:
+    case AstNodeType_t::N_OP_BITWISE_OR:
+      return *basic_type1 == *basic_type2;
+
+    default:
+      return true;
+  }
+}
+
+void VmWriter::validate_binary_operator_types(SubroutineDescr& subroutine_descr,
+                                              const AstNode& operator_node)
+{
+  if (operator_node.num_child_nodes() != 2)
+  {
+    return;
+  }
+
+  const auto& left_operand = operator_node.get_child_nodes()[0].get();
+  const auto& right_operand = operator_node.get_child_nodes()[1].get();
+
+  auto left_type = get_expression_type(subroutine_descr, left_operand);
+  auto right_type = get_expression_type(subroutine_descr, right_operand);
+
+  if (!are_types_compatible(left_type, right_type, operator_node.type))
+  {
+    auto* left_basic = std::get_if<SymbolTable::BasicType_t>(&left_type);
+    auto* right_basic = std::get_if<SymbolTable::BasicType_t>(&right_type);
+
+    if (left_basic || right_basic)
+    {
+      switch (operator_node.type)
+      {
+        case AstNodeType_t::N_OP_ADD:
+        case AstNodeType_t::N_OP_SUBTRACT:
+        case AstNodeType_t::N_OP_MULTIPLY:
+        case AstNodeType_t::N_OP_DIVIDE:
+          if ((left_basic &&
+               *left_basic == SymbolTable::BasicType_t::T_BOOLEAN) ||
+              (right_basic &&
+               *right_basic == SymbolTable::BasicType_t::T_BOOLEAN))
+          {
+            emit_warning(operator_node,
+                         "Arithmetic operation with boolean operand");
+          }
+          break;
+
+        case AstNodeType_t::N_OP_LOGICAL_LT:
+        case AstNodeType_t::N_OP_LOGICAL_GT:
+        case AstNodeType_t::N_OP_LOGICAL_EQUALS:
+          if ((left_basic &&
+               *left_basic == SymbolTable::BasicType_t::T_BOOLEAN) ||
+              (right_basic &&
+               *right_basic == SymbolTable::BasicType_t::T_BOOLEAN))
+          {
+            emit_warning(operator_node,
+                         "Comparison operation with boolean operand");
+          }
+          break;
+
+        case AstNodeType_t::N_OP_BITWISE_AND:
+        case AstNodeType_t::N_OP_BITWISE_OR:
+          emit_warning(
+              operator_node,
+              "Mixed types in logical operation (operands must match)");
+          break;
+
+        default:
+          break;
+      }
+    }
+  }
+}
+
+void VmWriter::check_assignment_type_conversion(
+    const SymbolTable::VariableType_t& lhs_type,
+    const SymbolTable::VariableType_t& rhs_type, const AstNode& rhs_node)
+{
+  auto* lhs_basic = std::get_if<SymbolTable::BasicType_t>(&lhs_type);
+  auto* rhs_basic = std::get_if<SymbolTable::BasicType_t>(&rhs_type);
+
+  if (lhs_basic && rhs_basic)
+  {
+    if (*lhs_basic == SymbolTable::BasicType_t::T_BOOLEAN &&
+        *rhs_basic == SymbolTable::BasicType_t::T_INT)
+    {
+      emit_warning(rhs_node, "Implicit conversion from int to boolean");
+    }
+    else if (*lhs_basic == SymbolTable::BasicType_t::T_INT &&
+             *rhs_basic == SymbolTable::BasicType_t::T_BOOLEAN)
+    {
+      throw SemanticException("an int value is expected", rhs_node.line_number);
+    }
+  }
+}
+
+void VmWriter::validate_boolean_context(SubroutineDescr& subroutine_descr,
+                                        const AstNode& expression_node,
+                                        const std::string& context_name)
+{
+  auto condition_type = get_expression_type(subroutine_descr, expression_node);
+  auto* basic_type = std::get_if<SymbolTable::BasicType_t>(&condition_type);
+
+  if (!basic_type || *basic_type != SymbolTable::BasicType_t::T_BOOLEAN)
+  {
+    std::string message =
+        "Non-boolean expression used in " + context_name + " condition";
+    emit_warning(expression_node, message);
+  }
+}
+
+void VmWriter::emit_warning(const AstNode& node, const std::string& message)
+{
+  std::cerr << "Warning: " << message;
+  if (node.line_number > 0)
+  {
+    std::cerr << " (line " << node.line_number << ")";
+  }
+  std::cerr << std::endl;
 }
 
 }  // namespace jfcl

@@ -49,6 +49,13 @@ public:
     symbol_table.add_symbol(arg_name, scope, class_name);
   }
 
+  void add_symbol(const std::string& arg_name, const std::string& scope,
+                  const std::string& class_name,
+                  std::function<void(const std::string&)> warn_func)
+  {
+    symbol_table.add_symbol(arg_name, scope, class_name, warn_func);
+  }
+
   int num_locals() const { return symbol_table.num_locals(); }
   int num_fields() const;
 

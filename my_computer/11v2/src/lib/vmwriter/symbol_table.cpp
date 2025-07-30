@@ -1,12 +1,20 @@
 #include "semantic_exception.h"
 #include "symbol_table.h"
 
+#include <iostream>
+
 using namespace std;
 
 namespace jfcl {
 
 SymbolTable::VariableType_t SymbolTable::variable_type_from_string(
     std::string in_type)
+{
+  return variable_type_from_string(in_type, nullptr);
+}
+
+SymbolTable::VariableType_t SymbolTable::variable_type_from_string(
+    std::string in_type, std::function<void(const std::string&)> warn_func)
 {
   VariableType_t variable_type;
 
@@ -20,6 +28,20 @@ SymbolTable::VariableType_t SymbolTable::variable_type_from_string(
   }
   else if (in_type == "boolean")
   {
+    variable_type = BasicType_t::T_BOOLEAN;
+  }
+  else if (in_type == "bool")
+  {
+    const std::string warning_msg =
+        "Using 'bool' instead of 'boolean' (possible typo)";
+    if (warn_func)
+    {
+      warn_func(warning_msg);
+    }
+    else
+    {
+      std::cerr << "Warning: " << warning_msg << std::endl;
+    }
     variable_type = BasicType_t::T_BOOLEAN;
   }
   else if (in_type == "void")
@@ -39,6 +61,14 @@ ClassSymbolTable::ClassSymbolTable() : SymbolTable() {}
 void ClassSymbolTable::add_symbol(const std::string& symbol_name,
                                   const std::string& storage_class_str,
                                   const std::string& symbol_type_str)
+{
+  add_symbol(symbol_name, storage_class_str, symbol_type_str, nullptr);
+}
+
+void ClassSymbolTable::add_symbol(
+    const std::string& symbol_name, const std::string& storage_class_str,
+    const std::string& symbol_type_str,
+    std::function<void(const std::string&)> warn_func)
 {
   StorageClass_t storage_class = (storage_class_str == "static")
                                      ? StorageClass_t::S_STATIC
@@ -61,7 +91,8 @@ void ClassSymbolTable::add_symbol(const std::string& symbol_name,
       throw SemanticException("Storage class 'var' not permitted in class");
   }
 
-  VariableType_t symbol_type = variable_type_from_string(symbol_type_str);
+  VariableType_t symbol_type =
+      variable_type_from_string(symbol_type_str, warn_func);
 
   if (symbols.find(symbol_name) != symbols.end())
   {
@@ -75,6 +106,14 @@ void ClassSymbolTable::add_symbol(const std::string& symbol_name,
 void SubroutineSymbolTable::add_symbol(const std::string& symbol_name,
                                        const std::string& storage_class_str,
                                        const std::string& symbol_type_str)
+{
+  add_symbol(symbol_name, storage_class_str, symbol_type_str, nullptr);
+}
+
+void SubroutineSymbolTable::add_symbol(
+    const std::string& symbol_name, const std::string& storage_class_str,
+    const std::string& symbol_type_str,
+    std::function<void(const std::string&)> warn_func)
 {
   if ((storage_class_str != "argument") && (storage_class_str != "local"))
   {
@@ -105,7 +144,8 @@ void SubroutineSymbolTable::add_symbol(const std::string& symbol_name,
           "Storage class 'field' not permitted in subroutines");
   }
 
-  VariableType_t symbol_type = variable_type_from_string(symbol_type_str);
+  VariableType_t symbol_type =
+      variable_type_from_string(symbol_type_str, warn_func);
 
   if (symbols.find(symbol_name) != symbols.end())
   {

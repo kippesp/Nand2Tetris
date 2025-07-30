@@ -1,0 +1,12 @@
+function BoolAsType.return_boolean 2
+    push constant 10
+    pop local 0
+    push local 0
+    pop local 1
+    push local 1
+    return
+function BoolAsType.main 1
+    call BoolAsType.return_boolean 0
+    pop local 0
+    push local 0
+    return

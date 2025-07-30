@@ -45,6 +45,13 @@ public:
     symbol_table.add_symbol(symbol_name, scope, symbol_type);
   }
 
+  void add_symbol(const std::string& symbol_name, const std::string& scope,
+                  const std::string& symbol_type,
+                  std::function<void(const std::string&)> warn_func)
+  {
+    symbol_table.add_symbol(symbol_name, scope, symbol_type, warn_func);
+  }
+
   const ClassSymbolTable& get_symbol_table() const { return symbol_table; }
 
   ClassSymbolTable symbol_table;

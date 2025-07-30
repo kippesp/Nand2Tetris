@@ -1,0 +1,20 @@
+// ARGS: --remove-unused-fns --disable-module-init-calls --disable-opt  --disable-jit-hooks --skip-module-target-info --disable-wrapper --emit-c-main=0
+class BoolToInt {
+  function int return_int() {
+    var int i;
+    var boolean b;
+
+    let b = true;
+    let i = b;
+
+    return i;
+  }
+
+  function int main() {
+    var int rvalue;
+
+    let rvalue = BoolToInt.return_int();
+
+    return rvalue;
+  }
+}

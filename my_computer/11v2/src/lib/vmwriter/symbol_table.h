@@ -2,6 +2,7 @@
 
 #include "parser/ast.h"
 
+#include <functional>
 #include <map>
 
 namespace jfcl {
@@ -37,6 +38,8 @@ public:
   SymbolTable() {}
 
   static VariableType_t variable_type_from_string(std::string);
+  static VariableType_t variable_type_from_string(
+      std::string, std::function<void(const std::string&)> warn_func);
 };
 
 class Symbol {
@@ -60,6 +63,9 @@ public:
 
   void add_symbol(const std::string& symbol_name, const std::string& scope,
                   const std::string& symbol_type);
+  void add_symbol(const std::string& symbol_name, const std::string& scope,
+                  const std::string& symbol_type,
+                  std::function<void(const std::string&)> warn_func);
 
   int num_fields() const { return next_storage_class_index.field_var; }
 
@@ -78,6 +84,9 @@ public:
 
   void add_symbol(const std::string& symbol_name, const std::string& scope,
                   const std::string& symbol_type);
+  void add_symbol(const std::string& symbol_name, const std::string& scope,
+                  const std::string& symbol_type,
+                  std::function<void(const std::string&)> warn_func);
 
   int num_locals() const { return next_storage_class_index.local_var; }
 

@@ -1,0 +1,41 @@
+function BoolExpression.return_int 2
+    push constant 100
+    pop local 1
+    push constant 0
+    pop local 0
+label WHILE_BEGIN_0
+    push local 0
+    not
+    not
+if-goto WHILE_EXIT_1
+    push local 1
+    push constant 1
+    sub
+    pop local 1
+    push local 0
+    push constant 5
+    add
+    pop local 0
+    goto WHILE_BEGIN_0
+label WHILE_EXIT_1
+    push local 0
+    not
+if-goto IF_TRUE_2
+    goto IF_FALSE_2
+label IF_TRUE_2
+    push local 1
+    push constant 1
+    sub
+    pop local 1
+    push local 0
+    push constant 5
+    add
+    pop local 0
+label IF_FALSE_2
+    push local 1
+    return
+function BoolExpression.main 1
+    call BoolExpression.return_int 0
+    pop local 0
+    push local 0
+    return

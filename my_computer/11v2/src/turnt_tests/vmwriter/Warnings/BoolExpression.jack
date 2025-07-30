@@ -1,0 +1,31 @@
+// ARGS: --remove-unused-fns --disable-module-init-calls --disable-opt  --disable-jit-hooks --skip-module-target-info --disable-wrapper --emit-c-main=0
+class BoolExpression {
+  function int return_int() {
+    var int idx, count;
+
+    let count = 100;
+    let idx = 0;
+
+    while (~idx)
+    {
+      let count = count - 1;
+      let idx = idx + 5;
+    }
+
+    if (~idx)
+    {
+      let count = count - 1;
+      let idx = idx + 5;
+    }
+
+    return count;
+  }
+
+  function int main() {
+    var int rvalue;
+
+    let rvalue = BoolExpression.return_int();
+
+    return rvalue;
+  }
+}

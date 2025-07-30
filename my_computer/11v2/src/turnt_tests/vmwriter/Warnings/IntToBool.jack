@@ -1,0 +1,20 @@
+// ARGS: --remove-unused-fns --disable-module-init-calls --disable-opt  --disable-jit-hooks --skip-module-target-info --disable-wrapper --emit-c-main=0
+class IntToBool {
+  function boolean return_boolean() {
+    var int i;
+    var boolean b;
+
+    let i = 10;
+    let b = i;
+
+    return b;
+  }
+
+  function boolean main() {
+    var boolean rvalue;
+
+    let rvalue = IntToBool.return_boolean();
+
+    return rvalue;
+  }
+}

@@ -11,6 +11,10 @@ public:
       : description(s1 + ": " + s2)
   {
   }
+  SemanticException(std::string s, int line_number)
+      : description(s + " (line " + std::to_string(line_number) + ")")
+  {
+  }
 
   const std::string description;
 
