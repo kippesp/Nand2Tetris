@@ -38,6 +38,14 @@ class Util
 
      but a reimplementation of divide will save the multiply call to (div * b).
   */
+
+  /*
+   * 7/30/2025 - The isNegative below operation as written is UB.  Resolution
+   *             was to replace entire function with earlier mod.
+   *
+   *             Warning: Comparison operation with boolean operand (line 47)
+   *             Warning: Non-boolean expression used in if condition (line 65)
+   *
   function int mod(int dividend, int divisor) {
     var int quotient;
     var int partial_dividend;
@@ -90,6 +98,16 @@ class Util
     }
 
     return partial_dividend;
+  }
+  */
+
+  function int mod(int a, int b)
+  {
+    var int div;
+
+    let div = a / b;
+
+    return a - (div * b);
   }
 
   function int xor(int a, int b)

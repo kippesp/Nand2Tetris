@@ -295,30 +295,30 @@ class GameBoard {
 
   // Erase the pips of the given mask
   method void blankMaskedPips(int mask) {
-    if (mask & 1)   { do m_guiBoard.blankPip(1); }
-    if (mask & 2)   { do m_guiBoard.blankPip(2); }
-    if (mask & 4)   { do m_guiBoard.blankPip(3); }
-    if (mask & 8)   { do m_guiBoard.blankPip(4); }
-    if (mask & 16)  { do m_guiBoard.blankPip(5); }
-    if (mask & 32)  { do m_guiBoard.blankPip(6); }
-    if (mask & 64)  { do m_guiBoard.blankPip(7); }
-    if (mask & 128) { do m_guiBoard.blankPip(8); }
-    if (mask & 256) { do m_guiBoard.blankPip(9); }
+    if ((mask & 1) > 0)   { do m_guiBoard.blankPip(1); }
+    if ((mask & 2) > 0)   { do m_guiBoard.blankPip(2); }
+    if ((mask & 4) > 0)   { do m_guiBoard.blankPip(3); }
+    if ((mask & 8) > 0)   { do m_guiBoard.blankPip(4); }
+    if ((mask & 16) > 0)  { do m_guiBoard.blankPip(5); }
+    if ((mask & 32) > 0)  { do m_guiBoard.blankPip(6); }
+    if ((mask & 64) > 0)  { do m_guiBoard.blankPip(7); }
+    if ((mask & 128) > 0) { do m_guiBoard.blankPip(8); }
+    if ((mask & 256) > 0) { do m_guiBoard.blankPip(9); }
 
     return;
   }
 
   // Draw the pips of the given mask
   method void drawMaskedPips(int mask) {
-    if (mask & 1)   { do m_guiBoard.drawPip(1); }
-    if (mask & 2)   { do m_guiBoard.drawPip(2); }
-    if (mask & 4)   { do m_guiBoard.drawPip(3); }
-    if (mask & 8)   { do m_guiBoard.drawPip(4); }
-    if (mask & 16)  { do m_guiBoard.drawPip(5); }
-    if (mask & 32)  { do m_guiBoard.drawPip(6); }
-    if (mask & 64)  { do m_guiBoard.drawPip(7); }
-    if (mask & 128) { do m_guiBoard.drawPip(8); }
-    if (mask & 256) { do m_guiBoard.drawPip(9); }
+    if ((mask & 1) > 0)   { do m_guiBoard.drawPip(1); }
+    if ((mask & 2) > 0)   { do m_guiBoard.drawPip(2); }
+    if ((mask & 4) > 0)   { do m_guiBoard.drawPip(3); }
+    if ((mask & 8) > 0)   { do m_guiBoard.drawPip(4); }
+    if ((mask & 16) > 0)  { do m_guiBoard.drawPip(5); }
+    if ((mask & 32) > 0)  { do m_guiBoard.drawPip(6); }
+    if ((mask & 64) > 0)  { do m_guiBoard.drawPip(7); }
+    if ((mask & 128) > 0) { do m_guiBoard.drawPip(8); }
+    if ((mask & 256) > 0) { do m_guiBoard.drawPip(9); }
 
     return;
   }
