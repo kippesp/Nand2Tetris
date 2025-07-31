@@ -46,19 +46,29 @@ class Math {
     function int multiply(int x, int y) {
       var int acc;
       var int idx;
+      var boolean isNegative;
+
+      let isNegative = ((x < 0) & ~(y < 0)) | (~(x < 0) & (y < 0));
+      let x = Math.abs(x);
+      let y = Math.abs(y);
 
       let acc = 0;
       let idx = 0;
 
       while (idx < 16)
       {
-        if (bitmask[idx] & y)
+        if ((bitmask[idx] & y) > 0)
         {
           let acc = acc + x;
         }
 
         let x = x + x;
         let idx = idx + 1;
+      }
+
+      if (isNegative)
+      {
+        return -acc;
       }
 
       return acc;
@@ -78,7 +88,7 @@ class Math {
       var int idx;
       var boolean isNegative;
 
-      let isNegative = ~((dividend < 0) = (divisor < 0));
+      let isNegative = ((dividend < 0) & ~(divisor < 0)) | (~(dividend < 0) & (divisor < 0));
       let dividend = Math.abs(dividend);
       let divisor = Math.abs(divisor);
 
@@ -96,7 +106,7 @@ class Math {
 
       while (idx > -1)
       {
-        if (dividend & bitmask[idx])
+        if ((dividend & bitmask[idx]) > 0)
         {
           let partial_dividend = partial_dividend + partial_dividend + 1;
         }

@@ -225,7 +225,7 @@ class Output {
       while (idx < 11)
       {
         let pixel_updates = Memory.peek(base_address + word_offset);
-        if (cursor_col & 1)
+        if ((cursor_col & 1) > 0)
         {
           // character is in the upper nibble, clear it
           let pixel_updates = pixel_updates & 255;
@@ -429,7 +429,7 @@ class Output {
 
       while (idx < 16)
       {
-        if (v & mask)
+        if ((v & mask) > 0)
         {
           let acc = acc | shifted_mask;
         }

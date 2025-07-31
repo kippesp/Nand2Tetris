@@ -372,7 +372,7 @@ class Screen {
     var int idx;
     var boolean isNegative;
 
-    let isNegative = ~((dividend < 0) = (divisor < 0));
+    let isNegative = ((dividend < 0) & ~(divisor < 0)) | (~(dividend < 0) & (divisor < 0));
     let dividend = Math.abs(dividend);
     let divisor = Math.abs(divisor);
 
@@ -391,7 +391,7 @@ class Screen {
 
     while (idx > -1)
     {
-      if (dividend & BITMASK[idx])
+      if ((dividend & BITMASK[idx]) > 0)
       {
         let partial_dividend = partial_dividend + partial_dividend + 1;
       }
