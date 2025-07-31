@@ -9,6 +9,19 @@
 // For project 13, since there is not reference that compiler when targeting
 // the LLVM backends conforms to the Jack Language Spec.  The results
 // pass for these targets.
+//
+// Update 7/30/2025 - Parity with the reference Jack compiler was causing
+// issues with the Project 13 effort.  I decided to add better support in
+// 11v2 to detect these patterns, which are undefined behavior.  A closer
+// reading of the N2T textbook, does specify which operators are for which
+// data type, but it doesn't specify if the program gets it wrong.  The
+// textbook also seems unclear on the IF and WHILE statements (the
+// conditional).  The added warnings will provide a message if the statement
+// doesn't resolve to a boolean.
+//
+// This test program will run with the two various results on each reference
+// compiler (i.e. Java and web).  With the warnings resolved, each compiler
+// will produce compatible programs.
 
 class Main {
   function int test_while() {
