@@ -31,6 +31,8 @@ bool JackToken::operator!=(const JackToken& other) const
 
 std::string JackToken::to_string(TokenValue_t v)
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-default"
   switch (v)
   {
     // clang-format off
@@ -82,6 +84,7 @@ std::string JackToken::to_string(TokenValue_t v)
     case TokenValue_t::J_RETURN:            return "RETURN";
       // clang-format on
   }
+#pragma clang diagnostic pop
 
   assert(0 && "fallthrough");
   return "POISON";

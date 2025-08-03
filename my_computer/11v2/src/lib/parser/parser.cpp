@@ -864,6 +864,8 @@ AstNodeRef Parser::parse_expression()
     assert((precedence_level != PrecedenceLevel_t::P_TERM) &&
            "No next precedence level after P_TERM");
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-default"
     switch (precedence_level)
     {
       case PrecedenceLevel_t::P_OR:
@@ -879,6 +881,7 @@ AstNodeRef Parser::parse_expression()
       case PrecedenceLevel_t::P_TERM:
         return (PrecedenceLevel_t::P_TERM);
     }
+#pragma clang diagnostic pop
 
     return (PrecedenceLevel_t::P_TERM);
   };

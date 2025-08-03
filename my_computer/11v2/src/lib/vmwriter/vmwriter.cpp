@@ -104,9 +104,13 @@ optional<VmWriter::SymbolLoweringLocations_t> VmWriter::get_symbol_alloc_info(
   if (auto bind_var = subroutine_descr.find_symbol(symbol_name);
       bind_var.has_value())
   {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcovered-switch-default"
     switch (bind_var->scope_level)
     {
       case SymbolTable::ScopeLevel_t::CLASS:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcovered-switch-default"
         switch (bind_var->storage_class)
         {
           case SymbolTable::StorageClass_t::S_STATIC:
@@ -119,10 +123,16 @@ optional<VmWriter::SymbolLoweringLocations_t> VmWriter::get_symbol_alloc_info(
           case SymbolTable::StorageClass_t::S_LOCAL:
             assert(0 && "invalid storage class for CLASS");
             throw SemanticException("invalid storage class for CLASS");
+          default:
+            assert(0 && "Unhandled storage class");
+            throw SemanticException("Unknown storage class");
         }
+#pragma clang diagnostic pop
 
         break;
       case SymbolTable::ScopeLevel_t::SUBROUTINE:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcovered-switch-default"
         switch (bind_var->storage_class)
         {
           case SymbolTable::StorageClass_t::S_ARGUMENT:
@@ -135,10 +145,18 @@ optional<VmWriter::SymbolLoweringLocations_t> VmWriter::get_symbol_alloc_info(
           case SymbolTable::StorageClass_t::S_FIELD:
             assert(0 && "invalid storage class for SUBROUTINE");
             throw SemanticException("invalid storage class for SUBROUTINE");
+          default:
+            assert(0 && "Unhandled storage class");
+            throw SemanticException("Unknown storage class");
         }
+#pragma clang diagnostic pop
 
         break;
+      default:
+        assert(0 && "Unhandled scope level");
+        throw SemanticException("Unknown scope level");
     }
+#pragma clang diagnostic pop
 
     rvalue.variable_type = bind_var->variable_type;
     rvalue.scope_level = bind_var->scope_level;
@@ -919,6 +937,8 @@ void VmWriter::emit_vm_instruction(const std::string& instruction)
 SymbolTable::VariableType_t VmWriter::get_expression_type(
     SubroutineDescr& subroutine_descr, const AstNode& expression_node)
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-enum"
   switch (expression_node.type)
   {
     case AstNodeType_t::N_INTEGER_CONSTANT:
@@ -973,6 +993,7 @@ SymbolTable::VariableType_t VmWriter::get_expression_type(
     default:
       break;
   }
+#pragma clang diagnostic pop
 
   return std::monostate {};
 }
@@ -989,6 +1010,8 @@ bool VmWriter::are_types_compatible(const SymbolTable::VariableType_t& type1,
     return true;
   }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-enum"
   switch (operator_type)
   {
     case AstNodeType_t::N_OP_ADD:
@@ -1011,6 +1034,7 @@ bool VmWriter::are_types_compatible(const SymbolTable::VariableType_t& type1,
     default:
       return true;
   }
+#pragma clang diagnostic pop
 }
 
 void VmWriter::validate_binary_operator_types(SubroutineDescr& subroutine_descr,
@@ -1034,6 +1058,8 @@ void VmWriter::validate_binary_operator_types(SubroutineDescr& subroutine_descr,
 
     if (left_basic || right_basic)
     {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-enum"
       switch (operator_node.type)
       {
         case AstNodeType_t::N_OP_ADD:
@@ -1073,6 +1099,7 @@ void VmWriter::validate_binary_operator_types(SubroutineDescr& subroutine_descr,
         default:
           break;
       }
+#pragma clang diagnostic pop
     }
   }
 }

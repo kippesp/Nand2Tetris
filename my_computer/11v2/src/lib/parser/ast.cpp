@@ -34,6 +34,8 @@ std::ostream& operator<<(std::ostream& os, const AstNode& rhs)
 
 std::string AstNode::to_string(AstNodeType_t t)
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-default"
   switch (t)
   {
     // clang-format off
@@ -99,6 +101,7 @@ std::string AstNode::to_string(AstNodeType_t t)
     case AstNodeType_t::N_METADATA_VALUE:              return "METADATA_VALUE";
       // clang-format on
   }
+#pragma clang diagnostic pop
 
   assert(0 && "fallthrough");
 

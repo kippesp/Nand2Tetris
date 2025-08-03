@@ -1,6 +1,7 @@
 #include "semantic_exception.h"
 #include "symbol_table.h"
 
+#include <cassert>
 #include <iostream>
 
 using namespace std;
@@ -76,6 +77,8 @@ void ClassSymbolTable::add_symbol(
 
   int variable_index;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcovered-switch-default"
   switch (storage_class)
   {
     case StorageClass_t::S_STATIC:
@@ -89,7 +92,11 @@ void ClassSymbolTable::add_symbol(
           "Storage class 'argument' not permitted in class");
     case StorageClass_t::S_LOCAL:
       throw SemanticException("Storage class 'var' not permitted in class");
+    default:
+      assert(0 && "Unhandled storage class");
+      throw SemanticException("Unknown storage class");
   }
+#pragma clang diagnostic pop
 
   VariableType_t symbol_type =
       variable_type_from_string(symbol_type_str, warn_func);
@@ -128,6 +135,8 @@ void SubroutineSymbolTable::add_symbol(
 
   int variable_index;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcovered-switch-default"
   switch (storage_class)
   {
     case StorageClass_t::S_ARGUMENT:
@@ -142,7 +151,11 @@ void SubroutineSymbolTable::add_symbol(
     case StorageClass_t::S_FIELD:
       throw SemanticException(
           "Storage class 'field' not permitted in subroutines");
+    default:
+      assert(0 && "Unhandled storage class");
+      throw SemanticException("Unknown storage class");
   }
+#pragma clang diagnostic pop
 
   VariableType_t symbol_type =
       variable_type_from_string(symbol_type_str, warn_func);
