@@ -293,13 +293,70 @@ class Screen {
     return;
   }
 
+  /** Draws a small filled circle for r < 12 */
+  function void _drawSmallCircle(int x, int y, int r) {
+      var int dx, dy;
+      var int r_squared, dist_squared;
+
+      // Handle very small circles with patterns
+      if (r = 1) {
+          // Plus pattern for r=1
+          do Screen.drawPixel(x, y);
+          do Screen.drawPixel(x-1, y);
+          do Screen.drawPixel(x+1, y);
+          do Screen.drawPixel(x, y-1);
+          do Screen.drawPixel(x, y+1);
+          return;
+      }
+
+      if (r = 2) {
+          // 5x5 diamond for r=2
+          do Screen.drawPixel(x, y-2);
+          do Screen.drawLine(x-1, y-1, x+1, y-1);
+          do Screen.drawLine(x-2, y, x+2, y);
+          do Screen.drawLine(x-1, y+1, x+1, y+1);
+          do Screen.drawPixel(x, y+2);
+          return;
+      }
+
+      // For r >= 3, use standard algorithm without bias
+      // See: Midpoint circle algorithm
+      let r_squared = r * r;
+      let dy = -r;
+
+      while (~(dy > r)) {
+          // Find the exact boundary
+          let dist_squared = r_squared - (dy * dy);
+          let dx = 0;
+
+          // Find largest dx where dx^2 <= r^2 - dy^2
+          while ((dx * dx) < (dist_squared + 1)) {
+              let dx = dx + 1;
+          }
+          let dx = dx - 1;
+
+          if (dx > -1) {
+              do Screen.drawLine(x - dx, y + dy, x + dx, y + dy);
+          }
+
+          let dy = dy + 1;
+      }
+      return;
+  }
+
   /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
   function void drawCircle(int x, int y, int r) {
     var int dx, dy;
     var int r_squared;
 
+    if (r < 12) {
+      do Screen._drawSmallCircle(x, y, r);
+      return;
+    }
+
     let dy = -r;
     let r_squared = r * r;
+
     while (~(dy > r)) {
       let dx = Math.sqrt(r_squared - (dy * dy));
       do Screen.drawLine(x - dx, y + dy, x + dx, y + dy);
