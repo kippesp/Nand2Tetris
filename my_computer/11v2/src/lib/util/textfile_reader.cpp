@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <sstream>
+#include <stdexcept>
 
 #if defined _MSC_VER
 #pragma warning(disable : 4996)
@@ -12,6 +13,11 @@ namespace jfcl {
 TextFileReader::TextFileReader(const char* filename)
 {
   FILE* fd = fopen(filename, "r");
+  if (!fd)
+  {
+    throw std::runtime_error(std::string("Failed to open file: ") + filename);
+  }
+
   std::stringstream ss;
 
   int ch;
