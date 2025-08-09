@@ -341,6 +341,9 @@ void VmWriter::lower_subroutine(ClassDescr& class_descr, const AstNode& root)
       module_ast.find_child_node(BodyNode, AstNodeType_t::N_STATEMENT_BLOCK);
 
   lower_statement_block(subroutine_descr, StatementBlockNode.get());
+
+  // Validate that non-void functions have return statements
+  validate_return_statement(subroutine_descr, StatementBlockNode.get(), root);
 }
 
 string VmWriter::lower_expression(SubroutineDescr& subroutine_descr,
@@ -1132,6 +1135,45 @@ void VmWriter::emit_warning(const AstNode& node, const std::string& message)
     std::cerr << " (line " << node.line_number << ")";
   }
   std::cerr << std::endl;
+}
+
+bool VmWriter::has_return_statement(const AstNode& statement_block) const
+{
+  for (const auto& node : statement_block.get_child_nodes())
+  {
+    if (node.get().type == AstNodeType_t::N_RETURN_STATEMENT)
+    {
+      return true;
+    }
+
+    // Check nested blocks in if/while statements
+    if (node.get().type == AstNodeType_t::N_IF_STATEMENT ||
+        node.get().type == AstNodeType_t::N_WHILE_STATEMENT)
+    {
+      for (const auto& child : node.get().get_child_nodes())
+      {
+        if (child.get().type == AstNodeType_t::N_STATEMENT_BLOCK)
+        {
+          if (has_return_statement(child.get()))
+          {
+            return true;
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
+void VmWriter::validate_return_statement(
+    const SubroutineDescr& subroutine_descr, const AstNode& statement_block,
+    const AstNode& subroutine_root)
+{
+  if (!has_return_statement(statement_block))
+  {
+    std::string message = "Function missing return statement";
+    emit_warning(subroutine_root, message);
+  }
 }
 
 }  // namespace jfcl

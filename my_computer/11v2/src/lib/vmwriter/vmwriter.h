@@ -99,6 +99,12 @@ private:
                                 const std::string& context_name);
 
   void emit_warning(const AstNode& node, const std::string& message);
+
+  // Return statement validation
+  bool has_return_statement(const AstNode& statement_block) const;
+  void validate_return_statement(const SubroutineDescr& subroutine_descr,
+                                 const AstNode& statement_block,
+                                 const AstNode& subroutine_root);
 };
 
 }  // namespace jfcl
