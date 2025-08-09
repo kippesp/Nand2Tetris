@@ -1,0 +1,1 @@
+For Bichromia, add Sys.wait(10); to bottom of main() loop.

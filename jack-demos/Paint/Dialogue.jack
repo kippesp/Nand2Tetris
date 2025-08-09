@@ -1,0 +1,90 @@
+class Dialogue{
+    field String title, message;
+    constructor Dialogue new(String newTitle, String newMessage) {
+        let title = Dialogue.split32(newTitle);
+        let message = Dialogue.split32(newMessage);
+        return this;
+    }
+    method void dispose() {
+        do title.dispose();
+        do message.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+    function String split32(String longstr) {
+        var String newString;
+        var int i, col, nextChar;
+        let newString = String.new(640);
+        let i = 0;
+        let col = 0;
+        while (i < longstr.length()) {
+            let nextChar = longstr.charAt(i);
+            do newString.appendChar(nextChar);
+            let col = col + 1;
+            if (nextChar = 128) {
+                let col = 0;
+            }
+            if (col = 32) {
+                do newString.appendChar(128);
+                let col = 0;
+            }
+            let i = i + 1;
+        }
+        do longstr.dispose();
+        return newString;
+    }
+    function int lineCount(String str) {
+        var int i, count;
+        let i = 0;
+        let count = 1;
+        if (str.length() = 0){
+            return 0;
+        }
+        while (i < str.length()) {
+            if (str.charAt(i) = 128) {
+                let count = count + 1;
+            }
+            let i = i + 1;
+        }
+        return count;
+    }
+    method void draw() {
+        var int titleHeight;
+        let titleHeight = Dialogue.lineCount(title);
+        do Screen.setColor(true);
+        do Output.moveCursor(0, 0);
+        do Output.printString(title);
+        do Screen.drawRectangle(0, (11 * titleHeight) + 4, 255, (11 * titleHeight) + 6);
+        do Output.moveCursor(titleHeight + 1 , 0);
+        do Output.printString(message);
+        return;
+    }
+    method String drawInput() {
+        var String input;
+        var InputBox inputBox;
+        var int totalHeight;
+        let totalHeight = Dialogue.lineCount(title) + Dialogue.lineCount(message) + 1;
+        do draw();
+        let inputBox = InputBox.new(totalHeight + 1, 1, 21, 30);
+        let input = inputBox.get();
+        do inputBox.dispose();
+        return input;
+
+    }
+    method void clear() {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(0, 0, 255, 255);
+        do Screen.setColor(true);
+        return;
+    }
+    method void setTitle(String newTitle) {
+        do title.dispose();
+        let title = Dialogue.split32(newTitle);
+        return;
+    }
+    method void setMessage(String newMessage) {
+        do message.dispose();
+        let message = Dialogue.split32(newMessage);
+        return;
+    }
+}

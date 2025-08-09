@@ -1,0 +1,44 @@
+class SectorScan {
+
+    field boolean scanned;
+    field int habitats;
+    field int anomalies;
+    field int stars;
+    
+    method boolean scanned() {
+        return scanned;
+    }
+
+    method int habitats() {
+        return habitats;
+    }
+
+    method int anomalies() {
+        return anomalies;
+    }
+
+    method int stars() {
+        return stars;
+    }
+
+    method void setScanned(boolean value) {
+        let scanned = value;
+        return;
+    }
+
+    method void incHabitats(int val) {
+        let habitats = habitats + val;
+        return;
+    }
+
+    method void incAnomalies(int val) {
+        let anomalies = anomalies + val;
+        return;        
+    }
+
+    method void incStars(int val) {
+        let stars = stars + val;
+        return;
+    }
+
+}

@@ -1,0 +1,406 @@
+class Map {
+  // multi-dimension array ([row][column]) because multiplication is expensive
+  field Array map;
+  // LUT for bit locations
+  field Array bit_lut;
+  // LUT for delta distance values. dd_high_masks is used to determine which bits to multiply
+  field Array dd_lut;
+  field Array dd_low_bits;
+  // LUT for angle changes between x screen columns
+  field Array x_angle_lut_hi;
+  field Array x_angle_lut_lo;
+  // LUT for cosine
+  field Array cos_lut;
+
+  field int delta_dist_x, delta_dist_y;
+  field int side_dist_x, side_dist_y;
+
+  field int w, h;
+  field int secrets;
+
+  constructor Map new(int Width, int Height) {
+    var int row, col;
+    var Array cur_row;
+    let w = Width;
+    let h = Height;
+    let secrets = 0;  // oooooooh
+
+    let map = Array.new(h);
+    let row = 0;
+    while (row < h) {
+      let map[row] = Array.new(w);
+      let cur_row = map[row];
+
+      let col = 0;
+      while (col < w) {
+        if ((col = 0) | (row = 0) | (col = (w - 1)) | (row = (h - 1))) {
+          let cur_row[col] = 1;
+        } else {
+          let cur_row[col] = 0;
+        }
+        let col = col + 1;
+      }
+      let row = row + 1;
+    }
+
+    let cur_row = map[15];
+    let cur_row[4] = 3;  // mirror
+    let cur_row[5] = 3;  // mirror
+    let cur_row = map[3];
+    let cur_row[3] = 2;  // invert
+    let cur_row[4] = 2;  // invert
+    let cur_row[5] = 1;
+
+    let bit_lut = Array.new(16);
+    do Luts.init_bits(bit_lut);
+
+    let dd_lut = Array.new(256);
+    let dd_low_bits = Array.new(256);
+    do Luts.init_delta_dist(dd_lut, dd_low_bits);
+
+    let x_angle_lut_hi = Array.new(32);
+    let x_angle_lut_lo = Array.new(32);
+    do Luts.init_x_angle(x_angle_lut_hi, x_angle_lut_lo);
+
+    let cos_lut = Array.new(256);
+    do Luts.init_cos(cos_lut);
+
+    return this;
+  }
+
+  method void dispose() {
+    do map.dispose();
+    do dd_lut.dispose();
+    do x_angle_lut_hi.dispose();
+    do x_angle_lut_lo.dispose();
+    do cos_lut.dispose();
+    do Memory.deAlloc(this);
+    return;
+  }
+
+  method void load_rows(Array rows) {
+    var int row;
+    var int col;
+    var int mask;
+    var Array cur_row;
+    let row = 0;
+    let col = 0;
+    while (row < 16) {
+      let cur_row = map[row];
+      let col = 0;
+      let mask = 1;
+      while (col < 16) {
+        if (~((rows[row] & mask) = 0)) {
+          let cur_row[col] = 1;
+        } else {
+          let cur_row[col] = 0;
+        }
+        let col = col + 1;
+        let mask = mask + mask;
+      }
+      let row = row + 1;
+    }
+    return;
+  }
+
+  method void set_tile(int x, int y, int type) {
+    var Array cur_row;
+    let cur_row = map[y];
+    let cur_row[x] = type;
+    return;
+  }
+
+  method int at(int x, int y) {
+    var Array cur_row;
+    let cur_row = map[y];
+    return cur_row[x];
+  }
+
+  method void print() {
+    var int row, col;
+    var Array cur_row;
+
+    let row = 0;
+    while (row < h) {
+      let cur_row = map[row];
+
+      let col = 0;
+      while (col < w) {
+        do Output.printInt(cur_row[col]);
+        do Output.printChar(20);
+
+        let col = col + 1;
+      }
+      do Output.println();
+      let row = row + 1;
+    }
+
+    return;
+  }
+
+  function int grab_bits(int val, int bits, int src_bit) {
+    var int shifted;
+    var int tgt_bit;
+    let shifted = 0;
+    let tgt_bit = 1;
+    while (bits > 0) {
+      if (~((src_bit & val) = 0)) {
+        let shifted = shifted | tgt_bit;
+      }
+      let src_bit = src_bit + src_bit;
+      let tgt_bit = tgt_bit + tgt_bit;
+      let bits = bits - 1;
+    }
+    return shifted;
+  }
+
+  function int get_dest_x(int door) {
+    return Map.grab_bits(door, 4, 2048);  // grab bits 11 through 14
+  }
+
+  function int get_dest_y(int door) {
+    return Map.grab_bits(door, 4, 128);  // grab bits 7 through 10
+  }
+
+  function int get_dest_level(int door) {
+    return door & 127;  // grab 7 lowest bits
+  }
+
+  method int get_secrets() {  // ooooooooooooooh
+    return secrets;
+  }
+
+  method void update_pos(Fixed pos_x, Fixed pos_y, int dir) {
+    var Array cur_row;
+    var int tile_val;
+    do pos_x.Add(0, cos_lut[dir]);
+    do pos_y.Add(0, cos_lut[(dir + 64)&255]);
+    let cur_row = map[pos_y[0]];
+    let tile_val = cur_row[pos_x[0]];
+    if (~(tile_val = 0)) {
+      if (~((tile_val & ~32767) = 0)) {  // hit door
+        do Luts.load_level(this, Map.get_dest_level(tile_val));
+        let pos_x[0] = Map.get_dest_x(tile_val);
+        let pos_y[0] = Map.get_dest_y(tile_val);
+      } else {
+        if (~((tile_val & 16384) = 0)) {  // secret area!
+          do Output.moveCursor(11, 28);
+          do Output.printString("Secret!!");
+          let secrets = secrets | (tile_val & 16383);
+        } else {
+          // if collision, undo
+          do pos_x.Add(0, -cos_lut[dir]);
+          do pos_y.Add(0, -cos_lut[(dir + 64)&255]);
+        }
+      }
+    }
+    return;
+  }
+
+  // 0 <= dir < 256
+  // dists.len = 32
+  method void trace_screen(Fixed pos_x, Fixed pos_y, Fixed camera_dir, Array dists, Array wall_types, Array effect_dists, Array effects) {
+    var Fixed theta;
+    var int screen_x;
+    // copy camera_dir so we don't screw it up
+    // the -32 here assumes a 90 degree FOV
+    let theta = Fixed.new(camera_dir[0] - 32, camera_dir[1]);
+    // using [0] for .hi and [1] for .lo saves us some slow function calls
+    if (theta[0] < 0) {
+      let theta[0] = theta[0] + 256;
+    }
+    let screen_x = 31;
+    while (screen_x > -1) {
+      // Increment the angle
+      do theta.Add(x_angle_lut_hi[screen_x], x_angle_lut_lo[screen_x]);
+      if (theta[0] > 255) {
+        let theta[0] = theta[0] - 256;
+      }
+      do trace(pos_x, pos_y, theta, dists + screen_x, wall_types + screen_x, effect_dists + screen_x, effects + screen_x);
+      let screen_x = screen_x - 1;
+    }
+    do theta.dispose();
+    return;
+  }
+
+  // In order to maintain accuracy even at low values of top, this multiplication method takes low_bit to
+  // indicate where it should start multiplying (the bottom of the 7 bits that are multiplied).
+  // After multiplication, we shift to get rid of the fractional value in the fixed-point output.
+  method int tb_mul(int top, int low_bit, int bot) {
+    var int sum;
+    var int src_mask;
+    var int dst_mask;
+    var int bit;
+    var int shifted;
+
+    let src_mask = bit_lut[low_bit];
+    let bit = 0;
+    
+    while (bit < 7) {
+      if (~((src_mask & top) = 0)) {
+        let sum = sum + bot;
+      }
+      let bot = bot + bot;
+      let src_mask = src_mask + src_mask;
+      let bit = bit + 1;
+    }
+
+    // We have our sum, now we need to shift it down.
+    // The fixed point is at bit 8 - low_bit (i.e. as the low bit gets lower, the fixed point gets higher)
+
+    let src_mask = bit_lut[8 - low_bit];
+    let shifted = 0;
+    let dst_mask = 1;
+
+    while (src_mask > 0) {
+      if (~((src_mask & sum) = 0)) {
+        let shifted = shifted | dst_mask;
+      }
+      let dst_mask = dst_mask + dst_mask;
+      let src_mask = src_mask + src_mask;
+    }
+
+    return shifted;
+  }
+
+  method void trace(Fixed pos_x, Fixed pos_y, Fixed dir,
+                    int dist /* pointer */, int wall_type /* pointer */,
+                    int effect_dist /* pointer */, int effect /* pointer */) {
+    var boolean hit;
+    var boolean side;
+    var Array cur_row;
+    var int tile_val;
+    var int map_x, map_y;
+    var int step_x, step_y;
+    var int dir_x, dir_y;  // dir_y is just dir_x rotated 90 degrees
+    var int dist_shift;
+    var int bitmask, addend;
+
+    // initial effect_dist is negative to indicate it shouldn't be used
+    let effect_dist[0] = -1;
+    let effect[0] = 0;
+    let hit = false;
+
+    let map_x = pos_x[0];
+    let map_y = pos_y[0];
+
+    let dir_x = dir[0];
+    let dir_y = (dir[0] - 64) & 255;
+
+    let delta_dist_x = dd_lut[dir_x];
+    let delta_dist_y = dd_lut[dir_y];
+    
+    if ((dir[0] < 64) | (dir[0] > 192)) {
+      let step_x = 1;
+      // have already traveled a fraction of the way towards the next x
+      let side_dist_x = tb_mul(delta_dist_x, dd_low_bits[dir_x], 255 - pos_x[1]);
+    } else {
+      let step_x = -1;
+      let side_dist_x = tb_mul(delta_dist_x, dd_low_bits[dir_x], pos_x[1]);
+    }
+    if (dir[0] > 128) {
+      let step_y = 1;
+      let side_dist_y = tb_mul(delta_dist_y, dd_low_bits[dir_y], 255 - pos_y[1]);
+    } else {
+      let step_y = -1;
+      let side_dist_y = tb_mul(delta_dist_y, dd_low_bits[dir_y], pos_y[1]);
+    }
+
+    while (~hit) {
+      if (side_dist_x < side_dist_y) {
+        let side_dist_x = side_dist_x + delta_dist_x;
+        let map_x = map_x + step_x;
+        let side = true;
+        if (side_dist_x > 8160) {
+          // 8160 is the max our distance to height converter can handle, so exit
+          let dist[0] = 8160;
+          let wall_type[0] = 0;
+        }
+      } else {
+        let side_dist_y = side_dist_y + delta_dist_y;
+        let map_y = map_y + step_y;
+        let side = false;
+        if (side_dist_y > 8160) {
+          // 8160 is the max our distance to height converter can handle, so exit
+          let dist[0] = 8160;
+          let wall_type[0] = 0;
+        }
+      }
+      let cur_row = map[map_y];
+      let tile_val = cur_row[map_x];
+      if (~(tile_val = 0)) {
+        if (tile_val = 1) {
+          // wall
+          let hit = true;
+          if (side) {
+            let wall_type[0] = 1;
+          } else {
+            let wall_type[0] = 0;
+          }
+        }
+        if (tile_val = 2) {
+          // invertile
+          if (effect[0] = 0) {
+            if (side) {
+              // we overstepped by delta_dist, so need to correct
+              let effect_dist[0] = side_dist_x - delta_dist_x;
+            } else {
+              let effect_dist[0] = side_dist_y - delta_dist_y;
+            }
+            let effect[0] = 2;
+          } else {
+            // should show up as white if any other effect is applied
+            if (~(effect[0] = 2)) {
+              let hit = true;
+              let wall_type[0] = 4;
+            }
+          }
+        }
+        if (tile_val = 3) {
+          // mirror
+          if (effect[0] = 0) {
+            if (side) {
+              // invert x
+              let step_x = -step_x;
+              let map_x = map_x + step_x;
+              // we overstepped by delta_dist, so need to correct
+              let effect_dist[0] = side_dist_x - delta_dist_x;
+            } else {
+              // invert y
+              let step_y = -step_y;
+              let map_y = map_y + step_y;
+              let effect_dist[0] = side_dist_y - delta_dist_y;
+            }
+            let effect[0] = 3;
+          } else {
+            // should show up as white if any other effect is applied
+            if (~(effect[0] = 3)) {
+              // shouldn't be able to see through mirror if a different effect is already applied
+              let hit = true;
+              let wall_type[0] = 4;
+            }
+          }
+        }
+        if (tile_val = 4) {
+          let hit = true;
+          let wall_type[0] = 4;  // white type
+        }
+        if (~((tile_val & ~32767) = 0)) {
+          let hit = true;
+          let wall_type[0] = 5;  // door type
+        }
+      }
+    }
+
+    if (side) {
+      // we overstepped by delta_dist, so need to correct
+      let dist[0] = side_dist_x - delta_dist_x;
+    } else {
+      let dist[0] = side_dist_y - delta_dist_y;
+    }
+
+    return;
+  }
+}
+
+// vim: set cindent:

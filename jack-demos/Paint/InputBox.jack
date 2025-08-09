@@ -1,0 +1,78 @@
+class InputBox {
+    field int i1, i2, j1, j2;
+    constructor InputBox new(int i_1, int j_1, int i_2, int j_2) {
+        let i1 = i_1;
+        let j1 = j_1;
+        let i2 = i_2;
+        let j2 = j_2;
+        return this;
+    }
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+    method String get() {
+        var String input;
+        var int len, curChar, prevChar, curCol, curRow, maxlen;
+        let maxlen = (i2-i1+1) * (j2-j1+1);
+        let input = String.new(maxlen);
+        do Screen.setColor(true);
+        do Screen.drawRectangle(8*j1 - 4, 11*i1 - 6, 8*j2 + 12, 11*i2 + 17);
+        do Screen.setColor(false);
+        do Screen.drawRectangle(8*j1 - 2, 11*i1 - 4, 8*j2 + 10, 11*i2 + 15);
+        let curCol = j1;
+        let curRow = i1;
+        let len = 0;
+        do Output.moveCursor(i1, j1);
+        do Screen.setColor(true);
+        do Screen.drawRectangle(8*j1 + 1, 11*i1, 8*j1 + 6, 11*i1 + 10);
+        let curChar = Keyboard.keyPressed();
+        while (~(curChar = 0)) {
+            let curChar = Keyboard.keyPressed();
+        }
+        while (~(curChar = 128)) {
+            let prevChar = curChar;
+            let curChar = Keyboard.keyPressed();
+            if (~(prevChar = curChar) & (~(prevChar = 0))){
+                if (prevChar = 140) {
+                    do input.dispose();
+                    return "";
+                }
+                if ((prevChar < 128) & (len < maxlen)) {
+                    do input.appendChar(prevChar);
+                    do Screen.setColor(false);
+                    do Screen.drawRectangle(8*curCol + 1, 11*curRow, 8*curCol + 6, 11*curRow + 10);
+                    do Screen.setColor(true);
+                    do Output.printChar(prevChar);
+                    let len = len + 1;
+                    let curCol = curCol + 1;
+                    if (curCol > j2) {
+                        let curRow = curRow + 1;
+                        let curCol = j1;
+                    }
+                    if (len < maxlen) {
+                        do Output.moveCursor(curRow, curCol);
+                        do Screen.drawRectangle(8*curCol + 1, 11*curRow, 8*curCol + 6, 11*curRow + 10);
+                    }
+                }
+                if ((prevChar = 129) & (len > 0)) {
+                    do input.eraseLastChar();
+                    do Screen.setColor(false);
+                    if (len < maxlen) {
+                        do Screen.drawRectangle(8*curCol + 1, 11 * curRow, 8*curCol + 6, 11*curRow+10);
+                    }
+                    let curCol = curCol - 1;
+                    if (curCol < j1) {
+                        let curRow = curRow - 1;
+                        let curCol = j2;
+                    }
+                    do Output.moveCursor(curRow, curCol);
+                    do Screen.setColor(true);
+                    do Screen.drawRectangle(8*curCol + 1, 11*curRow, 8*curCol + 6, 11*curRow + 10);
+                    let len = len - 1;
+                }
+            }
+        }
+        return input;
+    }
+}

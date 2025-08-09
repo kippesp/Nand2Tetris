@@ -1,0 +1,116 @@
+class Cell {
+    field int pattern;
+    field boolean selected;
+    static int SIZE; // size per cell - is 4 by 4
+
+    constructor Cell new() {
+        let pattern = 0;
+        let selected = false;
+        let SIZE = 8;
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Get Array[int], size-4, which number describes pixels colored*/
+    method Array getPixelArray() {
+        var Array pixelArray;
+        var int i;
+
+        let i = 0;
+        let pixelArray = Array.new(SIZE);
+        while (i < SIZE) {
+            let pixelArray[i] = 0;
+            let i = i + 1;
+        }
+        if (pattern = 1) {
+            let i = 0;
+            while (i < SIZE) {
+                let pixelArray[i] = 255;
+                let i = i + 1;
+            }
+            return pixelArray;
+        }
+        if (pattern = 2) {
+            let pixelArray[0] = 85;
+            let pixelArray[2] = 85;
+            let pixelArray[4] = 85;
+            let pixelArray[6] = 85;
+            return pixelArray;
+        }
+        if (pattern = 3) {
+            let pixelArray[0] = 170;
+            let pixelArray[1] = 85;
+            let pixelArray[2] = 170;
+            let pixelArray[3] = 85;
+            let pixelArray[4] = 170;
+            let pixelArray[5] = 85;
+            let pixelArray[6] = 170;
+            let pixelArray[7] = 85;
+            return pixelArray;
+        }
+        if (pattern = 4) {
+            let pixelArray[0] = 255;
+            let pixelArray[1] = 85;
+            let pixelArray[2] = 255;
+            let pixelArray[3] = 85;
+            let pixelArray[4] = 255;
+            let pixelArray[5] = 85;
+            let pixelArray[6] = 255;
+            let pixelArray[7] = 85;
+            return pixelArray;
+        }
+        // Default - this.pattern == 0
+        return pixelArray;
+    }
+    /** Get Array[int], size-4, which number describes pixels colored, and border filled*/
+    method Array getSelectedPixelArray(boolean fliped) {
+        var Array pixelArray;
+        let pixelArray = getPixelArray();
+        if (~selected) {
+            return pixelArray;
+        }
+        if (fliped) {
+            let pixelArray[0] = (~pixelArray[0]&255);
+            let pixelArray[1] = (~pixelArray[1]&255);
+            let pixelArray[2] = (~pixelArray[2]&195) | (pixelArray[2]&60);
+            let pixelArray[3] = (~pixelArray[3]&195) | (pixelArray[3]&60);
+            let pixelArray[4] = (~pixelArray[4]&195) | (pixelArray[4]&60);
+            let pixelArray[5] = (~pixelArray[5]&195) | (pixelArray[5]&60);
+            let pixelArray[6] = (~pixelArray[6]&255);
+            let pixelArray[7] = (~pixelArray[7]&255);
+        }
+        else {
+            let pixelArray[0] = 255;
+            let pixelArray[1] = 255;
+            let pixelArray[2] = pixelArray[2] | 195;
+            let pixelArray[3] = pixelArray[3] | 195;
+            let pixelArray[4] = pixelArray[4] | 195;
+            let pixelArray[5] = pixelArray[5] | 195;
+            let pixelArray[6] = 255;
+            let pixelArray[7] = 255;
+        }
+        return pixelArray;
+    }
+
+    method void setPattern(int newPattern) {
+        let pattern = newPattern;
+        return;
+    }
+
+    method int getPattern() {
+        return pattern;
+    }
+
+    method boolean getSelected() {
+        return selected;
+    }
+    
+    method void setSelected(boolean newSelected) {
+        let selected = newSelected;
+        return;
+    }
+}

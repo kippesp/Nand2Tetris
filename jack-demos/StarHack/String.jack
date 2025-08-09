@@ -1,0 +1,21 @@
+// This file is adapted from www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/String.jack
+
+class String {
+
+    field int length;
+
+    /** Returns the current length of this string. */
+    method int length() {
+        return length;
+    }
+
+    /** Returns the character at the j-th location of this string. */
+    function char charAt(String string, int j) {
+        inc string;
+        return string[j];
+    }
+
+}

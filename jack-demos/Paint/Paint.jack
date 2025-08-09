@@ -1,0 +1,467 @@
+class Paint {
+    field Array cells;
+    field int selectedX, selectedY;
+    field boolean cursorFlipped, cursorToggled;
+    static int SIZE;
+
+    constructor Paint new() {
+        var int i, j;
+        var Array tempArray;
+        var Cell tempCell;
+
+        let i = 0;
+        let j = 0;
+
+        let SIZE = 32;
+        let cells = Array.new(SIZE);
+        while (i < SIZE) {
+            let tempArray = Array.new(SIZE);
+            let j = 0;
+            while (j < SIZE) {
+                let tempArray[j] = Cell.new();
+                let j = j + 1;
+            }
+            let cells[i] = tempArray;
+            let i = i + 1;
+        }
+        let selectedX = 0;
+        let selectedY = 0;
+        let tempArray = cells[0];
+        let tempCell = tempArray[0];
+        let cursorFlipped = true;
+        let cursorToggled = true;
+        do tempCell.setSelected(true);
+        return this;
+    }
+
+    method void dispose() {
+        var int i, j;
+        var Array tempArray;
+        var Cell tempCell;
+
+        let i = 0;
+        while (i < SIZE) {
+            let j = 0;
+            let tempArray = cells[i];
+            while (j < SIZE) {
+                let tempCell = tempArray[j];
+                do tempCell.dispose();
+                let j = j + 1;
+            }
+            do tempArray.dispose();
+            let i = i + 1;
+        }
+        do cells.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+    
+    method void flipCursor() {
+        let cursorFlipped = ~cursorFlipped;
+        do redrawSelected();
+        return;
+    }
+
+    method void toggleCursor() {
+        let cursorToggled = ~cursorToggled;
+        do redrawSelected();
+        return;
+    }
+
+    method boolean getCursorToggled() {
+        return cursorToggled;
+    }
+
+    method void setPattern(int pattern) {
+        var Array tempArray;
+        var Cell tempCell;
+        let tempArray = cells[selectedY];
+        let tempCell = tempArray[selectedX];
+        do tempCell.setPattern(pattern);
+        do redrawSelected();
+        return;
+    }
+    
+    method int getPattern() {
+        var Array tempArray;
+        var Cell tempCell;
+        let tempArray = cells[selectedY];
+        let tempCell = tempArray[selectedX];
+        return tempCell.getPattern();
+    }
+
+    method void setSelected(boolean selected) {
+        var Array tempArray;
+        var Cell tempCell;
+        let tempArray = cells[selectedY];
+        let tempCell = tempArray[selectedX];
+        do tempCell.setSelected(selected);
+        return;
+    }
+    method void moveUp() {
+        do setSelected(false);
+        do redrawSelected();
+        if (selectedY > 0) {
+            let selectedY = selectedY - 1;
+        }
+        do setSelected(true);
+        do redrawSelected();
+        return;
+    }
+
+    method void moveDown() {
+        do setSelected(false);
+        do redrawSelected();
+        if (selectedY < (SIZE - 1)) {
+            let selectedY = selectedY + 1;
+        }
+        do setSelected(true);
+        do redrawSelected();
+        return;
+    }
+
+    method void moveLeft() {
+        do setSelected(false);
+        if (selectedX = (selectedX / 2 * 2)) {
+            do redrawSelected();
+        }
+        if (selectedX > 0) {
+            let selectedX = selectedX - 1;
+        }
+        do setSelected(true);
+        do redrawSelected();
+        return;
+    }
+
+    method void moveRight() {
+        do setSelected(false);
+        if (~(selectedX = (selectedX / 2 * 2))) {
+            do redrawSelected();
+        }
+        if (selectedX < (SIZE - 1)) {
+            let selectedX = selectedX + 1;
+        }
+        do setSelected(true);
+        do redrawSelected();
+        return;
+    }
+
+    method void redrawSelected() {
+        do redrawCell(selectedX, selectedY);
+        return;
+    }
+
+    /** Redraw block(2x1 size) containing (x, y)th cell.*/
+    method void redrawCell(int x, int y) {
+        do redrawBlock(x / 2, y);
+        return;
+    }
+
+    /** Redraw (x, y)th block. */
+    method void redrawBlock(int x, int y) {
+        var int BASEMEM;
+        var int BLOCK_SIZE;
+        var int CELL_SIZE;
+        var int i, j, mulFactor, mulFactorCur, nextLine;
+        var Array nextCell, tempArray, blockArray, nextDisposedArray;
+        var Cell tempCell;
+
+        let BASEMEM = 16384;
+        let CELL_SIZE = 8;
+        let BLOCK_SIZE = 16 / CELL_SIZE;
+        let blockArray = Array.new(BLOCK_SIZE);
+
+        let mulFactor = 1;
+        let mulFactorCur = 1;
+        let nextLine = 0;
+        let i = 0;
+        while (i < CELL_SIZE) {
+            let mulFactor = mulFactor * 2;
+            let i = i + 1;
+        }
+
+        let i = 0;
+        let tempArray = cells[y];
+        while (i < BLOCK_SIZE){
+            let tempCell = tempArray[x*BLOCK_SIZE + i];
+            if (cursorToggled) {
+                let blockArray[i] = tempCell.getSelectedPixelArray(cursorFlipped);
+            }
+            else {
+                let blockArray[i] = tempCell.getPixelArray();
+            }
+            let i = i + 1;
+        }
+        // compose blocks
+        let i = 0;
+        while (i < CELL_SIZE) {
+            let mulFactorCur = 1;
+            let nextLine = 0;
+            let j = 0;
+            while (j < BLOCK_SIZE) {
+                let nextCell = blockArray[j];
+                let nextLine = nextLine + (nextCell[i] * mulFactorCur);
+                let mulFactorCur = mulFactorCur * mulFactor;
+                let j = j + 1;
+            }
+            // draw
+            do Memory.poke(BASEMEM + ((y * CELL_SIZE + i) * 32) + x, nextLine);
+            let i = i + 1;
+        }
+        // dispose pixel Array
+        let i = 0;
+        let j = 0;
+        while (i < BLOCK_SIZE) {
+            let nextDisposedArray = blockArray[i];
+            do nextDisposedArray.dispose();
+            let i = i + 1;
+        }
+        do blockArray.dispose();
+
+        return;
+    }
+
+    method void redrawAll() {
+        var int BLOCK_COUNT;
+        var int BLOCK_SIZE;
+        var int CELL_SIZE;
+        var int i, j;
+        var int nextLine;
+        var Array tempArray;
+
+        let CELL_SIZE = 8;
+        let BLOCK_SIZE = 16 / CELL_SIZE;
+        let BLOCK_COUNT = SIZE / BLOCK_SIZE;
+        let i = 0;
+
+        //fill block in
+        let i = 0;
+        while (i < SIZE) {
+            let j = 0;
+            let tempArray = cells[i];
+            while (j < BLOCK_COUNT) {
+                do redrawBlock(j, i);
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method String getSaveString() {
+        var String outputString, numString;
+        var Array tempArray;
+        var Cell tempCell;
+        var int i, j, info, zeroCount;
+        let outputString = String.new(SIZE * SIZE / 2);
+        let numString = String.new(3);
+        while (i < SIZE) {
+            let tempArray = cells[i];
+            let j = 0;
+            while (j < (SIZE / 2)) {
+                let tempCell = tempArray[j * 2];
+                let info = tempCell.getPattern() * 5;
+                let tempCell = tempArray[j * 2 + 1];
+                let info = info + tempCell.getPattern();
+                if (info = 0) {
+                    let zeroCount = zeroCount + 1;
+                }
+                else {
+                    if (~(zeroCount = 0)){
+                        do numString.setInt(zeroCount);
+                        let zeroCount = 0; // reuse it as counter
+                        while (zeroCount < numString.length()){
+                            do outputString.appendChar(numString.charAt(zeroCount));
+                            let zeroCount = zeroCount + 1;
+                        }
+                        let zeroCount = 0;
+                    }
+                    do outputString.appendChar(64 + info);
+                }
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+        if (outputString.length() = 0) {
+            do outputString.setInt(0);
+        }
+        do numString.dispose();
+        return compress(outputString);
+    }
+
+    method String compress(String original) {
+        var String compressed, numString;
+        var int cur, prev, count, i, j;
+
+        let compressed = String.new(SIZE * SIZE / 2);
+        let numString = String.new(3);
+        while (i < original.length()) {
+            let cur = original.charAt(i);
+            if ((cur > 64) & (cur = prev)) {
+                let count = count + 1;
+            }
+            else {
+                if (count > 4) {
+                    do compressed.appendChar(89); // Y
+                    do numString.setInt(count);
+                    let j = 0;
+                    while (j < numString.length()) {
+                        do compressed.appendChar(numString.charAt(j));
+                        let j = j + 1;
+                    }
+                    if (cur < 64) {
+                        do compressed.appendChar(89);
+                    }
+                }
+                if ((count < 5) & (count > 1)) {
+                    let count = count - 1;
+                    while (count > 0) {
+                        do compressed.appendChar(prev);
+                        let count = count - 1;
+                    }
+                }
+                let count = 1;
+                do compressed.appendChar(cur);
+            }
+            let prev = cur;
+            let i = i + 1;
+        }
+        if (count > 4) {
+            do compressed.appendChar(89); // Y
+            do numString.setInt(count);
+            let j = 0;
+            while (j < numString.length()) {
+                do compressed.appendChar(numString.charAt(j));
+                let j = j + 1;
+            }
+        }
+        if ((count < 5) & (count > 1)) {
+            let count = count - 1;
+            while (count > 0) {
+                do compressed.appendChar(prev);
+                let count = count - 1;
+            }
+        }
+
+        do numString.dispose();
+        do original.dispose();
+        return compressed;
+    }
+
+    method String decompress(String compressed) {
+        var String decompressed;
+        var int i, num, repeatedChar, cur;
+        var boolean decompressing;
+
+        let decompressed = String.new(SIZE * SIZE / 2);
+        let decompressing = false;
+        while (i < compressed.length()) {
+            let cur = compressed.charAt(i);
+            if ((cur > 64) & (cur < 89)) {
+                if (~(num = 0)) {
+                    let num = num - 1;
+                    while (num > 0) {
+                        do decompressed.appendChar(repeatedChar);
+                        let num = num - 1;
+                    }
+                    let decompressing = false;
+                }
+                let repeatedChar = cur;
+                do decompressed.appendChar(cur);
+            }
+            if (cur < 64) {
+                if (decompressing) {
+                    let num = num * 10 + (cur - 48);
+                }
+                else {
+                    do decompressed.appendChar(cur);
+                }
+            }
+            if (cur = 89) { // Y
+                if (decompressing) { // numYnum
+                    let num = num - 1;
+                    while (num > 0) {
+                        do decompressed.appendChar(repeatedChar);
+                        let num = num - 1;
+                    }
+                    let decompressing = false;
+                    let repeatedChar = 0;
+                }
+                else {
+                    let decompressing = true;
+                }
+            }
+            let i = i + 1;
+        }
+        if (num > 0) {
+            let num = num - 1;
+            while (num > 0){
+                do decompressed.appendChar(repeatedChar);
+                let num = num - 1;
+            }
+        }
+
+        do compressed.dispose();
+        return decompressed;
+    }
+
+    method void restoreString(String saveStringCompressed) {
+        var int i, j, col, row, curChar, curNum;
+        var Array tempArray;
+        var String saveString;
+        var Cell tempCell;
+
+        let saveString = decompress(saveStringCompressed);
+        while (i < saveString.length()) {
+            let curChar = saveString.charAt(i);
+            if (curChar < 65) { // If number
+                let curNum = curNum * 10 + (curChar - 48);
+            }
+            else {
+                let j = 0;
+                while (j < curNum) {
+                    let tempArray = cells[row];
+                    let tempCell = tempArray[col * 2];
+                    do tempCell.setPattern(0);
+                    let tempCell = tempArray[col * 2 + 1];
+                    do tempCell.setPattern(0);
+                    let col = col + 1;
+                    if (col = (SIZE / 2)) {
+                        let row = row + 1;
+                        let col = 0;
+                    }
+                    let j = j + 1;
+                }
+                let tempArray = cells[row];
+                let tempCell = tempArray[col * 2];
+                let curNum = curChar - 64;
+                let curChar = curNum / 5; //reuse curChar as current pattern
+                do tempCell.setPattern(curChar);
+                let tempCell = tempArray[col * 2 + 1];
+                let curChar = curNum - (curChar * 5);
+                do tempCell.setPattern(curChar);
+                let curNum = 0;
+                let col = col + 1;
+                if (col = (SIZE / 2)) {
+                    let row = row + 1;
+                    let col = 0;
+                }
+            }
+            let i = i + 1;
+        }
+        while (row < SIZE) {
+            let tempArray = cells[row];
+            while (col < (SIZE / 2)) {
+                let tempCell = tempArray[col * 2];
+                do tempCell.setPattern(0);
+                let tempCell = tempArray[col * 2 + 1];
+                do tempCell.setPattern(0);
+                let col = col + 1;
+            }
+            let col = 0;
+            let row = row + 1;
+        }
+        do saveString.dispose();
+        return;
+    }
+}

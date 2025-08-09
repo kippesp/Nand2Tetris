@@ -1,0 +1,215 @@
+class Main{
+    function void main(){
+        var Paint paint;
+        var Dialogue dialogue;
+        var int cursorTickCount, keyTickCount;
+        var int cursorPattern, newPattern;
+        var boolean keyReadable, paintBlocked, cursorToggled;
+        var String saveString;
+
+        let cursorPattern = 1;
+        let newPattern = 0;
+        let cursorTickCount = 0;
+        let keyTickCount = 0;
+        let paint = Paint.new();
+        let keyReadable = true;
+        let paintBlocked = false;
+        let dialogue = Dialogue.new("Test Dialogue", "");
+
+        do paint.redrawAll();
+        // TODO add UI here
+        do Screen.setColor(true);
+        do Screen.drawRectangle(256, 0, 258, 255);
+        do Output.moveCursor(1, 41);
+        do Output.printString("* P A I N T *");
+        do Output.moveCursor(3, 33);
+        do Output.printString("Move cursor with arrow,");
+        do Output.moveCursor(4, 33);
+        do Output.printString("press Enter to draw pixel.");
+        do Output.moveCursor(5, 33);
+        do Output.printString("Press 1 ~ 5 to change color.");
+        do Output.moveCursor(6, 35);
+        do Output.printString("1. White");
+        do Output.moveCursor(7, 35);
+        do Output.printString("2. Black");
+        do Output.moveCursor(8, 35);
+        do Output.printString("3. Light Shade");
+        do Output.moveCursor(9, 35);
+        do Output.printString("4. Normal Shade");
+        do Output.moveCursor(10, 35);
+        do Output.printString("5. Heavy Shade");
+        do Output.moveCursor(11, 33);
+        do Output.printString("Press S to save.");
+        do Output.moveCursor(12, 33);
+        do Output.printString("Press L to load.");
+        do Output.moveCursor(13, 33);
+        do Output.printString("Press ESC to remove dialogue.");
+        do Output.moveCursor(14, 33);
+        do Output.printString("Press T to toggle cursor.");
+        do Output.moveCursor(15, 33);
+        do Output.printString("Press Q to quit.");
+
+        do paint.setPattern(cursorPattern);
+        while (~(Keyboard.keyPressed() = 81)) {
+            let cursorToggled = paint.getCursorToggled();
+            // Resume paint
+            if (paintBlocked) {
+                if (Keyboard.keyPressed() = 140) {
+                    do dialogue.clear();
+                    if (cursorToggled) {
+                        do paint.setPattern(cursorPattern);
+                    }
+                    do paint.redrawAll();
+                    let paintBlocked = false;
+                    let keyReadable = true;
+                }
+            }
+            if (keyReadable & (~paintBlocked)) {
+                // Move key
+                if (Keyboard.keyPressed() = 130) {
+                    do paint.setPattern(newPattern);
+                    do paint.moveLeft();
+                    let newPattern = paint.getPattern();
+                    if (cursorToggled) {
+                        do paint.setPattern(cursorPattern);
+                    }
+                    let keyReadable = false;
+                }
+                if (Keyboard.keyPressed() = 131) {
+                    do paint.setPattern(newPattern);
+                    do paint.moveUp();
+                    let newPattern = paint.getPattern();
+                    if (cursorToggled) {
+                        do paint.setPattern(cursorPattern);
+                    }
+                    let keyReadable = false;
+                }
+                if (Keyboard.keyPressed() = 132) {
+                    do paint.setPattern(newPattern);
+                    do paint.moveRight();
+                    let newPattern = paint.getPattern();
+                    if (cursorToggled) {
+                        do paint.setPattern(cursorPattern);
+                    }
+                    let keyReadable = false;
+                }
+                if (Keyboard.keyPressed() = 133) {
+                    do paint.setPattern(newPattern);
+                    do paint.moveDown();
+                    let newPattern = paint.getPattern();
+                    if (cursorToggled) {
+                        do paint.setPattern(cursorPattern);
+                    }
+                    let keyReadable = false;
+                }
+                // Enter key pressing
+                if (Keyboard.keyPressed() = 128 & cursorToggled) {
+                    let newPattern = cursorPattern;
+                    let keyReadable = false;
+                }
+                // Change color keys (1~5) pressing
+                if (Keyboard.keyPressed() = 49) {
+                    let cursorPattern = 0;
+                    if (cursorToggled) {
+                        do paint.setPattern(cursorPattern);
+                    }
+                    let keyReadable = false;
+                }
+                if (Keyboard.keyPressed() = 50) {
+                    let cursorPattern = 1;
+                    if (cursorToggled) {
+                        do paint.setPattern(cursorPattern);
+                    }
+                    let keyReadable = false;
+                }
+                if (Keyboard.keyPressed() = 51) {
+                    let cursorPattern = 2;
+                    if (cursorToggled) {
+                        do paint.setPattern(cursorPattern);
+                    }
+                    let keyReadable = false;
+                }
+                if (Keyboard.keyPressed() = 52) {
+                    let cursorPattern = 3;
+                    if (cursorToggled) {
+                        do paint.setPattern(cursorPattern);
+                    }
+                    let keyReadable = false;
+                }
+                if (Keyboard.keyPressed() = 53) {
+                    let cursorPattern = 4;
+                    if (cursorToggled) {
+                        do paint.setPattern(cursorPattern);
+                    }
+                    let keyReadable = false;
+                }
+                // Save (s)
+                if (Keyboard.keyPressed() = 83) {
+                    do paint.setPattern(newPattern);
+                    let paintBlocked = true;
+                    do dialogue.setTitle("Write down following string");
+                    do dialogue.setMessage(paint.getSaveString()); // Disposed in dialogue
+                    do dialogue.clear();
+                    do dialogue.draw();
+                }
+                // Load (L)
+                if (Keyboard.keyPressed() = 76) {
+                    let paintBlocked = true;
+                    do dialogue.setTitle("Input save string");
+                    do dialogue.setMessage("");
+                    do dialogue.clear();
+                    let saveString = dialogue.drawInput();
+                    if (~(saveString.length() = 0)) {
+                        do paint.restoreString(saveString);
+                        do dialogue.setTitle("Loaded!");
+                        do dialogue.setMessage("Your save is loaded.");
+                        do dialogue.clear();
+                        do dialogue.draw();
+                    }
+                    else {
+                        do dialogue.clear();
+                        if (cursorToggled) {
+                            do paint.setPattern(cursorPattern);
+                        }
+                        do paint.redrawAll();
+                        let paintBlocked = false;
+                    }
+                }
+                // Toggle (T)
+                if (Keyboard.keyPressed() = 84) {
+                    do paint.toggleCursor();
+                    if (cursorToggled) {
+                        do paint.setPattern(newPattern);
+                    }
+                    else {
+                        do paint.setPattern(cursorPattern);
+                    }
+                    let keyReadable = false;
+                }
+            }
+            if (cursorTickCount > 30 & (~paintBlocked)) {
+                let cursorTickCount = 0;
+                do paint.flipCursor();
+            }
+            if (Keyboard.keyPressed() = 0) {
+                let keyReadable = true;
+                let keyTickCount = 0;
+            }
+            let cursorTickCount = cursorTickCount + 1;
+            if (~keyReadable) {
+                let keyTickCount = keyTickCount + 1;
+            }
+            if (keyTickCount > 10) {
+                let keyTickCount = 0;
+                let keyReadable = true;
+            }
+            do Sys.wait(1000 / 60);
+
+        }
+
+        do paint.dispose();
+        do dialogue.dispose();
+        return;
+    }
+    
+}
