@@ -83,6 +83,8 @@ private:
   SymbolTable::VariableType_t get_expression_type(
       SubroutineDescr& subroutine_descr, const AstNode& expression_node);
 
+  bool contains_function_call(const AstNode& node);
+
   bool are_types_compatible(const SymbolTable::VariableType_t& type1,
                             const SymbolTable::VariableType_t& type2,
                             AstNodeType_t operator_type);

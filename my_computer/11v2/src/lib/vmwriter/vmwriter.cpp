@@ -1099,6 +1099,24 @@ void VmWriter::check_assignment_type_conversion(
   }
 }
 
+bool VmWriter::contains_function_call(const AstNode& node)
+{
+  if (node.type == AstNodeType_t::N_SUBROUTINE_CALL)
+  {
+    return true;
+  }
+
+  for (int i = 0; i < node.num_child_nodes(); ++i)
+  {
+    if (contains_function_call(node.get_child_nodes()[i].get()))
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void VmWriter::validate_boolean_context(SubroutineDescr& subroutine_descr,
                                         const AstNode& expression_node,
                                         const std::string& context_name)
@@ -1108,8 +1126,19 @@ void VmWriter::validate_boolean_context(SubroutineDescr& subroutine_descr,
 
   if (!basic_type || *basic_type != SymbolTable::BasicType_t::T_BOOLEAN)
   {
-    std::string message =
-        "Non-boolean expression used in " + context_name + " condition";
+    // Check if this expression contains a function call (likely return value)
+    bool has_function_call = contains_function_call(expression_node);
+
+    std::string message;
+    if (has_function_call)
+    {
+      message = "(Notice) Possible non-binary expression used in " +
+                context_name + " condition";
+    }
+    else
+    {
+      message = "Non-boolean expression used in " + context_name + " condition";
+    }
     emit_warning(expression_node, message);
   }
 }
