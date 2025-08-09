@@ -59,6 +59,8 @@ class Main {
 	// MAIN LOOP
 	while (~exit) {
 
+            do Sys.wait(10);
+
 	    // User Input
 	    // Shoot (space-bar) (can't shoot if bullet still in the air)
 	    if ((key = 32) & (bullet = 0))  {

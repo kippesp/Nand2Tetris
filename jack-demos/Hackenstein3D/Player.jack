@@ -146,19 +146,19 @@ class Player {
 	// Check movement between rooms allowed in the maze configuration
 	let roomLookup = (xRoom + yRoom8)*4; let moved = true;
 	while (nxPos > 63) {
-	    if (~(roomPaths[roomLookup + 3])) { let moved = false; }
+	    if (roomPaths[roomLookup + 3] = 0) { let moved = false; }
 	    let nxRoom = nxRoom + 1; let nxPos = nxPos - 64;
 	}
 	while (nxPos < 0) {
-	    if (~(roomPaths[roomLookup + 2])) { let moved = false; }
+	    if (roomPaths[roomLookup + 2] = 0) { let moved = false; }
 	    let nxRoom = nxRoom - 1; let nxPos = nxPos + 64;
 	}
 	while (nyPos > 63) {
-	    if (~(roomPaths[roomLookup + 0])) { let moved = false; }
+	    if (roomPaths[roomLookup + 0] = 0) { let moved = false; }
 	    let nyRoom8 = nyRoom8 + 8; let nyRoom = nyRoom + 1; let nyPos = nyPos - 64;
 	}
 	while (nyPos < 0) {
-	    if (~(roomPaths[roomLookup + 1])) { let moved = false; }
+	    if (roomPaths[roomLookup + 1] = 0) { let moved = false; }
 	    let nyRoom8 = nyRoom8 - 8; let nyRoom = nyRoom - 1; let nyPos = nyPos + 64;
 	}
 
