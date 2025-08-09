@@ -54,6 +54,7 @@ class Main {
         let running = false;
       }
       let frame = frame + 1;
+      do Sys.wait(10);
     }
     // dispose()s would go here, but eh
     do Output.moveCursor(10, 19);
