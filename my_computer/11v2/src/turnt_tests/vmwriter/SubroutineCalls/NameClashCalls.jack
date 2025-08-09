@@ -1,0 +1,39 @@
+// ARGS: --jit --remove-unused-fns --jack-os ../nongui_consoleos
+class Main {
+    field int f;
+    static int s;
+
+    constructor Main new(int value) {
+        let f = value;
+        return this;
+    }
+
+    method int f() {
+        return f;
+    }
+
+    function int s() {
+        return s;
+    }
+
+    method int test(Main f1) {
+        var int x;
+        let x = f;
+        let x = x + f1.f();
+        let x = x + Main.s();
+        return x;
+    }
+
+    function void main() {
+        var Main instance, param;
+        var int result;
+
+        let s = 10;
+        let instance = Main.new(30);
+        let param = Main.new(2);
+        let result = instance.test(param);
+        do Output.printInt(result);
+        do Output.println();
+        return;
+    }
+}

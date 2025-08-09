@@ -1,0 +1,52 @@
+function Main.new 0
+    push constant 1
+    call Memory.alloc 1
+    pop pointer 0
+    push argument 0
+    pop this 0
+    push pointer 0
+    return
+function Main.f 0
+    push argument 0
+    pop pointer 0
+    push this 0
+    return
+function Main.s 0
+    push static 0
+    return
+function Main.test 1
+    push argument 0
+    pop pointer 0
+    push this 0
+    pop local 0
+    push local 0
+    push argument 1
+    call Main.f 1
+    add
+    pop local 0
+    push local 0
+    call Main.s 0
+    add
+    pop local 0
+    push local 0
+    return
+function Main.main 3
+    push constant 10
+    pop static 0
+    push constant 30
+    call Main.new 1
+    pop local 0
+    push constant 2
+    call Main.new 1
+    pop local 1
+    push local 0
+    push local 1
+    call Main.test 2
+    pop local 2
+    push local 2
+    call Output.printInt 1
+    pop temp 0
+    call Output.println 0
+    pop temp 0
+    push constant 0
+    return

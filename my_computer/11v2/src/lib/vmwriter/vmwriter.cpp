@@ -780,49 +780,36 @@ void VmWriter::lower_subroutine_call(SubroutineDescr& subroutine_descr,
     // GLOBAL METHOD CALL
     else if (call_site.type == AstNodeType_t::N_GLOBAL_CALL_SITE)
     {
+      // Handle call: ClassName.subroutine()
+      const auto& global_bind_name = get_ast_node_value<string>(
+          call_site, AstNodeType_t::N_GLOBAL_BIND_NAME);
+
       // Handle call: local_var.subroutine()
-      if (auto symbol_alloc = get_symbol_alloc_info(
-              subroutine_descr,
-              module_ast
-                  .find_child_node(call_site, AstNodeType_t::N_SUBROUTINE_NAME)
-                  .get());
-          symbol_alloc.has_value())
+      if (auto symbol_alloc_ =
+              get_symbol_alloc_info(subroutine_descr, global_bind_name);
+          symbol_alloc_.has_value())
       {
-        assert(0 && "Global Call Site/Method/Var Binding");
-      }
-      else
-      {
-        // Handle call: ClassName.subroutine()
-        const auto& global_bind_name = get_ast_node_value<string>(
-            call_site, AstNodeType_t::N_GLOBAL_BIND_NAME);
+        auto& sym = symbol_alloc_.value();
 
-        // Handle call: local_var.subroutine()
-        if (auto symbol_alloc_ =
-                get_symbol_alloc_info(subroutine_descr, global_bind_name);
-            symbol_alloc_.has_value())
+        call_site_args++;
+        stringstream push_sym;
+        push_sym << "push " << sym.stack_name << " " << sym.symbol_index;
+        emit_vm_instruction(push_sym.str());
+
+        if (auto* class_type_ptr =
+                get_if<SymbolTable::ClassType_t>(&sym.variable_type);
+            class_type_ptr)
         {
-          auto& sym = symbol_alloc_.value();
-
-          call_site_args++;
-          stringstream push_sym;
-          push_sym << "push " << sym.stack_name << " " << sym.symbol_index;
-          emit_vm_instruction(push_sym.str());
-
-          if (auto* class_type_ptr =
-                  get_if<SymbolTable::ClassType_t>(&sym.variable_type);
-              class_type_ptr)
-          {
-            call_site_bind_name << *class_type_ptr << ".";
-          }
-          else
-          {
-            assert(0 && "Expected ClassType_t");
-          }
+          call_site_bind_name << *class_type_ptr << ".";
         }
         else
         {
-          call_site_bind_name << global_bind_name << ".";
+          assert(0 && "Expected ClassType_t");
         }
+      }
+      else
+      {
+        call_site_bind_name << global_bind_name << ".";
       }
     }
     else
