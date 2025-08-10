@@ -213,7 +213,7 @@ class Shots {
                 while (j < numAsteroids) {
                     let a = asteroids[j];
                     let a = a.collision(x[i], y[i], r);
-                    if (a) {
+                    if (~(a = 0)) {
                         // Shot/Asteroid collision.
                         do Score.changeScore(10);
                         do a.destroyed();
