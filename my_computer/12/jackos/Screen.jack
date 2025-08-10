@@ -285,7 +285,7 @@ class Screen {
       do Sys.error(9);
     }
 
-    while (y2 > y1) {
+    while (~(y1 > y2)) {
       do Screen.drawLine(x1, y1, x2, y1);
       let y1 = y1 + 1;
     }
