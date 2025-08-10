@@ -98,7 +98,7 @@ class Ship {
     }
 
     method void fireShot() {
-        if (tickGrace) {    // Prevents respawning too fast, and accidentally
+        if (tickGrace > 0) {    // Prevents respawning too fast, and accidentally
             return;         // firing on respawn.
         }
         if (healthy) {
@@ -227,7 +227,7 @@ class Ship {
         }
 
         // Decrement any grace periods.
-        if (tickGrace) {
+        if (tickGrace > 0) {
             let tickGrace = tickGrace - 1;
         }
 
@@ -260,7 +260,7 @@ class Ship {
         let i = 0;
         while (i < numAsteroids) {
             let a = asteroids[i];
-            if (a.collision(x, y, r)) {
+            if (~(a.collision(x, y, r) = 0)) {
                 // Ship/Asteroid collision.
                 do Score.changeLife(-1);
                 let healthy = false;
