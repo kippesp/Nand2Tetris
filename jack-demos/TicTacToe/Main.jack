@@ -85,6 +85,7 @@ class Main
 		}
 		do arr.dispose();
 		do board.dispose();
+                do Keyboard.readLine("");
 		return;
 	}
 	// This function checks if there is a winner or not . 
