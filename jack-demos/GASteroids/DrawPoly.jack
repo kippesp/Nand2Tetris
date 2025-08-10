@@ -272,7 +272,7 @@
      *          3 - Consider poly to be a set of independent, unjoined points.
      *
      */
-    method void draw(Array vX, Array vY, int vNum, bool closed) {
+    method void draw(Array vX, Array vY, int vNum, boolean closed) {
         var int i;
         var int j;
 
@@ -282,7 +282,7 @@
             do Screen.drawLine(vX[i], vY[i], vX[j], vY[j]);
             let i = j;
         }
-        if (closed = true) {
+        if (closed) {
             do Screen.drawLine(vX[i], vY[i], vX[0], vY[0]);
         }
 

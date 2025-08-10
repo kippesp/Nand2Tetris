@@ -85,7 +85,7 @@ class StarBurst {
     method void redraw() {
         var int prevR;
 
-        if (r1) {
+        if (r1 > 0) {
             // Erase diagonal particles.
             let prevR = r1 - sizeStep;
             do Screen.setColor(true);
@@ -104,7 +104,7 @@ class StarBurst {
             }
         }
 
-        if (r2) {
+        if (r2 > 0) {
             // Erase vertical/horizontal particles.
             let prevR = r2 - sizeStep;
             do Screen.setColor(true);
@@ -138,14 +138,14 @@ class StarBurst {
             }
         }
 
-        if (r1) {
+        if (r1 > 0) {
             let r1 = r1 + sizeStep;
             if ( (r1 - r) > sizeStep ) {
                 let r1 = 0;                 // Allows r1 > r once for erase.
             }
         }
 
-        if (r2) {
+        if (r2 > 0) {
             let r2 = r2 + sizeStep;
             if ( (r2 - r) > sizeStep ) {
                 let r2 = 0;                 // Allows r2 > r once for erase.
