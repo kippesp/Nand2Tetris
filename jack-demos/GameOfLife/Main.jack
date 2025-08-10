@@ -1,0 +1,30 @@
+class Main {
+    
+    function void main() {
+
+        var Universe uni;
+        var CharPainter painter;
+        var char key;
+        let painter = CharPainter.new();
+        let uni = Universe.new(painter.getWidth(), painter.getHeight());
+
+        do painter.paint(uni.getGrid());
+
+        while (true) {
+            do Sys.wait(100);
+            do uni.next();
+            do painter.paint(uni.getGrid());
+            let key = Keyboard.keyPressed();
+
+            // q
+            if (key = 81) {
+                do uni.dispose();
+                do painter.dispose();
+                do Sys.halt();
+            }
+
+        }
+
+        return;
+    }
+}

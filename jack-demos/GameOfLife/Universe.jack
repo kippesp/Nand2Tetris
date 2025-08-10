@@ -1,0 +1,101 @@
+class Universe {
+
+    field Array gridA;
+    field Array gridB;
+    field Array currentGrid;
+    field Cell currentCell;
+    field Array neighbors;
+    field int width, height;
+    field int size, neighborSize;
+    field int DEAD, ALIVE;
+
+    constructor Universe new(int w, int h) {    
+
+        do Utils.assertInt(w, 64);
+        do Utils.assertInt(h, 23);
+
+        let DEAD = 0;
+        let ALIVE = 1;
+        let width = w;
+        let height = h;
+        let size = width * height;
+        let currentCell = Cell.new();
+        let gridA = Generator.seededGridTwo(w, h);
+        let gridB = Generator.emptyGrid(w, h);
+        let currentGrid = gridA;
+        return this;
+    }
+
+    method void next() {
+        var Array grid, nextGrid;
+        var int i;
+        let i = 0;
+
+        if (currentGrid = gridA) {
+            let grid = gridA;
+            let nextGrid = gridB;
+        } else {
+            let grid = gridB;
+            let nextGrid = gridA;
+        }
+
+        while (i < size) {
+            do updateWorld(i, grid, nextGrid);
+            let i = i + 1;
+        }
+
+        // Switch grids
+        if (currentGrid = gridA) {
+            let currentGrid = gridB;
+        } else {
+            let currentGrid = gridA;
+        }
+
+        return;
+    }
+
+    method void updateWorld(int i, Array grid, Array nextGrid) {
+
+        var int tl, t, tr, l, r, bl, b, br;
+        var int aliveNeighborCount;
+    
+        let t = bounds(i - width);
+        let tl = bounds(t - 1);
+        let tr = bounds(t + 1);
+        let l = bounds(i - 1);
+        let r = bounds(i + 1);
+        let b = bounds(i + width);
+        let bl = bounds(b - 1);
+        let br = bounds(b + 1);
+
+        do currentCell.update(grid[i]);
+
+        let aliveNeighborCount = grid[tl] + grid[t] + grid[tr] + grid[l] + grid[r] + grid[bl] + grid[b] + grid[br];
+
+        let nextGrid[i] = currentCell.next(aliveNeighborCount);
+
+        return;
+    }
+
+    method int bounds(int i) {
+        if (i < 0)          { return size - i; }
+        if (i > (size - 1)) { return i - size; }
+        return i;
+    }
+
+    method int getSize() {
+        return size;
+    }
+
+    method Array getGrid() {
+        return currentGrid;        
+    }
+
+    method void dispose() {
+        do currentCell.dispose();
+        do gridA.dispose();
+        do gridB.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+}

@@ -1,0 +1,51 @@
+class CharPainter {
+
+    field char DEAD, ALIVE;
+    field int width, height, size;
+
+
+    constructor CharPainter new() {
+
+        let DEAD = 32;
+        let ALIVE = 120;
+        let width = 64;
+        let height = 23;
+        let size = width * height;
+
+        return this;
+    }
+
+    method void paint(Array grid) {
+        var char currentChar;
+        var int i;
+        let i = 0;
+
+        do Output.moveCursor(0, 0);
+
+        while (i < size) {
+            if (grid[i] = 0) {
+                let currentChar = DEAD;
+            } else {
+               let currentChar = ALIVE;
+            }
+            do Output.printChar(currentChar);
+
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    method int getWidth() {
+        return width;
+    }
+
+    method int getHeight() {
+        return height;
+    }
+// @TODO clean up stirn grefs
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+ }

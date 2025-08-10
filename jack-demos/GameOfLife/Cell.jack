@@ -1,0 +1,50 @@
+class Cell {
+
+    field int state;
+    field int DEAD, ALIVE;
+
+    constructor Cell new() {
+        let DEAD = 0;
+        let ALIVE = 1;
+        return this;
+    }
+
+    method void update(int newState) {
+        let state = newState;
+        return;
+    }
+
+    method int next(int aliveNeighborsCount) {
+        if (state = ALIVE) {
+            return nextWhenAlive(aliveNeighborsCount);
+        }
+        return nextWhenDead(aliveNeighborsCount);
+    }
+
+    method int nextWhenAlive(int aliveNeighborsCount) {
+        if (aliveNeighborsCount < 2) {
+            return DEAD;
+        }
+        if (aliveNeighborsCount > 3) {
+            return DEAD;
+        }
+        return ALIVE;
+    }
+
+    method int nextWhenDead(int aliveNeighborsCount) {
+        if (aliveNeighborsCount = 3) {
+            return ALIVE;
+        }
+
+        return DEAD;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+
+
+
+}

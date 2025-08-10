@@ -1,0 +1,24 @@
+class Utils {
+
+    function int modulo(int numerator, int denominator)  {
+        var int remainder, divided, multiplied;
+
+        let divided = Math.divide(numerator, denominator);
+        let multiplied = Math.multiply(divided, denominator);
+        let remainder = numerator - multiplied;
+
+        return remainder;
+    }
+
+    function void assertInt(int value, int expected) {
+        if (~(value = expected)) {
+            do Output.moveCursor(0, 0);
+            do Output.printString("Error asserting int. Expected ");
+            do Output.printInt(expected);
+            do Output.printString(" but got ");
+            do Output.printInt(value);
+            do Sys.error(2);
+        }
+        return;
+    }
+}

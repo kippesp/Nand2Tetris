@@ -1,0 +1,20 @@
+class Debug {
+
+    function void printLiveCount(Universe uni) {
+        var Array grid;
+        var int i, count, size;
+        let i = 0;
+        let count = 0;
+        let size = uni.getSize();
+        
+        let grid = uni.getGrid();
+
+        while (i < size) {
+            let count = count + grid[i];
+            let i = i + 1;
+        }
+
+        do Output.printInt(count);
+        return;
+    }
+}

@@ -1,0 +1,84 @@
+class Generator {
+    
+    function Array emptyGrid(int w, int h) {
+
+        var Array grid;
+        var int i, size, DEAD;
+
+        let DEAD = 0;
+        let size = w * h;
+        let i = 0;
+        
+        do Utils.assertInt(size, 1472);
+
+        let grid = Array.new(size);
+
+        while (i < size) {
+            let grid[i] = DEAD;
+            let i = i + 1;
+        }
+        return grid;
+    }
+
+
+    function Array seededGridOne(int w, int h) {
+
+        var Array grid;
+        var int ALIVE;
+        let ALIVE = 1;
+
+        let grid = Generator.emptyGrid(w, h);
+
+        // @TODO bounds checks
+        let grid[4*w+30] = ALIVE;
+        let grid[4*w+31] = ALIVE;
+        let grid[4*w+32] = ALIVE;
+        let grid[5*w+29] = ALIVE;
+        let grid[5*w+31] = ALIVE;
+        let grid[5*w+33] = ALIVE;
+
+        let grid[6*w+31] = ALIVE;
+        let grid[7*w+31] = ALIVE;
+        let grid[8*w+31] = ALIVE;
+        let grid[9*w+31] = ALIVE;
+        let grid[10*w+31] = ALIVE;
+
+        let grid[11*w+30] = ALIVE;
+        let grid[11*w+31] = ALIVE;
+        let grid[11*w+32] = ALIVE;
+        let grid[12*w+30] = ALIVE;
+        let grid[12*w+31] = ALIVE;
+        let grid[12*w+32] = ALIVE;
+        let grid[13*w+30] = ALIVE;
+        let grid[13*w+31] = ALIVE;
+        let grid[13*w+32] = ALIVE;
+
+        let grid[0] = ALIVE;
+        return grid;
+    }
+
+    function Array seededGridTwo(int w, int h) {
+
+        var Array grid;
+        var int ALIVE, size, i, m, n;
+        let ALIVE = 1;
+        let size = w * h;
+        let i = 0;
+
+        let grid = Generator.emptyGrid(w, h);
+        let grid[0] = ALIVE;
+        let i = 0;
+
+        while (i < size) {
+            let m = Utils.modulo(i, 3);
+            let n = Utils.modulo(i, 7);
+            if (m = 0 | n = 0) { let grid[i] = ALIVE; }
+            let i = i + 1;
+        }
+
+        return grid;
+    }
+
+
+
+}
