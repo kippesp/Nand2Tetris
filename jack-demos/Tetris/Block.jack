@@ -294,6 +294,7 @@ class Block {
         return false;
       }
     }
+    return false;
   }
 
   /** register the block into the map as static obstacles, destroy the instance */
@@ -608,6 +609,7 @@ class Block {
       do setZ();
       return;
     }
+    return;
   }
 
   method void setI() {
