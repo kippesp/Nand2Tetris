@@ -5,6 +5,7 @@ class Main {
 	var GraphNode nodeA, nodeB, nodeC, nodeD, nodeE, nodeF, nodeG;
 	var Graph graph;
 	var Dijkstra dijkstra;
+	var String prompt;
 
 	// create nodes for the graph
 	let nodeA = GraphNode.new("A");
@@ -55,6 +56,12 @@ class Main {
 	// dispose everything
 	do graph.dispose();	// also disposes all the GraphNodes
 	do dijkstra.dispose();
+
+	let prompt = "Please return key to quit"; 
+        do Output.println();
+        do Output.println();
+        do Keyboard.readLine(prompt);
+	do prompt.dispose();
 
 	return;
     }
