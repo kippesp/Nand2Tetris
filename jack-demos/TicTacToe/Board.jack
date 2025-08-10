@@ -1,0 +1,58 @@
+/** A board class which the game take place on */
+class Board {
+	field int xcordinate, ycordinate ; // screen location of the board's top-left corner
+	
+	// A default constructor which receives the coordinators 
+	constructor Board new(int x,int y)
+	{
+		let xcordinate=x;
+		let ycordinate=y;
+		do build();
+		do fill_numbers();
+		return this;
+	}
+	// This function draws the board .
+	method void build()
+	{
+		do Screen.drawLine(xcordinate,ycordinate,xcordinate+288,ycordinate);
+		do Screen.drawLine(xcordinate,ycordinate,xcordinate,ycordinate+120);
+		do Screen.drawLine(xcordinate+288,ycordinate,xcordinate+288,ycordinate+120);
+		do Screen.drawLine(xcordinate,ycordinate+120,xcordinate+288,ycordinate+120);
+		do Screen.drawLine(xcordinate+96,ycordinate,xcordinate+96,ycordinate+120);
+		do Screen.drawLine(xcordinate+192,ycordinate,xcordinate+192,ycordinate+120);
+		do Screen.drawLine(xcordinate,ycordinate+40,xcordinate+288,ycordinate+40);
+		do Screen.drawLine(xcordinate,ycordinate+80,xcordinate+288,ycordinate+80);
+		return;
+	}
+	// This function writes the numbers into the board .
+	method void fill_numbers()
+	{
+		do Output.moveCursor(13,22);
+		do Output.printInt(1);
+		do Output.moveCursor(13,34);
+		do Output.printInt(2);
+		do Output.moveCursor(13,45);
+		do Output.printInt(3);
+		
+		do Output.moveCursor(17,22);
+		do Output.printInt(4);
+		do Output.moveCursor(17,34);
+		do Output.printInt(5);
+		do Output.moveCursor(17,45);
+		do Output.printInt(6);
+		
+		do Output.moveCursor(20,22);
+		do Output.printInt(7);
+		do Output.moveCursor(20,34);
+		do Output.printInt(8);
+		do Output.moveCursor(20,45);
+		do Output.printInt(9);
+		return;
+	}
+	// A dispose function 
+	method void dispose()
+	{
+		do Memory.deAlloc(this);
+		return ;
+	}
+}	

@@ -1,0 +1,73 @@
+/** An O class */
+class O 
+{
+	// This function draws the O at the given place from the user . 
+	function void draw(int n)
+	{
+		if (n = 1)
+		{
+			do Screen.drawCircle(176,148,18);
+			do Screen.setColor(false);
+			do Screen.drawCircle(176,148,15);
+			do Screen.setColor(true);
+		}
+		if (n = 2)
+		{
+			do Screen.drawCircle(272,148,18);
+			do Screen.setColor(false);
+			do Screen.drawCircle(272,148,15);
+			do Screen.setColor(true);
+		}
+		if (n = 3)
+		{
+			do Screen.drawCircle(368,148,18);
+			do Screen.setColor(false);
+			do Screen.drawCircle(368,148,15);
+			do Screen.setColor(true);
+		}
+		if (n = 4)
+		{
+			do Screen.drawCircle(176,188,18);
+			do Screen.setColor(false);
+			do Screen.drawCircle(176,188,15);
+			do Screen.setColor(true);
+		}
+		if (n = 5)
+		{
+			do Screen.drawCircle(272,188,18);
+			do Screen.setColor(false);
+			do Screen.drawCircle(272,188,15);
+			do Screen.setColor(true);
+		}
+		if (n = 6)
+		{
+			do Screen.drawCircle(368,188,18);
+			do Screen.setColor(false);
+			do Screen.drawCircle(368,188,15);
+			do Screen.setColor(true);
+		}
+		if (n = 7)
+		{
+			do Screen.drawCircle(176,228,18);
+			do Screen.setColor(false);
+			do Screen.drawCircle(176,228,15);
+			do Screen.setColor(true);
+		}
+		if (n = 8)
+		{
+			do Screen.drawCircle(272,228,18);
+			do Screen.setColor(false);
+			do Screen.drawCircle(272,228,15);
+			do Screen.setColor(true);
+		}
+		if (n = 9)
+		{
+			do Screen.drawCircle(368,228,18);
+			do Screen.setColor(false);
+			do Screen.drawCircle(368,228,15);
+			do Screen.setColor(true);
+		}
+		return;
+	}
+		
+}
