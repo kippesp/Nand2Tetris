@@ -18,8 +18,8 @@ O(bitwidth), which is O(1)--assisted with the precomputed power-of-two table.
 
 ## Output.jack
 
-The bitmap font is based on the Apple II font and is less thick than the
-reference font.
+The bitmap font is based on the Apple II font (but is not identical since the
+sizes are different) and is less thick than the reference font.
 
 ## Screen.jack
 
@@ -35,4 +35,13 @@ the reference JackOS is using this as well.
 The drawRectangle() was also optimized since my MerlinJack game suffered
 a noticable slowness with the repeated drawLine() version.
 
+UPDATE: The drawRectangle() was needlessly complicated.
+
+UPDATE: The drawCircle() was improved with special, small-case implementations.
+
 ## Memory.jack
+
+A pretty good implementation but not as good as the reference implementation.
+The Sieve-of-Eratosthenes can find primes up to 12,000.  The reference
+implementation with a better heap algorithm can find primes a little beyond
+14,000.
